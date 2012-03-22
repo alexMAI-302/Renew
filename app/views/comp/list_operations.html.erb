@@ -1,0 +1,56 @@
+<% content_for :title do %>
+Операции над комплектующим
+<% end %>
+
+<% content_for :content do %>
+	<h3>
+		<%= @component.good.short_name + " №" + @component.serial %>
+	</h3>
+	
+	<% form_for :comp_operation, :url => { :action => "save_operation", :id => params[:id]} do |f| %>
+		<%= f.error_messages %>
+		<p>
+		<label for="ddate">Дата:</label>
+		<%= f.text_field :ddate, :size => 16, :value => "#{Time.now.strftime('%d/%m/%Y %H:%M')}", :maxlength => 16 %>
+		<label for="source">Кто:</label> 
+		<%=  select(:comp_operation, :person, @osmp_person, {:include_blank => ""}) %>
+		</p>
+		<p>
+		<label for="source">Откуда:</label> 
+		<%=  select(:comp_operation, :source, @cl, {:include_blank => ""}) %>
+		<label for="source"> Куда:</label> 
+		<%=  select(:comp_operation, :destination, @cl, {:include_blank => ""}) %>
+		</p>
+		<p>
+		<label for="terminal">Терминал:</label> 
+		<%=  select(:comp_operation, :terminal, @osmp_terminal, {:include_blank => ""}) %>
+
+		<label for="ddate">Комментарий:</label>
+		<%= f.text_field :descr, :size => 50, :maxlength => 255 %>
+		</p>
+		<%= f.submit "Ok", :class => "submit" %>
+	<% end %>
+	<table border="1">
+	<tr>
+	<td>Дата</td>
+	<td>Откуда</td>
+	<td>Куда</td>
+	<td>Терминал</td>
+	<td>Сотрудник</td>
+	<td>Комментарий</td>
+	</tr>
+	<% @rst.each_with_index do |row, i| %> 
+	<tr>
+	<td><%= link_to(row['ddate'],{ :action => :print_operation, :id => row['id'] } ) %></td>
+	<td><%= row['sname'] %></td>
+	<td><%= row['dname'] %></td>
+	<td><%= row['tcode'] %></td>
+	<td><%= row['shortened'] %></td>
+	<td><%= row['descr'] %></td>
+	<td><%= link_to( "X", { :action => :del_operation, :id => row['id'] }, :confirm => 'Вы уверены? Удалить ?' ) if i == 0 %></td>
+	</tr>
+	<% end %>
+	</table>
+	
+	<%= link_to 'Перейти к списку комплектующих', :controller => :comp, :action => :index %>
+<% end %>

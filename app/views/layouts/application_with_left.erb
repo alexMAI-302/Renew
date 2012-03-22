@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title><%=yield(:title)%></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<%= yield :meta %>
+	<%= stylesheet_link_tag "main", :media=>"screen" %>
+	<%= stylesheet_link_tag "tabbed", :media=>"screen" %>
+	<%= stylesheet_link_tag "framed", :media=>"screen" %>
+	<%= stylesheet_link_tag "print", :media=>"print" %>
+	<style type="text/css"><%= yield :stylesheets %></style>
+	<%= yield :js %>
+</head>
+<body <%= yield :body_attrs %>>
+
+<div id="header"> 
+		<table cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td class="logobg" width="2%"><img width="20" height="1" src="/images/0.gif" /></td>
+				<td><a href="/"><img src="/images/logo.gif" /></a></td>
+				<td valign="bottom" class="logobg title"><nobr><%=yield(:title)%></nobr></td>
+				<td class="logobg" align="right" width="96%"><img src="/images/logodecor.gif" /></td>
+			</tr>
+		</table>
+		<table style="background: #eeeeee;" width="100%">
+			<tr>
+				<td width="100%">
+					<div class="framed horizontal">
+						<ul>
+							<% if @menu_subjects!=nil then @menu_subjects.each do |menu_subject| %>
+							<li>
+								<a href="<%= menu_subject['url_pattern'] %>" class="f">
+									<%= menu_subject['name'] %></ins>
+								</a>
+							</li>
+							<% end end %>
+						</ul>
+					</div>
+				</td>
+				<td>
+					<div class="framed horizontal">
+						<ul>
+							<li>
+								<a href="<%= (session[:user_id])?'/login/logout':'/login/login' %>" class="f" style="color:black;">
+									<%= (session[:user_id])?'Выйти':'Войти' %>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</td>
+			</tr>
+		</table>
+</div><!-- /header --> 
+
+	<div>
+		<div id="left" class="left_content">
+			<%= yield(:left_content)%>
+		</div>
+		<div id="content" class="center_content">
+			<% if flash[:notice] -%>     
+				<div id="notice"><%= flash[:notice] %></div>  
+			<% end -%>
+			<%= yield(:content)%>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+﻿<% content_for :mag_content do %>
+	<div class="mag-form">
+		<% v = 0 -%>
+		<ol>
+		<% @a.each do |g| %>
+			<li> 	    
+			<%= g[:mode] == 1 ? "<b>" : "" %>
+			<%= g[:name] + " - " + g[:price].to_s + " - " + g[:vol].to_s %> 
+			<%= g[:mode] == 1 ? "</b>" : "" %>				
+			</li>
+			<% v += g[:vol] * g[:price] if g[:vol] and g[:price] -%>
+		<% end %>
+		</ol>
+		<p> сумма: <%= v.to_s %> </p>
+		<% form_tag do %>
+		  <p>
+			<label for="av"> арт/кол: </label>
+			<%= text_field_tag :av %>
+		  </p>
+		<% end %>
+	</div>
+<% end %>

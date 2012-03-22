@@ -1,0 +1,36 @@
+<% content_for :title do %>
+Пользователи
+<% end %>
+<% content_for :content do %>
+	<% form_tag :action => 'save' do %>
+		<table>
+			<thead>
+			  <tr>
+				<th>
+					Наименование
+				</th>
+				<th>
+				</th>
+				<th>
+				</th>
+			  </tr>
+			</thead>
+
+			<tbody>
+				<% @renew_users.each do |renew_user| %>
+					<tr>
+						<td><%= text_field_tag 'renew_users['+renew_user.id.to_s+']', renew_user.name %></td>
+						<td><%= link_to("Удалить", {:action => "destroy", :id=>renew_user.id}, :confirm => 'Вы уверены? Удалить ?')%></td>
+					</tr>
+				<% end %>
+			</tbody>
+		</table>
+		<%= submit_tag(value = "Сохранить") %>
+	<% end %>
+	<br/>
+	Новая запись
+	<% form_tag :action => 'create' do %>
+		<div><%= text_field_tag 'renew_user', @renew_user.name %><%= submit_tag(value = "Создать")%></div>
+	<% end %>
+
+<% end %>

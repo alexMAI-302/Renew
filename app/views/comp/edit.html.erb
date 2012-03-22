@@ -1,0 +1,20 @@
+﻿<% content_for :title do %>
+<%= (params[:id]?"Редактировать":"Новое") + " комплектующее" %>
+<% end %>
+
+<% content_for :content do %>
+	<% form_for :component, :url => { :action => "save_comp", :id => params[:id]} do |f| %>
+		<%= f.error_messages %>
+		<p>
+		<label for="goods">Тип:</label>
+		<%= select(:component, :goods, @g, {:include_blank => ""}) %>
+		</p>
+		<p>
+		<label for="serial">Серийный номер:</label> 
+		<%= f.text_field :serial %>
+		</p>
+		<%= f.submit "Ok", :class => "submit" %>
+	<% end %>
+	<br/>
+	<%= link_to 'Перейти к списку комплектующих', :controller => :comp, :action => :index %>
+<% end %>

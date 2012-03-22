@@ -1,0 +1,5 @@
+<ul>
+    <% @pnames.each do |r|%>
+      <li  id="<%= r["id"] %>" title="<%= r["dirpath"] %>" time="<%= @partners_time[r["spv_name"]]%>"><%= r["name"] %></li>  
+    <% end %>
+</ul>

@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+<body>
+<% content_for :title do %>
+Заявки на изменение графика
+<% end %>
+
+<% content_for :content do %>
+	<% if @act==nil -%>
+		<h1>Ошибочная ссылкаindex!</h1>
+	<% end -%>
+	<% if @act=="accept" -%>
+		<h1>Подтверждение заявки</h1>
+		<p><%= h(@message)%> </p>
+	<% end -%>
+
+	<% if @act=="declined"-%>
+		<h1>Заявка отклонена</h1>
+	<% end -%>
+	<% if @act=="decline" -%>
+		<h1>Отклонение заявки</h1>
+		<% if @message -%>
+			<p><%= h(@message)%> </p>
+		<% else -%>
+
+			<% form_tag ('/schedule_request_act/decline')do %>
+				<nobr>
+				<p>
+					<label for="decline_reason">Причина отклонения заявки:</label>
+				</p>
+				<p>
+					<%=text_area_tag :decline_reason, @decline_reason, :rows => 8, :cols => 45%> 
+				</p>
+				<%= submit_tag "Отклонить"%>
+			<% end %> 
+
+		<% end -%>
+	<% end -%>
+<% end %>
+</body>
+</html>

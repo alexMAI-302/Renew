@@ -1,0 +1,18 @@
+﻿<% content_for :mag_content do %>
+	<div class="mag-form">
+		<ol>
+		<% s = 0 -%>
+		<% @rst.each do |r| %>
+		<li><%= r["ddate"].to_s + ' '+ r["cost"].to_s %></li>
+		<% s += r["cost"].to_f -%>
+		<% end %>
+		<p> Итого: <%= s.to_s %> </p>  
+		</ol>
+		<% form_tag do %>
+		  <p>
+			<label for="name">Печать/Удалить:</label>
+			<%= text_field_tag :chs %>
+		  </p>
+		<% end %>
+	</div>
+<% end %>

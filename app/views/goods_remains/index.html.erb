@@ -1,0 +1,86 @@
+<% content_for :title do %>
+Сервис остатков
+<%	end -%>
+<% content_for :content do %>
+	<script>
+	function getSelectionId(text, li) {
+			$('goods_id').value = li.id;
+		};
+	</script>
+	</br>
+	<% form_tag( {:action => "show_stat"}) do %>
+		<%= text_field(:goods, :name, :value => if @selected_goods && @selected_goods['name'] then @selected_goods['name'] else "" end, :size => 100, :maxlength => 255, :style=>"background-color : transparent") %>	
+		<%= hidden_field(:goods, :id, :value => if @selected_goods && @selected_goods['id'] then @selected_goods['id'] else "" end, :size => 5, :maxlength => 30) %>
+		<div class='auto_complete' id='goods_name_auto_complete'></div>	
+		<%= auto_complete_field :goods_name, :frequency => 0.5, :url => {:action => :autocomplete_goods}, :after_update_element=>"getSelectionId"  %>										
+		<%= submit_tag "Показать остатки" %>
+	<% end %>
+	</br>
+	<% if !(@selected_goods.nil?) then %>
+		<table border="1">
+			<thead>
+				<tr>
+					<th></th>
+					<% @goods_remains.each do |r| %>
+						<th>
+							<%= r['name'] %>
+						</th>
+					<% end %>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>
+						<b>Склад</b>
+					</td>
+					<% @goods_remains.each do |r| %>
+						<td>							
+							<%= if r['remvolume'] then sprintf("%.2f", r['remvolume']) end %>
+						</td>
+					<% end %>
+				</tr>
+				<tr>
+					<td>
+						<b>Поставки</b>
+					</td>
+					<% @goods_remains.each do |r| %>
+						<td>
+							<%= if r['supvolume'] then sprintf("%.2f", r['supvolume']) end %>
+						</td>
+					<% end %>
+				</tr>
+				<tr>
+					<td>
+						<b>Заказ</b>
+					</td>
+					<% @goods_remains.each do |r| %>
+						<td>
+							<%= if r['zakvolume'] then sprintf("%.2f", r['zakvolume']) end %>
+						</td>
+					<% end %>
+				</tr>
+				<tr>
+					<td>
+						<b>Резерв</b>
+					</td>
+					<% @goods_remains.each do |r| %>
+						<td>
+							<%= if r['resvolume'] then sprintf("%.2f", r['resvolume']) end %>
+						</td>
+					<% end %>
+				</tr>
+				<tr>
+					<td>
+						<b>Свободные</b>
+					</td>
+					<% @goods_remains.each do |r| %>
+						<td>
+							<b><%= if r['info'].nil? then sprintf("%.2f", r['remvolume'] + r['supvolume'] - r['zakvolume'] - r['resvolume']) else r['info'] end %></b>
+						</td>
+					<% end %>
+				</tr>							
+			</tbody>
+		</table>
+	<% end %>
+<% end -%>
+<% render :file => 'layouts/application' %>

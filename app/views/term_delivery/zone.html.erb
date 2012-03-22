@@ -1,0 +1,238 @@
+<% content_for :stylesheets do %>
+		#wrapper
+		{
+			padding: 20px 1%;
+			width: 98%;
+			float:left;
+			display: block;
+		}
+
+<% end %>
+
+<% content_for :js do %>
+    <script src="http://api-maps.yandex.ru/1.1/index.xml?key=ADh8UkwBAAAA-f5qPAIAXlBgstzuwer3VtCIdJ9TLbfB6WoAAAAAAAAAAADcdhGtjFd6a6RPHi8luz3UxLa8JA==" type="text/javascript"></script>
+	<%= javascript_include_tag :defaults %>
+    <script type="text/javascript">
+		var pp = <%= @rst_new %> ;
+		var rr = <%= @route_json %> ;
+		var jzt = <%= @jzt %>;
+		var polygons = new Array; 
+		var current_route = <%= @route_index %>;
+		var style1;
+		var style2;
+		var map;
+        YMaps.jQuery(function () {
+            // Создание экземпляра карты и его привязка к созданному контейнеру
+            map = new YMaps.Map(YMaps.jQuery("#YMapsID")[0]);
+            var placemark;
+            // Установка для карты ее центра и масштаба
+            map.setCenter(new YMaps.GeoPoint(37.64, 55.76), 10);
+
+            // Добавление элементов управления
+            map.enableScrollZoom();
+            map.addControl(new YMaps.Zoom());
+            map.addControl(new YMaps.TypeControl());
+            map.addControl(new YMaps.ToolBar());
+
+			style1 = new YMaps.Style("default#greenPoint");
+			style1.polygonStyle = new YMaps.PolygonStyle();
+			style1.polygonStyle.fillColor = "ffff0088";
+			YMaps.Styles.add("polygon#Example1", style1);
+		
+			style2 = new YMaps.Style("default#greenPoint");
+			style2.polygonStyle = new YMaps.PolygonStyle();
+			style2.polygonStyle.fillColor = "ff000055";
+			YMaps.Styles.add("polygon#Example2", style2);
+			
+			for (var i = 0; i < rr.length; i++) {
+				if (rr[i].points != null) {
+					polygons[i] = YMaps.Polygon.fromEncodedPoints( rr[i].points, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", {style: "polygon#Example1"});
+				}
+				else
+				{
+					polygons[i] = new YMaps.Polygon( null, {style: "polygon#Example1"} );
+				};
+				polygons[i].name = rr[i].name;
+				map.addOverlay(polygons[i]);
+				YMaps.Events.observe(polygons[i], polygons[i].Events.PositionChange, function () {
+					set_points();
+				});
+            };		
+			// При щелчке на карте добавляем новую точку в конец
+            YMaps.Events.observe(map, map.Events.Click, function (map, mEvent) {
+                polygons[current_route].addPoint(mEvent.getGeoPoint());
+            });
+			slavesel(current_route);
+        });
+		
+		function set_points() {
+			var gp;
+			var cc = 0;
+			$('a_points').value = encodePoints(polygons[current_route].getPoints());
+			$('a_lroute').value = "";
+			rr[current_route].points = $('a_points').value;
+			for (var i = 0; i < pp.length; i++) {
+				gp = new YMaps.GeoPoint(pp[i].longitude, pp[i].latitude);
+				if ( polygons[current_route].contains(gp) ) {
+					$('a_lroute').value = $('a_lroute').value + pp[i].id + ", ";
+					cc++;
+				};
+			};			
+			$('a_cc').value = cc;
+		};
+
+		function set_route() {
+			if (polygons[current_route].getNumPoints() > 0) {
+				// Создаем область показа по группе точек
+				bounds = new YMaps.GeoCollectionBounds(polygons[current_route].getPoints());
+				map.setBounds(bounds);
+			}
+			else {
+				map.setCenter(new YMaps.GeoPoint(37.64, 55.76), 10);
+			};
+		};
+		
+		
+		function slavesel( v ){
+			$('a_routeid').value = rr[v].id;
+			polygons[current_route].stopEditing();
+			polygons[current_route].setStyle('polygon#Example1');
+			rr[current_route].points = $('a_points').value;
+			current_route = v;
+			map.removeAllOverlays();
+			for (var i = 0; i < jzt.length; i++) {
+				if (rr[v].id == jzt[i].zid) {
+					gp = new YMaps.Placemark(new YMaps.GeoPoint(jzt[i].longitude, jzt[i].latitude), 
+						{style: "default#bankIcon", draggable: false,
+						balloonOptions: {
+								maxWidth: 100,
+								mapAutoPan: 0
+						}
+					});
+					gp.description = jzt[i].pname;
+					map.addOverlay(gp);
+				};
+			};	
+			for (var i = 0; i < rr.length; i++) {
+				map.addOverlay(polygons[i]);
+				
+            };	
+			polygons[current_route].startEditing();
+			polygons[current_route].setStyle('polygon#Example2');
+			set_points();
+			set_route();
+		};
+
+        // Кодирование точек ломанной
+        function encodePoints (points) {
+            var array = [],                     // Временный массив для точек
+                prev = new YMaps.Point(0,0),    // Предыдущая точка
+                coef = 1000000;                 // Коэффициент
+
+            // Обработка точек
+            for (var i = 0, geoVector, currentPoint; i < points.length; i++) {
+                currentPoint = points[i].copy();
+
+                // Нахождение смещение относительно предыдущей точки
+                geoVector = currentPoint.diff(prev).neg();
+
+                // Умножение каждой координаты точки на коэффициент и кодирование
+                array = array.concat(Base64.encode4bytes(geoVector.getX() * coef), Base64.encode4bytes(geoVector.getY() * coef));
+                prev = currentPoint;
+            }
+
+            // Весь массив кодируется в Base64
+            return Base64.encode(array);
+        }
+
+        var Base64 = new function () {
+            var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=";
+
+            this.encode4bytes = function (x) {
+                var chr = [];
+                for (var i = 0; i < 4; i++) {
+                    chr[i] = x & 0x000000ff;
+                    x = x >> 8;
+                }
+                return chr;
+            }
+
+            this.encode = function (input) {
+                var output = "",
+                    chr1, chr2, chr3, enc1, enc2, enc3, enc4,
+                    i = 0,
+                    inputIsString = typeof input == "string";
+
+                while (i < input.length) {
+                    chr1 = input[i++];
+                    chr2 = input[i++];
+                    chr3 = input[i++];
+                    
+                    enc1 = chr1 >> 2
+                    enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+                    enc3 = ((chr2 & 15) << 2) | (chr3 >> 6)
+                    enc4 = chr3 & 63;
+                    
+                    if (isNaN(chr2)) {
+                        enc3 = enc4 = 64;
+                    } else if (isNaN(chr3)) {
+                        enc4 = 64;
+                    }      
+
+                    output +=
+                        _keyStr.charAt(enc1) + _keyStr.charAt(enc2) +
+                        _keyStr.charAt(enc3) + _keyStr.charAt(enc4);
+                        
+                }
+
+                return output;
+            }
+        };
+	</script>
+<% end %>
+
+<% content_for :title do %>
+Определение зон терминалов
+<% end %>
+
+<% content_for :content do %>
+	<div id="groupselect">
+		<% form_tag do %>
+			<fieldset>
+				<legend>Настройки</legend>
+				<table>
+					<tr>
+						<td><b>Дилер:</b> </td>
+						<td><%=  select(:post, :subdealer, @site_list, {:selected => @subdealer}) %>	</td>
+						<td><b>Тип зоны:</b> </td>
+						<td><%=  select(:post, :spv_id, @spv_list, {:selected => @spv_id}) %>
+						<%= submit_tag 'Выбрать' %>
+						</td>
+					</tr>
+					<tr>
+						<td><b>Зона:</b> </td>
+						<td><%=  select(:post, :route, @route_list, {:selected => @route_index}, {:onchange => "slavesel(this.value)"}) %>
+						</td>
+						<td></td>
+						<td></td>
+					</tr>
+				</table>	
+			</fieldset>			
+		<% end %> 
+	</div>
+	<div id="map">
+		<p><b>Укажите вершины зоны:</b></p>
+		<div id="YMapsID"></div>
+		<% form_tag :action => 'save_zone' do %>
+			<p><b>Терминалов в зоне:</b>
+			<%= text_field(:a, :cc, :size => "15",  :value => 0, :class => "w30px", :align => "center", :readonly => 'true') %>	
+			<input type="submit" value="Сохранить"></p>
+			<%= hidden_field(:a, :points,  :size => "100", :value => @route_points, :class => "encode-points", :readonly => 'true') %>	
+			
+			<%= hidden_field(:a, :lroute,  :size => "100", :value => "", :class => "l-route", :readonly => 'true') %>
+			
+			<%= hidden_field(:a, :routeid, :size => "30",  :value => @route_id, :class => "routeid", :readonly => 'true') %>	
+			
+		<% end %>
+	</div>
+<% end %>

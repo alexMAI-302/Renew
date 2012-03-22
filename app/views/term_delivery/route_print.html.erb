@@ -1,0 +1,37 @@
+﻿<head>
+<title>Маршрутный лист</title>
+</head>
+<body>
+<% if @rep.length>0 -%>
+	<div style="font-size: 12px;">
+	<b>Маршрут: <%= @zone_name %></b>
+	<br/>
+	<b>Дата: <%= @date.to_s %></b>
+	<div>
+	
+	<table border="1" cellpadding="5"  style="border-collapse: collapse; border: 1px solid black; font-size: 10px;">
+		<tr class="title">
+		<td align="center">№ п/п</td> 
+		<td align="center">Номер терминала</td> 
+		<td align="center">ID терминала</td> 
+		<td align="center">Адрес терминала</td>
+		<td align="center">Служебная информация</td>
+		<td align="center">Пломба (уст.)</td>
+		<td align="center">Пломба (к снятию)</td>
+		</tr>
+		<% @rep.each_with_index do |row, i| %> 	
+		<tr>
+			<td align="center"><%= i+1 %></td>
+			<td align="left"><%= row['terminal_code'] %></td>
+			<td align="right"><%= row['terminalid'] %></td>
+			<td align="left"><%= row['address'] %></td>
+			<td align="left"><%= row['info'] %></td>			
+			<td align="center"><%= row['seal_to'] %></td>
+			<td align="center"><%= row['seal_plan'] %></td>			
+		</tr>
+		<% end %>
+	</table>
+<%else -%>
+	<p>Нет терминалов в маршруте</p>
+<% end -%>
+</body>

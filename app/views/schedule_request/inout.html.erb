@@ -1,0 +1,72 @@
+﻿<% content_for :title do %>
+    Проходы через сканер пропусков
+<%	end -%>
+
+<% content_for :content do %>
+	<div style="text-align:left">
+		<% form_tag (:action => :inout) do%>
+			<fieldset>
+				<legend>Фильтр</legend>
+				<nobr>
+					<label for="ddateb">C:</label>
+					<%=text_field_tag :ddateb, @ddateb %> 
+					<label for="ddateb"> по </label>
+					<%=text_field_tag :ddatee, @ddatee %> 
+				</nobr>
+				<%= submit_tag "Apply"%>
+			</fieldset>
+		<% end %> 
+	</div>
+	<div id="table">
+	<% if @rst_inout.length>0 -%>
+		<table border="0" cellpadding="2" cellspacing="1">
+			<tr class="title">
+			<td align="center">Дата</td> 
+			<td align="center">Направление</td> 
+			<td align="center"></td> 
+
+			</tr>
+			<% @rst_inout.each_with_index do |row, i| %> 
+			<tr>
+			<% form_tag :action => 'edit_entrance', :id =>row['id']  do %>
+				<td align="center">
+					<%=select_date (row['ddatetime'].to_date, :prefix =>"ddate",  :order=>[:year,:month,:day],:use_month_names => %w(Январь Февраль Март Апрель Май Июнь Июль Август Сентябрь Октябрь Декабрь))%> 
+					<%=select_hour (row['ddatetime'].to_datetime, :prefix =>"ddate_hour")%>
+					<%=select_minute (row['ddatetime'].to_datetime, :prefix =>"ddate_minute")%>
+				</td>
+				<td align="center">
+					<%=  select(:dir, @dir, [['Вход',1],['Выход',-1]],{:selected =>row['dir'] })%>
+				</td>
+				<td align="center">
+					<%= submit_tag "Изменить"%>
+				</tr>
+			<% end %>
+			<% end %>
+		</table>
+		<br>
+	<%else -%>
+	<p>Нет данных</p>
+	<% end -%>
+	</div>
+	<div id="new" style="text-align:left">
+		<% form_tag (:action => :add_entrance ) do %>
+			<fieldset>
+				<legend>Добавить новый факт</legend>
+				<nobr>
+					<p>
+					<label for="dir">Факт</label>
+					<%=  select(:dir, @dir, [['Вход',1],['Выход',-1]],{:selected => 1})%>
+					<label for="ddate"></label>
+					<%=select_date (Time.now(), :prefix =>"ddate",  :order=>[:year,:month,:day],:use_month_names => %w(Январь Февраль Март Апрель Май Июнь Июль Август Сентябрь Октябрь Декабрь))%> 
+					<label for="ddateb_hour"></label>
+					<%=select_hour (9, :prefix =>"ddate_hour")%>
+					<label for="ddateb">:</label>
+					<%=select_minute (00, :prefix =>"ddate_minute")%>
+					</p>
+
+				</nobr>
+				<%= submit_tag "Сохранить"%>
+		<% end %> 
+	</div>
+
+<% end %>

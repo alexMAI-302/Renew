@@ -1,0 +1,21 @@
+﻿<% content_for :title do %>
+Главная страница
+<% end %>
+
+<% content_for :content do %>
+	<div id="main">
+		Добро пожаловать!<br/><br/>
+		<div class="poll-form">
+			<ul>
+				<% if @menu_subjects!=nil then @menu_subjects.each do |menu_subject| %>
+				<li>
+					<a href="<%= menu_subject['url_pattern'] %>" class="f">
+						<%= menu_subject['name'] %>
+					</a>
+				</li>
+				<% end end %>
+			</ul>
+			</fieldset>
+		</div>
+	</div>
+<% end %>

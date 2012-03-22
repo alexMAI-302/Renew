@@ -1,0 +1,36 @@
+<% content_for :title do %>
+Типы ресурсов
+<% end %>
+<% content_for :content do %>
+	<% form_tag :action => 'save' do %>
+		<table>
+			<thead>
+			  <tr>
+				<th>
+					Наименование
+				</th>
+				<th>
+				</th>
+				<th>
+				</th>
+			  </tr>
+			</thead>
+
+			<tbody>
+				<% @renew_url_types.each do |renew_url_type| %>
+					<tr>
+						<td><%= text_field_tag 'renew_url_types['+renew_url_type.id.to_s+']', renew_url_type.name %></td>
+						<td><%= link_to("Удалить", {:action => "destroy", :id=>renew_url_type.id}, :confirm => 'Вы уверены? Удалить ?')%></td>
+					</tr>
+				<% end %>
+			</tbody>
+		</table>
+		<%= submit_tag(value = "Сохранить") %>
+	<% end %>
+	<br/>
+	Новая запись
+	<% form_tag :action => 'create' do %>
+		<div><%= text_field_tag 'renew_url_type', @renew_url_type.name %><%= submit_tag(value = "Создать")%></div>
+	<% end %>
+
+<% end %>

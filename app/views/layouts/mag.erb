@@ -1,0 +1,37 @@
+﻿	<% content_for :body_attrs do %>
+	onload="setFocus()"
+	<% end %>
+
+	<% content_for :js do %>
+		<script>
+		// Sets the form focus to the first element found in forms[0] that
+		// is a textfield or text area
+		function setFocus() {
+			// Bail if no form on page
+			if (document.forms[0] == null) return;
+
+			// Iterate though elements
+			for (var i = 0; i < document.forms[0].elements.length; i++) {
+				e = document.forms[0].elements[i];
+				if ((e.type == "text") || (e.type == "textarea")) {
+					e.focus();
+					e.select();
+					break;
+				}
+			}
+		}
+		</script>
+	<% end %>
+
+	<% content_for :title do %>
+	Магазин брака
+	<% end -%>
+
+	<% content_for :content do %>
+		<% if flash[:notice] -%>     
+		  <div id="notice"><%= flash[:notice] %></div>  
+		<% end -%>
+		<%= yield :mag_content %>
+	<% end -%>
+	
+	<% parent_layout 'application' %>

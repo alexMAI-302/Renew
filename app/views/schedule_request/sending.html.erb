@@ -1,0 +1,13 @@
+﻿<% content_for :title do %>
+	Заявки на изменение графика
+<%	end -%>
+
+<% content_for :content do %>
+<p>
+        <%= link_to " Новая заявка ",     :controller => 'schedule_request', :action => 'index' %>
+      </p>
+<p>
+        <%= link_to " Выйти ",     :controller => 'login', :action => 'logout' %>
+      </p>
+
+<% end %>

@@ -1,0 +1,30 @@
+﻿
+<% content_for :title do %>
+Вход в систему
+<% end %>
+
+<% content_for :content do %>
+	<div id="main">
+		<div class="poll-form">
+			<fieldset>
+				<legend>Вход (имя и пароль как при входе в компьютер)</legend>
+				
+				<% form_tag do %>
+					<p>
+					<label for="name">Имя:</label>
+					<%= text_field_tag :name, params[:name] %>
+					</p>
+
+					<p>
+					<label for="password">Пароль:</label>
+					<%= password_field_tag :password, params[:password] %>
+					</p>
+					
+					<p>
+					<%= submit_tag " Войти " %>
+					</p>
+				<% end %>
+			</fieldset>
+		</div>
+	</div>
+<% end %>

@@ -1,0 +1,74 @@
+<% content_for :title do %>
+Типы ресурсов
+<% end %>
+<% content_for :content do %>
+	<div>
+		<% form_tag do%>
+			<fieldset>
+				<legend>Фильтр</legend>
+				<nobr>
+					<label for="renew_url_types">Тип ресурса: </label>
+					<%= select_tag(:renew_url_types, options_for_select([["<Все>",0]] + @renew_url_types.collect {|p| [p.name, p.id]}, :selected => @selected_url_type)) %>
+				</nobr>
+				<%= submit_tag "Применить"%>
+			</fieldset>
+		<% end %> 
+	</div>
+	<br>
+
+	<% form_tag :action => 'save' do %>
+		<table>
+			<thead>
+			  <tr>
+				<th 
+				 onMouseOver="this.className='mauseover'" 
+				 onMouseOut="this.className=''" 
+				 onClick = "window.document.location='<%= url_for (:action => "index", :field => "name", :order => @sort_order["name"])%>'">
+					Наименование <%=@sign_order["name"]%>
+				</th>
+				<th>
+					Шаблон
+				</th>
+				<th>
+					Тип ресурса
+				</th>
+				<th 
+				 onMouseOver="this.className='mauseover'" 
+				 onMouseOut="this.className=''" 
+				 onClick = "window.document.location='<%= url_for (:action => "index", :field => "sorder", :order => @sort_order["sorder"])%>'">
+					Позиция в списке <%=@sign_order["sorder"]%>
+				</th>
+				<th>
+				</th>
+			  </tr>
+			</thead>
+
+			<tbody>
+				<% @renew_urls.each do |renew_url| %>
+					<tr>
+						<td><%= text_field_tag 'renew_urls['+renew_url.id.to_s+'][name]', renew_url.name %></td>
+						<td><%= text_field_tag 'renew_urls['+renew_url.id.to_s+'][pattern]', renew_url.url_pattern %></td>
+						<td><%= select_tag(
+							'renew_urls['+renew_url.id.to_s+'][type]',
+							options_for_select(@renew_url_types.collect {|p| [p.name, p.id]}, :selected=>renew_url.renew_url_type.id )) %></td>
+						<td><%= text_field_tag 'renew_urls['+renew_url.id.to_s+'][sorder]', renew_url.sorder %></td>
+						<td><%= link_to("Удалить", {:action => "destroy", :id=>renew_url.id}, :confirm => 'Вы уверены? Удалить ?')%></td>
+					</tr>
+				<% end %>
+			</tbody>
+		</table>
+		<%= submit_tag(value = "Сохранить") %>
+	<% end %>
+	<br/>
+	Новая запись
+	<% form_tag :action => 'create' do %>
+		<div><%= text_field_tag 'renew_url[name]', @renew_url.name %>
+		<%= text_field_tag 'renew_url[pattern]', @renew_url.url_pattern %>
+		<%= select_tag(
+			'renew_url[type]',
+			options_for_select(@renew_url_types.collect {|p| [p.name, p.id]})) %>
+		<%= text_field_tag 'renew_url[sorder]', @renew_url.sorder %>
+		<%= submit_tag(value = "Создать")%></div>
+	<% end %>
+
+<% end %>

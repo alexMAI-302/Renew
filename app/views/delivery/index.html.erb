@@ -1,0 +1,143 @@
+<% content_for :js do %>
+	<script>
+		function slavesel( sid, v ){
+			$("dd_"+sid).update();
+			for (var i = 0; i < v; i++) {
+				$("dd_"+sid).insert('<input id="r_'+sid+
+				                    '_wcar'+i+'" name="r['+sid+'][wcar'+i+
+									']" size="3" type="text" value="1500" />');
+			};
+		};
+	</script>
+<% end %>
+
+<% content_for :stylesheets do %>
+	#routelist TABLE
+	{
+		background-color: #AAA;
+	}
+	#routelist TABLE .title TD
+	{
+		background-color: #AAA;
+		font-weight: bold;
+		color: #FFF;
+	}
+	#routelist TR
+	{
+		background-color: #FFF;
+	}
+	#routelist TR TD INPUT
+	{
+		border: none;
+		background: none;
+	}
+	.lightinput, .lightinput INPUT
+	{
+		background-color: #FFF;
+		width: 70px;
+		text-align: center;
+	}
+	#routelist TR .truckselector INPUT
+	{
+		background-color: #FFF;
+		text-align: center;
+		border: solid 1px #CCC;
+		margin: 0px 2px;
+	}
+<% end %>
+
+<% content_for :title do %>
+Формирование доставки
+<%	end -%>
+
+<% content_for :content do %>
+<div id="wrapper">
+	<div id="groupselect">
+	<% form_tag do %>
+		<fieldset>
+			<legend>Настройки</legend>
+			<table>
+				<tr>
+					<td><b>Дата:</b> </td>
+					<td class="lightinput"><%=  text_field(:post, :ddate, :size => "10",  :value => @ddate.strftime("%d.%m.%Y") ) %>	</td>
+					<td><b>Площадка:</b> </td>
+					<td><%=  select(:post, :site, @site_list, {:selected => @site}) %>	</td>
+					<td><b>Режим:</b> </td>
+					<td><%= select(:post, :schedule, @schedule_list, {:selected => @schedule_id} ) %> </td>
+					<td><%= submit_tag 'Показать маршруты' %></td>
+				</tr>
+			</table>
+		</fieldset>	
+	<% end %> 
+	</div>
+	<div id="routelist">
+		<p><b>Выберите маршруты:</b></p>
+		<% form_tag :action => 'save_delivery' do %>
+		<table border="0" cellpadding="2" cellspacing="1">
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td colspan="4" align="center">Не распределено</td>
+				<td></td>
+				<td colspan="4" align="center">Распределено</td>
+			</tr>
+			<tr class="title">
+				<td align="center">№</td>
+				<td>&nbsp;</td>
+				<td align="center">Название</td>
+				<td align="center">Точек</td>
+				<td align="center">Заказов</td>
+				<td align="center">Инкасс.</td>
+				<td align="center">Вес</td>
+				<td align="center">Машин</td>
+				<td align="center">Точек</td>
+				<td align="center">Заказов</td>
+				<td align="center">Инкасс.</td>
+				<td align="center">Вес</td>
+			</tr>
+			<% @rst_route.each_with_index do |r, i| %>
+			<tr>
+				<td align="center"><%= i+1 %></td>
+				<td align="center"><%= check_box(:r, :needsave, :index => r["id"], :value => '0', :checked => false ) %>  </td>
+				<td><%= r["name"] %></td>
+				<td align="center"><%= r["c1"] %></td>
+				<td align="center"><%= r["d1"] %></td>
+				<td align="center"><%= r["i1"] %></td>
+				<td align="center"><%= r["w1"]||"&nbsp;" %></td>		
+				<td align="left" class="truckselector"><%= select("r[#{r['id']}]", :car, Array.new(5){|i| i+1}, {:selected => 1}, {:onchange => "slavesel(#{r['id']}, this.value)"} ) %>
+					<span id="dd_<%=r['id'] %>"> 
+						<%=  text_field(:r, :wcar0, :index => r["id"], :size => "3",  :value => "1500" ) %>
+					</span>
+					<%= hidden_field(:r, :sord, :index => r["id"], :value => r["sord"] ) %>
+					<%= hidden_field(:r, :inc, :index => r["id"], :value => r["inc"] ) %>
+					<%= hidden_field(:r, :sinc, :index => r["id"], :value => r["sinc"] ) %>
+				</td>
+				<td align="center"><%= r["c2"] %></td>
+				<td align="center"><%= r["d2"] %></td>
+				<td align="center"><%= r["i2"] %></td>	
+				<td align="center"><%= r["w2"]||"&nbsp;" %></td>		
+			</tr>
+			<% end %>
+		</table>
+		<br/>
+	</div>
+	<table border="0" cellspacing="0" cellpadding="2">
+		<tr>
+			<td class="lightinput"><%=  text_field(:a, :time_incass, :size => "10",  :value => "20" ) %>	</td>
+			<td>Среднее время на инкассацию (мин.)</td> 			
+		</tr>
+		<tr>
+			<td class="lightinput"><%=  text_field(:a, :speed, :size => "10",  :value => "40" ) %>	</td>
+			<td>Средняя скорость движения (км/ч)</td> 			
+		</tr>
+		<tr>
+			<td class="lightinput"><%=  text_field(:a, :maxpoints, :size => "10",  :value => "15" ) %>	</td>
+			<td>Максимальное количество точек для одной машины</td> 			
+		</tr>
+	</table>
+	<p><input type="submit" value="Сформировать"></p>
+	<% end %>
+</div>
+<% end -%>
+<% render :file => 'layouts/application' %>

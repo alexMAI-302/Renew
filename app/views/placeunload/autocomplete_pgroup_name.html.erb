@@ -1,0 +1,5 @@
+<ul>
+    <% @pg.each do |r|%>
+      <li  id="<%= r["id"] %>" title="<%= r["dirpath"] %>"><%= r["name"] %></li>
+    <% end %>
+</ul>

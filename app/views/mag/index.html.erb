@@ -1,0 +1,17 @@
+﻿<% content_for :mag_content do %>
+	<div class="mag-form">
+		<ol>
+		  <li>Редактировать</li>
+		  <li>Сохранить и распечатать</li>
+		  <li>Сохранить (без печати)</li>	  
+		  <li>Прошлые продажи</li>
+		  <li>Выход</li>
+		</ol>
+		<% form_tag do %>
+		  <p>
+			<label for="name">Выбор:</label>
+			<%= text_field_tag :chs %>
+		  </p>
+		<% end %>
+	</div>
+<% end %>

@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title><%=yield(:title)%></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<%= yield :meta %>
+	<link rel="shortcut icon" href="/images/ocean-ico.ico" type="image/x-icon" />
+	<link rel="apple-touch-icon" href="/images/ocean-touch-icon.png" />
+	<%= stylesheet_link_tag "main", :media=>"screen" %>
+	<%= stylesheet_link_tag "tabbed", :media=>"screen" %>
+	<%= stylesheet_link_tag "print", :media=>"print" %>
+	<style type="text/css"><%= yield :stylesheets %></style>
+	<%= yield :js %>
+</head>
+<body <%= yield :body_attrs %>>
+
+<div id="header"> 
+		<table cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td style="background-color: white"><a href="/"><img src="/images/ocean.gif" /></a></td>
+				<td valign="bottom" class="logobg title"><nobr><%=yield(:title)%></nobr></td>
+			</tr>
+		</table>
+		<table style="background: #eeeeee;" width="100%">
+			<tr>
+				<td width="100%">
+					<div class="tabbed horizontal">
+						<ul>
+							<% if @menu_subjects!=nil then @menu_subjects.each do |menu_subject| %>
+							<li>
+								<a href="<%= menu_subject['url_pattern'] %>" class="f">
+									<%= menu_subject['name'] %>
+								</a>
+							</li>
+							<% end end %>
+						</ul>
+					</div>
+				</td>
+				<td>
+					<div class="tabbed horizontal">
+						<ul>
+							<li>
+								<a href="<%= (session[:user_id])?'/login/logout':'/login/login' %>" style="color:black;">
+									<%= (session[:user_id])?'Выйти':'Войти' %>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</td>
+			</tr>
+		</table>
+</div><!-- /header --> 
+
+	<div>
+		<div id="left" class="left_content">
+			<%= yield(:left_content)%>
+		</div>
+		<div id="content" class="center_content">
+			<%= yield(:content)%>
+		</div>
+	</div>
+</body>
+</html>

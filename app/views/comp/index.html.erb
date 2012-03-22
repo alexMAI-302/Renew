@@ -1,0 +1,46 @@
+﻿
+<% content_for :title do %>
+Учет комплектующих
+<%	end -%>
+
+<% content_for :content do %>
+	<%= link_to 'Добавить комплектующее', :controller => :comp, :action => :edit, :id => nil %>
+	<% form_tag do %>
+		<fieldset>
+			<legend>Фильтр</legend>
+			<nobr><label for="goods">Тип:</label>
+			<%= text_field_tag :goods, params[:goods] %></nobr>
+			<nobr><label for="serial">Серийный номер:</label>
+			<%= text_field_tag :serial, params[:serial] %></nobr>
+			<nobr>
+			<label for="loc_id">Местонахождение:</label>
+			<%=  select(:post, :loc_id, @cl, {:include_blank => "",  :selected => @loc_id }) %>
+			</nobr>  
+			<nobr>
+			<label for="terminal">Теминал:</label>
+			<%=  select(:post, :terminal, @osmp_terminal, {:include_blank => "",  :selected => @terminal}) %>
+			</nobr>  
+			<%= submit_tag "Обновить" %> 
+		</fieldset>
+	<% end %> 
+	<br/>
+	<table border="1">
+	<tr>
+	<td>Тип</td>
+	<td>Серийный номер</td>
+	<td>Местонахождение</td>
+	<td>Комментарий</td>
+	<td> </td>
+	</tr>
+	<% @rst.each_with_index do |row, i| %> 
+	<tr>
+	<td><%= link_to row['type_name'], { :action => :edit, :id => row['id'] } %></td>
+	<td><%= link_to row['serial'], { :action => :edit, :id => row['id'] } %></td>
+	<td><%= link_to row['state'], { :action => :list_operations, :id => row['id'] } %></td>
+	<td><%= row['descr']?row['descr']:'&nbsp'  %></td>
+	<td><%= link_to("X", { :action => :del_comp, :id => row['id'] }, :confirm => 'Вы уверены? Удалить ?') if session[:iscompedit] %></td>
+	</tr>
+
+	<% end %>
+	</table>
+<%	end -%>

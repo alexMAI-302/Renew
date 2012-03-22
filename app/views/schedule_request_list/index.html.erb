@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+<body>
+<% content_for :title do %>
+Заявки на изменение графика
+<% end %>
+<% content_for :content do %>
+	<div style="text-align:left">
+		<% form_tag do%>
+			<fieldset>
+				<legend>Фильтр</legend>
+				<nobr>
+					<label for="ddateb">C:</label>
+					<%=text_field_tag :ddateb, @ddateb %> 
+					<label for="ddateb"> по </label>
+					<%=text_field_tag :ddatee, @ddatee %> 
+				</nobr>
+				<%= submit_tag "Apply"%>
+			</fieldset>
+		<% end %> 
+	</div>
+	<table border="1">
+	<tr>
+	<td>Сотрудник</td> 
+	<td>Начало отсутствия</td>
+	<td>Конец отсутствия</td>
+	<td>Причина</td>
+	<td>Статус заявки</td>
+	</tr>
+	<% @rst.each_with_index do |row, i| %> 
+	<tr>
+	<td><%=row['shortened'] %></td>
+	<td><%= row['ddateb'].first(16)%></td>
+	<td><%= row['ddatee'].first(16) %></td>
+	<td><%= row['comments'] %></td>
+	<td><%= row['status_name'] %></td>
+	</tr>
+	<% end %>
+	</table>
+<% end %>
+
+</body>
+</html>

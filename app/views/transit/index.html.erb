@@ -1,0 +1,69 @@
+<% content_for :stylesheets_links do %>	
+	<link type="text/css" rel="stylesheet" media="screen" href="/ext/resources/css/ext-all.css">
+	<link rel="stylesheet" type="text/css" href="/ext/examples/ux/css/CheckHeader.css" />
+<% end -%>
+<% content_for :stylesheets do %>
+	.x-action-col-cell img {
+		height: 16px;
+		width: 16px;
+		cursor: pointer;
+	}
+	.x-action-col-cell img.checked-col {
+		background-image: url(/ext/examples/ux/css/images/checked.gif);
+	}
+	.x-action-col-cell img.unchecked-col {
+		background-image: url(/ext/examples/ux/css/images/unchecked.gif);
+	}
+	
+	div#transitOrdersTable div.x-unselectable, div#transitOrderGoodsTable div.x-unselectable {
+	 -webkit-user-select: text !important;
+	 -o-user-select: text !important;
+	 -khtml-user-select: all !important;
+	 -ms-user-select: text !important;
+	 user-select: text !important;
+	 -moz-user-select: text !important;
+	}
+	div#transitOrdersTable div.x-unselectable tr.x-grid-row div.x-grid-rowwrap-div td.x-grid-cell,
+	div#transitOrderGoodsTable div.x-unselectable tr.x-grid-row div.x-grid-rowwrap-div td.x-grid-cell
+	{
+	 -webkit-user-select: text !important;
+	 -o-user-select: text !important;
+	 -khtml-user-select: all !important;
+	 -ms-user-select: text !important;
+	 user-select: text !important;
+	 -moz-user-select: text !important;
+	}
+	div#transitOrdersTable div.x-unselectable tr.x-grid-row div.x-grid-rowwrap-div td.x-grid-cell div.x-unselectable,
+	div#transitOrderGoodsTable div.x-unselectable tr.x-grid-row div.x-grid-rowwrap-div td.x-grid-cell div.x-unselectable
+	{
+	 -webkit-user-select: text !important;
+	 -o-user-select: text !important;
+	 -khtml-user-select: all !important;
+	 -ms-user-select: text !important;
+	 user-select: text !important;
+	 -moz-user-select: text !important;
+	}
+	div#transitOrdersTable div.x-unselectable tr.x-grid-row,
+	div#transitOrderGoodsTable div.x-unselectable tr.x-grid-row
+	{
+	 -webkit-user-select: text !important;
+	 -o-user-select: text !important;
+	 -khtml-user-select: all !important;
+	 -ms-user-select: text !important;
+	 user-select: text !important;
+	 -moz-user-select: text !important;
+	}
+<% end -%>
+<% content_for :js do %>
+	<script type="text/javascript" src="/ext/ext-all-dev.js"></script>
+	<script type="text/javascript" src="/javascripts/app/transit/app.js"></script>
+<% end -%>
+<% content_for :title do %>
+Транзит
+<%	end -%>
+<% content_for :content do %>
+	<%= javascript_tag "window._token = '#{form_authenticity_token}'" %>
+	<div id="transit_js">
+	</div>
+<% end -%>
+<% render :file => 'layouts/application' %>

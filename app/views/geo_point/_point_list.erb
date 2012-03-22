@@ -1,0 +1,43 @@
+<div id="results">
+	<% form_remote_tag(:url => {:action => 'save_point', :page => params[:page]?params[:page]:1}, :update => "point_list", :before => "start_proc()", :complete => "$('spinner1').hide()" ) do %>
+		<nobr>	
+			<%= submit_tag "Сохранить" %>
+			<%= button_to_remote "Обновить", :url => {:action => 'refresh_point', :page => params[:page]?params[:page]:1}, :update => "point_list", :before => "start_proc()", :complete => "$('spinner1').hide()"%>
+		</nobr>
+		<table border="1">
+		<tr>
+			<td width=”10%”>Имя</td>
+			<td width=”70%”>Адрес <br/>
+			Геокодированный адрес</td>
+			<td width=”10%”>Широта <br/> 
+			Долгота
+			</td>
+			<td width=”10%”>Руч.коорд.<br/>
+			Запись
+			</td>
+		</tr>
+		<% @addr.each do |a| %>
+		<tr <%= "id=\"row_#{a.id}\"" %> class="rdata" onclick="on_select(<%= a.id %>)" >
+			<td id=small_name width=”10%”><%= a.pname %></td>
+			<td width=”70%”><%= text_field(:a, :srcaddress, :size => "100", :index => a.id , :value => a.srcaddress, :maxlength => 255, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "on_needsave(#{a.id})" ) %>
+							<%= link_to_function "...", "find_addr(#{a.id})" %>
+							<br/>
+                           <%= text_field(:a, :fulladdress, :size => "110", :index => a.id , :value => a.fulladdress, :maxlength => 255, :class => "boxintable", :style=>"background-color : transparent", :readonly => 'true') %>
+						   <%= hidden_field(:a, :taddress, :size => "110", :index => a.id , :value => a.taddress, :maxlength => 255) %>
+			</td>
+			</td>
+			<td width=”10%”><%= text_field(:a, :latitude, :size => 8, :index => a.id , :value => a.latitude, :maxlength => 20, :style=>"background-color : transparent", :onkeydown => "on_needsave(#{a.id}); $('a_#{a.id}_ismanual').checked = true;" ) %>
+							<br/>
+			                <%= text_field(:a, :longitude, :size => 8, :index => a.id , :value => a.longitude, :maxlength => 20, :style=>"background-color : transparent", :onkeydown => "on_needsave(#{a.id}); $('a_#{a.id}_ismanual').checked = true;" ) %>
+			</td>
+			<td width=”10%”> <%= check_box(:a, :ismanual, :index => a.id, :value => a.ismanual, :checked => (a.ismanual==1), :onclick => "on_needsave(#{a.id})" ) %> 
+							<br/>
+							 <%= check_box(:a, :needsave, :index => a.id, :value => '0', :checked => false ) %>
+			</td>
+		</tr>
+		<% end %>
+		</table>
+		<%= will_paginate @addr, :class => 'pagination ajax' %>
+		<br/>
+	<% end %>
+</div>
