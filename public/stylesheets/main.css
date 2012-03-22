@@ -1,0 +1,274 @@
+BODY
+{
+	margin: 0px;
+	padding: 0px;
+}
+
+#bottom {
+    position: relative;
+    padding: 5px;
+    margin: 10px 0px 0px 0px;
+	clear: both;
+}
+
+#left {
+    float: left;
+    padding: 5px;
+}
+
+#right {
+    float: right;
+    padding: 5px;
+    width: 150px;
+}
+
+.center_content {
+    position: relative;
+    padding: 5px;
+	min-height: 500px;
+}
+
+.left_content {
+    padding: 5px;
+}
+
+.right_content {
+    padding: 5px;
+    margin: 0px 170px 0px 170px;
+}
+
+div.outer {background-color: #ededed; width: 100%; overflow: hidden;}
+div.inner {background-color: #ededed; float: right; position: relative; right: 50%;}
+div.center {background-color: #ededed; position: relative; right: -50%;}
+
+FIELDSET
+{
+	text-align: left;
+	margin: 0px;
+	padding: 5px 10px;
+	border: solid 1px #CCC;		
+}
+
+INPUT, TEXTAREA
+{
+	border: solid 1px #AAA;
+	background: #DDD;
+	color: #333;
+}
+
+.comment
+{
+	font: 12px tahoma;
+	color: #333;
+	width: 30%;
+	height: 100px;
+	overflow: auto;
+	background: #FFF;
+}
+
+.textinput
+{
+	background: #FFF;
+}
+
+A IMG
+{
+	border: none;
+}
+
+#wrapper
+{
+	padding: 20px 1%;
+	width: 98%;
+	float:left;
+	display: block;
+}
+
+.tableheader, #buyers, #operblock, #groupselect, .th1, TR TD, P, FIELDSET
+{
+	font: 12px tahoma;
+	color: #333;
+}
+
+th.mauseover
+{
+	background: #DDD;
+	cursor:hand
+}
+
+#map
+{
+	width: 100%;
+	float: left;
+	height: 550px;
+	padding-bottom: 2px;
+}
+
+#YMapsID 
+{	
+	width: 100%;
+	max-width: 1300px;
+	height: 500px;
+	border: solid 1px #666;
+}
+
+#operblock
+{
+	float: left;
+	padding: 20px 0px;
+}
+
+#header 
+{  
+	width:100%;
+	position: relative;
+    padding: 0px;
+	margin:0 -1px;
+	background-color: #FF000A;
+} 
+
+#header #logo 
+{
+	position: relative;
+	float:left;
+	top: 0px;
+	left: 0px;
+}
+
+#header .title
+{
+	padding-left: 40px;
+	font: 21px tahoma;
+	color: white;
+	text-transform: uppercase;
+	padding-bottom: 42px;
+}
+
+#notice
+{
+	border: solid 3px #D00;
+	background: #EEE;
+	padding: 5px;
+	color: #333;
+}
+
+.logobg 
+{
+	background: url('./../../images/logobg.gif') bottom repeat-x;
+}
+
+.gray
+{
+	color: #888;
+}
+
+.w30px
+{
+	width: 30px;
+	text-align: center;
+}
+
+#div_for_update TABLE
+{
+	background-color: #AAA;
+	border-collapse: collapse;
+}
+
+#div_for_update TABLE .title TD
+{
+	background-color: #AAA;
+	font-weight: bold;
+	color: #FFF;
+}
+
+#div_for_update TR
+{
+	background-color: #FFF;
+}
+
+#div_for_update TR TD INPUT
+{
+	border: none;
+	background: none;
+}
+
+.lightinput, .lightinput INPUT
+{
+	background-color: #FFF;
+	width: 60px;
+}
+
+#buyers TR TD INPUT
+{
+	font: 10px tahoma;	
+	width: 99%;	
+	margin: 1px 0px; 
+	padding: 1px;
+	background: transparent;
+	border: dashed 1px #DDD;	
+	/*max-width: 700px;*/	
+}
+
+#buyers
+{
+	width: 38%;
+	height: 517px;
+	border-bottom: solid 1px #AAA;
+	overflow: auto;
+	float: left;
+	cursor: pointer;
+}
+
+#buyers TABLE, #tableheader TABLE
+{
+	background-color: #AAA;
+}
+
+#buyers TR
+{
+	background-color: #FFF;
+}
+.rdata
+{
+	background-color: white;
+}
+
+#rpanel {
+  float: right;
+  margin: 1%;
+  width: 65%;
+}
+
+#lpanel {
+  float: left;
+  margin: 1%;
+  width: 30%;
+  height: 100%;
+  padding: 0px
+}
+
+div.auto_complete {
+  width: 350px;
+  background: #fff;
+}
+div.auto_complete ul {
+  border:1px solid #888;
+  margin:0;
+  padding:0;
+  width:100%;
+  list-style-type:none;
+  height:10em;
+  overflow:auto;
+}
+div.auto_complete ul li {
+  margin:0;
+  padding:3px;
+}
+div.auto_complete ul li.selected {
+  background-color: #ffb;
+}
+div.auto_complete ul strong.highlight {
+  color: #800; 
+  margin:0;
+  padding:0;
+}

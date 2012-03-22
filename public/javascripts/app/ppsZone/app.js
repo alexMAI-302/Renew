@@ -1,0 +1,1 @@
+Ext.Loader.setConfig({enabled: true});Ext.application({	name: 'ppsZoneEditor',	appFolder: '/javascripts/app/ppsZone',	controllers: ['ppsZone'],    launch: function() {    }});
