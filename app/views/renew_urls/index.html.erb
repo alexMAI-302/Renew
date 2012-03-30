@@ -23,7 +23,7 @@
 				<th 
 				 onMouseOver="this.className='mauseover'" 
 				 onMouseOut="this.className=''" 
-				 onClick = "window.document.location='<%= url_for (:action => "index", :field => "name", :order => @sort_order["name"])%>'">
+				 onClick = "window.document.location='<%= url_for(:action =>"index", :field => "name", :order => @sort_order["name"])%>'">
 					Наименование <%=@sign_order["name"]%>
 				</th>
 				<th>
@@ -35,7 +35,7 @@
 				<th 
 				 onMouseOver="this.className='mauseover'" 
 				 onMouseOut="this.className=''" 
-				 onClick = "window.document.location='<%= url_for (:action => "index", :field => "sorder", :order => @sort_order["sorder"])%>'">
+				 onClick = "window.document.location='<%= url_for(:action => "index", :field => "sorder", :order => @sort_order["sorder"])%>'">
 					Позиция в списке <%=@sign_order["sorder"]%>
 				</th>
 				<th>

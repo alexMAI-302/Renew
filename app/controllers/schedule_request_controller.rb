@@ -1,24 +1,9 @@
 # encoding: utf-8
 class ScheduleRequestController < ApplicationController
 
-require 'digest/md5'
-require 'crypt/idea'
-
 	def index
 		@displayname=session[:user_displayname]
 		@mail=session[:user_mail]
-
-		#length = 25 + rand(12)
-		#userkey = ""
-		#length.times { userkey << rand(256).chr }
-		#idea_en = Crypt::IDEA.new(userkey, Crypt::IDEA::ENCRYPT) 
-		#string = "This is a string which is not a multiple of 8 characters long"
-		#encryptedString = idea_en.encrypt_string(string)
-		#flash[:notice] =encryptedString
-		#digest = Digest::MD5.new("123456").digest
-		#digest =::Digest::MD5.hexdigest('123456789')
-		#flash[:notice] =digest
-
 	end		
 
 	def sending
@@ -50,33 +35,46 @@ require 'crypt/idea'
 			schedule_request.ddatee=ddatee
 			schedule_request.comments=@comments
 			schedule_request.save
-			#redirect_to :action => "index"
 
 		end	
 
 
 	end
 	def inout
-		@ddatee =Date.today().to_s
+		@ddatee=Date.today().to_s
 
 		@ddateb=session[:ddateb]
-		if params[:ddateb]
+		if params[:ddateb] && params[:ddateb]!=""
 			@ddateb = params[:ddateb]
 			session[:ddateb] = @ddateb
 		end
 
-		if params[:ddatee]
+		if params[:ddatee] && params[:ddatee]!=""
 			@ddatee = params[:ddatee]
 			session[:ddatee] = @ddatee
 		end
 		
-		if not @ddateb then
-			@ddateb =Date.today().to_s
+		if (not @ddateb) || (@ddateb=="")
+			@ddateb = Date.today().to_s
+			session[:ddateb]=@ddateb
 		end if
 
 		@person=ActiveRecord::Base.connection.select_value("select top 1 person_id from person where lname+' '+fname='#{session[:user_displayname]}' ")
 		@str_cond = " '#{@ddateb}', '#{@ddatee} ' "
-		@rst_inout = ActiveRecord::Base.connection.select_all( "select id, dir, if dir=1 then 'Вход' else 'Выход' endif dir_name, ddatetime from entrance where person_id=#{@person} and ddatetime between  '#{@ddateb}' and dateadd(day,1,'#{@ddatee} ')  order by ddatetime");
+		@rst_inout = ActiveRecord::Base.connection.select_all("
+		select
+		    id,
+		    dir,
+		    if dir=1 then 'Вход' else 'Выход' endif dir_name,
+		    ddatetime
+		from
+		    entrance
+		where
+		    person_id=#{@person}
+		    and
+		    ddatetime between '#{@ddateb}' and dateadd(day,1,'#{@ddatee} ')
+		order by
+		    ddatetime");
 
 	end
 

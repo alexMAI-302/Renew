@@ -1,0 +1,1 @@
+Ext.Loader.setConfig({enabled: true});Ext.application({	name: 'sellPriceUsers',	appFolder: '/javascripts/app/sellPriceUsers',	controllers: ['sellPriceUsers'],    launch: function() {    }});

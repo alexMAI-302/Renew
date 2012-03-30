@@ -559,7 +559,7 @@ if (root){
 					<fieldset>
 						<legend>Комментарий</legend>
 						<label for="terminal_break">Вид поломки</label>
-						<%=select(:c, :terminal_break, @break_list, {:selected => -666}, :onchange => "on_terminal_break_change(event)" ) %>
+ 						<%=select(:c,:terminal_break, @break_list, {:selected => -666}, :onchange => "on_terminal_break_change(event)") %>
 						<label for="teсhinfo">Причина</label>
 						<%=text_field_tag :techinfo, :techinfo, :size => "50", :value=>"", :onchange => "on_techinfo_change(event)" %> 					
 					</fieldset>

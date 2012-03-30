@@ -4,16 +4,16 @@
 <% content_for :js do %>
 
 	<script type="text/javascript" src="/ext/ext-all-dev.js"></script>
-	<script type="text/javascript" src="/javascripts/app/ppsZoneUsers/app.js"></script>
+	<script type="text/javascript" src="/javascripts/app/sellPriceUsers/app.js"></script>
 
 	<%= javascript_tag "window._token = '#{form_authenticity_token}'" %>
 <% end %>
 
 <% content_for :title do %>
-Права на зоны
+Права на подразделения для желтых ценников
 <%	end -%>
 
 <% content_for :content do %>
-	<div id="pps_zone_users_js">
+	<div id="sell_price_users_js">
 	</div>
 <% end -%>

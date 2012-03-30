@@ -21,9 +21,9 @@ class AdUser
       if ldap.bind 
         filter = Net::LDAP::Filter.construct( "userprincipalname=#{name}" )
         ldap.search( :base => "dc=unact,dc=ru", :filter => filter ) do |entry|
-		  user.mail=entry["mail"].to_s
-		  user.displayname=entry["displayname"].to_s
-		  user.userprincipalname=entry["userprincipalname"].to_s
+		  user.mail=entry["mail"].to_s.delete("[").delete("]").delete("\"")
+		  user.displayname=entry["displayname"].to_s.delete("[").delete("]").delete("\"")
+		  user.userprincipalname=entry["userprincipalname"].to_s.delete("[").delete("]").delete("\"")
         end
       else 
         puts "User authorization Failed" 

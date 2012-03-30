@@ -176,9 +176,6 @@ module ActiveRecord
     # unixODBC 2.2.11, Ruby ODBC 0.996, Ruby DBI 0.0.23 and Ruby 1.8.2.
     # [Linux strongmad 2.6.11-1.1369_FC4 #1 Thu Jun 2 22:55:56 EDT 2005 i686 i686 i386 GNU/Linux]
     class SQLServerAdapter < AbstractAdapter
-    
-		ENC_EXEC = Iconv.new("cp1251//IGNORE", "utf-8")
-		ENC_SELECT = Iconv.new("utf-8", "cp1251")
 	
       def initialize(connection, logger, connection_options=nil)
         super(connection, logger)
@@ -249,7 +246,6 @@ module ActiveRecord
 
       def select_rows(sql, name = nil)
         rows = []
-		sql = ENC_EXEC.iconv(sql)
         repair_special_columns(sql)
         log(sql, name) do
           @connection.select_all(sql) do |row|
@@ -258,9 +254,6 @@ module ActiveRecord
               if col.is_a? DBI::Timestamp
                 record << col.to_time
               else
-				if ((col.is_a? DBI::Type::Varchar) || (col.is_a? String)) && !col.nil?
-					col = ENC_SELECT(col)
-				end
                 record << col
               end
             end
@@ -332,7 +325,6 @@ module ActiveRecord
       end
 
       def execute(sql, name = nil)
-		sql = ENC_EXEC.iconv(sql)
         if sql =~ /^\s*INSERT/i && (table_name = query_requires_identity_insert?(sql))
           log(sql, name) do
             with_identity_insert_enabled(table_name) do 
@@ -540,7 +532,6 @@ module ActiveRecord
 
       private 
         def select(sql, name = nil)
-		  sql = ENC_EXEC.iconv(sql)
           repair_special_columns(sql)
 
           result = []          
@@ -551,9 +542,6 @@ module ActiveRecord
                 if value.is_a? DBI::Timestamp
                   value = DateTime.new(value.year, value.month, value.day, value.hour, value.minute, value.sec)
                 end
-				if ((value.is_a? DBI::Type::Varchar) || (value.is_a? String)) && !value.nil?
-					value = (!value.nil?)?ENC_SELECT.iconv(value):value
-				end
                 row_hash[handle.column_names[i]] = value
               end
               result << row_hash

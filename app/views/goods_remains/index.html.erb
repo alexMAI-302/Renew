@@ -23,7 +23,7 @@
 					<th></th>
 					<% @goods_remains.each do |r| %>
 						<th>
-							<%= r['name'] %>
+							<%= r['name'].force_encoding('utf-8') %>
 						</th>
 					<% end %>
 				</tr>

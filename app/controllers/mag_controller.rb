@@ -289,7 +289,7 @@ def print_so_fop sale_id
 			left outer join cutgoods c on c.id = i.goods_id  
 			where s.sale_id = #{sale_id}")
 	return if not @rep or @rep.size == 0
-	f = File.open('palm_sale'+session[:tabnum]+'.xml ','w')
+	f = File.open('palm_sale'+session[:tabnum]+'.xml','w')
 	#p 'palm_sale'+tabnum+'.xml '
 	f.puts "<palm_sale>"
 	ddate = @rep[0]['ddate']
@@ -304,7 +304,9 @@ def print_so_fop sale_id
 	f.puts "<summ>#{sprintf('%g',s)}</summ>"
 	f.puts "</palm_sale>"
 	f.close
-	puts `c:\\fop-0.95\\fop.bat -dpi 600 -xml palm_sale#{session[:tabnum]}.xml -xsl palm_sale.xsl -pcl #{session[:printer]}`
+	puts `/usr/bin/fop -dpi 600 -xml "palm_sale#{session[:tabnum]}.xml" -xsl palm_sale.xsl -pcl "#{session[:tabnum]}.pcl"`
+        puts `/usr/bin/smbclient -U=renew_print@unact.ru%jjPBrKR8 #{session[:printer]} -c "print #{session[:tabnum]}.pcl"`
+
 end
 
 def get_sum ( id, mode, flag )

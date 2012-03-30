@@ -1,4 +1,6 @@
-require 'win32ole'
+Encoding.default_internal = Encoding::UTF_8
+Encoding.default_external = Encoding::UTF_8
+#require 'win32ole'
 
 # Be sure to restart your server when you modify this file
 
@@ -39,7 +41,7 @@ Rails::Initializer.run do |config|
 
   # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
   # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}')]
-  # config.i18n.default_locale = :de
+  # config.i18n.default_locale = :ru
+	config.log_level = :debug
 end
-
 require "will_paginate"

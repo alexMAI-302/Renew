@@ -30,11 +30,12 @@
 					<div class="tabbed horizontal">
 						<ul>
 							<% if @menu_subjects!=nil then @menu_subjects.each do |menu_subject| %>
-							<li>
-								<a href="<%= menu_subject['url_pattern'] %>" class="f">
-									<%= menu_subject['name'] %>
-								</a>
-							</li>
+<li>
+					<a href="<%= menu_subject['url_pattern'] %>" class="f">
+						<%= menu_subject['name'] %>
+					</a>
+				</li>
+						
 							<% end end %>
 						</ul>
 					</div>

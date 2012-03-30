@@ -7,6 +7,7 @@ Ext.define('sellPrice.controller.sellPrice', {
 	models: [
 		'sellPrice.model.sellPriceModel',
 		'sellPrice.model.valueModel',
+		'sellPrice.model.valueStrModel',
 		'sellPrice.model.goodsModel',
 		'sellPrice.model.goodsPriceModel'],
     init: function() {
@@ -18,6 +19,37 @@ Ext.define('sellPrice.controller.sellPrice', {
 		}
 		
 		Ext.Ajax.request.failure = showServerError;
+		
+		function checkDateError(goodsId, value){
+			if(goodsId){
+				var intersect=false;
+				var intervals="";
+				var ddateb, ddatee;
+				
+				goodsPricesStore.each(
+					function(storeRecord){
+						if(storeRecord.get('goods_id') == goodsId){
+							ddateb=(storeRecord.get('ddateb') && storeRecord.get('ddateb')!='')?
+								storeRecord.get('ddateb'):
+								new Date('0000-01-01');
+							ddatee=(storeRecord.get('ddatee') && storeRecord.get('ddatee')!='')?
+								storeRecord.get('ddatee'):
+								new Date('9999-01-01');
+							intervals+=""+Ext.Date.format(ddateb, "d.m.Y")+" - "+Ext.Date.format(ddatee, "d.m.Y")+"\n";
+							if(Ext.Date.between(value, ddateb, ddatee)) {
+								intersect=true;
+							}
+						}
+						return true;
+					});
+				if(!intersect) {
+					return intervals;
+				} else {
+					return false;
+				}
+			}
+			return false;
+		}
 		
 		function loadSellPrices(){
 			sellPricesContainer.setDisabled(true);
@@ -88,7 +120,7 @@ Ext.define('sellPrice.controller.sellPrice', {
 		};
 		
 		var partnersStore = Ext.create('Ext.data.Store', {
-			model: 'sellPrice.model.valueModel',
+			model: 'sellPrice.model.valueStrModel',
 			proxy: {
 				type: 'ajax',
 				url : '/sell_price/get_partners',
@@ -273,7 +305,7 @@ Ext.define('sellPrice.controller.sellPrice', {
 						xtype: 'datefield',
 						format: 'd.m.Y',
 						altFormats: 'd/m/Y|d m Y|Y-m-d',
-						startDay: 1,
+						startDay: 1
 					},
 					renderer: function(value, metaData, record){
 						return (value)?Ext.Date.format(new Date(value), 'd.m.Y'):'';
@@ -287,7 +319,7 @@ Ext.define('sellPrice.controller.sellPrice', {
 						xtype: 'datefield',
 						format: 'd.m.Y',
 						altFormats: 'd/m/Y|d m Y|Y-m-d',
-						startDay: 1,
+						startDay: 1
 					},
 					renderer: function(value){
 						return (value)?Ext.Date.format(new Date(value), 'd.m.Y'):'';
@@ -413,16 +445,13 @@ Ext.define('sellPrice.controller.sellPrice', {
 					header: 'Скидка, %',
 					dataIndex: 'discount',
 					width: 65,
-					renderer: Ext.util.Format.numberRenderer('0.0'),
 					field: {
 						xtype: 'numberfield',
-						allowDecimals: true,
-						decimalPrecision: 1,
 						listeners:{
 							"change": function(t, newValue, oldValue, options){
 								var r = sellPricesPanel.getSelectionModel().getSelection()[0];
 								r.beginEdit();
-								r.set("price", r.get("bprice")*(1-newValue/100));
+								r.set("price", r.get("bprice")*(1-parseInt(newValue)/100.0));
 								r.endEdit(true);
 								return true;
 							}
@@ -504,16 +533,26 @@ Ext.define('sellPrice.controller.sellPrice', {
 					
 					var error=false;
 					sellPricesStore.each(function(record){
-						var msg;
+						var msg="";
 						var data=(record.data!=null)?record.data:{};
 						if(!(data.goods_id)>0){
-							msg="Не заполнено поле \"Товар\"";
+							msg+="Не заполнено поле \"Товар\"\n";
 							error=true;
+						}
+						
+						error=checkDateError(data.goods_id, (data.ddateb)?data.ddateb:(new Date('0000-01-01')));
+						if(error){
+							msg+="Дата начала действия скидки должна лежать в интервалах: "+error+"\n";
+						}
+						
+						error=checkDateError(data.goods_id, (data.ddatee)?data.ddatee:(new Date('9999-01-01')));
+						if(error){
+							msg+="Дата окончания действия скидки  должна лежать в интервалах: "+error+"\n";
 						}
 						
 						if(error){
 							Ext.Msg.alert('Ошибка', msg);
-							sellPricesStore.getSelectionModel().select(record.id, false, false);
+							sellPricesPanel.getSelectionModel().select(record.id, false, false);
 							return false;
 						} else {
 							return true;

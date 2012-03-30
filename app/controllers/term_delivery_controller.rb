@@ -65,7 +65,7 @@ class TermDeliveryController < ApplicationController
 	#@zone_list =  ["Не выбрано",-666] 
 	@zone_list = @rst_route.collect {|p| [ p["zone_name"], p["zone"] ] }
 	@zone_list <<  ["Не выбрано",-666] 													   
-	@break = ActiveRecord::Base.connection.select_all( "SELECT 	id, CSCONVERT(break_name, 'utf-8', 'windows-1251') name, break_penalty FROM terminal_break order by name")														   	
+	@break = ActiveRecord::Base.connection.select_all( "SELECT 	id, break_name name, break_penalty FROM terminal_break order by name")														   	
 	@break_list = @break.collect {|p| [ p["name"], p["id"] ] }
 	@break_list <<  ["Не выбрано",-666] 
   end

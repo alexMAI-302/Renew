@@ -83,9 +83,9 @@ module ActiveRecord
           case sql_type
             when /^tinyint/i
 		1
-            when /^smallint/i 
+            when /^smallint/i
 		2
-            when /^integer/i
+            when /^integer/i  
 		4            
             when /^bigint/i   
 		8  
@@ -107,9 +107,6 @@ module ActiveRecord
     end
 
     class SQLAnywhereAdapter < AbstractAdapter
-	
-               ENC_EXEC = Iconv.new("utf-8//IGNORE", "utf-8")
-               ENC_SELECT = Iconv.new("utf-8//IGNORE", "utf-8")
 
       def initialize( connection, logger = nil, connection_string = "") #:nodoc:
         super(connection, logger)
@@ -247,13 +244,6 @@ module ActiveRecord
 		#добавляем правильного пользователя для записи логов
 		sql = "SET @@username='#{$username}'; #{sql}"
 
-#File.open('/var/www/renew/log/sa.log', 'a+') {|f| f.write("  sqlanywhere_adapter.rb: #{sql}") }#puts "sqlanywhere_adapter.rb: #{sql}"
-
-		#преобразуем utf8 в cp1251
-		sql = ENC_EXEC.iconv(sql)
-
-#File.open('/var/www/renew/log/sa.log', 'a+') {|f| f.write("  sqlanywhere_adapter.rb: #{sql}") }#puts "sqlanywhere_adapter.rb: #{sql}"
-
         # ActiveRecord allows a query to return TOP 0. SQL Anywhere requires that the TOP value is a positive integer.
         return Array.new() if sql =~ /TOP 0/i
            
@@ -261,7 +251,6 @@ module ActiveRecord
         rs = SA.instance.api.sqlany_execute_direct(@connection, sql)
         if rs.nil?
           error = SA.instance.api.sqlany_error(@connection)
-		  error_str = ENC_SELECT.iconv(error.to_s)
           case error[0].to_i
           when -143
             if sql =~ /^SELECT/i then
@@ -281,12 +270,6 @@ module ActiveRecord
             result = Hash.new()
             max_cols.times do |cols|
 				value = SA.instance.api.sqlany_get_column(rs, cols)[1]
-				if SA.instance.api.sqlany_get_column_info(rs, cols)[3] == 2 && (value.is_a? String) && !sql.nil?
-
-#File.open('/var/www/renew/log/sa.log', 'a+') {|f| f.write("    Rsqlanywhere_adapter.rb: #{value}") }
-					value = ENC_SELECT.iconv(value)
-#File.open('/var/www/renew/log/sa.log', 'a+') {|f| f.write("    Rsqlanywhere_adapter.rb: #{value}") }
-				end
               result[SA.instance.api.sqlany_get_column_info(rs, cols)[2]] = value
             end
             record << result

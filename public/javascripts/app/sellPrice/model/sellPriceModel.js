@@ -6,10 +6,10 @@ Ext.define('sellPrice.model.sellPriceModel', {
 	{name: 'goods_name'				, type: 'string',	persist: false},
 	{name: 'lggroup_id'				, type: 'auto',		persist: false},
 	{name: 'price'					, type: 'float',	persist: false},
-	{name: 'partner_id'				, type: 'int'},
-    {name: 'ddateb'					, type: 'date'},
-    {name: 'ddatee'					, type: 'date'},
-    {name: 'discount'				, type: 'float'},
-    {name: 'bprice'					, type: 'float',	persist: false},
+	{name: 'partner_id'				, type: 'string'},
+    {name: 'ddateb'					, type: 'date',		dateFormat: 'Y-m-d'},
+    {name: 'ddatee'					, type: 'date',		dateFormat: 'Y-m-d'},
+    {name: 'discount'				, type: 'int'},
+    {name: 'bprice'					, type: 'float'},
     {name: 'sell_reason_id'			, type: 'auto'}]
 });
