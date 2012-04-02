@@ -447,6 +447,7 @@ Ext.define('sellPrice.controller.sellPrice', {
 					width: 65,
 					field: {
 						xtype: 'numberfield',
+						minValue: 0,
 						listeners:{
 							"change": function(t, newValue, oldValue, options){
 								var r = sellPricesPanel.getSelectionModel().getSelection()[0];
@@ -461,14 +462,14 @@ Ext.define('sellPrice.controller.sellPrice', {
 				{
 					header: 'Цена до скидки',
 					dataIndex: 'bprice',
-					renderer: Ext.util.Format.numberRenderer('0.00'),
+					renderer: Ext.util.Format.numberRenderer('0.0000'),
 					disabled: true
 				},
 				{
 					header: 'Цена после скидки',
 					width: 110,
 					dataIndex: 'price',
-					renderer: Ext.util.Format.numberRenderer('0.00')
+					renderer: Ext.util.Format.numberRenderer('0.0000')
 				},
 				{
 					width: 150,
