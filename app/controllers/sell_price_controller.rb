@@ -40,7 +40,9 @@ class SellPriceController < ApplicationController
 				WHERE
 					dbo.isect(''#{ddateb}'', ''#{ddatee}'', sp.ddateb, sp.ddatee)>0
 					AND
-					sp.partner=#{partner_id}',
+					sp.partner=#{partner_id}
+					AND
+					sp.price IS NULL',
 				#{site_id}
 				")
 					
@@ -100,7 +102,7 @@ class SellPriceController < ApplicationController
 					WHERE
 						iam=user_id(''dbo'') and parent=0 and id=#{params[:goods_id]})
 				WHERE
-					id=#{params[:id]}',
+					id=#{params[:id]} AND price IS NULL',
 				#{site_id}
 				")
 				
