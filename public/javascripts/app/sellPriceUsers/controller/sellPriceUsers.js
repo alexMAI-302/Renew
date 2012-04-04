@@ -6,8 +6,7 @@ Ext.define('sellPriceUsers.controller.sellPriceUsers', {
     extend: 'Ext.app.Controller',
 	models: [
 		'sellPriceUsers.model.sellPriceUserModel',
-		'sellPriceUsers.model.valueModel',
-		'sellPriceUsers.model.valueStrModel'
+		'sellPriceUsers.model.valueModel'
 	],
     init: function() {
 	
@@ -46,7 +45,7 @@ Ext.define('sellPriceUsers.controller.sellPriceUsers', {
 		});
 		
 		var partnerGroupsStore = Ext.create('Ext.data.Store', {
-			model: 'sellPriceUsers.model.valueStrModel',
+			model: 'sellPriceUsers.model.valueModel',
 			proxy: {
 				type: 'rest',
 				url : '/sell_price_users/get_partner_groups',
