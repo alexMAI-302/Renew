@@ -1,1 +1,0 @@
-Ext.Loader.setConfig({enabled: true});Ext.application({	name: 'ppsZoneUsers',	appFolder: '/javascripts/app/ppsZoneUsers',	controllers: ['ppsZoneUsers'],    launch: function() {    }});

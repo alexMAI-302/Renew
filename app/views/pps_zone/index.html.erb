@@ -1,6 +1,3 @@
-<% content_for :stylesheets_links do %>	
-	<link type="text/css" rel="stylesheet" media="screen" href="/ext/resources/css/ext-all.css">
-<% end -%>
 <% content_for :stylesheets do %>
 
 	.x-action-col-cell img {\
@@ -15,23 +12,29 @@
 		background-image: url(/ext/examples/shared/icons/fam/add.gif);
 	}
 <% end -%>
+
+<% content_for :js_controller do %>
+,'ppsZone'
+<% end -%>
+
 <% content_for :js do %>
-<script type="text/javascript" src="/ext/ext-all-dev.js"></script>
 <script src="http://api-maps.yandex.ru/1.1/index.xml?key=ADh8UkwBAAAA-f5qPAIAXlBgstzuwer3VtCIdJ9TLbfB6WoAAAAAAAAAAADcdhGtjFd6a6RPHi8luz3UxLa8JA==" type="text/javascript"></script>
 <script type="text/javascript">
 	var map;
 </script>
-<script type="text/javascript" src="/javascripts/app/ppsZone/app.js"></script>
 <% end -%>
+
 <% content_for :title do %>
 Зоны терминалов
 <%	end -%>
+
 <% content_for :content do %>
 	<div id="tst">
 	</div>
 	<div id="YMapsID">
 	</div>
 <% end -%>
+
 <% content_for :body_attrs do %>
 onload="
 		YMaps.jQuery(function () {

@@ -1,1 +1,0 @@
-Ext.Loader.setConfig({enabled: true});Ext.application({	name: 'transit',	appFolder: '/javascripts/app/transit',	controllers: ['transit'],    launch: function() {    }});

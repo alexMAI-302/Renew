@@ -21,31 +21,10 @@ class ApplicationController < ActionController::Base
   def store_location
 	session[:return_to] = request.request_uri
   end
-
-	private
-	def get_menu_subjects
-		@menu_subjects=ActiveRecord::Base.connection.select_all("
-			SELECT DISTINCT
-				ru.name name,
-				ru.url_pattern url_pattern,
-				ru.sorder
-			FROM
-				renew_web.renew_url ru
-				JOIN renew_web.renew_users_urls ruu ON ru.id=ruu.renew_user_url_id
-				JOIN renew_web.renew_users_groups rug ON rug.renew_user_group_id=ruu.renew_user_group_id
-				JOIN renew_web.renew_users rusr ON rusr.id=rug.renew_user_id
-			WHERE
-				ru.url_type_id IN (SELECT id FROM renew_web.renew_url_type WHERE name='Пункт меню') AND
-				rusr.name='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}'
-			ORDER BY
-				ru.sorder
-			")
-	end
   
   protected
   def check_access
 	$username=(!session[:user_id].nil?)?(session[:user_id]):("guest")
-	get_menu_subjects
 	user_urls=ActiveRecord::Base.connection.select_all("
 	SELECT DISTINCT
 		url_pattern
@@ -85,7 +64,6 @@ class ApplicationController < ActionController::Base
 	if @error_text.index("-57010") then
 		@error_text.insert(6," Не найдены агенты для маршрутов ")
 	end
-	begin get_menu_subjects rescue nil end
 	
 	render :template => "/errors/500.html.erb", :status => 500
   end
@@ -93,7 +71,6 @@ class ApplicationController < ActionController::Base
   protected
   def render_not_found(exception)
 	@error_text="Запрашиваемый Вами ресурс #{request.request_uri} не найден"
-	begin get_menu_subjects rescue nil end
 	
 	render :template => "/errors/500.html.erb", :status => 404
   end

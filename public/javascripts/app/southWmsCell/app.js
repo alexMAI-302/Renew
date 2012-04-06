@@ -1,1 +1,0 @@
-Ext.Loader.setConfig({enabled: true});Ext.application({	name: 'southWmsCell',	appFolder: '/javascripts/app/southWmsCell',	controllers: ['southWmsCell'],    launch: function() {    }});

@@ -1,1 +1,0 @@
-Ext.Loader.setConfig({enabled: true});Ext.application({	name: 'renewPlan',	appFolder: '/javascripts/app/renewPlan',	controllers: ['renewPlan'],    launch: function() {    }});

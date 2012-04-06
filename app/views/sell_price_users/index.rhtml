@@ -1,10 +1,8 @@
-<% content_for :stylesheets_links do %>	
-	<link type="text/css" rel="stylesheet" media="screen" href="/ext/resources/css/ext-all.css">
-<% end -%>
-<% content_for :js do %>
+<% content_for :js_controller do %>
+, 'sellPriceUsers'
+<% end %>
 
-	<script type="text/javascript" src="/ext/ext-all-dev.js"></script>
-	<script type="text/javascript" src="/javascripts/app/sellPriceUsers/app.js"></script>
+<% content_for :js do %>
 
 	<%= javascript_tag "window._token = '#{form_authenticity_token}'" %>
 <% end %>

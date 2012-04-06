@@ -1,14 +1,6 @@
-<% content_for :stylesheets_links do %>	
-	<link type="text/css" rel="stylesheet" media="screen" href="/ext/resources/css/ext-all.css">
+<% content_for :js_controller do %>
+,'ppsZoneUsers'
 <% end -%>
-<% content_for :js do %>
-
-	<script type="text/javascript" src="/ext/ext-all-dev.js"></script>
-	<script type="text/javascript" src="/javascripts/app/ppsZoneUsers/app.js"></script>
-
-	<%= javascript_tag "window._token = '#{form_authenticity_token}'" %>
-<% end %>
-
 <% content_for :title do %>
 Права на зоны
 <%	end -%>
