@@ -3,7 +3,6 @@
 class UtilDataController < ApplicationController
 
   def get_menu
-	logger.info "session user: #{session[:user_id]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 	main_subjects=ActiveRecord::Base.connection.select_all("
 	SELECT DISTINCT
 		ru.id,
