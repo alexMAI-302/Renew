@@ -19,7 +19,10 @@ class ApplicationController < ActionController::Base
   
   private
   def store_location
-	session[:return_to] = request.request_uri
+	# меню загружается ajax-запросом, поэтому не надо сохранять ссылку на него
+	if request.path[Regexp.new("^/util_data/get_menu.*")] != request.path
+		session[:return_to] = request.request_uri
+	end
   end
   
   protected
