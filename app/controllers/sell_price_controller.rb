@@ -53,58 +53,28 @@ class SellPriceController < ApplicationController
 			when "post"
 			begin
 				Proxycat.connection.execute(
-				"exec dbo.iud_data_site '
-				INSERT INTO sell_price(
-					id,
-					partner,
-					goods,
-					ddateb,
-					ddatee,
-					discount,
-					sell_reason_id,
-					currency,
-					pmeas)
-				SELECT
-					idgenerator(''sell_price''),
-					#{partner_id},
-					#{params[:goods_id]},
-					''#{ddateb}'',
-					''#{ddatee}'',
-					#{params[:discount]/100.0},
-					#{nullify params[:sell_reason_id]},
-					0,
-					(SELECT
-						pmeas
-					FROM
-						my_goods
-					WHERE
-						iam=user_id(''dbo'') and parent=0 and id=#{params[:goods_id]})',
-				#{site_id}
-				")
+				"exec dbo.prc_ins_sell_price
+				#{partner_id},
+				#{params[:goods_id]},
+				''#{ddateb}'',
+				''#{ddatee}'',
+				#{params[:discount]/100.0},
+				#{nullify params[:sell_reason_id]},
+				#{site_id}")
 				
 				render :text => "[]"
 			end
 			when "put"
 			begin
 				Proxycat.connection.execute(
-				"exec dbo.iud_data_site '
-				UPDATE sell_price SET
-					partner=#{partner_id},
-					goods=#{params[:goods_id]},
-					ddateb=''#{ddateb}'',
-					ddatee=''#{ddatee}'',
-					discount=#{params[:discount]/100.0},
-					sell_reason_id=#{nullify params[:sell_reason_id]},
-					pmeas=(SELECT
-						pmeas
-					FROM
-						my_goods
-					WHERE
-						iam=user_id(''dbo'') and parent=0 and id=#{params[:goods_id]})
-				WHERE
-					id=#{params[:id]} AND price IS NULL',
-				#{site_id}
-				")
+				"exec dbo.prc_ins_sell_price
+				#{partner_id},
+				#{params[:goods_id]},
+				''#{ddateb}'',
+				''#{ddatee}'',
+				#{params[:discount]/100.0},
+				#{nullify params[:sell_reason_id]},
+				#{site_id}")
 				
 				render :text => "[]"
 			end
@@ -112,9 +82,25 @@ class SellPriceController < ApplicationController
 			begin
 				Proxycat.connection.execute(
 				"exec dbo.iud_data_site '
-				DELETE FROM sell_price
-				WHERE
-					id=#{params[:id]}',
+				BEGIN
+					DECLARE @partner_id	int;
+					DECLARE @ddateb		datetime;
+					DECLARE @ddatee		datetime;
+					DECLARE @goods_id	datetime;
+					
+					SELECT partner, ddateb, ddatee, goods
+					INTO @partner_id, @ddateb, @ddatee, @goods_id
+					FROM sell_price
+					WHERE id=#{id};
+					
+					DELETE FROM sell_price
+					WHERE
+						partner=@partner_id AND
+						ddateb=@ddateb AND
+						ddatee=@ddatee AND
+						goods=@goods_id AND
+						discount>0
+				END',
 				#{site_id}
 				")
 				render :text => "[]"
@@ -139,14 +125,12 @@ class SellPriceController < ApplicationController
 		FROM
 			renew_web.get_price_data(#{partner_id}, TODAY()) t
 			JOIN (SELECT
-				gsgl.goods goods_id,
-				bp.ddateb,
-				bp.ddatee
+				bp_goods.goods goods_id,
+				bp_goods.ddateb,
+				bp_goods.ddatee
 			FROM
 				dbo.bp_groups bp_g
-				JOIN dbo.bprog bp ON bp_g.id=bp.bp_group
-				JOIN dbo.goods_set gs ON gs.id=bp.goods_set
-				JOIN dbo.gsg_link gsgl ON gs.id=gsgl.goods_set
+				JOIN dbo.v_bprog_goods bp_goods ON bp_g.id=bp_goods.bp_group
 			WHERE
 				bp_g.name=''Желтый ценник'') t1 ON t.goods_id=t1.goods_id',
 		#{site_id}
