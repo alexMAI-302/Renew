@@ -46,8 +46,6 @@ class SellPriceController < ApplicationController
 				#{site_id}
 				")
 					
-				puts sell_prices_list.to_json
-					
 				render :text => sell_prices_list.to_json
 			end
 			when "post"
@@ -56,8 +54,8 @@ class SellPriceController < ApplicationController
 				"exec dbo.prc_ins_sell_price
 				#{partner_id},
 				#{params[:goods_id]},
-				''#{ddateb}'',
-				''#{ddatee}'',
+				'#{ddateb}',
+				'#{ddatee}',
 				#{params[:discount]/100.0},
 				#{nullify params[:sell_reason_id]},
 				#{site_id}")
@@ -70,8 +68,8 @@ class SellPriceController < ApplicationController
 				"exec dbo.prc_ins_sell_price
 				#{partner_id},
 				#{params[:goods_id]},
-				''#{ddateb}'',
-				''#{ddatee}'',
+				'#{ddateb}',
+				'#{ddatee}',
 				#{params[:discount]/100.0},
 				#{nullify params[:sell_reason_id]},
 				#{site_id}")
