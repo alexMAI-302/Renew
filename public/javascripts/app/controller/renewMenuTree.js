@@ -27,11 +27,6 @@ Ext.define('app.controller.renewMenuTree', {
 				parent_id: mainItemsCombo.value};
 			
 			menuTreeStore.load(function(){
-				menuTreeStore.each(function(record){
-					record[record.persistenceProperty]["id"] = record.get("parent_id")+"_"+record.get("child_id");
-					record.isDirty=false;
-					return true;
-				});
 				mainContainer.setLoading(!(finishMainItems && finishItems));
 			});
 		}
@@ -204,7 +199,8 @@ Ext.define('app.controller.renewMenuTree', {
 					var r = Ext.ModelManager.create(
 					{
 						is_new: true,
-						parent_id: mainItemsCombo.value
+						parent_id: mainItemsCombo.value,
+						child_id: 0
 					},
 					'app.model.renewMenuTree.menuTreeModel');
 					menuTreeStore.insert(0, r);

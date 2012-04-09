@@ -48,8 +48,9 @@ class RenewMenuTreeController < ApplicationController
 		begin
 			renew_urls = ActiveRecord::Base.connection.select_all("
 			SELECT
-				parent parent_id,
-				id child_id
+				CONVERT(varchar(30), rmt.parent)+'_'+CONVERT(varchar(30), rmt.id) id,
+				rmt.parent parent_id,
+				rmt.id child_id
 			FROM
 				renew_web.renew_menu_tree rmt
 			WHERE
