@@ -443,6 +443,7 @@ Ext.define('app.controller.sellPrice', {
 					field: {
 						xtype: 'numberfield',
 						minValue: 0,
+						maxValue: 99,
 						listeners:{
 							"change": function(t, newValue, oldValue, options){
 								var r = sellPricesPanel.getSelectionModel().getSelection()[0];
@@ -533,6 +534,11 @@ Ext.define('app.controller.sellPrice', {
 						var data=(record.data!=null)?record.data:{};
 						if(!(data.goods_id)>0){
 							msg+="Не заполнено поле \"Товар\"\n";
+							error=true;
+						}
+						
+						if(!(data.sell_reason_id)>0){
+							msg+="Не заполнено поле \"Причина скидки\"\n";
 							error=true;
 						}
 						
