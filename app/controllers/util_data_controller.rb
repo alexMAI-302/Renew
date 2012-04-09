@@ -105,7 +105,8 @@ class UtilDataController < ApplicationController
 			if child_subject["parent"]==main_subject["id"] then
 				items << {
 					:text	=> child_subject["name"],
-					:url	=> child_subject["url_pattern"]
+					:href	=> child_subject["url_pattern"],
+					:target	=> '_self'
 				}
 			end
 		end
@@ -113,15 +114,13 @@ class UtilDataController < ApplicationController
 		if items.length>0 then
 			subject = {
 				:text	=> main_subject["name"],
-				:menu	=> {:items => items},
-				:plain	=> "true"
+				:menu	=> {:items => items}
 			}
 		else
 			subject = {
 				:text		=> main_subject["name"],
 				:href		=> main_subject["url_pattern"],
-				:target		=> '_self',
-				:plain		=> "true"
+				:target		=> '_self'
 			}
 		end
 		
