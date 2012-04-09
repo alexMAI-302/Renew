@@ -35,7 +35,7 @@ class UtilDataController < ApplicationController
 		UNION ALL
 		SELECT
 			ru.id,
-			min(rmt.id) child_id,
+			rmt.id child_id,
 			ru.name,
 			ru.url_pattern,
 			ru.sorder
@@ -49,12 +49,7 @@ class UtilDataController < ApplicationController
 			FROM
 				renew_web.renew_url_type
 			WHERE
-				name='Главный пункт меню')
-		GROUP BY
-			ru.id,
-			ru.name,
-			ru.url_pattern,
-			ru.sorder) ru
+				name='Главный пункт меню')) ru
 		JOIN renew_web.renew_users_urls ruu ON ru.child_id=ruu.renew_user_url_id
 		JOIN renew_web.renew_users_groups rug ON rug.renew_user_group_id=ruu.renew_user_group_id
 		JOIN renew_web.renew_users rusr ON rusr.id=rug.renew_user_id
