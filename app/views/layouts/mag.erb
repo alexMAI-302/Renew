@@ -26,6 +26,36 @@
 	<% content_for :title do %>
 	Магазин брака
 	<% end -%>
+	
+	<% content_for :stylesheets do %>
+	.mag-form * {
+		font: 12px tahoma;
+		color: #333;
+		margin: 10px;
+	}
+	
+	.mag-form FIELDSET
+	{
+		text-align: left;
+		margin: 0px;
+		padding: 5px 10px;
+		border: solid 1px #CCC;		
+	}
+	
+	.mag-form FIELDSET
+	{
+		text-align: left;
+		margin: 0px;
+		padding: 5px 10px;
+		border: solid 1px #CCC;		
+	}
+	
+	.mag-form ol, li
+	{
+		list-style-type: decimal;
+	}
+	
+	<% end -%>
 
 	<% content_for :content do %>
 		<% if flash[:notice] -%>     
