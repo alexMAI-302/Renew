@@ -13,38 +13,8 @@ class SellPriceController < ApplicationController
 		case request.method.to_s
 			when "get"
 			begin
-				sell_prices_list = Proxycat.connection.select_all(
-				"exec dbo.get_data_site '
-				SELECT
-					sp.id,
-					t.goods_id goods_id,
-					t.goods_name goods_name,
-					t.lggroup_id lggroup_id,
-					t.price*(1-ISNULL(sp.discount, 0)) price,
-					''#{partner_id}_#{site_id}'' partner_id,
-					CONVERT(varchar(10), sp.ddateb, 120) ddateb,
-					IF sp.ddatee=''9999-01-01'' THEN NULL ELSE CONVERT(varchar(10),ddatee, 120) END IF ddatee,
-					sp.discount*100 discount,
-					t.price bprice,
-					sp.sell_reason_id
-				FROM
-					sell_price sp
-					JOIN (
-					SELECT
-						price,
-						goods_id,
-						goods_name,
-						lggroup_id
-					FROM
-						renew_web.get_price_data(#{partner_id}, TODAY())) t ON sp.goods=t.goods_id
-				WHERE
-					dbo.isect(''#{ddateb}'', ''#{ddatee}'', sp.ddateb, sp.ddatee)>0
-					AND
-					sp.partner=#{partner_id}
-					AND
-					sp.price IS NULL',
-				#{site_id}
-				")
+				
+                sell_prices_list = Proxycat.connection.select_all("exec ask_sell_price #{site_id}, #{partner_id}, '#{ddateb}', '#{ddatee}'")
 					
 				render :text => sell_prices_list.to_json
 			end
@@ -78,41 +48,7 @@ class SellPriceController < ApplicationController
 			end
 			when "delete"
 			begin
-				Proxycat.connection.execute(
-				"exec dbo.iud_data_site '
-				BEGIN
-					DECLARE @partner_id	int;
-					DECLARE @ddateb		datetime;
-					DECLARE @ddatee		datetime;
-					DECLARE @goods_id	int;
-					
-					SELECT partner, ddateb, ddatee, goods
-					INTO @partner_id, @ddateb, @ddatee, @goods_id
-					FROM sell_price
-					WHERE id=#{params[:id]};
-					
-					DELETE FROM sell_price
-					WHERE
-						partner=@partner_id AND
-						ddateb=@ddateb AND
-						ddatee=@ddatee AND
-						goods IN (
-						SELECT
-							id
-						FROM
-							goods
-						WHERE
-							ISNULL(semigoods,id) IN
-						(SELECT
-							ISNULL(g.semigoods, g.id)
-						FROM
-							goods g
-						WHERE
-							g.id=@goods_id)) AND
-						discount>0;
-				END',
-				#{site_id}
-				")
+				Proxycat.connection.execute("exec prc_del_sell_price #{site_id}, #{params[:id]}")
 				render :text => "[]"
 			end
 		end
@@ -123,28 +59,8 @@ class SellPriceController < ApplicationController
 		partner_id=strs[0]
 		site_id=strs[1]
 		
-		goods_prices=Proxycat.connection.select_all(
-		"exec dbo.get_data_site '
-		SELECT
-			t.goods_id,
-			t.goods_name,
-			t.lggroup_id,
-			t.price,
-			CONVERT(varchar(10), t1.ddateb, 120) ddateb,
-			CONVERT(varchar(10), t1.ddatee, 120) ddatee
-		FROM
-			renew_web.get_price_data(#{partner_id}, TODAY()) t
-			JOIN (SELECT
-				bp_goods.goods goods_id,
-				bp_goods.ddateb,
-				bp_goods.ddatee
-			FROM
-				dbo.bp_groups bp_g
-				JOIN dbo.v_bprog_goods bp_goods ON bp_g.id=bp_goods.bp_group
-			WHERE
-				bp_g.name=''Желтый ценник'') t1 ON t.goods_id=t1.goods_id',
-		#{site_id}
-		")
+		goods_prices=Proxycat.connection.select_all("exec ask_yellow_goods #{site_id}, #{partner_id}")
+                                            
 		render :json => goods_prices.to_json
 	end
 	
@@ -153,42 +69,7 @@ class SellPriceController < ApplicationController
 		partner_id=strs[0]
 		site_id=strs[1]
 		
-		lggroups=Proxycat.connection.select_all(
-		"exec dbo.get_data_site '
-		select	
-			l.id,
-			l.name
-		from 
-				lggroup l
-		where
-			exists( 
-				select
-					1
-				from
-					partner_plist ppl 
-					join pricelist_prices pp on pp.list=ppl.plist
-					join goods g on g.id=pp.goods
-					join goods_lggroup() lg ON lg.id=g.id 
-				where
-					(exists
-						(select
-							1
-						from
-							plset_ggroup, goods_groups_tree ggt 
-						where
-							plset_ggroup.plset=ppl.plset
-							and
-							plset_ggroup.g_group=ggt.parent and ggt.id=g.g_group
-						)
-						or not exists (select 1 from plset_ggroup where plset_ggroup.plset=ppl.plset)
-					)
-					and
-					ppl.partner = #{partner_id} and pp.ddate = today() and l.id=lg.lggroup
-			)
-		order by
-			name',
-		#{site_id}
-		")
+		lggroups=Proxycat.connection.select_all("exec ask_yellow_lggroup #{site_id}, #{partner_id}")
 		render :json => lggroups.to_json
 	end
 	
