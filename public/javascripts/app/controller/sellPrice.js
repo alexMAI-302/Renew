@@ -528,7 +528,7 @@ Ext.define('app.controller.sellPrice', {
 				handler : function() {
 					var selection=sellPricesPanel.getSelectionModel().getSelection()[0];
 					
-					var error=false;
+					var error=false, errorTxt;
 					sellPricesStore.each(function(record){
 						var msg="";
 						var data=(record.data!=null)?record.data:{};
@@ -542,19 +542,21 @@ Ext.define('app.controller.sellPrice', {
 							error=true;
 						}
 						
-						error=checkDateError(data.goods_id, (data.ddateb)?data.ddateb:(new Date('0000-01-01')));
-						if(error){
-							msg+="Дата начала действия скидки должна лежать в интервалах: "+error+"\n";
+						errorTxt=checkDateError(data.goods_id, (data.ddateb)?data.ddateb:(new Date('0000-01-01')));
+						if(errorTxt){
+							msg+="Дата начала действия скидки должна лежать в интервалах: "+errorTxt+"\n";
+							error=true;
 						}
 						
-						error=checkDateError(data.goods_id, (data.ddatee)?data.ddatee:(new Date('9999-01-01')));
-						if(error){
-							msg+="Дата окончания действия скидки  должна лежать в интервалах: "+error+"\n";
+						errorTxt=checkDateError(data.goods_id, (data.ddatee)?data.ddatee:(new Date('9999-01-01')));
+						if(errorTxt){
+							msg+="Дата окончания действия скидки  должна лежать в интервалах: "+errorTxt+"\n";
+							error=true;
 						}
 						
 						if(error){
 							Ext.Msg.alert('Ошибка', msg);
-							sellPricesPanel.getSelectionModel().select(record.id, false, false);
+							sellPricesPanel.getSelectionModel().select(record.id);
 							return false;
 						} else {
 							return true;
@@ -564,7 +566,7 @@ Ext.define('app.controller.sellPrice', {
 						sellPricesStore.proxy.extraParams={};
 						sellPricesStore.sync();
 					}
-					if(selection!=null){
+					if(selection!=null && selection.date!=null){
 						partnersCombo.value=selection.data.partner_id;
 						sellPricesPanel.getSelectionModel().select(sellPricesStore.getById(selection.data.id));
 					}
