@@ -121,7 +121,6 @@ module ActionController #:nodoc:
             when String, Symbol
               file_name  = arg.to_s.underscore + '_helper'
               class_name = file_name.camelize
-
               begin
                 require_dependency(file_name)
               rescue LoadError => load_error
@@ -194,6 +193,9 @@ module ActionController #:nodoc:
           unless name.blank?
             module_name = name.sub(/Controller$|$/, 'Helper')
             module_path = module_name.split('::').map { |m| m.underscore }.join('/')
+            if not File.exists?(module_path)
+              return
+            end
             require_dependency module_path
             helper module_name.constantize
           end
