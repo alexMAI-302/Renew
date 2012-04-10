@@ -84,20 +84,32 @@ class SellPriceController < ApplicationController
 					DECLARE @partner_id	int;
 					DECLARE @ddateb		datetime;
 					DECLARE @ddatee		datetime;
-					DECLARE @goods_id	datetime;
+					DECLARE @goods_id	int;
 					
 					SELECT partner, ddateb, ddatee, goods
 					INTO @partner_id, @ddateb, @ddatee, @goods_id
 					FROM sell_price
-					WHERE id=#{id};
+					WHERE id=#{params[:id]};
 					
 					DELETE FROM sell_price
 					WHERE
 						partner=@partner_id AND
 						ddateb=@ddateb AND
 						ddatee=@ddatee AND
-						goods=@goods_id AND
-						discount>0
+						goods IN (
+						SELECT
+							id
+						FROM
+							goods
+						WHERE
+							ISNULL(semigoods,id) IN
+						(SELECT
+							ISNULL(g.semigoods, g.id)
+						FROM
+							goods g
+						WHERE
+							g.id=@goods_id)) AND
+						discount>0;
 				END',
 				#{site_id}
 				")
