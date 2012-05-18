@@ -2,31 +2,31 @@ class BuyersRouteController < ApplicationController
   
   def index
 	set_conditions
-	@rst_site = ActiveRecord::Base.connection.select_all( "select id, name from site where istarget = 1 " )
-	@site_list = @rst_site.collect {|p| [ p["name"], p["id"] ] }
+	rst_site = ActiveRecord::Base.connection.select_all( "select id, name from site where istarget = 1 " )
+	@site_list = rst_site.collect {|p| [ p["name"], p["id"] ] }
 
-	@rst_spv = ActiveRecord::Base.connection.select_all( " select id, name from sp_values where sp_tp = 1284 " )
-	@spv_list = @rst_spv.collect {|p| [ p["name"], p["id"] ] }
+	rst_spv = ActiveRecord::Base.connection.select_all( " select id, name from sp_values where sp_tp = 1284 " )
+	@spv_list = rst_spv.collect {|p| [ p["name"], p["id"] ] }
 
-	@rst_route = ActiveRecord::Base.connection.select_all(
+	rst_route = ActiveRecord::Base.connection.select_all(
 	" select id, name, points from buyers_route where site = #{@site} and spv_id = #{@spv_id} order by name " )
 	@route_list = []
 	@route_index = 0
 	@route_id = session[:route_id].to_i 
 	@route_id = 0 if not @route_id
-	@rst_route.each_with_index do |p,i| 
+	rst_route.each_with_index do |p,i| 
 		@route_list << [ p["name"], i ]
 		@route_index = i if @route_id == p["id"]
 	end
-	if @rst_route.size > 0
-		@route_id = @rst_route[@route_index]["id"]
-		@route_points = @rst_route[@route_index]["points"]
+	if rst_route.size > 0
+		@route_id = rst_route[@route_index]["id"]
+		@route_points = rst_route[@route_index]["points"]
 	else
 		@route_id = 0
 		@route_points = ""
 	end 
-	@route_json = @rst_route.to_json( :only => [ "id", "points", "name" ] )
-	@rst_buyers = ActiveRecord::Base.connection.select_all( " select distinct g.id id,   
+	@route_json = rst_route.to_json( :only => [ "id", "points", "name" ] )
+	rst_buyers = ActiveRecord::Base.connection.select_all( " select distinct g.id id,   
 																	 g.latitude latitude, g.longitude longitude
 															from placeunload g  
 															 ") 

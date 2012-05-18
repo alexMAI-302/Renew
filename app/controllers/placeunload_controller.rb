@@ -330,66 +330,20 @@ class PlaceunloadController < ApplicationController
 			@flt_ddate = session[:flt_ddate] || 0
 			@flt_notgeo = session[:flt_notgeo] || 0
 		end
-		if @flt_name.size > 0 
-			sw += " and p.name like '%#{@flt_name}%'"
-			tops = ""
-		end
-		if @flt_address.size > 0 
-			sw += " and p.address like '%#{@flt_address}%'"
-			tops = ""
-		end
-		if @flt_tp.size > 0 
-			sw += " and tp like '%#{@flt_tp}%'"
-			tops = ""
-		end
-		if @flt_ischeck != -1 
-			sw += " and isnull(p.ischeck,0) = #{@flt_ischeck}"
-		end
-		if @flt_buyers_route_id != 0 
-			sw += " and isnull(p.buyers_route_id,-1) = #{@flt_buyers_route_id}"
-			tops = ""
-		end
-		if @flt_ddate != 0 
-			sw += " and p.id in (
-									SELECT
-									b.placeunload_id
-									FROM buyers b
-									JOIN dblog.dbevent e ON b.xid=e.object AND e.OP = 1 AND e.table_name = 'buyers'
-									WHERE
-									b.agent IS NOT NULL AND
-									e.ts >= dateadd(day,-#{@flt_ddate},today())
-								) "
-			tops = ""
-		end
-		if @flt_notgeo > 0 
-			sw += " and p.fulladdress in ('Россия, Москва, Красная площадь, 2', 'Россия, Москва, Варшавское шоссе, 2') "
-			tops = ""
-		end
+		
 	end
-  	@rst_buyers = ActiveRecord::Base.connection.select_all("
-			select #{tops}
-				p.id                			id,
-				p.name              			pname,
-				p.address           			srcaddress, 
-				p.fulladdress       			fulladdress, 
-				p.latitude          			latitude,
-				p.longitude         			longitude,
-				p.descr             			descr,
-				isnull(p.unloading,-1)         	unloading,
-				isnull(p.delscheduleid,4384)  	delscheduleid,
-				isnull(p.incscheduleid,4384)  	incscheduleid,
-				isnull(p.buyers_route_id,-1)   	buyers_route_id,
-				isnull(p.placecategory_id,-1)  	placecategory_id,
-				isnull(p.ischeck,0)            	ischeck,
-				(select list(g2.name)  
-					from partners_groups g2 
-					join partners_groups g1 on g1.parent = g2.id
-					join partners pr on g1.id = pr.parent
-					join buyers b on b.partner = pr.id 
-					where b.placeunload_id = p.id ) tp
-			from
-				placeunload p
-			where #{sw} order by p.name") 
+  	
+	@rst_buyers=Proxycat.connection.select_all("exec placeunload_index
+		#{@id},
+		#{@flt},
+		#{@flt_name},
+		#{@flt_address},
+		#{@flt_tp},
+		#{@flt_ischeck},
+		#{@flt_buyers_route_id},
+		#{@flt_ddate},
+		#{@flt_notgeo}")
+	
 	@rst_new = @rst_buyers.to_json( :only => [ "id", "longitude", "latitude", "pname" ] ) 
 	if @rst_buyers.size > 0 
 		if @rst_buyers[0]["longitude"] and @rst_buyers[0]["latitude"]
@@ -535,15 +489,14 @@ private
   	@longitude = 37.498995
 	@latitude  = 55.842610
 	@places    = []
+	@unloading_list     = [ ['__Не определено', -1], ['15 мин', 15],['30 мин',30],['45 мин',45],['1 час',60],['2 час',120],['4 час',240] ] 
 	@placecategory_list = ActiveRecord::Base.connection.select_all( "select id, name from placecategory order by name" ).collect {|p| [ p["name"], p["id"] ] }
-	@schedule_list      = ActiveRecord::Base.connection.select_all( "select id, name	from schedule order by name" ).collect {|p| [ p["name"], p["id"] ] }
-	@unloading_list     = [ ['__Не определено', -1], ['15 мин', 15],['30 мин',30],['45 мин',45],['1 час',60],['2 час',120],['4 час',240] ]  
-	@buyers_route_list  = ActiveRecord::Base.connection.select_all( "select id, name from buyers_route 
-						 											 union all
-						 											 select -1 id, '__Не определен' name
-																	 order by 2" ).collect{|p| [ p["name"], p["id"] ]}
-	@route_json = ActiveRecord::Base.connection.select_all( "select id, name, points from buyers_route where length(points) > 0 order by 2" ).to_json( )
-
+	@schedule_list      = ActiveRecord::Base.connection.select_all( "select id, name from schedule order by name" ).collect {|p| [ p["name"], p["id"] ] }
+	
+	res = Proxycat.connection.select_all("exec placeunload_set_conditions")
+	
+	@buyers_route_list  = (res.select{|p| p["type"]=="buyers_route_list"}).collect{|p| [ p["name"], p["id"] ]}
+	@route_json = ((res.select {|p| p["type"]=="route_json" }).collect{|p| {"id" => p["id"], "name" => p["name"], "points" => p["points"]} }).to_json
   end
 
 end
