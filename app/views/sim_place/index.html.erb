@@ -1,0 +1,47 @@
+<% content_for :stylesheets do %>
+	div#simPlaceTable div.x-unselectable {
+	 -webkit-user-select: text !important;
+	 -o-user-select: text !important;
+	 -khtml-user-select: all !important;
+	 -ms-user-select: text !important;
+	 user-select: text !important;
+	 -moz-user-select: text !important;
+	}
+	div#simPlaceTable div.x-unselectable tr.x-grid-row div.x-grid-rowwrap-div td.x-grid-cell
+	{
+	 -webkit-user-select: text !important;
+	 -o-user-select: text !important;
+	 -khtml-user-select: all !important;
+	 -ms-user-select: text !important;
+	 user-select: text !important;
+	 -moz-user-select: text !important;
+	}
+	div#simPlaceTable div.x-unselectable tr.x-grid-row div.x-grid-rowwrap-div td.x-grid-cell div.x-unselectable
+	{
+	 -webkit-user-select: text !important;
+	 -o-user-select: text !important;
+	 -khtml-user-select: all !important;
+	 -ms-user-select: text !important;
+	 user-select: text !important;
+	 -moz-user-select: text !important;
+	}
+	div#simPlaceTable div.x-unselectable tr.x-grid-row
+	{
+	 -webkit-user-select: text !important;
+	 -o-user-select: text !important;
+	 -khtml-user-select: all !important;
+	 -ms-user-select: text !important;
+	 user-select: text !important;
+	 -moz-user-select: text !important;
+	}
+<% end -%>
+<% content_for :js_controller do %>
+,'simPlace'
+<% end -%>
+<% content_for :title do %>
+Выдача сим-карт
+<%	end -%>
+<% content_for :content do %>
+	<div id="sim_place_js">
+	</div>
+<% end -%>
