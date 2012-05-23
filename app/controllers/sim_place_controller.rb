@@ -25,7 +25,6 @@ class SimPlaceController < ApplicationController
 	end
 
         def simka_do
-
 		ddateb=(nullify params[:ddateb])[0..9]
 		ddatee=(params[:ddatee] && params[:ddatee]!="" && params[:ddatee]!="null")?(params[:ddatee][0..9]):('01-01-9999')
 		
@@ -36,20 +35,11 @@ class SimPlaceController < ApplicationController
 										      from simka where ddate between '#{ddateb}' and '#{ddatee}'")
 				render :text => simka_list.to_json
 			when "post"															       
-				ActiveRecord::Base.connection.execute("call iud_simka( 1,  null, #{nullstr params[:msidn]}, 
-                                            #{nullstr params[:icc]}, #{nulldate params[:ddate]}, #{nullstr params[:unlim]}, #{nulldate params[:date_unlim]},
-					     #{params[:isblocked]?1:0} ) ")
-				render :text => "[]"
+				iud_simka 1
 			when "put"
-				ActiveRecord::Base.connection.execute("call iud_simka( 2,  #{params[:id]}, #{nullstr params[:msidn]}, 
-                                            #{nullstr params[:icc]}, #{nulldate params[:ddate]}, #{nullstr params[:unlim]}, #{nulldate params[:date_unlim]},
-					     #{params[:isblocked]?1:0} ) ")
-				render :text => "[]"
+				iud_simka 2
 			when "delete"
-				ActiveRecord::Base.connection.execute("call iud_simka( 3,  #{params[:id]}, #{nullstr params[:msidn]}, 
-                                            #{nullstr params[:icc]}, #{nulldate params[:ddate]}, #{nullstr params[:unlim]}, #{nulldate params[:date_unlim]},
-					     #{params[:isblocked]?1:0} ) ")
-				render :text => "[]"
+				iud_simka 3
 		end
 	end
 	
@@ -76,5 +66,23 @@ class SimPlaceController < ApplicationController
 
 	def nulldate val
 		val=(val.nil? || val=="")? "null" : "'#{val[0..9]}'"
+	end
+	
+	def iud_simka iud
+		params.delete("_dc") 
+		a = params["_json"]?params["_json"]:[params]		
+		ssql = "begin
+				declare @errmsg varchar(255);
+				call iud_simka( #{iud},  '#{a.to_xml}', @errmsg);
+						select @errmsg errmsg;
+			end;"
+		puts ssql
+		errmsg = ActiveRecord::Base.connection.select_value(ssql)
+		if errmsg.size > 0
+			render :text => '{"success":false, "message":"' + errmsg + '"}'
+		else
+			render :text => '[]'
+		end
+
 	end
 end

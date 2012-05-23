@@ -9,13 +9,6 @@ Ext.define('app.controller.simka', {
 		'app.model.valueStrModel',
 		'app.model.simka.simkaModel'],
     init: function() {
-	
-		function showServerError(response, options) {
-			Ext.Msg.alert('Ошибка', response.responseText);
-			mainContainer.setLoading(false);
-		}
-		
-		Ext.Ajax.request.failure = showServerError;
 		
 		function loadSimka(){
 		    simkaContainer.setDisabled(true);
@@ -44,11 +37,22 @@ Ext.define('app.controller.simka', {
 				type: 'rest',
 				url : '/sim_place/simka_do',
 				batchUpdateMode: 'complete',
+				batchActions: true,
 				reader: {
 					type: 'json'
 				},
 				writer: {
 					type: 'json'
+				},
+				listeners : {
+					exception : function(proxy, response, operation) {
+						if (operation) {
+							//Ext.Msg.alert('Ошибка',JSON.parse(response.responseText).message);
+							Ext.Msg.alert('Ошибка',response.responseText);
+						} else {
+							Ext.Msg.alert('Ошибка', 'хз');
+						}
+					}
 				}
 			},
 			getBatchListeners: function() {
