@@ -89,11 +89,19 @@
 <% end %>
 
 <% content_for :title do %>
-	Инкассация терминалов
+	Инкассация терминалов2
 <% end %>
 
 <% content_for :js do %>
 	<%= javascript_include_tag :defaults %>
+		<script>
+									function start_update(tid){
+									$('spinner_errortext_'+tid).show();
+									$('term_errortext_'+tid).update('Подождите пожалуйста, идет расчет.....');
+									};
+			</script>
+							
+							
 	<script type="text/javascript" charset="utf-8">
 		var mode='base';
 		var term=0;
@@ -186,6 +194,8 @@
 					$('zone_'+zone).cells[3].textContent = $('zone_'+zone).cells[3].textContent -0 +1;
 				else
 					$('zone_'+zone).cells[3].textContent -= 1;		
+				
+				$('a_'+terminal+'_modified').value = 1;
 			}
 			else
 			{
@@ -248,6 +258,7 @@
 						break;
 					}
 				}
+				$('a_'+term+'_modified').value = 1;
 				
 			}
 		};
@@ -256,7 +267,14 @@
 			if (term !=0)
 			{
 				$('a_'+term+'_techinfo').value =	$('techinfo').value;					
-				$('term_'+term).cells[15].textContent = $('techinfo').value;
+				$('term_'+term).cells[15].textContent =  $('techinfo').value
+				$('a_'+term+'_terminal_break').value = $('c_terminal_break').value
+				$('term_'+term).cells[11].textContent =  $('c_terminal_break').options[$('c_terminal_break').selectedIndex].label;
+				$('a_'+term+'_servstatus').value = $('c_servstatus').value;
+				$('a_'+term+'_servstatus').checked = $('c_servstatus').checked;
+				$('a_'+term+'_penaltystatus').value = $('c_penaltystatus').value;
+				$('a_'+term+'_penaltystatus').checked = $('c_penaltystatus').checked;
+				$('a_'+term+'_modified').value = 1;
 			}
 		};
 		function on_select_terminal(sid,e)
@@ -284,14 +302,24 @@
 				}
 			
 			$('c_terminal_break').value = $('a_'+sid+'_terminal_break').value;
-			$('techinfo').value = $('a_'+sid+'_techinfo').value;			
+			$('techinfo').value = $('a_'+sid+'_techinfo').value;
+			$('c_servstatus').value = $('a_'+term+'_servstatus').value ;
+			$('c_penaltystatus').value = $('a_'+term+'_penaltystatus').value ;
+			$('c_servstatus').checked = $('a_'+term+'_servstatus').checked ;
+			$('c_penaltystatus').checked = $('a_'+term+'_penaltystatus').checked ;
+		};
+	</script>
+	<script>
+		function start_proc(tid){
+			$('spinner'+tid).show();
+			$('row_'+tid).update('Подождите пожалуйста, идет расчет.....');
 		};
 	</script>
 	
 	<script type="text/javascript">
 	<!--
 	/*
-	originally written by paul sowden <paul@idontsmoke.co.uk> | http://idontsmoke.co.uk
+	originally written by paul sowden <paulidontsmoke.co.uk> | http://idontsmoke.co.uk
 	modified and localized by alexander shurkayev <alshur@ya.ru> | http://htmlcssjs.ru
 	*/
 	
@@ -471,8 +499,17 @@ if (root){
 				<br/>	
 				<%=  select(:post, :spv_id, @zone_type_list, {:selected => @spv_id}) %>
 				<br/>	
+				<% if !@shift.nil? and @shift>0 -%>
+					<%=  select(:post, :shift, @zone_shift_list , {:selected => @shift}) %>
+				<% else -%>
+					<b>Нет смен</b>
+				<% end -%>
+				<br/>
 				<label for="ddate">Дата</label>
 				<%=text_field_tag :ddate, @ddate %> 
+				<br/>
+				<label for="ddate">Только в маршруте </label>
+				<%= check_box(:post, :show_inroute, :class => "show_inroute", :value => @show_inroute, :checked => @show_inroute==0 ? false : true) %>
 				<br/>
 				<input name="commit" type="submit" value="Обновить терминалы" />
 				<br/>	
@@ -559,9 +596,17 @@ if (root){
 					<fieldset>
 						<legend>Комментарий</legend>
 						<label for="terminal_break">Вид поломки</label>
- 						<%=select(:c,:terminal_break, @break_list, {:selected => -666}, :onchange => "on_terminal_break_change(event)") %>
-						<label for="teсhinfo">Причина</label>
-						<%=text_field_tag :techinfo, :techinfo, :size => "50", :value=>"", :onchange => "on_techinfo_change(event)" %> 					
+						<%=select(:c, :terminal_break, @break_list, {:selected => -666}, :onchange => "on_techinfo_change(event)" ) %>
+						<% if !(@spv_id==5626) -%>
+							<label for="teсhinfo">C</label>
+							<%= check_box(:c, :servstatus, :value => 0, :checked => false, :onchange => "on_techinfo_change(event)") %>
+							<% if !(@save_osh==1) -%>
+								<label for="teсhinfo">ОШ</label>
+								<%= check_box(:c, :penaltystatus, :value => 0, :checked => false, :onchange => "on_techinfo_change(event)") %>
+								<label for="teсhinfo">Причина</label>
+								<%=text_field_tag :techinfo, :techinfo, :size => "50", :value=>"", :onchange => "on_techinfo_change(event)" %> 			
+							<% end -%>
+						<% end -%>	
 					</fieldset>
 					<% end %>
 					
@@ -579,48 +624,78 @@ if (root){
 						<td width="8%">Зона</td>
 						<td width="4%">Term. Id</td>
 						<td width="17%">Имя терминала</td>
-						<td width="6%">Кол-во денег в терминале</td>
-						<td width="6%">Кол-во купюр в терминале</td>
+						<% if (@spv_id==5626) -%><td width="6%">Кол-во денег в терминале</td> <% end -%>
+						<% if (@spv_id==5626) -%><td width="6%">Кол-во купюр в терминале</td> <% end -%>
 						<td width="4%">Последний сигнал</td>
 						<td width="4%">Последний платёж</td>
 						<td width="4%">Уровень сигнала</td>		
 						<td width="10%">Состояние</td>		
 						<td width="8%">Причина включения в маршрут</td>		
 						<td width="4%">Система</td>
-						<td width="8%">Субагент</td>						
+						<% if (@spv_id==5626) -%><td width="8%">Субагент</td>	<% end -%>					
 						<td width="5%">Вид поломки</td>						
-						<td width="8%">Причина поломки</td>
 						<td width="7%">Отделение банка</td>
+						<% if !(@spv_id==5626) -%><td width="2%">С</td>	<% end -%>				
+						<% if !(@spv_id==5626 and @save_osh==1) -%><td width="2%">ОШ</td>	<% end -%>				
+						<% if !(@spv_id==5626 and @save_osh==1) -%><td width="16%">Комментарий ОШ</td>	<% end -%>				
+						<td width="4%"></td>
 					</tr>
 				</thead>
 				<tbody>
 					<% @rst_term.each_with_index do |a, i| %>
-						<tr <%= "id=\"term_#{a["terminalid"]}\"" %> class="term_<%=a["zone"]%>" style="display:none; <% if not a["style"].nil? -%><%= a["style"]%><% end -%>" onclick="on_select_terminal(<%= a["terminalid"] %>,event)" >
-							<td width="2%"><%= check_box(:a, :termsave, :index => a["terminalid"], :class => "termsave", :value => '0', :checked => a["inroute"]==0 ? false : true, :onclick => "on_term_click(#{a["zone"]},#{a["terminalid"]})") %>
+						<tr <%= "id=\"term_#{a["terminalid"]}\"" %> class="term_<%=a["zone"]%>" <% if not a["style"].nil? -%><%= a["style"]%><% end -%>" onclick="on_select_terminal(<%= a["terminalid"] %>,event)" >
+						<td width="2%"><%= check_box(:a, :termsave, :index => a["terminalid"], :class => "termsave", :value => '0', :checked => a["inroute"]==0 ? false : true, :onclick => "on_term_click(#{a["zone"]},#{a["terminalid"]})") %>
 								<%= hidden_field(:a, :zone, :index => a["terminalid"], :value => a["zone"] ) %>
 								<%= hidden_field(:a, :zone_check, :class => "zone_check_#{a["zone"]}", :index => a["terminalid"], :value => 1 ) %>
-								<%= hidden_field(:a, :terminal_break, :index => a["terminalid"], :value => a["terminal_break"] ) %>
-								<%= hidden_field(:a, :techinfo, :index => a["terminalid"], :value => a["techinfo"] ) %>
+								<%= hidden_field(:a, :modified, :index => a["terminalid"], :value => a["modified"] ) %>								
 							</td>
 							
 							<td width="3%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%=  i+1 %></td>							
 							<td width="8%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["zone_name"]%></td>
 							<td width="4%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%=  a["terminalid"] %></td>
 							<td width="17%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%=  a["name"] %></td>
-							<td width="6%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%=  a["summ"] %></td>
-							<td width="6%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["cnt"] %></td>
-							<td width="4%" <% if not a["LastConnectTime_style"].nil? -%>style="<%= a["LastConnectTime_style"]%>" <% end -%> ><%= a["LastConnectTime"].nil? ? '' : a["LastConnectTime"].to_time.strftime("%d/%m/%Y %H:%M") %></td>
-							<td width="4%" <% if not a["LastPaymentTime_style"].nil? -%>style="<%= a["LastPaymentTime_style"]%>" <% end -%> ><%= a["LastPaymentTime"].nil? ? '' : a["LastPaymentTime"].to_time.strftime("%d/%m/%Y %H:%M") %></td>
+							<% if (@spv_id==5626) -%><td width="6%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%=  a["summ"] %></td> <% end -%>
+							<% if (@spv_id==5626) -%><td width="6%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["cnt"] %></td> <% end -%>
+							<td width="4%" <% if not a["LastConnectTime_style"].nil? -%>style="<%= a["LastConnectTime_style"]%>" <% end -%> >
+								<%= image_tag('ajax-loader.gif', :id => 'spinner_lastconnecttime_'+a["terminalid"].to_s, :style => 'display:none') %>
+								<div id="term_lastconnecttime_<%=a["terminalid"]%>">
+									<%= a["LastConnectTime"].nil? ? '' : a["LastConnectTime"].to_time.strftime("%d/%m/%Y %H:%M") %>
+								</div>
+							</td>
+							<td width="4%" <% if not a["LastPaymentTime_style"].nil? -%>style="<%= a["LastPaymentTime_style"]%>" <% end -%> >
+								<%= image_tag('ajax-loader.gif', :id => 'spinner_lastpaymenttime_'+a["terminalid"].to_s, :style => 'display:none') %>
+								<div id="term_lastpaymenttime_<%=a["terminalid"]%>">
+									<%= a["LastPaymentTime"].nil? ? '' : a["LastPaymentTime"].to_time.strftime("%d/%m/%Y %H:%M") %>
+								</div>
+							</td>	
 							<td width="4%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%= a["SignalLevel"] %></td>
-							<td width="10%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%= h(a["ErrorText"]) %></td>
+							<td width="10%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> >
+								<%= image_tag('ajax-loader.gif', :id => 'spinner_errortext_'+a["terminalid"].to_s, :style => 'display:none') %>
+								<div id="term_errortext_<%=a["terminalid"]%>">
+									<%= h(a["ErrorText"]) %>
+								</div>
+							</td>
 							<td width="8%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%= a["IncassReason"] %></td>
 							<td width="4%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["src_system_name"]%></td>
-							<td width="8%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["subdealer_name"] %></td>							
+							<% if (@spv_id==5626) -%><td width="8%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["subdealer_name"] %></td>	<% end -%>						
 							<td width="5%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["terminal_break_name"] %></td>							
-							<td width="8%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["techinfo"] %></td>
-							<td width="7%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["branch_name"]%></td>							
-						</tr>
-					<% end %>				
+							<td width="7%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["branch_name"]%></td>		
+							<% if !(@spv_id==5626) -%>
+								<td width="2%">
+									<%= image_tag('ajax-loader.gif', :id => 'spinner_servstatus_'+a["terminalid"].to_s, :style => 'display:none') %>
+									<div id="term_errortext_<%=a["terminalid"]%>">
+										<%= check_box(:a, :servstatus, :index => a["terminalid"], :class => "servstatus", :value => '0', :checked => a["servstatus"]==0 ? false : true) %>
+									</div>
+								</td>
+							<% end -%>	
+							<% if !(@spv_id==5626 and @save_osh==1) -%><td width="2%"><%= check_box(:a, :penaltystatus, :index => a["terminalid"], :class => "penaltystatus", :value => '0', :checked => a["penaltystatus"]==0 ? false : true) %> <% end -%>	
+							<% if !(@spv_id==5626 and @save_osh==1)  -%><td width="16%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["techinfo"] %></td>	<% end -%>		
+							<td width="4%"><%= link_to_function 'Обновить', remote_function(:update =>"term_errortext_"+a["terminalid"].to_s, :before => "$('spinner_errortext_"+a["terminalid"].to_s+"').show();", :complete => "$('spinner_errortext_"+a["terminalid"].to_s+"').hide();"+
+								remote_function(:update =>"term_servstatus_"+a["terminalid"].to_s, :before => "$('spinner_servstatus_"+a["terminalid"].to_s+"').show();", :complete => "$('spinner_servstatus_"+a["terminalid"].to_s+"').hide();",:url => { :action => "term_update_servstatus"}, :with => "'terminalid="+a["terminalid"].to_s+"'" )+";"+
+								remote_function(:update =>"term_lastconnecttime_"+a["terminalid"].to_s, :before => "$('spinner_lastconnecttime_"+a["terminalid"].to_s+"').show();", :complete => "$('spinner_lastconnecttime_"+a["terminalid"].to_s+"').hide();",:url => { :action => "term_update_lastconnecttime"}, :with => "'terminalid="+a["terminalid"].to_s+"'" )+";"+								
+								remote_function(:update =>"term_lastpaymenttime_"+a["terminalid"].to_s, :before => "$('spinner_lastpaymenttime_"+a["terminalid"].to_s+"').show();", :complete => "$('spinner_lastpaymenttime_"+a["terminalid"].to_s+"').hide();",:url => { :action => "term_update_lastpaymenttime"}, :with => "'terminalid="+a["terminalid"].to_s+"'" )+";" ,  :url => { :action => "term_update"}, :with => "'terminalid="+a["terminalid"].to_s+"'")  %></td>
+							</tr>
+						<% end %>				
 				</tbody>
 				</table>
 			</div>	
