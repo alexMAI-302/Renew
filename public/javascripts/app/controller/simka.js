@@ -23,6 +23,7 @@ Ext.define('app.controller.simka', {
 		    simkaStore.load(
 			function(records, operation, success){
 			    simkaContainer.setDisabled(false);
+			    clipData.setDisabled(false);
 			    mainContainer.setLoading(false);
 			}
 		    );
@@ -117,6 +118,42 @@ Ext.define('app.controller.simka', {
 		});
 		
 		filterPanel.add(filterSimka);
+		
+		var clipData=Ext.create('Ext.form.TextArea', {
+		    name:'clipboard',  
+		    emptyText:'Данные из буфера...',  
+		    id:"id-clipboard" ,
+		    height: 30,
+		    disabled: true,
+		    listeners:{
+			change: function(source,newValue,OldValue,opts){
+			    if (newValue!=''){
+				cellEditingSimka.cancelEdit();
+				tsvData	= newValue.split("\n");
+				for(var rowIndex = 0; rowIndex < tsvData.length; rowIndex++){
+				    if(tsvData[rowIndex].trim()==""){
+					continue;
+				    };
+				    columns = tsvData[rowIndex].split("\t");
+				    if(columns.length < 2){
+					continue;
+				    };
+				    var r = Ext.ModelManager.create({
+					ddate: 		new Date(Ext.Date.now()),
+					isblocked:  	false,
+					msidn: 		columns[0],
+					icc: 		columns[1]
+				    }, 'app.model.simka.simkaModel');
+				    simkaStore.insert(0, r);
+				    clipData.reset();
+				}
+			    }
+			}
+		    }
+		});
+		
+		filterPanel.add(clipData);
+		
 		mainContainer.add(filterPanel);
 	
 		var cellEditingSimka = Ext.create('Ext.grid.plugin.CellEditing', {
