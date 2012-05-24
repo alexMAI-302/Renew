@@ -169,7 +169,7 @@ class PlaceunloadController < ApplicationController
 	else
 		@id='null'
 		if params[:flt]
-			flt=params[:flt]
+			flt=1
 			@flt_name             = params[:flt][:name].strip
 			@flt_address          = params[:flt][:address].strip
 			@flt_tp               = params[:flt][:tp].strip
@@ -191,7 +191,6 @@ class PlaceunloadController < ApplicationController
 			@flt_ischeck = session[:flt_ischeck] || -1 
 			@flt_buyers_route_id = session[:flt_buyers_route_id] || 0 
 			@flt_ddate = session[:flt_ddate] || 0
-			@flt_ddate = @flt_ddate<=1 ? 2 : @flt_ddate
 			@flt_notgeo = session[:flt_notgeo] || 0
 		end
 		
@@ -354,7 +353,7 @@ private
 	@latitude  = 55.842610
 	@places    = []
 	@unloading_list     = [ ['__Не определено', -1], ['15 мин', 15],['30 мин',30],['45 мин',45],['1 час',60],['2 час',120],['4 час',240] ] 
-	@placecategory_list = ActiveRecord::Base.connection.select_all( "select id, name from placecategory order by name" ).collect {|p| [ p["name"] p["id"] ] }
+	@placecategory_list = ActiveRecord::Base.connection.select_all( "select id, name from placecategory order by name" ).collect {|p| [ p["name"], p["id"] ] }
 	@schedule_list      = ActiveRecord::Base.connection.select_all( "select id, name from schedule order by name" ).collect {|p| [ p["name"], p["id"] ] }
 	
 	res = Proxycat.connection.select_all("exec placeunload_set_conditions")
