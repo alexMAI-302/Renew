@@ -76,7 +76,7 @@ class SimPlaceController < ApplicationController
 				call iud_simka( #{iud},  '#{a.to_xml}', @errmsg);
 						select @errmsg errmsg;
 			end;"
-		puts ssql
+		
 		errmsg = ActiveRecord::Base.connection.select_value(ssql)
 		if errmsg.size > 0
 			render :text => '{"success":false, "message":"' + errmsg + '"}'
