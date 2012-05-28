@@ -80,8 +80,8 @@ class PlaceunloadController < ApplicationController
 		pa = Proxycat.connection.select_one("exec placeunload_add_buyer_partner #{@partner_id}")
 		#logger.info pa["pgroup_name"]
 		@pgroup_id    = (pa["pgroup_id"].nil?)?nil:(pa["pgroup_id"].to_i)
-		@pgroup_name  = pa["pgroup_name"].force_encoding('utf-8')
-		@partner_name = pa["partner_name"].force_encoding('utf-8')
+		@pgroup_name  = pa["pgroup_name"]
+		@partner_name = pa["partner_name"]
 		@buyer_name   = @partner_name
 		@placeunload_name = @partner_name
 		
@@ -129,26 +129,26 @@ class PlaceunloadController < ApplicationController
 	exec dbo.placeunload_save_buyer
 	#{params[:partner][:id].to_i},
 	#{params[:pgroup][:id].to_i},
-	#{params[:partner][:name].strip},
-	#{params[:buyer][:name].strip},
+	'#{params[:partner][:name].strip}',
+	'#{params[:buyer][:name].strip}',
 	#{params[:buyer][:id].to_i},
 	#{params[:placeunload][:id].to_i},
-    #{params[:a][:loadto].strip},
-    #{params[:a][:fulladdress]},
+    '#{params[:a][:loadto].strip}',
+    '#{params[:a][:fulladdress]}',
 	#{params[:a][:longitude]},
 	#{params[:a][:latitude]},
-	#{params[:placeunload][:descr].strip},
+	'#{params[:placeunload][:descr].strip}',
 	#{params[:placeunload][:unloading]=="-1" ? nil : params[:placeunload][:unloading]},
 	#{params[:placeunload][:delscheduleid]},
 	#{params[:placeunload][:incscheduleid]},
 	#{params[:placeunload][:buyers_route_id]=="-1" ? nil : params[:placeunload][:buyers_route_id]},
 	#{params[:placeunload][:placecategory_id]}")
-	if serr.size > 0  
+	if serr.nil?
+		flash[:notice] = "Данные сохранены успешно"
+	else
 		flash[:notice] = "Ошибка:" + serr
 		session[:haserror] = 1
 		session[:placedata] = params.to_hash
-	else
-		flash[:notice] = "Данные сохранены успешно"
 	end
 	redirect_to :action => :add_buyer
   end
@@ -169,7 +169,7 @@ class PlaceunloadController < ApplicationController
 	else
 		@id='null'
 		if params[:flt]
-			flt=params[:flt]
+			flt=1
 			@flt_name             = params[:flt][:name].strip
 			@flt_address          = params[:flt][:address].strip
 			@flt_tp               = params[:flt][:tp].strip
@@ -191,15 +191,13 @@ class PlaceunloadController < ApplicationController
 			@flt_ischeck = session[:flt_ischeck] || -1 
 			@flt_buyers_route_id = session[:flt_buyers_route_id] || 0 
 			@flt_ddate = session[:flt_ddate] || 0
-			@flt_ddate = @flt_ddate<=1 ? 2 : @flt_ddate
+			@flt_ddate = session[:flt_ddate] || 0
 			@flt_notgeo = session[:flt_notgeo] || 0
 		end
-		
 	end
   	
 	@rst_buyers=Proxycat.connection.select_all("exec placeunload_index
 		#{@id},
-		#{flt},
 		'#{@flt_name}',
 		'#{@flt_address}',
 		'#{@flt_tp}',
@@ -354,12 +352,12 @@ private
 	@latitude  = 55.842610
 	@places    = []
 	@unloading_list     = [ ['__Не определено', -1], ['15 мин', 15],['30 мин',30],['45 мин',45],['1 час',60],['2 час',120],['4 час',240] ] 
-	@placecategory_list = ActiveRecord::Base.connection.select_all( "select id, name from placecategory order by name" ).collect {|p| [ p["name"] p["id"] ] }
+	@placecategory_list = ActiveRecord::Base.connection.select_all( "select id, name from placecategory order by name" ).collect {|p| [ p["name"], p["id"] ] }
 	@schedule_list      = ActiveRecord::Base.connection.select_all( "select id, name from schedule order by name" ).collect {|p| [ p["name"], p["id"] ] }
 	
 	res = Proxycat.connection.select_all("exec placeunload_set_conditions")
 	
-	@buyers_route_list  = (res.select{|p| p["type"]=="buyers_route_list"}).collect{|p| [ p["name"].force_encoding('utf-8'), p["id"] ]}
+	@buyers_route_list  = (res.select{|p| p["type"]=="buyers_route_list"}).collect{|p| [ p["name"], p["id"] ]}
 	@route_json = ((res.select {|p| p["type"]=="route_json" }).collect{|p| {"id" => p["id"], "name" => p["name"], "points" => p["point"]} }).to_json
   end
 
