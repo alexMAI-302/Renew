@@ -32,7 +32,7 @@ class PlaceunloadController < ApplicationController
 	bname = params[:buyer][:name]
     pid  = params[:buyer][:partner]
 	
-	@bnames = Proxycat.connection.select_all( "exec placeunload_autocomplete_buyer_name '#{pname}', #{pid}")
+	@bnames = Proxycat.connection.select_all( "exec placeunload_autocomplete_buyer_name '#{bname}', #{pid}")
 	
 	render :layout => false
   end
@@ -59,7 +59,7 @@ class PlaceunloadController < ApplicationController
 		@partner_id       = session[:placedata]["partner"]["id"].to_i
 		@pgroup_id        = session[:placedata]["pgroup"]["id"].to_i
 		@pgroup_name      = session[:placedata]["pgroup"]["name"]
-		@partner_name     = ""#session[:placedata]["partner"]["name"]
+		@partner_name     = session[:placedata]["partner"]["name"]
 		@buyer_id         = session[:placedata]["buyer"]["id"].to_i
 		@buyer_name       = session[:placedata]["buyer"]["name"]
 		@loadto           = session[:placedata]["a"]["loadto"]
@@ -138,12 +138,12 @@ class PlaceunloadController < ApplicationController
 	#{params[:a][:longitude]},
 	#{params[:a][:latitude]},
 	'#{params[:placeunload][:descr].strip}',
-	#{params[:placeunload][:unloading]=="-1" ? nil : params[:placeunload][:unloading]},
+	#{params[:placeunload][:unloading]=="-1" ? 'null' : params[:placeunload][:unloading]},
 	#{params[:placeunload][:delscheduleid]},
 	#{params[:placeunload][:incscheduleid]},
-	#{params[:placeunload][:buyers_route_id]=="-1" ? nil : params[:placeunload][:buyers_route_id]},
+	#{params[:placeunload][:buyers_route_id]=="-1" ? 'null' : params[:placeunload][:buyers_route_id]},
 	#{params[:placeunload][:placecategory_id]}")
-	if serr.nil?
+	if serr.size==0
 		flash[:notice] = "Данные сохранены успешно"
 	else
 		flash[:notice] = "Ошибка:" + serr
