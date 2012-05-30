@@ -158,18 +158,16 @@ class PlaceunloadController < ApplicationController
 	
 	if params[:id]
 		@id=params[:id]
-		flt='null'
-		@flt_name='null'
-		@flt_address='null'
-		@flt_tp='null'
-		@flt_ischeck='null'
-		@flt_buyers_route_id='null'
-		@flt_ddate='null'
-		@flt_notgeo='null'
+		@flt_name=''
+		@flt_address=''
+		@flt_tp=''
+		@flt_ischeck=-1
+		@flt_buyers_route_id=0
+		@flt_ddate=0
+		@flt_notgeo=0
 	else
 		@id='null'
 		if params[:flt]
-			flt=1
 			@flt_name             = params[:flt][:name].strip
 			@flt_address          = params[:flt][:address].strip
 			@flt_tp               = params[:flt][:tp].strip
@@ -184,7 +182,6 @@ class PlaceunloadController < ApplicationController
 			session[:flt_ddate]   = @flt_ddate
 			session[:flt_notgeo]  = @flt_notgeo
 		else
-			flt='null'
 			@flt_name = session[:flt_name]||"" 
 			@flt_address = session[:flt_address] || ""
 			@flt_tp = session[:flt_tp] || ""
