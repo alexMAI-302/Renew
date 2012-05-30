@@ -176,6 +176,9 @@ module ActiveRecord
     # unixODBC 2.2.11, Ruby ODBC 0.996, Ruby DBI 0.0.23 and Ruby 1.8.2.
     # [Linux strongmad 2.6.11-1.1369_FC4 #1 Thu Jun 2 22:55:56 EDT 2005 i686 i686 i386 GNU/Linux]
     class SQLServerAdapter < AbstractAdapter
+
+               ENC_EXEC = Iconv.new("utf-8//IGNORE", "utf-8")
+               ENC_SELECT = Iconv.new("utf-8//IGNORE", "utf-8")
 	
       def initialize(connection, logger, connection_options=nil)
         super(connection, logger)
@@ -325,6 +328,7 @@ module ActiveRecord
       end
 
       def execute(sql, name = nil)
+	sql = ENC_EXEC.iconv(sql)
         if sql =~ /^\s*INSERT/i && (table_name = query_requires_identity_insert?(sql))
           log(sql, name) do
             with_identity_insert_enabled(table_name) do 
@@ -539,6 +543,9 @@ module ActiveRecord
             handle.each do |row|
               row_hash = {}
               row.each_with_index do |value, i|
+		if value.is_a? String
+		  value = ENC_SELECT.iconv(value)
+		end
                 if value.is_a? DBI::Timestamp
                   value = DateTime.new(value.year, value.month, value.day, value.hour, value.minute, value.sec)
                 end
