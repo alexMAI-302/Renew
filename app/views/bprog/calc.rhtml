@@ -1,0 +1,16 @@
+<% content_for :js_controller do %>
+, 'calcBp'
+<% end %>
+
+<% content_for :js do %>
+	<%= javascript_tag "window._token = '#{form_authenticity_token}'" %>
+<% end %>
+
+<% content_for :title do %>
+Пересчет бонусных программ
+<%	end -%>
+
+<% content_for :content do %>
+	<div id="calc_bp_js">
+	</div>
+<% end -%>
