@@ -51,6 +51,8 @@ class TermDeliveryController < ApplicationController
 			from renew_web.renew_users ru
 			left outer join renew_web.renew_users_groups rusgs on rusgs.renew_user_id=ru.id and rusgs.renew_user_group_id=21
 			where ru.name='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}' ");
+	logger.info "save_osh="
+	logger.info @save_osh.to_s
 			
 	@rst_term = ActiveRecord::Base.connection.select_all( "select * from spp.Terminal_Delivery('#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',#{@subdealer},#{@spv_id},'#{@ddate}',#{@shift}, #{@show_inroute})")														   
 	zone=""
