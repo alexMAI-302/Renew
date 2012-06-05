@@ -71,6 +71,21 @@ class TermDeliveryController < ApplicationController
 	@break_list <<  ["Не выбрано",-666] 
   end
   
+  def route_export
+	headers['Content-Type'] = "application/vnd.ms-excel"
+    
+	zone=params[:zone].to_i
+	date=params[:date]
+	
+	set_conditions	
+	s = "select * from spp.Terminal_Delivery(@renew_user='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}', @subdealerID= #{@subdealer}, @zone_type=#{@spv_id},@ddate='#{@ddate}',@shift=#{@shift}, @show_inroute= #{@show_inroute}, @zone=#{zone})"
+	logger.info s
+	@rst_term = ActiveRecord::Base.connection.select_all( s)														   
+	
+	
+	render :layout => false
+end
+  
   	def save_terminal	
 		begin 
 			if params[:shift]
@@ -314,6 +329,8 @@ end
     
   end 
   
+   
+ 
 private
 
   def set_conditions
@@ -357,8 +374,6 @@ private
 		logger.info "2@shift="+@shift.to_s
 	end 
  end
- 
-
  
   
   

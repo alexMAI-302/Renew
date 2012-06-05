@@ -547,6 +547,7 @@ if (root){
 						<td width="43%" colspan="2">Терминалов</td>
 						<td width="7%" rowspan="2">П</td>
 						<td width="7%" rowspan="2">ИЗ</td>
+						<td width="7%" rowspan="2">Э</td>
 					</tr>
 					<tr>
 						<td width="14%">Всего</td>
@@ -566,8 +567,16 @@ if (root){
 							<td width="9%" ><%= link_to(image_tag("/images/printer.png", :size=>"16x14"),{  :action => 'route_print', :zone =>r["zone"], :date=>@ddate, :rel=>"external"}) %></td>
 							<td width="9%" >
 								<% if !(r["zone"]==666) then %>
-									<%= check_box(:r, :delivery_status4, :index => r["zone"], :value => 0, :checked => r["delivery_status4"]==0 ? false : true, :onclick => "on_route_check(#{r["zone"]},event)", :readonly => r["delivery"]>0 ? false : true) %></td>
+									<%= check_box(:r, :delivery_status4, :index => r["zone"], :value => 0, :checked => r["delivery_status4"]==0 ? false : true, :onclick => "on_route_check(#{r["zone"]},event)", :readonly => r["delivery"]>0 ? false : true) %>
 								<% end %>
+							</td>
+							<td width="9%" >
+								<% if !(r["zone"]==666) then %>
+									<%= link_to(image_tag("/images/excel.jpg", :size=>"16x16"),{  :action => 'route_export', :zone =>r["zone"], :date=>@ddate, :rel=>"external"}) %>
+								<% end %>
+							</td>
+							
+							
 							<%= hidden_field(:r, :delivery_status4_right, :index => r["zone"], :value => r["delivery_status4_right"] ) %>
 							<%= hidden_field(:r, :delivery, :index => r["zone"], :value => r["delivery"] ) %>
 						</tr>
