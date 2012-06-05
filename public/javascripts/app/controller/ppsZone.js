@@ -443,12 +443,13 @@ Ext.define('app.controller.ppsZone', {
 				{
 					text    : 'Сохранить терминалы',
 					handler : function() {
+						terminalTabs.setLoading(true);
 						terminalsStore.sync();
 						var rec = zonesPanel.getSelectionModel().getSelection()[0].data;
 						refreshTerminals(rec.points, rec.id);
+						terminalTabs.setLoading(false);
 					},
-					itemId	: 'saveTerminals',
-					disabled: true
+					itemId	: 'saveTerminals'
 				}
 			]
 		});
@@ -682,7 +683,8 @@ Ext.define('app.controller.ppsZone', {
 			var bounds = new YMaps.GeoCollectionBounds(polygon.getPoints());
 			terminalsStore.proxy.extraParams={
 				subdealer: subdealersCombo.value,
-				zone_id: zoneId
+				zone_id: zoneId,
+				visit_freq: zonesStore.getById(zoneId).get("visit_freq")
 			};
 			terminalsStore.load(function(records, operation, success){
 				if(success){
