@@ -1,0 +1,77 @@
+﻿<head>
+<title>Маршрутный лист</title>
+<%= javascript_include_tag :defaults %>
+</head>
+<body>
+	<DIV id="termlist" style="width: 1400px; overflow: auto; border-bottom: 1px solid gray;">
+			Список терминалов
+			
+			<div id="term_header" style='padding-right: 16px;'>
+				<table class="sort" style="overflow: auto; height: 500px;">
+				<thead style="background-color: silver">
+					<tr>
+						<td width="2%">Пометка</td>
+						<td width="3%">п/п</td>
+						<td width="8%">Зона</td>
+						<td width="4%">Term. Id</td>
+						<td width="17%">Имя терминала</td>
+						<% if (@spv_id==5626) -%><td width="6%">Кол-во денег в терминале</td> <% end -%>
+						<% if (@spv_id==5626) -%><td width="6%">Кол-во купюр в терминале</td> <% end -%>
+						<td width="4%">Последний сигнал</td>
+						<td width="4%">Последний платёж</td>
+						<td width="4%">Уровень сигнала</td>		
+						<td width="10%">Состояние</td>		
+						<td width="8%">Причина включения в маршрут</td>		
+						<td width="4%">Система</td>
+						<% if (@spv_id==5626) -%><td width="8%">Субагент</td>	<% end -%>					
+						<td width="5%">Вид поломки</td>						
+						<td width="7%">Отделение банка</td>
+						<% if !(@spv_id==5626) -%><td width="2%">С</td>	<% end -%>				
+						<% if !(@spv_id==5626) and !(@save_osh==0) -%><td width="2%">ОШ</td>	<% end -%>				
+						<% if !(@spv_id==5626) and !(@save_osh==0) -%><td width="16%">Комментарий ОШ</td>	<% end -%>				
+						
+					</tr>
+				</thead>
+				<tbody>
+					<% @rst_term.each_with_index do |a, i| %>
+						<tr>
+						<td width="2%"><%=a["inroute"]==0 ? "" : "В маршруте"%>
+							</td>
+							
+							<td width="3%" ALIGN="right" ><%=  i+1 %></td>							
+							<td width="8%" ><%=  a["zone_name"]%></td>
+							<td width="4%" ALIGN="right"> <%=  a["terminalid"] %></td>
+							<td width="17%" <%=  a["name"] %></td>
+							<% if (@spv_id==5626) -%><td width="6%" ALIGN="right" > <%=  a["summ"] %></td> <% end -%>
+							<% if (@spv_id==5626) -%><td width="6%" ALIGN="right" > <%=  a["cnt"] %></td> <% end -%>
+							<td width="4%" >
+									<%= a["LastConnectTime"].nil? ? '' : a["LastConnectTime"].to_time.strftime("%d/%m/%Y %H:%M") %>
+								</td>
+							<td width="4%" >
+									<%= a["LastPaymentTime"].nil? ? '' : a["LastPaymentTime"].to_time.strftime("%d/%m/%Y %H:%M") %>
+							</td>	
+							<td width="4%" ALIGN="right"> <%= a["SignalLevel"] %></td>
+							<td width="10%" >
+										<%= h(a["ErrorText"]) %>
+							</td>
+							<td width="8%" > <%= a["IncassReason"] %></td>
+							<td width="4%" > <%=  a["src_system_name"]%></td>
+							<% if (@spv_id==5626) -%><td width="8%" ><%=  a["subdealer_name"] %></td>	<% end -%>						
+							<td width="5%" ><%=  a["terminal_break_name"] %></td>							
+							<td width="7%" ><%=  a["branch_name"]%></td>		
+							<% if !(@spv_id==5626) -%>
+								<td width="2%">
+									<%= image_tag('ajax-loader.gif', :id => 'spinner_servstatus_'+a["terminalid"].to_s, :style => 'display:none') %>
+									<div id="term_errortext_<%=a["terminalid"]%>">
+										<%= check_box(:a, :servstatus, :index => a["terminalid"], :class => "servstatus", :value => '0', :checked => a["servstatus"]==0 ? false : true) %>
+									</div>
+								</td>
+							<% end -%>	
+							<% if !(@spv_id==5626) and !(@save_osh==0) -%><td width="2%"><%=  a["penaltystatus"] %> <% end -%>	
+							<% if !(@spv_id==5626) and !(@save_osh==0)  -%><td width="16%" ><%=  a["techinfo"] %></td>	<% end -%>		
+						<% end %>				
+				</tbody>
+				</table>
+			</div>	
+		</div>
+</body>
