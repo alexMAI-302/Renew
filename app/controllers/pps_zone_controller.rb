@@ -101,6 +101,7 @@ class PpsZoneController < ApplicationController
 			name=params[:name]
 			has_zone_bind=params[:has_zone_bind]
 			zone_id=params[:zone_id]
+
 			
 			terminal=PpsTerminal.update(id,
 			  {:bound_notes => params[:bound_notes],
@@ -115,16 +116,26 @@ class PpsZoneController < ApplicationController
 			opt_bound_summ=params[:opt_bound_summ]
 			
 			sql="
-				UPDATE pps_terminal_stat pts SET
-					pts.avg_notes=#{avg_notes},
-					pts.stdev_notes=#{stdev_notes},
-					pts.opt_bound=#{opt_bound},
-					pts.avg_summ=#{avg_summ},
-					pts.stdev_summ=#{stdev_summ},
-					pts.opt_bound_summ=#{opt_bound_summ}
-				WHERE
-					pts.terminalid=#{terminal.terminalID} AND
-					isnull(#{visit_freq}, -1) = pts.visit_freq;
+				INSERT INTO pps_terminal_stat(
+					terminalid,
+					visit_freq,
+					avg_notes,
+					stdev_notes,
+					opt_bound,
+					avg_summ,
+					stdev_summ,
+					opt_bound_summ
+				)
+				ON EXISTING UPDATE
+				VALUES(
+					#{terminal.terminalID},
+					#{visit_freq},
+					#{avg_notes},
+					#{stdev_notes},
+					#{opt_bound},
+					#{avg_summ},
+					#{stdev_summ},
+					#{opt_bound_summ});
 				"
 			
 			if has_zone_bind==true then
@@ -139,6 +150,7 @@ class PpsZoneController < ApplicationController
 					zoneid = #{zone_id} AND pps_terminal = #{id}
 				"
 			end
+			logger.info sql
 			ActiveRecord::Base.connection.execute(sql)
 			render :text=>terminal.to_json
 		end
