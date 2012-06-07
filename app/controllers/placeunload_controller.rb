@@ -158,6 +158,7 @@ class PlaceunloadController < ApplicationController
 	
 	if params[:id]
 		@id=params[:id]
+		flt='null'
 		@flt_name=''
 		@flt_address=''
 		@flt_tp=''
@@ -168,6 +169,7 @@ class PlaceunloadController < ApplicationController
 	else
 		@id='null'
 		if params[:flt]
+			flt=1
 			@flt_name             = params[:flt][:name].strip
 			@flt_address          = params[:flt][:address].strip
 			@flt_tp               = params[:flt][:tp].strip
@@ -182,6 +184,7 @@ class PlaceunloadController < ApplicationController
 			session[:flt_ddate]   = @flt_ddate
 			session[:flt_notgeo]  = @flt_notgeo
 		else
+			flt='null'
 			@flt_name = session[:flt_name]||"" 
 			@flt_address = session[:flt_address] || ""
 			@flt_tp = session[:flt_tp] || ""
@@ -275,42 +278,40 @@ class PlaceunloadController < ApplicationController
   end
   
   def save_point
-    main_points = []
-	add_points  = []
+	new_xml=""
 	if params[:a]
-		params[:a].each_pair do |id, value|
-			if value[:needsave] == "1"
-				p = Placeunload.find( id )
-				p.name = value[:pname]
-				p.address = value[:srcaddress]
-				p.fulladdress = value[:fulladdress]
-				p.latitude = value[:latitude]
-				p.longitude = value[:longitude]
-				p.ischeck = value[:ischeck]
-				p.descr           = value[:descr]
-				p.unloading       = value[:unloading]
-				p.delscheduleid   = value[:delscheduleid]
-				p.incscheduleid   = value[:incscheduleid]
-				p.buyers_route_id = value[:buyers_route_id].to_i==-1 ? nil : value[:buyers_route_id].to_i
-				p.placecategory_id= value[:placecategory_id]
-				p.save
-				if value[:join].to_i == 1
-					main_points << id
-				elsif value[:join].to_i == 2	
-					add_points << id
+		xml = Builder::XmlMarkup.new(:target => new_xml)
+
+		xml.points do
+			params[:a].each_pair do |key, value|
+				if value[:needsave].to_i == 1
+					xml.point(
+						:id => key,
+						:name => value[:pname],
+						:address => value[:srcaddress],
+						:fulladdress => value[:fulladdress],
+						:descr => value[:descr],
+						:latitude => value[:latitude],
+						:longitude => value[:longitude],
+						:ischeck => value[:ischeck],
+						:unloading => value[:unloading],
+						:delscheduleid => value[:delscheduleid],
+						:incscheduleid => value[:incscheduleid],
+						:buyers_route_id => value[:buyers_route_id],
+						:placecategory_id => value[:placecategory_id],
+						:join => value[:join]
+					)
 				end
-			end
-			if main_points.size == 1 and add_points.size >= 1
-				lst_points = add_points.join(',')
-				ActiveRecord::Base.connection.execute("
-				update buyers 
-				set    placeunload_id = #{main_points[0]}
-				where placeunload_id in (#{lst_points});
-				delete placeunload where id in (#{lst_points})")
 			end
 		end
 	end
-  	redirect_to :action => "index"
+	
+	res=Proxycat.connection.select_value("exec dbo.placeunload_save_point '#{new_xml}'")
+	
+	if !res.nil?
+		flash[:notice]=res
+	end
+	redirect_to :action => "index"
   end
   def save_point_r
 	if params[:a]
