@@ -11,15 +11,9 @@ class PlaceunloadController < ApplicationController
   
   def autocomplete_pgroup_name
 	pname = params[:pgroup][:name] 
-	if pname == '*' 
-		pname = ''
-	else
-		pname = "where name like '%#{pname}%' "
-	end
-	@pg = ActiveRecord::Base.connection.select_all( " select top 50 id, name, ( select list(i.name, '/' order by  i.tlev ) 
-																  from  partners_groups_tree pgt join partners_groups  i on i.id = pgt.parent 
-																  where pgt.id = partners_groups.id and  i.tlev > 0  and pgt.id <> pgt.parent
-																) dirpath from partners_groups #{pname} order by name") 
+	
+	@pg = Proxycat.connection.select_all( "exec placeunload_autocomplete_pgroup_name '#{pname}'") 
+	
 	render :layout => false
   end
 
@@ -27,46 +21,19 @@ class PlaceunloadController < ApplicationController
 	@partners_time = {"Водители ООРТ" => 15, "Водители ОПТ" => 30, "VIP" => 60}
   
 	pname = params[:partner][:name]
-	if pname == '*' 
-		pname = ''
-	else
-		pname = " and p.name like '%#{pname}%' "
-	end
+	pgid  = params[:partner][:parent] 	
 	
-    pgid  = params[:partner][:parent] 	
-	@pnames = ActiveRecord::Base.connection.select_all( "
-	select top 50
-		p.id id,
-		p.name name,
-		( select list(i.name, '/' order by  i.tlev )
-		  from  partners_groups_tree pgt join partners_groups  i on i.id = pgt.parent
-		  where pgt.id = p.parent and  i.tlev > 0
-		) dirpath,
-		sp_v.name spv_name
-	from
-		partners p
-		LEFT JOIN partners_sp_sets p_sp_s ON p.id=p_sp_s.partner
-		LEFT JOIN sp_types sp_t ON p_sp_s.sp_tp=sp_t.id
-		LEFT JOIN sp_values sp_v ON sp_v.id=p_sp_s.spv_id
-	where
-		(sp_t.name='Тариф' OR p_sp_s.partner IS NULL)
-		AND
-	p.parent in (select id from partners_groups_tree where parent = #{pgid}) #{pname} order by name")
+	@pnames = Proxycat.connection.select_all( "exec placeunload_autocomplete_partner_name '#{pname}', #{pgid}")
 		
 	render :layout => false
   end
   
   def autocomplete_buyer_name
 	bname = params[:buyer][:name]
-	if bname == '*' 
-		bname = ''
-	else
-		bname = " and b.name like '%#{bname}%' "
-	end
-    pid  = params[:buyer][:partner] 	
-	@bnames = ActiveRecord::Base.connection.select_all( " select b.id id, b.name name, b.loadto loadto 
-														  from buyers b where
-			                                              b.partner = #{pid} #{bname} order by name") 
+    pid  = params[:buyer][:partner]
+	
+	@bnames = Proxycat.connection.select_all( "exec placeunload_autocomplete_buyer_name '#{bname}', #{pid}")
+	
 	render :layout => false
   end
   
@@ -110,19 +77,8 @@ class PlaceunloadController < ApplicationController
 		@partners_time = {"Водители ООРТ" => 15, "Водители ОПТ" => 30, "VIP" => 60}
 		
 		@partner_id = params[:partner].to_i
-		pa = ActiveRecord::Base.connection.select_one("
-		SELECT
-			p.name partner_name, 
-			p.parent pgroup_id, 
-			(select name from partners_groups where id = p.parent) pgroup_name,
-			IF (sp_t.name='Тариф') THEN sp_v.name ELSE NULL END IF spv_name
-		FROM
-			partners p
-			LEFT JOIN partners_sp_sets p_sp_s ON p.id=p_sp_s.partner
-			LEFT JOIN sp_types sp_t ON p_sp_s.sp_tp=sp_t.id
-			LEFT JOIN sp_values sp_v ON sp_v.id=p_sp_s.spv_id
-		WHERE
-			p.id = #{@partner_id}")
+		pa = Proxycat.connection.select_one("exec placeunload_add_buyer_partner #{@partner_id}")
+		#logger.info pa["pgroup_name"]
 		@pgroup_id    = (pa["pgroup_id"].nil?)?nil:(pa["pgroup_id"].to_i)
 		@pgroup_name  = pa["pgroup_name"]
 		@partner_name = pa["partner_name"]
@@ -132,14 +88,9 @@ class PlaceunloadController < ApplicationController
 		@unloading=@partners_time[pa["spv_name"]]
 	elsif params[:buyer] 
 		@buyer_id = params[:buyer].to_i
-		pa = ActiveRecord::Base.connection.select_one("select p.id partner_id, p.name partner_name, 
-			p.parent pgroup_id, 
-			(select name from partners_groups where id = p.parent) pgroup_name,
-			b.name buyer_name, b.loadto loadto, b.placeunload_id placeunload_id, 
-			pl.longitude longitude, pl.latitude latitude 
-		from partners p join buyers b on b.partner = p.id 
-		     left outer join placeunload pl on pl.id = b.placeunload_id
-		where b.id = #{@buyer_id}")
+		
+		pa = Proxycat.connection.select_one("exec placeunload_add_buyer_buyer #{@buyer_id}")
+		
 		@pgroup_id      = pa["pgroup_id"].to_i
 		@pgroup_name    = pa["pgroup_name"]
 		@partner_id     = pa["partner_id"].to_i
@@ -159,155 +110,66 @@ class PlaceunloadController < ApplicationController
   def find_place
   	@longitude = params[:longitude]
 	@latitude  = params[:latitude]   
-    @places = ActiveRecord::Base.connection.select_all( " SELECT 
-			id, name, latitude, longitude, address, fulladdress, descr ,
-			(select list(g2.name)  
-			from partners_groups g2 
-			join partners_groups g1 on g1.parent = g2.id
-			join partners p on g1.id = p.parent
-			join buyers b on b.partner = p.id 
-			where b.placeunload_id = placeunload.id ) tp
-		  FROM 
-			placeunload
-		  WHERE dist_between_points (latitude, longitude, #{@latitude}, #{@longitude}) < getuseroption('renew_dist') order by name" )
+    @places = Proxycat.connection.select_all("exec find_place #{@latitude}, #{@longitude}")
 	@pointsj = @places.to_json( :only => ["id", "name", "latitude", "longitude"] )	
 	render :partial => 'upd_end' 
   end
   
   def find_place_fake
   	@longitude = params[:longitude]
-	@latitude  = params[:latitude]   
-    @places = ActiveRecord::Base.connection.select_all( " SELECT 
-			id, name, latitude, longitude, address, fulladdress, descr ,
-			(select list(g2.name)  
-			from partners_groups g2 
-			join partners_groups g1 on g1.parent = g2.id
-			join partners p on g1.id = p.parent
-			join buyers b on b.partner = p.id 
-			where b.placeunload_id = placeunload.id ) tp
-		  FROM 
-			placeunload
-		  WHERE 1=0" )
-	@pointsj = @places.to_json( :only => ["id", "name", "latitude", "longitude"] )	
+	@latitude  = params[:latitude]
+	
+	@places=[]
+	@pointsj = "[]"
 	render :partial => 'upd_end' 
   end
   
   def save_buyer
-    serr = ""
-    partner_id = params[:partner][:id].to_i
-	parent_id = params[:pgroup][:id].to_i
-	partner_name = params[:partner][:name].strip
-	buyer_name = params[:buyer][:name].strip
-	buyer_id = params[:buyer][:id].to_i
-	placeunload_id = params[:placeunload][:id].to_i
-    loadto = params[:a][:loadto].strip
-	ispartner = false
-	isplaceunload = false
-	
-	if parent_id <= 0  and partner_id <= 0
-		serr += " Не задана группа партнеров."		
-    end
-	
-	if partner_name.size == 0
-		serr += " Не задано имя партнера."
-	end
-	if buyer_name.size == 0
-		serr += " Не задано имя покупателя."
-	end
-	if placeunload_id == 0
-		serr += " Не задан адрес разгрузки."
-	end
-	if loadto.size == 0
-		serr += " Не задан адрес для покупателя."
-	end	
-	
-	if partner_id <= 0 
-		if ActiveRecord::Base.connection.select_value("select 1 a from partners_groups pg 
-		     where pg.parent=#{parent_id} and getuseroption('check_partner_add')='1'") == 1 
-			serr += " В данной группе партнеров уже заведены подгруппы."
-		end
-		if ActiveRecord::Base.connection.select_value("select 1 a from partners 
-		     where name='#{partner_name}'") == 1 
-			serr += " Партнер с таким именем уже есть."
-		end
-		partner_id = ActiveRecord::Base.connection.select_value("select idgenerator('partners')")
-		partner = Partner.new
-		partner.name = partner_name 
-		partner.area = 0
-		partner.parent = parent_id
-		partner.id = partner_id
-		ispartner = true
-	end
-	
-	
-	if placeunload_id < 0 
-		placeunload_id = ActiveRecord::Base.connection.select_value("select idgenerator('placeunload')")
-		placeunload = Placeunload.new
-		placeunload.name = params[:placeunload][:name].strip
-		if params[:a][:fulladdress] == "" 
-			serr += " Адрес не геокодирован."
-		end
-		if params[:placeunload][:unloading] == "" 
-			serr += " Не указано время разгрузки."
-		end
-		if params[:placeunload][:buyers_route_id] == "" 
-			serr += " Не указан маршрут."
-		end
-		placeunload.address         =loadto
-		placeunload.fulladdress     =params[:a][:fulladdress]
-		placeunload.longitude       =params[:a][:longitude]
-		placeunload.latitude        =params[:a][:latitude]	
-		placeunload.descr           =params[:placeunload][:descr].strip	
-		placeunload.unloading       =params[:placeunload][:unloading]=="-1" ? nil : params[:placeunload][:unloading] 	
-		placeunload.delscheduleid   =params[:placeunload][:delscheduleid]
-		placeunload.incscheduleid   =params[:placeunload][:incscheduleid]	
-		placeunload.buyers_route_id =params[:placeunload][:buyers_route_id]=="-1" ? nil : params[:placeunload][:buyers_route_id]
-		placeunload.placecategory_id=params[:placeunload][:placecategory_id] 
-		placeunload.id = placeunload_id
-		isplaceunload = true
-	elsif placeunload_id > 0
-		placeunload = Placeunload.find(placeunload_id)
-	end
-	
-	if buyer_id <= 0 
-		buyer_id = ActiveRecord::Base.connection.select_value("select idgenerator('buyers')")
-		buyer = Buyer.new
-		buyer.name = buyer_name
-		buyer.partner = partner_id
-		buyer.id = buyer_id
-	elsif buyer_id > 0
-		buyer = Buyer.find(buyer_id)
-	end 
-	if placeunload_id > 0 and buyer_id > 0
-		buyer.placeunload_id = placeunload_id
-		buyer.loadto = placeunload.address
-		if not (params[:placeunload][:buyers_route_id]=="-1")
-			br = ActiveRecord::Base.connection.select_one("select agentr, site from buyers_route where id = #{placeunload.buyers_route_id} ")
-			buyer.agent  = br["agentr"]
-			buyer.site   = br["site"]
-		end
-	end 
-	if serr.size > 0  
+    serr = Proxycat.connection.select_value("
+	exec dbo.placeunload_save_buyer
+	#{params[:partner][:id].to_i},
+	#{params[:pgroup][:id].to_i},
+	'#{params[:partner][:name].strip}',
+	'#{params[:buyer][:name].strip}',
+	#{params[:buyer][:id].to_i},
+	#{params[:placeunload][:id].to_i},
+    '#{params[:a][:loadto].strip}',
+    '#{params[:a][:fulladdress]}',
+	#{params[:a][:longitude]},
+	#{params[:a][:latitude]},
+	'#{params[:placeunload][:descr].strip}',
+	#{params[:placeunload][:unloading]=="-1" ? 'null' : params[:placeunload][:unloading]},
+	#{params[:placeunload][:delscheduleid]},
+	#{params[:placeunload][:incscheduleid]},
+	#{params[:placeunload][:buyers_route_id]=="-1" ? 'null' : params[:placeunload][:buyers_route_id]},
+	#{params[:placeunload][:placecategory_id]}")
+	if serr.size==0
+		flash[:notice] = "Данные сохранены успешно"
+	else
 		flash[:notice] = "Ошибка:" + serr
 		session[:haserror] = 1
 		session[:placedata] = params.to_hash
-	else
-		partner.save 		if ispartner
-		placeunload.save 	if isplaceunload
-		buyer.save   
-		flash[:notice] = "Данные сохранены успешно"
 	end
 	redirect_to :action => :add_buyer
   end
   
   def index
 	set_conditions
-	sw = "1=1"
-	tops = "top 100"
+	
 	if params[:id]
-		sw = "p.id = #{params[:id]}"
+		@id=params[:id]
+		flt='null'
+		@flt_name=''
+		@flt_address=''
+		@flt_tp=''
+		@flt_ischeck=-1
+		@flt_buyers_route_id=0
+		@flt_ddate=0
+		@flt_notgeo=0
 	else
+		@id='null'
 		if params[:flt]
+			flt=1
 			@flt_name             = params[:flt][:name].strip
 			@flt_address          = params[:flt][:address].strip
 			@flt_tp               = params[:flt][:tp].strip
@@ -322,74 +184,28 @@ class PlaceunloadController < ApplicationController
 			session[:flt_ddate]   = @flt_ddate
 			session[:flt_notgeo]  = @flt_notgeo
 		else
+			flt='null'
 			@flt_name = session[:flt_name]||"" 
 			@flt_address = session[:flt_address] || ""
 			@flt_tp = session[:flt_tp] || ""
 			@flt_ischeck = session[:flt_ischeck] || -1 
 			@flt_buyers_route_id = session[:flt_buyers_route_id] || 0 
 			@flt_ddate = session[:flt_ddate] || 0
+			@flt_ddate = session[:flt_ddate] || 0
 			@flt_notgeo = session[:flt_notgeo] || 0
 		end
-		if @flt_name.size > 0 
-			sw += " and p.name like '%#{@flt_name}%'"
-			tops = ""
-		end
-		if @flt_address.size > 0 
-			sw += " and p.address like '%#{@flt_address}%'"
-			tops = ""
-		end
-		if @flt_tp.size > 0 
-			sw += " and tp like '%#{@flt_tp}%'"
-			tops = ""
-		end
-		if @flt_ischeck != -1 
-			sw += " and isnull(p.ischeck,0) = #{@flt_ischeck}"
-		end
-		if @flt_buyers_route_id != 0 
-			sw += " and isnull(p.buyers_route_id,-1) = #{@flt_buyers_route_id}"
-			tops = ""
-		end
-		if @flt_ddate != 0 
-			sw += " and p.id in (
-									SELECT
-									b.placeunload_id
-									FROM buyers b
-									JOIN dblog.dbevent e ON b.xid=e.object AND e.OP = 1 AND e.table_name = 'buyers'
-									WHERE
-									b.agent IS NOT NULL AND
-									e.ts >= dateadd(day,-#{@flt_ddate},today())
-								) "
-			tops = ""
-		end
-		if @flt_notgeo > 0 
-			sw += " and p.fulladdress in ('Россия, Москва, Красная площадь, 2', 'Россия, Москва, Варшавское шоссе, 2') "
-			tops = ""
-		end
 	end
-  	@rst_buyers = ActiveRecord::Base.connection.select_all("
-			select #{tops}
-				p.id                			id,
-				p.name              			pname,
-				p.address           			srcaddress, 
-				p.fulladdress       			fulladdress, 
-				p.latitude          			latitude,
-				p.longitude         			longitude,
-				p.descr             			descr,
-				isnull(p.unloading,-1)         	unloading,
-				isnull(p.delscheduleid,4384)  	delscheduleid,
-				isnull(p.incscheduleid,4384)  	incscheduleid,
-				isnull(p.buyers_route_id,-1)   	buyers_route_id,
-				isnull(p.placecategory_id,-1)  	placecategory_id,
-				isnull(p.ischeck,0)            	ischeck,
-				(select list(g2.name)  
-					from partners_groups g2 
-					join partners_groups g1 on g1.parent = g2.id
-					join partners pr on g1.id = pr.parent
-					join buyers b on b.partner = pr.id 
-					where b.placeunload_id = p.id ) tp
-			from
-				placeunload p
-			where #{sw} order by p.name") 
+  	
+	@rst_buyers=Proxycat.connection.select_all("exec placeunload_index
+		#{@id},
+		'#{@flt_name}',
+		'#{@flt_address}',
+		'#{@flt_tp}',
+		#{@flt_ischeck},
+		#{@flt_buyers_route_id},
+		#{@flt_ddate},
+		#{@flt_notgeo}")
+	
 	@rst_new = @rst_buyers.to_json( :only => [ "id", "longitude", "latitude", "pname" ] ) 
 	if @rst_buyers.size > 0 
 		if @rst_buyers[0]["longitude"] and @rst_buyers[0]["latitude"]
@@ -462,42 +278,40 @@ class PlaceunloadController < ApplicationController
   end
   
   def save_point
-    main_points = []
-	add_points  = []
+	new_xml=""
 	if params[:a]
-		params[:a].each_pair do |id, value|
-			if value[:needsave] == "1"
-				p = Placeunload.find( id )
-				p.name = value[:pname]
-				p.address = value[:srcaddress]
-				p.fulladdress = value[:fulladdress]
-				p.latitude = value[:latitude]
-				p.longitude = value[:longitude]
-				p.ischeck = value[:ischeck]
-				p.descr           = value[:descr]
-				p.unloading       = value[:unloading]
-				p.delscheduleid   = value[:delscheduleid]
-				p.incscheduleid   = value[:incscheduleid]
-				p.buyers_route_id = value[:buyers_route_id].to_i==-1 ? nil : value[:buyers_route_id].to_i
-				p.placecategory_id= value[:placecategory_id]
-				p.save
-				if    value[:join].to_i == 1
-					main_points << id
-				elsif value[:join].to_i == 2	
-					add_points << id
+		xml = Builder::XmlMarkup.new(:target => new_xml)
+
+		xml.points do
+			params[:a].each_pair do |key, value|
+				if value[:needsave].to_i == 1
+					xml.point(
+						:id => key,
+						:name => value[:pname],
+						:address => value[:srcaddress],
+						:fulladdress => value[:fulladdress],
+						:descr => value[:descr],
+						:latitude => value[:latitude],
+						:longitude => value[:longitude],
+						:ischeck => value[:ischeck],
+						:unloading => value[:unloading],
+						:delscheduleid => value[:delscheduleid],
+						:incscheduleid => value[:incscheduleid],
+						:buyers_route_id => value[:buyers_route_id],
+						:placecategory_id => value[:placecategory_id],
+						:join => value[:join]
+					)
 				end
-			end
-			if main_points.size == 1 and add_points.size >= 1
-				lst_points = add_points.join(',')
-				ActiveRecord::Base.connection.execute("
-				update buyers 
-				set    placeunload_id = #{main_points[0]}
-				where placeunload_id in (#{lst_points});
-				delete placeunload where id in (#{lst_points})")
 			end
 		end
 	end
-  	redirect_to :action => "index"
+	
+	res=Proxycat.connection.select_value("exec dbo.placeunload_save_point '#{new_xml}'")
+	
+	if !res.nil?
+		flash[:notice]=res
+	end
+	redirect_to :action => "index"
   end
   def save_point_r
 	if params[:a]
@@ -535,16 +349,14 @@ private
   	@longitude = 37.498995
 	@latitude  = 55.842610
 	@places    = []
+	@unloading_list     = [ ['__Не определено', -1], ['15 мин', 15],['30 мин',30],['45 мин',45],['1 час',60],['2 час',120],['4 час',240] ] 
 	@placecategory_list = ActiveRecord::Base.connection.select_all( "select id, name from placecategory order by name" ).collect {|p| [ p["name"], p["id"] ] }
-	@schedule_list      = ActiveRecord::Base.connection.select_all( "select id, name	from schedule order by name" ).collect {|p| [ p["name"], p["id"] ] }
-	@unloading_list     = [ ['__Не определено', -1], ['15 мин', 15],['30 мин',30],['45 мин',45],['1 час',60],['2 час',120],['4 час',240] ]  
-	@buyers_route_list  = ActiveRecord::Base.connection.select_all( "select id, name from buyers_route 
-						 											 union all
-						 											 select -1 id, '__Не определен' name
-																	 order by 2" ).collect{|p| [ p["name"], p["id"] ]}
-	@route_json = ActiveRecord::Base.connection.select_all( "select id, name, points from buyers_route where length(points) > 0 order by 2" ).to_json( )
-
+	@schedule_list      = ActiveRecord::Base.connection.select_all( "select id, name from schedule order by name" ).collect {|p| [ p["name"], p["id"] ] }
+	
+	res = Proxycat.connection.select_all("exec placeunload_set_conditions")
+	
+	@buyers_route_list  = (res.select{|p| p["type"]=="buyers_route_list"}).collect{|p| [ p["name"], p["id"] ]}
+	@route_json = ((res.select {|p| p["type"]=="route_json" }).collect{|p| {"id" => p["id"], "name" => p["name"], "points" => p["point"]} }).to_json
   end
 
 end
-  

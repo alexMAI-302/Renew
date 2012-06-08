@@ -362,7 +362,10 @@
 				<%= text_area(:a, :fulladdress, :value => "", :cols => 40, :rows => 2, :maxlength => 255, :style=>"background-color : transparent", :readonly => 'true') %>	
 				<br>
 				<%= link_to_function "Север", "geocode_addr_fake('Москва, Красная пл., 2');" %>
-				<%= link_to_function "Юг", "geocode_addr_fake('Россия, Москва, Варшавское шоссе, 2');" %> 			
+				<%= link_to_function "Юг", "geocode_addr_fake('Россия, Москва, Варшавское шоссе, 2');" %>
+				<%= link_to_function "Электросталь", "geocode_addr_fake('Россия, Электросталь');" %>
+				<%= link_to_function "Коломна", "geocode_addr_fake('Россия, Коломна');" %>
+				<%= link_to_function "Руза", "geocode_addr_fake('Россия, Руза');" %>
 				</br>
 				<br/>
 				<%= text_field(:a, :latitude, :value => "", :size => 9, :maxlength => 30, :style=>"background-color : transparent", :readonly => 'true') %>
