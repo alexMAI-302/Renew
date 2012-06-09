@@ -708,9 +708,9 @@ Ext.define('app.controller.ppsZone', {
 					terminalsStore.each(
 						function(record){
 							if(record.get('has_geo_zone_bind')){
-								inZone.push(record);
+								inZone.TerminalsStore.add(record);
 							} else {
-								outZone.push(record);
+								outZone.TerminalsStore.add(record);
 							}
 							return true;
 						}
