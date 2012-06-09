@@ -48,7 +48,6 @@ Ext.define('app.controller.simka', {
 				listeners : {
 					exception : function(proxy, response, operation) {
 						if (operation) {
-							//Ext.Msg.alert('Ошибка',JSON.parse(response.responseText).message);
 							Ext.Msg.alert('Ошибка',response.responseText);
 						} else {
 							Ext.Msg.alert('Ошибка', 'хз');

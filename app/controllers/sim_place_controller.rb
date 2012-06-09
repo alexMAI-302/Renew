@@ -8,14 +8,25 @@ class SimPlaceController < ApplicationController
 		
 		case request.method.to_s
 			when "get"
-				render :text => "[]"
+				sim_place = ActiveRecord::Base.connection.select_all("select id, simka_id, CONVERT(varchar(10),ddate, 120) ddate, person_id
+										      from sim_place where ddate between '#{ddateb}' and '#{ddatee}'")
+				render :text => sim_place.to_json
 			when "post"
-				ActiveRecord::Base.connection.execute("insert into sim_place(id, simserial, ddate, person_id)
-				select idgenerator('sim_place'), '#{params[:simserial]}', '#{params[:ddate][0..9]}', #{params[:person_id]}")
+				ActiveRecord::Base.connection.execute("insert into sim_place(id, simka_id, ddate, person_id)
+				select idgenerator('sim_place'), '#{params[:simka_id]}', '#{params[:ddate][0..9]}', #{params[:person_id]}")
 				render :text => "[]"
 			when "put"
+				ActiveRecord::Base.connection.execute("update
+								          sim_place
+								       set
+									  simka_id = #{params[:simka_id]},
+									  ddate = '#{params[:ddate][0..9]}',
+									  person_id = #{params[:person_id]}
+								       where id = #{params[:id]}")
 				render :text => "[]"
 			when "delete"
+				ActiveRecord::Base.connection.execute("delete sim_place
+								      where id = #{params[:id]}")
 				render :text => "[]"
 		end
 	end
@@ -52,6 +63,13 @@ class SimPlaceController < ApplicationController
 		render :json => emp_person.to_json
 	end
 
+	def get_simka
+		simka=ActiveRecord::Base.connection.select_all("select id, msidn, icc, CONVERT(varchar(10),ddate, 120) ddate,
+		unlim, CONVERT(varchar(10),date_unlim, 120) date_unlim, isblocked
+		from simka order by 2")
+		render :json => simka.to_json
+	end
+	
 	def index
 	end
 	
