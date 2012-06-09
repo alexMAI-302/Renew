@@ -15,12 +15,12 @@
         white-space: nowrap;
         
         vertical-align: middle;
-        
+
         * {
             cursor: pointer;
             cursor: hand;
         }
-        
+
         background-repeat: no-repeat;
         
         em {
@@ -29,16 +29,27 @@
             // Styles for an anchor button.
             a {
                 text-decoration: none;
-                display: inline-block;
+                display: block;
                 color: inherit;
+
+                // 100% rather than auto for consistency with the button element
+                width: 100%;
+
+                // This is needed for IE7 in strict mode to ensure that the icon element has the correct opacity on a
+                // disabled link button. It seems only to be needed for buttons that are narrower than their icon
+                // element
+                zoom: 1;
             }
         }
-        
+
         button {
+            // 100% rather than auto so that IE7 renders file upload and date picker buttons correctly
+            width: 100%;
+
+            display: block;
             margin: 0;
             padding: 0;      
-            border: 0;  
-            width: auto;    
+            border: 0;
             background: none;
             outline: 0 none;
             overflow: hidden;
@@ -54,17 +65,25 @@
         .#{$prefix}btn-inner {
             display: block;
             white-space: nowrap;
-            text-align: center;
             background-color: transparent;
             background-repeat: no-repeat;
             background-position: left center;
+            overflow: hidden;
+        }
+
+        .#{$prefix}btn-left .#{$prefix}btn-inner {
+            text-align: left;
+        }
+
+        .#{$prefix}btn-center .#{$prefix}btn-inner {
+            text-align: center;
+        }
+
+        .#{$prefix}btn-right .#{$prefix}btn-inner {
+            text-align: right;
         }
     }
-    
-    .#{$prefix}btn-disabled {
-        @include opacity(1);
-    }
-    
+
     .#{$prefix}btn-disabled span {
         @include opacity(.5);
 
@@ -89,6 +108,11 @@
     }
     
     @if $include-ie {
+        /* IE9 shows scrollbars in a button unless this is set  */
+        .#{$prefix}ie9 .#{$prefix}btn button {
+            overflow: visible!important;
+        }
+
         * html .#{$prefix}ie {
             .#{$prefix}btn button {
                 width: 1px;
@@ -109,16 +133,21 @@
     }
   
     @if not $supports-border-radius or $compile-all {
-        .#{$prefix}nbr {
-            .#{$prefix}btn {
-                .#{$prefix}frame-mc {
-                    vertical-align: middle;
-                    white-space: nowrap;
-                    text-align: center;
-                    cursor: pointer;
-                }
+        /* Keep the selector simple ".x-btn .x-frame-mc" is enough to target the center frame of the button table */
+        .#{$prefix}btn {
+            .#{$prefix}frame-mc {
+                vertical-align: middle;
+                white-space: nowrap;
+                cursor: pointer;
             }
-        }    
+        }
+
+        /* Only center when all there is is text. Otherwise solo icons get centered. */
+        .#{$prefix}btn-noicon {
+            .#{$prefix}frame-mc {
+                text-align: center;
+            }
+        }
     }
 
     .#{$prefix}btn-icon-text-left .#{$prefix}btn-icon {
@@ -167,7 +196,7 @@
     }
 
     .#{$prefix}btn-arrow {
-        @include theme-background-image($theme-name, 'button/arrow.gif');    
+        background-image: theme-background-image($theme-name, 'button/arrow.gif');    
         display: block;
     }
 
@@ -176,24 +205,24 @@
     .#{$prefix}btn-split-right,
     .#{$prefix}btn-over .#{$prefix}btn-split-right {
         background: transparent no-repeat right center;
-        @include theme-background-image($theme-name, 'button/s-arrow.gif');
+        background-image: theme-background-image($theme-name, 'button/s-arrow.gif');
         padding-right: $button-split-size !important;
     }
   
     .#{$prefix}btn-split-bottom,
     .#{$prefix}btn-over .#{$prefix}btn-split-bottom {
         background: transparent no-repeat center bottom;
-        @include theme-background-image($theme-name, 'button/s-arrow-b.gif');
+        background-image: theme-background-image($theme-name, 'button/s-arrow-b.gif');
         padding-bottom: $button-split-size;
     }
     
     .#{$prefix}toolbar .#{$prefix}btn-split-right {
-        @include theme-background-image($theme-name, 'button/s-arrow-noline.gif');
+        background-image: theme-background-image($theme-name, 'button/s-arrow-noline.gif');
         padding-right: $button-toolbar-split-size !important;
     }
     
     .#{$prefix}toolbar .#{$prefix}btn-split-bottom {
-        @include theme-background-image($theme-name, 'button/s-arrow-b-noline.gif');
+        background-image: theme-background-image($theme-name, 'button/s-arrow-b-noline.gif');
     }
   
     .#{$prefix}btn-split {
@@ -209,8 +238,8 @@
         text-align: inherit;
     }
 
-    .#{$prefix}btn-over .#{$prefix}btn-split-right { @include theme-background-image($theme-name, 'button/s-arrow-o.gif'); }
-    .#{$prefix}btn-over .#{$prefix}btn-split-bottom { @include theme-background-image($theme-name, 'button/s-arrow-bo.gif'); }
+    .#{$prefix}btn-over .#{$prefix}btn-split-right { background-image: theme-background-image($theme-name, 'button/s-arrow-o.gif'); }
+    .#{$prefix}btn-over .#{$prefix}btn-split-bottom { background-image: theme-background-image($theme-name, 'button/s-arrow-bo.gif'); }
     
     @include extjs-button-ui(
         /* UI + Scale */
@@ -619,6 +648,7 @@
     .#{$prefix}btn-#{$ui}-icon,
     .#{$prefix}btn-#{$ui}-noicon {
         button,
+        a,
         .#{$prefix}btn-inner {
             height: $icon-size;
             line-height: $icon-size;
@@ -627,10 +657,15 @@
 
     //icons
     .#{$prefix}btn-#{$ui}-icon {
-        button {
+        button,
+        a {
             padding: 0;
-            width: $icon-size !important;
-            height: $icon-size;
+        }
+
+        .#{$prefix}btn-inner {
+            /* even though there is no text we set a width and padding as buttons shrink-wrap around this element */
+            width: $icon-size;
+            padding: 0;
         }
 
         .#{$prefix}btn-icon {
@@ -644,7 +679,8 @@
     }
     
     .#{$prefix}btn-#{$ui}-icon-text-left {
-        button {
+        button,
+        a {
             height: $icon-size;
         }
         .#{$prefix}btn-inner {
@@ -669,7 +705,8 @@
     }
 
     .#{$prefix}btn-#{$ui}-icon-text-right {
-        button {
+        button,
+        a {
             height: $icon-size;
         }
         .#{$prefix}btn-inner {
@@ -707,7 +744,7 @@
             right: 0;
 
             .#{$prefix}ie6 &,
-            .#{$prefix}quirks & {
+            .#{$prefix}quirks .#{$prefix}ie & {
                 width: $icon-size;
             }
         }
@@ -727,7 +764,7 @@
             right: 0;
 
             .#{$prefix}ie6 &,
-            .#{$prefix}quirks & {
+            .#{$prefix}quirks .#{$prefix}ie & {
                 width: $icon-size;
             }
         }
@@ -855,16 +892,16 @@
                 .#{$prefix}frame-br,
                 .#{$prefix}frame-tc,
                 .#{$prefix}frame-bc {
-                    @include theme-background-image($theme-name, 'btn/btn-#{$ui}-over-corners.gif');
+                    background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-over-corners.gif');
                 }
                 .#{$prefix}frame-ml,
                 .#{$prefix}frame-mr {
-                    @include theme-background-image($theme-name, 'btn/btn-#{$ui}-over-sides.gif');
+                    background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-over-sides.gif');
                 }
                 .#{$prefix}frame-mc {
                     background-color: $background-color-over;
                     @if $background-gradient-over != null {
-                        @include theme-background-image($theme-name, 'btn/btn-#{$ui}-over-bg.gif');
+                        background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-over-bg.gif');
                     }
                 }
             }
@@ -876,16 +913,16 @@
                 .#{$prefix}frame-br,
                 .#{$prefix}frame-tc,
                 .#{$prefix}frame-bc {
-                    @include theme-background-image($theme-name, 'btn/btn-#{$ui}-focus-corners.gif');
+                    background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-focus-corners.gif');
                 }
                 .#{$prefix}frame-ml,
                 .#{$prefix}frame-mr {
-                    @include theme-background-image($theme-name, 'btn/btn-#{$ui}-focus-sides.gif');
+                    background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-focus-sides.gif');
                 }
                 .#{$prefix}frame-mc {
                     background-color: $background-color-focus;
                     @if $background-gradient-focus != null {
-                        @include theme-background-image($theme-name, 'btn/btn-#{$ui}-focus-bg.gif');
+                        background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-focus-bg.gif');
                     }
                 }
             }
@@ -898,16 +935,16 @@
                 .#{$prefix}frame-br,
                 .#{$prefix}frame-tc,
                 .#{$prefix}frame-bc {
-                    @include theme-background-image($theme-name, 'btn/btn-#{$ui}-pressed-corners.gif');
+                    background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-pressed-corners.gif');
                 }
                 .#{$prefix}frame-ml,
                 .#{$prefix}frame-mr {
-                    @include theme-background-image($theme-name, 'btn/btn-#{$ui}-pressed-sides.gif');
+                    background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-pressed-sides.gif');
                 }
                 .#{$prefix}frame-mc {
                     background-color: $background-color-pressed;
                     @if $background-gradient-pressed != null {
-                        @include theme-background-image($theme-name, 'btn/btn-#{$ui}-pressed-bg.gif');
+                        background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-pressed-bg.gif');
                     }
                 }
             }
@@ -919,16 +956,16 @@
                 .#{$prefix}frame-br,
                 .#{$prefix}frame-tc,
                 .#{$prefix}frame-bc {
-                    @include theme-background-image($theme-name, 'btn/btn-#{$ui}-disabled-corners.gif');
+                    background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-disabled-corners.gif');
                 }
                 .#{$prefix}frame-ml,
                 .#{$prefix}frame-mr {
-                    @include theme-background-image($theme-name, 'btn/btn-#{$ui}-disabled-sides.gif');
+                    background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-disabled-sides.gif');
                 }
                 .#{$prefix}frame-mc {
                     background-color: $background-color-disabled;
                     @if $background-gradient-disabled != null {
-                        @include theme-background-image($theme-name, 'btn/btn-#{$ui}-disabled-bg.gif');
+                        background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-disabled-bg.gif');
                     }
                 }  
             }
@@ -940,7 +977,7 @@
             .#{$prefix}nlg { 
                 .#{$prefix}btn-#{$ui} {
                     background-repeat: repeat-x;
-                    @include theme-background-image($theme-name, 'btn/btn-#{$ui}-bg.gif');
+                    background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-bg.gif');
                 }
             }
         }
@@ -949,7 +986,7 @@
             .#{$prefix}nlg { 
                 .#{$prefix}btn-#{$ui}-over {
                     background-repeat: repeat-x;
-                    @include theme-background-image($theme-name, 'btn/btn-#{$ui}-over-bg.gif');
+                    background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-over-bg.gif');
                 }
             }
         }
@@ -958,7 +995,7 @@
             .#{$prefix}nlg { 
                 .#{$prefix}btn-#{$ui}-focus {
                     background-repeat: repeat-x;
-                    @include theme-background-image($theme-name, 'btn/btn-#{$ui}-focus-bg.gif');
+                    background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-focus-bg.gif');
                 }
             }
         }
@@ -968,7 +1005,7 @@
                 .#{$prefix}btn-#{$ui}-menu-active,
                 .#{$prefix}btn-#{$ui}-pressed {
                     background-repeat: repeat-x;
-                    @include theme-background-image($theme-name, 'btn/btn-#{$ui}-pressed-bg.gif');
+                    background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-pressed-bg.gif');
                 }
             }
         }
@@ -977,7 +1014,7 @@
             .#{$prefix}nlg {
                 .#{$prefix}btn-#{$ui}-disabled {
                     background-repeat: repeat-x;
-                    @include theme-background-image($theme-name, 'btn/btn-#{$ui}-disabled-bg.gif');
+                    background-image: theme-background-image($theme-name, 'btn/btn-#{$ui}-disabled-bg.gif');
                 }
             }
         }
