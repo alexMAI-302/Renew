@@ -709,28 +709,20 @@ Ext.define('app.controller.ppsZone', {
 					var inZone=[], outZone=[];
 					changeZoneMap(points, zoneId);
 					
-					inZoneTerminalsStore.suspendEvents();
-					outZoneTerminalsStore.suspendEvents();
-					
-					inZoneTerminalsStore.removeAll(true);
-					outZoneTerminalsStore.removeAll(true);
 					//разбираем терминалы на терминалы в зоне и на терминалы зоны вне границ зоны
 					terminalsStore.each(
 						function(record){
 							if(record.get('has_geo_zone_bind')){
-								inZoneTerminalsStore.add(record);
+								inZone.push(record);
 							} else {
-								outZoneTerminalsStore.add(record);
+								outZone.push(record);
 							}
 							return true;
 						}
 					);
 					
-					inZoneTerminalsStore.resumeEvents();
-					outZoneTerminalsStore.resumeEvents();
-					
-					inZoneTerminalsStore.fireEvent('datachanged', inZoneTerminalsStore, null);
-					outZoneTerminalsStore.fireEvent('datachanged', outZoneTerminalsStore, null);
+					inZoneTerminalsStore.loadData(inZone, false);
+					outZoneTerminalsStore.loadData(outZone, false);
 					
 					terminalTabs.setDisabled(false);
 				}
