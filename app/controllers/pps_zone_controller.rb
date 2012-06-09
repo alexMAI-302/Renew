@@ -101,7 +101,7 @@ class PpsZoneController < ApplicationController
 			name=params[:name]
 			has_zone_bind=params[:has_zone_bind]
 			zone_id=params[:zone_id]
-
+			required=params[:required]
 			
 			terminal=PpsTerminal.update(id,
 			  {:bound_notes => params[:bound_notes],
@@ -142,15 +142,19 @@ class PpsZoneController < ApplicationController
 				sql+="
 					INSERT INTO pps_zone_terminal(zoneid, pps_terminal)
 					ON EXISTING SKIP
-					VALUES (#{zone_id}, #{id})
+					VALUES (#{zone_id}, #{id});
+					update	 pps_zone_terminal
+					set	required=#{required}
+					WHERE  zoneid = #{zone_id} AND pps_terminal = #{id};
 				"
+				
 			else
 				sql+="
 					DELETE FROM pps_zone_terminal WHERE
 					zoneid = #{zone_id} AND pps_terminal = #{id}
 				"
 			end
-			logger.info sql
+			logger.info "sql="+sql
 			ActiveRecord::Base.connection.execute(sql)
 			render :text=>terminal.to_json
 		end
@@ -176,7 +180,7 @@ class PpsZoneController < ApplicationController
 					ELSE
 						0
 					END IF has_geo_zone_bind,
-					(SELECT top 1 pzt.required FROM pps_zone_terminal pzt WHERE pzt.zoneid = #{params[:zone_id]} AND pzt.pps_terminal=pps_terminal.id) required,
+					isnull((SELECT top 1 pzt.required FROM pps_zone_terminal pzt WHERE pzt.zoneid = #{params[:zone_id]} AND pzt.pps_terminal=pps_terminal.id),0) required,
 					pts.avg_notes,
 					pts.stdev_notes,
 					pps_terminal.bound_notes bound_notes,
