@@ -1,3 +1,7 @@
+Ext.Loader.setPath('Ext.ux', '/ext/examples/ux');
+Ext.require([
+    'Ext.ux.CheckColumn'
+]);
 Ext.define('app.controller.ppsZone', {
     extend: 'Ext.app.Controller',
 	models: [
@@ -368,18 +372,10 @@ Ext.define('app.controller.ppsZone', {
 					}]
 				},
 				{
-					xtype:'actioncolumn',
+					xtype: 'checkcolumn',
 					header : 'Обязательная',
-						items: [{
-						getClass: function(v, meta, rec) {
-							return (rec.get('required'))?'checked-col':'unchecked-col';
-						},
-						handler: function(grid, rowIndex, colIndex) {
-							var val=grid.store.getAt(rowIndex).get("required");
-							grid.store.getAt(rowIndex).set("required", 1 - val);
-						}
-					}]
-				},				
+					dataIndex: 'required'
+				},
 				{
 					header: 'Зоны',
 					dataIndex: 'zone_names',
