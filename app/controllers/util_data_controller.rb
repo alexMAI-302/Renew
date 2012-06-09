@@ -115,7 +115,7 @@ class UtilDataController < ApplicationController
 			subject = {
 				:text		=> main_subject["name"],
 				:href		=> main_subject["url_pattern"],
-				:target		=> '_self'
+				:hrefTarget	=> '_self'
 			}
 		end
 		
