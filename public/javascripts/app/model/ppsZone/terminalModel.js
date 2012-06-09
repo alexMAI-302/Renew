@@ -17,6 +17,6 @@ Ext.define('app.model.ppsZone.terminalModel', {
 	{name: 'longitude'			, type:'float'},
 	{name: 'has_zone_bind'		, type:'bool'},
 	{name: 'has_geo_zone_bind'	, type:'bool'},
-	{name: 'required'			, type:'int'},
+	{name: 'required'			, type:'bool'},
 	]
 });

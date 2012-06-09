@@ -290,6 +290,14 @@ Ext.define('app.controller.ppsZone', {
 			}
 		});
 		
+		function terminalAction(grid, rowIndex, colIndex) {
+			var val=grid.store.getAt(rowIndex).get("has_zone_bind");
+			console.log(val);
+			grid.store.getAt(rowIndex).set("has_zone_bind", !val);
+			this.addCls((!val)?'x-grid-center-icon':'x-hide-display');
+			this.removeCls((val)?'x-hide-display':'x-grid-center-icon');
+		};
+		
 		var terminalColumns=[
 				{
 					header: 'Идентификатор',
@@ -359,6 +367,11 @@ Ext.define('app.controller.ppsZone', {
 					}
 				},
 				{
+					xtype: 'checkcolumn',
+					header : 'Обязательная',
+					dataIndex: 'required'
+				},
+				{
 					xtype:'actioncolumn',
 					width:50,
 					items: [{
@@ -368,13 +381,9 @@ Ext.define('app.controller.ppsZone', {
 						handler: function(grid, rowIndex, colIndex) {
 							var val=grid.store.getAt(rowIndex).get("has_zone_bind");
 							grid.store.getAt(rowIndex).set("has_zone_bind", !val);
+							grid.refresh();
 						}
 					}]
-				},
-				{
-					xtype: 'checkcolumn',
-					header : 'Обязательная',
-					dataIndex: 'required'
 				},
 				{
 					header: 'Зоны',
