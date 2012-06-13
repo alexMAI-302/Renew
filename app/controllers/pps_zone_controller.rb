@@ -101,7 +101,7 @@ class PpsZoneController < ApplicationController
 			name=params[:name]
 			has_zone_bind=params[:has_zone_bind]
 			zone_id=params[:zone_id]
-			required=params[:required]
+			required=params[:required]?1:0
 			
 			terminal=PpsTerminal.update(id,
 			  {:bound_notes => params[:bound_notes],
@@ -154,7 +154,7 @@ class PpsZoneController < ApplicationController
 					zoneid = #{zone_id} AND pps_terminal = #{id}
 				"
 			end
-			logger.info "sql="+sql
+			
 			ActiveRecord::Base.connection.execute(sql)
 			render :text=>terminal.to_json
 		end
