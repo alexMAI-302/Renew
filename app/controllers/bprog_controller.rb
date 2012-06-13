@@ -42,6 +42,8 @@ class BprogController < ApplicationController
 		partner_groups = Array.new
 
 		if params[:filial_id] and params[:filial_id] != "0"
+			partner_groups = Proxycat.connection.select_all ("exec prc_podr #{params[:filial_id]}")
+=begin
 			partner_groups = Proxycat.connection.select_all (
 				"EXEC get_data_filial 
 					'SELECT 
@@ -67,6 +69,7 @@ class BprogController < ApplicationController
 							partners_groups.name',
 					#{params[:filial_id]}"
 			)
+=end
 		end
 
 		partner_groups.unshift({:id => 0, :name => "<Все подразделения>"})
