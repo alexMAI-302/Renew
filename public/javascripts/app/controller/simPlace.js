@@ -3,7 +3,8 @@ Ext.define('app.controller.simPlace', {
 	models: [
 		'app.model.valueModel',
 		'app.model.valueStrModel',
-		'app.model.simPlace.simPlaceModel'],
+		'app.model.simPlace.simPlaceModel',
+		'app.model.simka.simkaModel'],
     init: function() {
 	
 		function showServerError(response, options) {
@@ -14,9 +15,20 @@ Ext.define('app.controller.simPlace', {
 		Ext.Ajax.request.failure = showServerError;
 		
 		function loadSimPlaces(){
-			
-		    //Ext.Msg.alert('Test', 'Задайте значение для поля "  "');
-			
+		    simPlacesContainer.setDisabled(true);
+		    mainContainer.setLoading(true);
+		    var ddateb = new Date(filterPanel.down('#startDate').getValue());
+		    var ddatee = new Date(filterPanel.down('#endDate').getValue());
+		    simPlacesStore.proxy.extraParams={
+			ddateb: Ext.Date.format(ddateb, 'Y-m-d'),
+			ddatee: Ext.Date.format(ddatee, 'Y-m-d')
+		    };	
+		    simPlacesStore.load(
+			function(records, operation, success){
+			    simPlacesContainer.setDisabled(false);
+			    mainContainer.setLoading(false);
+			}
+		    );			
 		};
 		
 		var personStore = Ext.create('Ext.data.Store', {
@@ -25,6 +37,18 @@ Ext.define('app.controller.simPlace', {
 			proxy: {
 				type: 'rest',
 				url : '/sim_place/get_person',
+				reader: {
+					type: 'json'
+				}
+			}
+		});
+
+		var simkaStore = Ext.create('Ext.data.Store', {
+			model: 'app.model.simka.simkaModel',
+			autoLoad: true,
+			proxy: {
+				type: 'rest',
+				url : '/sim_place/get_simka',
 				reader: {
 					type: 'json'
 				}
@@ -122,7 +146,8 @@ Ext.define('app.controller.simPlace', {
 					margin: '10px'
 				}
 			},
-			margin: '-0px'
+			margin: '-0px',
+			disabled: true
 		});
 	
 		var spId='simPlacesTable';
@@ -140,10 +165,28 @@ Ext.define('app.controller.simPlace', {
 				},
 				{
 					header: 'SIM',
-					dataIndex: 'simserial',
-					field: {
-						xtype: 'textfield'
-					}
+					dataIndex: 'simka_id',
+					width: 300,
+					renderer: function(value, metaData, record){
+						var matching=null;
+						if(value!=null){
+							simkaStore.each(
+								function(storeRecord){
+									if(storeRecord.get('id') == value){
+										matching=storeRecord.get('icc');
+									}
+									return matching==null;
+								});
+						}
+						return (matching) ? matching : '';
+					},
+					field: Ext.create('Ext.form.ComboBox', {
+						store: simkaStore,
+						displayField: 'icc',
+						valueField: 'id',
+						queryMode: 'local',
+						selectOnFocus: true
+					})
 				},
 				{
 					header: 'Дата',
@@ -162,6 +205,7 @@ Ext.define('app.controller.simPlace', {
 				{
 					header: 'Кому',
 					dataIndex: 'person_id',
+					width: 150,
 					renderer: function(value, metaData, record){
 						var matching=null;
 						if(value!=null){
@@ -200,16 +244,28 @@ Ext.define('app.controller.simPlace', {
 					simPlacesStore.insert(0, r);
 				}
 			}, {
-				itemId: 'removeSellPrice',
+				itemId: 'removeSimPlace',
 				text: 'Удалить симку',
 				handler: function() {
-					;
+				    var sm = simPlacesPanel.getSelectionModel();
+				    cellEditingSimPlaces.cancelEdit();
+				    simPlacesStore.remove(sm.getSelection());
+				    if (simPlacesStore.getCount() > 0) {
+					sm.select(0);
+				    } else {
+					simPlacesStore.removeAll(true);
+				    };
 				}
 			}],
 			bbar: [{
 				text    : 'Сохранить',
 				handler : function() {
+				    var selection=simPlacesPanel.getSelectionModel().getSelection()[0];
+				    simPlacesStore.proxy.extraParams={};
 				    simPlacesStore.sync();
+				    if(selection!=null && selection.date!=null){
+					simPlacesPanel.getSelectionModel().select(simPlacesStore.getById(selection.data.id));
+				    }
 				}
 			}]
 		});

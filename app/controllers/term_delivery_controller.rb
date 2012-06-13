@@ -51,6 +51,8 @@ class TermDeliveryController < ApplicationController
 			from renew_web.renew_users ru
 			left outer join renew_web.renew_users_groups rusgs on rusgs.renew_user_id=ru.id and rusgs.renew_user_group_id=21
 			where ru.name='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}' ");
+	logger.info "save_osh="
+	logger.info @save_osh.to_s
 			
 	@rst_term = ActiveRecord::Base.connection.select_all( "select * from spp.Terminal_Delivery('#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',#{@subdealer},#{@spv_id},'#{@ddate}',#{@shift}, #{@show_inroute})")														   
 	zone=""
@@ -68,6 +70,21 @@ class TermDeliveryController < ApplicationController
 	@break_list = @break.collect {|p| [ p["name"], p["id"] ] }
 	@break_list <<  ["Не выбрано",-666] 
   end
+  
+  def route_export
+	headers['Content-Type'] = "application/vnd.ms-excel"
+    
+	zone=params[:zone].to_i
+	date=params[:date]
+	
+	set_conditions	
+	s = "select * from spp.Terminal_Delivery(@renew_user='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}', @subdealerID= #{@subdealer}, @zone_type=#{@spv_id},@ddate='#{@ddate}',@shift=#{@shift}, @show_inroute= #{@show_inroute}, @zone=#{zone})"
+	logger.info s
+	@rst_term = ActiveRecord::Base.connection.select_all( s)														   
+	
+	
+	render :layout => false
+end
   
   	def save_terminal	
 		begin 
@@ -312,6 +329,8 @@ end
     
   end 
   
+   
+ 
 private
 
   def set_conditions
@@ -355,8 +374,6 @@ private
 		logger.info "2@shift="+@shift.to_s
 	end 
  end
- 
-
  
   
   

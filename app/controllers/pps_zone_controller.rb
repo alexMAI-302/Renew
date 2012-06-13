@@ -1,4 +1,5 @@
 # encoding: utf-8
+# терминалы
 class PpsZoneController < ApplicationController
 
   def index
@@ -91,13 +92,16 @@ class PpsZoneController < ApplicationController
   
   def terminals
     case request.method.to_s
-		when "post"
+		when "put"
 		begin
-			id=params[:fake_id].split('_')[0]
-			old_zone=params[:fake_id].split('_')[1]
+			id=params[:id]
 			visit_freq=(params[:visit_freq].nil? || params[:visit_freq]=="")?("NULL"):(params[:visit_freq].to_i)
+			bound_notes=params[:bound_notes]
+			bound_summ=params[:bound_summ]
+			name=params[:name]
 			has_zone_bind=params[:has_zone_bind]
 			zone_id=params[:zone_id]
+			required=params[:required]
 			
 			terminal=PpsTerminal.update(id,
 			  {:bound_notes => params[:bound_notes],
@@ -111,45 +115,48 @@ class PpsZoneController < ApplicationController
 			stdev_summ=params[:stdev_summ]
 			opt_bound_summ=params[:opt_bound_summ]
 			
-			begin
-				ActiveRecord::Base.connection.execute("
-					UPDATE pps_terminal_stat pts SET
-						pts.avg_notes=#{avg_notes},
-						pts.stdev_notes=#{stdev_notes},
-						pts.opt_bound=#{opt_bound},
-						pts.avg_summ=#{avg_summ},
-						pts.stdev_summ=#{stdev_summ},
-						pts.opt_bound_summ=#{opt_bound_summ}
-					WHERE
-						pts.terminalid=#{id} AND
-						IF isnull(#{visit_freq}, 1) = 0 THEN 1 ELSE isnull(#{visit_freq}, 1) ENDIF = pts.visit_freq
-					")
-			rescue => t
-				puts "#{t}"
-			end
+			sql="
+				INSERT INTO pps_terminal_stat(
+					terminalid,
+					visit_freq,
+					avg_notes,
+					stdev_notes,
+					opt_bound,
+					avg_summ,
+					stdev_summ,
+					opt_bound_summ
+				)
+				ON EXISTING UPDATE
+				VALUES(
+					#{terminal.terminalID},
+					#{visit_freq},
+					#{avg_notes},
+					#{stdev_notes},
+					#{opt_bound},
+					#{avg_summ},
+					#{stdev_summ},
+					#{opt_bound_summ});
+				"
 			
 			if has_zone_bind==true then
-				begin
-					ActiveRecord::Base.connection.execute("
-						DELETE FROM pps_zone_terminal WHERE
-						pps_terminal = #{id} AND zoneid=#{old_zone};
-						INSERT INTO pps_zone_terminal(zoneid, pps_terminal)
-						VALUES (#{zone_id}, #{id})
-					")
-				rescue => t
-					puts "#{t}"
-				end
+				sql+="
+					INSERT INTO pps_zone_terminal(zoneid, pps_terminal)
+					ON EXISTING SKIP
+					VALUES (#{zone_id}, #{id});
+					update	 pps_zone_terminal
+					set	required=#{required}
+					WHERE  zoneid = #{zone_id} AND pps_terminal = #{id};
+				"
+				
 			else
-				begin
-					ActiveRecord::Base.connection.execute("
-						DELETE FROM pps_zone_terminal WHERE
-						zoneid = #{zone_id} AND pps_terminal = #{id}
-					")
-				rescue => t
-					puts "#{t}"
-				end
+				sql+="
+					DELETE FROM pps_zone_terminal WHERE
+					zoneid = #{zone_id} AND pps_terminal = #{id}
+				"
 			end
-			render :text=>"{success}"
+			logger.info "sql="+sql
+			ActiveRecord::Base.connection.execute(sql)
+			render :text=>terminal.to_json
 		end
 		when "get"
 		begin
@@ -165,8 +172,6 @@ class PpsZoneController < ApplicationController
 					WHERE
 						pzt.pps_terminal=pps_terminal.id) zone_names,
 					(SELECT sc.name FROM src_system sc WHERE sc.id=pps_terminal.src_system) src_system_name,
-					pps_terminal.bound_notes bound_notes,
-					pps_terminal.bound_summ bound_summ,
 					g.latitude,
 					g.longitude,
 					IF EXISTS(SELECT 1 FROM pps_zone_terminal pzt WHERE pzt.zoneid = #{params[:zone_id]} AND pzt.pps_terminal=pps_terminal.id) THEN 1 ELSE 0 END IF has_zone_bind,
@@ -174,10 +179,21 @@ class PpsZoneController < ApplicationController
 						1
 					ELSE
 						0
-					END IF has_geo_zone_bind",
+					END IF has_geo_zone_bind,
+					isnull((SELECT top 1 pzt.required FROM pps_zone_terminal pzt WHERE pzt.zoneid = #{params[:zone_id]} AND pzt.pps_terminal=pps_terminal.id),0) required,
+					pts.avg_notes,
+					pts.stdev_notes,
+					pps_terminal.bound_notes bound_notes,
+					pps_terminal.bound_summ bound_summ,
+					pts.opt_bound,
+					pts.avg_summ,
+					pts.stdev_summ,
+					pts.opt_bound_summ
+					",
 				:joins => "
 					JOIN geoaddress g ON g.id=pps_terminal.geoaddressid
-					LEFT OUTER JOIN (SELECT id FROM ask_terminals_in_zone(#{params[:zone_id]})) geo_bind ON geo_bind.id=pps_terminal.id",
+					LEFT JOIN pps_terminal_stat pts ON pts.terminalID=pps_terminal.terminalID AND pts.visit_freq=#{params[:visit_freq]}
+					LEFT JOIN (SELECT id FROM ask_terminals_in_zone(#{params[:zone_id]})) geo_bind ON geo_bind.id=pps_terminal.id",
 				:conditions => [
 					"main_subdealerid = :main_subdealerid AND
 					(

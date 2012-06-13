@@ -37,17 +37,17 @@ class BuyersRouteController < ApplicationController
   
   def save_point
 	if params[:a]
-		route_id = params[:a][:routeid]
-		session[:route_id] = route_id
+		@route_id = params[:a][:routeid]
+		session[:route_id] = @route_id
 
 		single_strings=params[:a][:points_str].split(';')
 		query_insert_points=""
 		single_strings.each_with_index do |single_string|
-			query_insert_points+="INSERT INTO geozone_coordinates (id, buyers_route, number, longitude, latitude) VALUES(idgenerator('geozone_coordinates'), #{@route_id}, #{single_string});"
+			query_insert_points+="\nINSERT INTO geozone_coordinates (id, buyers_route, number, longitude, latitude) VALUES(idgenerator(''geozone_coordinates''), #{@route_id}, #{single_string});"
 		end
 		
 		Proxycat.connection.execute("exec buyers_route_save_point
-			#{route_id},
+			#{@route_id},
 			'#{params[:a][:points]}',
 			'#{query_insert_points}'")
 	end

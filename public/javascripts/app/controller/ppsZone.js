@@ -1,3 +1,7 @@
+Ext.Loader.setPath('Ext.ux', '/ext/examples/ux');
+Ext.require([
+    'Ext.ux.CheckColumn'
+]);
 Ext.define('app.controller.ppsZone', {
     extend: 'Ext.app.Controller',
 	models: [
@@ -286,6 +290,14 @@ Ext.define('app.controller.ppsZone', {
 			}
 		});
 		
+		function terminalAction(grid, rowIndex, colIndex) {
+			var val=grid.store.getAt(rowIndex).get("has_zone_bind");
+			console.log(val);
+			grid.store.getAt(rowIndex).set("has_zone_bind", !val);
+			this.addCls((!val)?'x-grid-center-icon':'x-hide-display');
+			this.removeCls((val)?'x-hide-display':'x-grid-center-icon');
+		};
+		
 		var terminalColumns=[
 				{
 					header: 'Идентификатор',
@@ -355,6 +367,11 @@ Ext.define('app.controller.ppsZone', {
 					}
 				},
 				{
+					xtype: 'checkcolumn',
+					header : 'Обязательная',
+					dataIndex: 'required'
+				},
+				{
 					xtype:'actioncolumn',
 					width:50,
 					items: [{
@@ -364,6 +381,7 @@ Ext.define('app.controller.ppsZone', {
 						handler: function(grid, rowIndex, colIndex) {
 							var val=grid.store.getAt(rowIndex).get("has_zone_bind");
 							grid.store.getAt(rowIndex).set("has_zone_bind", !val);
+							grid.refresh();
 						}
 					}]
 				},
@@ -443,12 +461,13 @@ Ext.define('app.controller.ppsZone', {
 				{
 					text    : 'Сохранить терминалы',
 					handler : function() {
+						terminalTabs.setLoading(true);
 						terminalsStore.sync();
 						var rec = zonesPanel.getSelectionModel().getSelection()[0].data;
 						refreshTerminals(rec.points, rec.id);
+						terminalTabs.setLoading(false);
 					},
-					itemId	: 'saveTerminals',
-					disabled: true
+					itemId	: 'saveTerminals'
 				}
 			]
 		});
@@ -682,34 +701,28 @@ Ext.define('app.controller.ppsZone', {
 			var bounds = new YMaps.GeoCollectionBounds(polygon.getPoints());
 			terminalsStore.proxy.extraParams={
 				subdealer: subdealersCombo.value,
-				zone_id: zoneId
+				zone_id: zoneId,
+				visit_freq: zonesStore.getById(zoneId).get("visit_freq")
 			};
 			terminalsStore.load(function(records, operation, success){
 				if(success){
+					var inZone=[], outZone=[];
 					changeZoneMap(points, zoneId);
-				
-					inZoneTerminalsStore.suspendEvents();
-					outZoneTerminalsStore.suspendEvents();
 					
-					inZoneTerminalsStore.removeAll(true);
-					outZoneTerminalsStore.removeAll(true);
 					//разбираем терминалы на терминалы в зоне и на терминалы зоны вне границ зоны
 					terminalsStore.each(
 						function(record){
 							if(record.get('has_geo_zone_bind')){
-								inZoneTerminalsStore.add(record);
+								inZone.push(record);
 							} else {
-								outZoneTerminalsStore.add(record);
+								outZone.push(record);
 							}
 							return true;
 						}
 					);
 					
-					inZoneTerminalsStore.resumeEvents();
-					outZoneTerminalsStore.resumeEvents();
-					
-					inZoneTerminalsStore.fireEvent('datachanged', inZoneTerminalsStore, null);
-					outZoneTerminalsStore.fireEvent('datachanged', outZoneTerminalsStore, null);
+					inZoneTerminalsStore.loadData(inZone, false);
+					outZoneTerminalsStore.loadData(outZone, false);
 					
 					terminalTabs.setDisabled(false);
 				}

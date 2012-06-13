@@ -89,7 +89,7 @@
 <% end %>
 
 <% content_for :title do %>
-	Инкассация терминалов2
+	Инкассация терминалов
 <% end %>
 
 <% content_for :js do %>
@@ -266,14 +266,19 @@
 		{
 			if (term !=0)
 			{
-				$('a_'+term+'_techinfo').value =	$('techinfo').value;					
-				$('term_'+term).cells[15].textContent =  $('techinfo').value
+				<% if !(@spv_id==5626) and !(@save_osh==0) -%>
+					$('a_'+term+'_techinfo').value =	$('techinfo').value;					
+					$('term_'+term).cells[15].textContent =  $('techinfo').value
+					$('a_'+term+'_penaltystatus').value = $('c_penaltystatus').value;
+					$('a_'+term+'_penaltystatus').checked = $('c_penaltystatus').checked;
+				
+				<% end -%>
 				$('a_'+term+'_terminal_break').value = $('c_terminal_break').value
 				$('term_'+term).cells[11].textContent =  $('c_terminal_break').options[$('c_terminal_break').selectedIndex].label;
-				$('a_'+term+'_servstatus').value = $('c_servstatus').value;
-				$('a_'+term+'_servstatus').checked = $('c_servstatus').checked;
-				$('a_'+term+'_penaltystatus').value = $('c_penaltystatus').value;
-				$('a_'+term+'_penaltystatus').checked = $('c_penaltystatus').checked;
+				<% if !(@spv_id==5626) -%>
+					$('a_'+term+'_servstatus').value = $('c_servstatus').value;
+					$('a_'+term+'_servstatus').checked = $('c_servstatus').checked;
+				<% end -%>
 				$('a_'+term+'_modified').value = 1;
 			}
 		};
@@ -290,23 +295,30 @@
 			
 			if (!$('a_'+sid+'_terminal_break').value)
 				objSel.options[objSel.options.length - 1].selected = true;
-			else
-				for (var i=0; i < objSel.options.length; i++)
-				{
-					objSel.options[i].selected = false;
-					if (objSel.options[i].value == $('a_'+sid+'_terminal_break').value)
+				else
+					for (var i=0; i < objSel.options.length; i++)
 					{
-						objSel.options[i].selected = true;
-						break;
+						objSel.options[i].selected = false;
+						if (objSel.options[i].value == $('a_'+sid+'_terminal_break').value)
+						{
+							objSel.options[i].selected = true;
+							break;
+						}
 					}
-				}
+				
+				$('c_terminal_break').value = $('a_'+sid+'_terminal_break').value;
+				
+			<% if !(@spv_id==5626) and !(@save_osh==0) -%>
+				$('techinfo').value = $('a_'+sid+'_techinfo').value;
+				$('c_penaltystatus').value = $('a_'+term+'_penaltystatus').value ;
+				$('c_penaltystatus').checked = $('a_'+term+'_penaltystatus').checked ;
+			<% end -%>
+
+			<% if !(@spv_id==5626) -%>
+				$('c_servstatus').value = $('a_'+term+'_servstatus').value ;
+				$('c_servstatus').checked = $('a_'+term+'_servstatus').checked ;
+			<% end -%>
 			
-			$('c_terminal_break').value = $('a_'+sid+'_terminal_break').value;
-			$('techinfo').value = $('a_'+sid+'_techinfo').value;
-			$('c_servstatus').value = $('a_'+term+'_servstatus').value ;
-			$('c_penaltystatus').value = $('a_'+term+'_penaltystatus').value ;
-			$('c_servstatus').checked = $('a_'+term+'_servstatus').checked ;
-			$('c_penaltystatus').checked = $('a_'+term+'_penaltystatus').checked ;
 		};
 	</script>
 	<script>
@@ -535,6 +547,7 @@ if (root){
 						<td width="43%" colspan="2">Терминалов</td>
 						<td width="7%" rowspan="2">П</td>
 						<td width="7%" rowspan="2">ИЗ</td>
+						<td width="7%" rowspan="2">Э</td>
 					</tr>
 					<tr>
 						<td width="14%">Всего</td>
@@ -554,8 +567,16 @@ if (root){
 							<td width="9%" ><%= link_to(image_tag("/images/printer.png", :size=>"16x14"),{  :action => 'route_print', :zone =>r["zone"], :date=>@ddate, :rel=>"external"}) %></td>
 							<td width="9%" >
 								<% if !(r["zone"]==666) then %>
-									<%= check_box(:r, :delivery_status4, :index => r["zone"], :value => 0, :checked => r["delivery_status4"]==0 ? false : true, :onclick => "on_route_check(#{r["zone"]},event)", :readonly => r["delivery"]>0 ? false : true) %></td>
+									<%= check_box(:r, :delivery_status4, :index => r["zone"], :value => 0, :checked => r["delivery_status4"]==0 ? false : true, :onclick => "on_route_check(#{r["zone"]},event)", :readonly => r["delivery"]>0 ? false : true) %>
 								<% end %>
+							</td>
+							<td width="9%" >
+								<% if !(r["zone"]==666) then %>
+									<%= link_to(image_tag("/images/excel.jpg", :size=>"16x16"),{  :action => 'route_export', :zone =>r["zone"], :date=>@ddate, :rel=>"external"}) %>
+								<% end %>
+							</td>
+							
+							
 							<%= hidden_field(:r, :delivery_status4_right, :index => r["zone"], :value => r["delivery_status4_right"] ) %>
 							<%= hidden_field(:r, :delivery, :index => r["zone"], :value => r["delivery"] ) %>
 						</tr>
@@ -598,10 +619,10 @@ if (root){
 						<label for="terminal_break">Вид поломки</label>
 						<%=select(:c, :terminal_break, @break_list, {:selected => -666}, :onchange => "on_techinfo_change(event)" ) %>
 						<% if !(@spv_id==5626) -%>
-							<label for="teсhinfo">C</label>
+							<label for="servstatus">C</label>
 							<%= check_box(:c, :servstatus, :value => 0, :checked => false, :onchange => "on_techinfo_change(event)") %>
-							<% if !(@save_osh==1) -%>
-								<label for="teсhinfo">ОШ</label>
+							<% if !(@spv_id==5626) and !(@save_osh==0) -%>
+								<label for="penaltystatus">ОШ</label>
 								<%= check_box(:c, :penaltystatus, :value => 0, :checked => false, :onchange => "on_techinfo_change(event)") %>
 								<label for="teсhinfo">Причина</label>
 								<%=text_field_tag :techinfo, :techinfo, :size => "50", :value=>"", :onchange => "on_techinfo_change(event)" %> 			
@@ -636,18 +657,20 @@ if (root){
 						<td width="5%">Вид поломки</td>						
 						<td width="7%">Отделение банка</td>
 						<% if !(@spv_id==5626) -%><td width="2%">С</td>	<% end -%>				
-						<% if !(@spv_id==5626 and @save_osh==1) -%><td width="2%">ОШ</td>	<% end -%>				
-						<% if !(@spv_id==5626 and @save_osh==1) -%><td width="16%">Комментарий ОШ</td>	<% end -%>				
-						<td width="4%"></td>
+						<% if !(@spv_id==5626) and !(@save_osh==0) -%><td width="2%">ОШ</td>	<% end -%>				
+						<% if !(@spv_id==5626) and !(@save_osh==0) -%><td width="16%">Комментарий ОШ</td>	<% end -%>				
+						<td width="4%">&nbsp</td>
 					</tr>
 				</thead>
 				<tbody>
 					<% @rst_term.each_with_index do |a, i| %>
-						<tr <%= "id=\"term_#{a["terminalid"]}\"" %> class="term_<%=a["zone"]%>" <% if not a["style"].nil? -%><%= a["style"]%><% end -%>" onclick="on_select_terminal(<%= a["terminalid"] %>,event)" >
+						<tr <%= "id=\"term_#{a["terminalid"]}\"" %> class="term_<%=a["zone"]%>"  style="display:none; <% if not a["style"].nil? -%><%= a["style"]%><% end -%>" onclick="on_select_terminal(<%= a["terminalid"] %>,event)" >
 						<td width="2%"><%= check_box(:a, :termsave, :index => a["terminalid"], :class => "termsave", :value => '0', :checked => a["inroute"]==0 ? false : true, :onclick => "on_term_click(#{a["zone"]},#{a["terminalid"]})") %>
 								<%= hidden_field(:a, :zone, :index => a["terminalid"], :value => a["zone"] ) %>
 								<%= hidden_field(:a, :zone_check, :class => "zone_check_#{a["zone"]}", :index => a["terminalid"], :value => 1 ) %>
-								<%= hidden_field(:a, :modified, :index => a["terminalid"], :value => a["modified"] ) %>								
+								<%= hidden_field(:a, :modified, :index => a["terminalid"], :value => a["modified"] ) %>		
+								<%= hidden_field(:a, :terminal_break, :index => a["terminalid"], :value => a["terminal_break"] ) %>								
+								<%= hidden_field(:a, :techinfo, :index => a["terminalid"], :value => a["techinfo"] ) %>								
 							</td>
 							
 							<td width="3%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%=  i+1 %></td>							
@@ -688,8 +711,8 @@ if (root){
 									</div>
 								</td>
 							<% end -%>	
-							<% if !(@spv_id==5626 and @save_osh==1) -%><td width="2%"><%= check_box(:a, :penaltystatus, :index => a["terminalid"], :class => "penaltystatus", :value => '0', :checked => a["penaltystatus"]==0 ? false : true) %> <% end -%>	
-							<% if !(@spv_id==5626 and @save_osh==1)  -%><td width="16%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["techinfo"] %></td>	<% end -%>		
+							<% if !(@spv_id==5626) and !(@save_osh==0) -%><td width="2%"><%= check_box(:a, :penaltystatus, :index => a["terminalid"], :class => "penaltystatus", :value => '0', :checked => a["penaltystatus"]==0 ? false : true) %> <% end -%>	
+							<% if !(@spv_id==5626) and !(@save_osh==0)  -%><td width="16%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["techinfo"] %></td>	<% end -%>		
 							<td width="4%"><%= link_to_function 'Обновить', remote_function(:update =>"term_errortext_"+a["terminalid"].to_s, :before => "$('spinner_errortext_"+a["terminalid"].to_s+"').show();", :complete => "$('spinner_errortext_"+a["terminalid"].to_s+"').hide();"+
 								remote_function(:update =>"term_servstatus_"+a["terminalid"].to_s, :before => "$('spinner_servstatus_"+a["terminalid"].to_s+"').show();", :complete => "$('spinner_servstatus_"+a["terminalid"].to_s+"').hide();",:url => { :action => "term_update_servstatus"}, :with => "'terminalid="+a["terminalid"].to_s+"'" )+";"+
 								remote_function(:update =>"term_lastconnecttime_"+a["terminalid"].to_s, :before => "$('spinner_lastconnecttime_"+a["terminalid"].to_s+"').show();", :complete => "$('spinner_lastconnecttime_"+a["terminalid"].to_s+"').hide();",:url => { :action => "term_update_lastconnecttime"}, :with => "'terminalid="+a["terminalid"].to_s+"'" )+";"+								
