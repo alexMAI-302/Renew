@@ -132,7 +132,7 @@ Ext.define('app.controller.ppsZoneUsers', {
 		var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
 			clicksToEdit: 1,
 			listeners: {
-				beforeedit: function(e, options){
+				beforeedit: function(editor, e, options){
 					var disabled=!e.record;
 					zoneUsersPanel.down('#removeZoneUser').setDisabled(disabled);
 					
