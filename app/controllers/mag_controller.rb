@@ -106,11 +106,15 @@ end
 		sord_goods=ActiveRecord::Base.connection.select_one("
 		call renew_web.prc_mag_sord(#{mode}, '#{av}', #{pricelist}, #{storage}, #{session[:salesman_id]})")
 		logger.info "call renew_web.prc_mag_sord(#{mode}, '#{av}', #{pricelist}, #{storage}, #{session[:salesman_id]})"
-		rem=(sord_goods["v"].to_f).round-get_sum(sord_goods["goods_id"], mode, 0)
-		if rem>=1 then
-			@a << {:name => sord_goods["goods_name"], :vol => 1, :price => sord_goods["price"].to_f, :goods => sord_goods["goods_id"], :mode => mode, :storage => storage}
+		if sord_goods["info"].nil?
+			rem=(sord_goods["v"].to_f).round-get_sum(sord_goods["goods_id"], mode, 0)
+			if rem>=1 then
+				@a << {:name => sord_goods["goods_name"], :vol => 1, :price => sord_goods["price"].to_f, :goods => sord_goods["goods_id"], :mode => mode, :storage => storage}
+			else
+				flash.now[:notice] = "Не хватает остатков. Товар ""#{sord_goods["goods_name"]}"", #{(mode==0)?("уцененный"):("нормальный")}."
+			end
 		else
-			flash.now[:notice] = "Не хватает остатков. Товар ""#{sord_goods["goods_name"]}"", #{(mode==0)?("уцененный"):("нормальный")}."
+			flash.now[:notice] = sord_goods["info"]
 		end
 	elsif av.size > 0 and @a.size > 0
 		if @a[-1][:mode] == 0 
@@ -118,14 +122,14 @@ end
 		else
 			storage = session[:good_storage]
 		end
-		rem = Good.connection.select_value( "select get_magaz_rem( #{@a[-1][:goods]},#{session[:salesman_id]},#{storage} ) v" ).to_i - get_sum(@a[-1][:goods],@a[-1][:mode], -1)
+		rem=ActiveRecord::Base.connection.select_value( "select get_magaz_rem( #{@a[-1][:goods]},#{session[:salesman_id]},#{storage} ) v" ).to_i - get_sum(@a[-1][:goods],@a[-1][:mode], -1)
 		if rem >= av.to_i
 			@a[-1][:vol] = av.to_i
 		else
-			flash.now[:notice] = " remains " + rem.to_s
+			flash.now[:notice] = " Остаток: " + rem.to_s
 		end
 	elsif av.size > 0
-		flash.now[:notice] = "error" 	
+		flash.now[:notice] = "Ошибка" 	
     end
 	#params[:av] = ""
   end 
