@@ -130,7 +130,7 @@ Ext.define('app.controller.renewPlan', {
 		var cellEditingRenewPlans = Ext.create('Ext.grid.plugin.CellEditing', {
 			clicksToEdit: 1,
 			listeners: {
-				beforeedit: function(e, options){
+				beforeedit: function(editor, e, options){
 					if(e.record.get("sorder")){
 						if(e.colIdx==9){
 							return false;
