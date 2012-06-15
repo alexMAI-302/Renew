@@ -19,11 +19,13 @@ Ext.define('app.controller.sellPrice', {
 			if(goodsId){
 				var intersect=false;
 				var intervals="";
+				var cm;
 				var ddateb, ddatee;
 				
 				goodsPricesStore.each(
 					function(storeRecord){
 						if(storeRecord.get('goods_id') == goodsId){
+							cm=storeRecord.get('catmanager_name');
 							ddateb=(storeRecord.get('ddateb') && storeRecord.get('ddateb')!='')?
 								storeRecord.get('ddateb'):
 								new Date('0000-01-01');
@@ -38,7 +40,7 @@ Ext.define('app.controller.sellPrice', {
 						return true;
 					});
 				if(!intersect) {
-					return intervals;
+					return "Период действия скидки должен лежать в интервалах: "+intervals+". Обратитесь к КМ "+cm;
 				} else {
 					return false;
 				}
@@ -542,15 +544,12 @@ Ext.define('app.controller.sellPrice', {
 							error=true;
 						}
 						
-						errorTxt=checkDateError(data.goods_id, (data.ddateb)?data.ddateb:(new Date('0000-01-01')));
+						errorTxt=checkDateError(
+							data.goods_id,
+							(data.ddateb)?data.ddateb:(new Date('0000-01-01')),
+							(data.ddatee)?data.ddatee:(new Date('9999-01-01')));
 						if(errorTxt){
-							msg+="Дата начала действия скидки должна лежать в интервалах: "+errorTxt+"\n";
-							error=true;
-						}
-						
-						errorTxt=checkDateError(data.goods_id, (data.ddatee)?data.ddatee:(new Date('9999-01-01')));
-						if(errorTxt){
-							msg+="Дата окончания действия скидки  должна лежать в интервалах: "+errorTxt+"\n";
+							msg+=errorTxt+"\n";
 							error=true;
 						}
 						
