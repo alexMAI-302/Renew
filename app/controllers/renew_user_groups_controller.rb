@@ -1,3 +1,5 @@
+# encoding: utf-8
+# Группы пользователей
 class RenewUserGroupsController < ApplicationController
   def index
     @renew_user_groups = RenewUserGroup.all(:order => "name")
@@ -13,7 +15,7 @@ class RenewUserGroupsController < ApplicationController
   def save
 	params[:renew_user_groups].each_key do |id|
 		@renew_user_group = RenewUserGroup.find(id)
-		@renew_user_group.update_attribute('name', params[:renew_user_group][id])
+		@renew_user_group.update_attribute('name', params[:renew_user_groups][id])
 	end
 	redirect_to :action => 'index'
   end
