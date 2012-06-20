@@ -1,3 +1,7 @@
+Ext.Loader.setPath('Ext.ux', '/ext/examples/ux');
+Ext.require([
+    'Ext.ux.CheckColumn'
+]);
 Ext.define('app.controller.movementDiff', {
     extend: 'Ext.app.Controller',
 	models: [
@@ -25,14 +29,93 @@ Ext.define('app.controller.movementDiff', {
 				site_from: siteFrom,
 				site_to: siteTo
 			};
+			mainContainer.setLoading(true);
 			movementDiffStore.load(
 				function(records, operation, success){
 					if(success){
+						var siteSrcArray=movementDiffStore.collect('site_src_id'),
+							siteDestArray=movementDiffStore.collect('site_dest_id'),
+							ndocSOArray=movementDiffStore.collect('ndoc_so'),
+							ndocSupArray=movementDiffStore.collect('ndoc_sup');
+						var ndocSO, ndocSup;
+							
+						sitesSrcClearStore.removeAll();
+						sitesDestClearStore.removeAll();
+						ndocsSOClearStore.removeAll();
+						ndocsSupClearStore.removeAll();
+						
+						sitesStore.each(function(record){
+							for(var i=0; i<siteSrcArray.length; i++){
+								if(record.get('id')==siteSrcArray[i] || record.get('id')==-1){
+									sitesSrcClearStore.add(record);
+								}
+							}
+							return true;
+						});
+						
+						sitesStore.each(function(record){
+							for(var i=0; i<siteDestArray.length; i++){
+								if(record.get('id')==siteDestArray[i] || record.get('id')==-1){
+									sitesDestClearStore.add(record);
+								}
+							}
+							return true;
+						});
+						
+						for(var i=0; i<ndocSOArray.length; i++){
+							ndocSO = Ext.ModelManager.create({
+								id	: ndocSOArray[i],
+								name: ndocSOArray[i]
+							}, 'app.model.valueModel');
+							ndocsSOClearStore.add(ndocSO);
+						}
+						
+						for(var i=0; i<ndocSupArray.length; i++){
+							ndocSup = Ext.ModelManager.create({
+								id	: ndocSupArray[i],
+								name: ndocSupArray[i]
+							}, 'app.model.valueModel');
+							ndocsSupClearStore.add(ndocSup);
+						}
+						
 						movementDiffContainer.setDisabled(false);
 						mainContainer.setLoading(false);
 					}
 				});
 		};
+		
+		function onActionComboEvent(field){
+			if(field.getValue() != null){
+				field.ownerCt.down('#clearDiff').show();
+			}
+		};
+		
+		var actionTypeStore = Ext.create('Ext.data.Store', {
+			fields: ['id', 'name'],
+			data: [
+				{'id': 1, 'name': 'На площадке отправителя'},
+				{'id': 2, 'name': 'На площадке получателя'},
+				{'id': 3, 'name': 'По номеру документа заказа'},
+				{'id': 4, 'name': 'По номеру документа поставки'},
+				{'id': 5, 'name': 'Одиночные позиции'}
+			]
+		});
+		
+		var sitesSrcClearStore = Ext.create('Ext.data.Store', {
+			model: 'app.model.valueModel'
+		});
+		
+		var sitesDestClearStore = Ext.create('Ext.data.Store', {
+			model: 'app.model.valueModel'
+		});
+		
+		var ndocsSOClearStore = Ext.create('Ext.data.Store', {
+			model: 'app.model.valueModel'
+		});
+		
+		var ndocsSupClearStore = Ext.create('Ext.data.Store', {
+			model: 'app.model.valueModel'
+		});
 		
 		var movementDiffStore = Ext.create('Ext.data.Store', {
 			model: 'app.model.movementDiff.movementDiffModel',
@@ -54,11 +137,18 @@ Ext.define('app.controller.movementDiff', {
 					type: 'json'
 				}
 			},
-			autoLoad: true
+			autoLoad: true,
+			listeners: {
+				"load": function(store, records, successful, operation, options ){
+					if(successful==true){
+						sitesStore.insert(0, Ext.ModelManager.create({id: -1, name : 'ВСЕ'}, 'app.model.valueModel'));
+					}
+				}
+			}
 		});
 		
 		var mainContainer=Ext.create('Ext.container.Container', {
-			width: 1100,
+			width: 1300,
 			layout: {
 				type: 'anchor'
 			},
@@ -89,7 +179,8 @@ Ext.define('app.controller.movementDiff', {
 				format: 'd.m.Y',
 				altFormat: 'd/m/Y|d m Y',
 				startDay: 1,
-				value: Ext.Date.add(new Date(Ext.Date.now()), Ext.Date.DAY, -3)
+				value: Ext.Date.add(new Date(Ext.Date.now()), Ext.Date.DAY, -3),
+				width: 300
 			},{
 				id: 'endDate',
 				xtype: 'datefield',
@@ -98,7 +189,8 @@ Ext.define('app.controller.movementDiff', {
 				format: 'd.m.Y',
 				altFormat: 'd/m/Y|d m Y',
 				startDay: 1,
-				value: new Date(Ext.Date.now())
+				value: new Date(Ext.Date.now()),
+				width: 300
 			},
 			{
 				xtype	: 'button',
@@ -114,7 +206,9 @@ Ext.define('app.controller.movementDiff', {
 				displayField: 'name',
 				valueField: 'id',
 				name: 'siteFrom',
-				fieldLabel: 'Площадка отправителя'
+				fieldLabel: 'Площадка отправителя',
+				width: 300,
+				labelWidth: 150
 			},
 			{
 				id: 'siteTo',
@@ -124,18 +218,16 @@ Ext.define('app.controller.movementDiff', {
 				displayField: 'name',
 				valueField: 'id',
 				name: 'siteTo',
-				fieldLabel: 'Площадка отправителя'
+				fieldLabel: 'Площадка отправителя',
+				width: 300,
+				labelWidth: 150
 			}]
 		});
 		
 		mainContainer.add(filterPanel);
-	
-		var cellEditingSellPrices = Ext.create('Ext.grid.plugin.CellEditing', {
-			clicksToEdit: 1
-		});
 		
 		var movementDiffContainer = Ext.create('Ext.container.Container', {
-			width: 1100,
+			width: 1280,
 			layout: {
 				type: 'anchor'
 			},
@@ -152,19 +244,21 @@ Ext.define('app.controller.movementDiff', {
 		
 		var movementDiffPanel=Ext.create('Ext.grid.Panel', {
 			id: mdId,
-			title: 'Скидки',
+			title: 'Расхождения межплощадочных перемещений',
 			store: movementDiffStore,
+			enableColumnHide: false,
+			enableColumnMove: false,
+			enableColumnResize: false,
 			columns: [
 				{
 					header: 'Идентификатор',
 					dataIndex: 'id',
-					hidden: true,
-					disabled: true
+					hidden: true
 				},
 				{
-					text: 'Площадка-отправитель',
+					text: 'Отправитель',
+					width: 85,
 					dataIndex: 'site_src_id',
-					disabled: true,
 					renderer: function(value){
 						var matching=null;
 						sitesStore.each(function(record){
@@ -177,9 +271,9 @@ Ext.define('app.controller.movementDiff', {
 					}
 				},
 				{
-					header: 'Площадка-<br/>получатель',
+					header: 'Получатель',
+					width: 85,
 					dataIndex: 'site_dest_id',
-					disabled: true,
 					renderer: function(value){
 						var matching=null;
 						sitesStore.each(function(record){
@@ -194,33 +288,33 @@ Ext.define('app.controller.movementDiff', {
 				{
 					header: 'Номер заказа',
 					dataIndex: 'ndoc_so',
-					disabled: true
+					width: 80
 				},
 				{
 					header: 'Дата заказа',
 					dataIndex: 'ddate_so',
-					width: 100,
+					width: 110,
 					renderer: function(value, metaData, record){
-						return (value)?Ext.Date.format(new Date(value), 'd.m.Y'):'';
+						return (value)?Ext.Date.format(new Date(value), 'd.m.Y H:i'):'';
 					}
 				},
 				{
 					header: 'Номер поставки',
 					dataIndex: 'ndoc_sup',
-					disabled: true
+					width: 90
 				},
 				{
 					header: 'Дата поставки',
 					dataIndex: 'ddate_sup',
-					width: 100,
+					width: 110,
 					renderer: function(value, metaData, record){
-						return (value)?Ext.Date.format(new Date(value), 'd.m.Y'):'';
+						return (value)?Ext.Date.format(new Date(value), 'd.m.Y H:i'):'';
 					}
 				},
 				{
 					header: 'Наименование товара',
 					dataIndex: 'goods_name',
-					disabled: true
+					width: 400
 				},
 				{
 					header: 'Заказ',
@@ -228,12 +322,12 @@ Ext.define('app.controller.movementDiff', {
 						{
 							header: 'Количество',
 							dataIndex: 'volume_so',
-							disabled: true
+							width: 70
 						},
 						{
 							header: 'Факт',
 							dataIndex: 'donevol_so',
-							disabled: true
+							width: 40
 						}
 					]
 				},
@@ -243,102 +337,193 @@ Ext.define('app.controller.movementDiff', {
 						{
 							header: 'Количество',
 							dataIndex: 'volume_sup',
-							disabled: true
+							width: 70
 						},
 						{
 							header: 'Факт',
 							dataIndex: 'donevol_sup',
-							disabled: true
+							width: 40
 						}
 					]
+				},
+				{
+					id: 'selectedDiffs',
+					header: 'К<br/>списанию',
+					width: 60,
+					align: 'center',
+					hidden: true,
+					dataIndex: 'to_clear',
+					xtype: 'checkcolumn',
+					listeners: {
+						"checkchange": function(){
+							if(movementDiffStore.collect('to_clear').length>1){
+								movementDiffPanel.down('#clearDiff').show();
+							} else {
+								movementDiffPanel.down('#clearDiff').hide();
+							}
+						}
+					}
 				}
+			],
+			bbar: [
+			{
+				id: 'actionType',
+				xtype: 'combobox',
+				store: actionTypeStore,
+				queryMode: 'local',
+				displayField: 'name',
+				valueField: 'id',
+				name: 'actionType',
+				fieldLabel: 'Списание остатков',
+				labelWidth: 130,
+				width: 350,
+				listeners: {
+					"change": function(field, newValue, oldValue, eOpts){
+						this.ownerCt.items.each(function(i){
+							i.hide();
+						});
+						movementDiffPanel.down('#selectedDiffs').hide();
+						this.ownerCt.down('#actionType').show();
+						switch(newValue){
+							case 1:
+								this.ownerCt.down('#siteSrcAction').show();
+							break;
+							case 2:
+								this.ownerCt.down('#siteDestAction').show();
+							break;
+							case 3:
+								this.ownerCt.down('#ndocSOAction').show();
+							break;
+							case 4:
+								this.ownerCt.down('#ndocSupAction').show();
+							break;
+							case 5:
+								movementDiffPanel.down('#selectedDiffs').show();
+								if(newValue==5){
+									//если больше одного уникального значения, т.е. если есть выбранные для списания позиции
+									if(movementDiffStore.collect('to_clear').length>1){
+										this.ownerCt.down('#clearDiff').show();
+									}
+								}
+							break;
+						}
+					}
+				}
+			},
+			{
+				id: 'siteSrcAction',
+				xtype: 'combobox',
+				store: sitesSrcClearStore,
+				queryMode: 'local',
+				displayField: 'name',
+				valueField: 'id',
+				name: 'siteSrcAction',
+				hidden: true,
+				listeners: {
+					"show": onActionComboEvent,
+					"change": onActionComboEvent
+				}
+			},
+			{
+				id: 'siteDestAction',
+				xtype: 'combobox',
+				store: sitesDestClearStore,
+				queryMode: 'local',
+				displayField: 'name',
+				valueField: 'id',
+				name: 'siteDestAction',
+				hidden: true,
+				listeners: {
+					"show": onActionComboEvent,
+					"change": onActionComboEvent
+				}
+			},
+			{
+				id: 'ndocSOAction',
+				xtype: 'combobox',
+				store: ndocsSOClearStore,
+				queryMode: 'local',
+				displayField: 'id',
+				valueField: 'id',
+				name: 'ndocSOAction',
+				hidden: true,
+				listeners: {
+					"show": onActionComboEvent,
+					"change": onActionComboEvent
+				}
+			},
+			{
+				id: 'ndocSupAction',
+				xtype: 'combobox',
+				store: ndocsSupClearStore,
+				queryMode: 'local',
+				displayField: 'id',
+				valueField: 'id',
+				name: 'ndocSupAction',
+				hidden: true,
+				listeners: {
+					"show": onActionComboEvent,
+					"change": onActionComboEvent
+				}
+			},
+			{
+				id		: 'clearDiff',
+				xtype	: 'button',
+				text    : 'Списать остатки',
+				hidden	: true,
+				handler : function(button, e){
+					var siteSrc, siteDest, ndocSO, ndocSup, ids = null;
+					var ddateb = new Date(filterPanel.down('#startDate').getValue()),
+						ddatee = new Date(filterPanel.down('#endDate').getValue());
+					
+					switch(button.ownerCt.down('#actionType')){
+						case 1:
+							siteSrc = button.ownerCt.down('#siteSrcAction').getValue;
+						break;
+						case 2:
+							siteDest = button.ownerCt.down('#siteDestAction').getValue;
+						break;
+						case 3:
+							ndocSO = button.ownerCt.down('#ndocSOAction').getValue;
+						break;
+						case 4:
+							ndocSup = button.ownerCt.down('#ndocSupAction').getValue;
+						break;
+						case 5:
+							movementDiffStore.each(function(record){
+								if(record.get('to_clear')){
+									ids.push(record.get('id'));
+								}
+								return true;
+							});
+						break;
+					}
+					
+					mainContainer.setLoading(true);
+					Ext.Ajax.request({
+						params:{
+							authenticity_token: window._token,
+							site_src: siteSrc,
+							site_dest: siteDest,
+							ndoc_so: ndocSO,
+							ndoc_sup: ndocSup,
+							ids: ids.toString(),
+							ddateb: Ext.Date.format(ddateb, 'Y-m-d'),
+							ddatee: Ext.Date.format(ddatee, 'Y-m-d')
+						},
+						method: 'post',
+						url: '/movement_diff/clear_diff',
+						success: function(response){
+							loadMovementDiff();
+						}
+					});
+				}
+			}
 			],
 			selModel: {
 				selType: 'rowmodel'
 			},
-			plugins: [cellEditingSellPrices],
-			height: 400,
-			tbar: [{
-				text: 'Добавить скидку',
-				handler : function() {
-					cellEditingSellPrices.cancelEdit();
-					
-					var r = Ext.ModelManager.create({
-						partner_id	: partnersCombo.value
-					}, 'app.model.sellPrice.sellPriceModel');
-					sellPricesStore.insert(0, r);
-				}
-			}, {
-				itemId: 'removeSellPrice',
-				text: 'Удалить скидку',
-				handler: function() {
-					var sm = sellPricesPanel.getSelectionModel();
-					cellEditingSellPrices.cancelEdit();
-					sellPricesStore.remove(sm.getSelection());
-					if (sellPricesStore.getCount() > 0) {
-						sm.select(0);
-					} else {
-						sellPricesStore.removeAll(true);
-					}
-				},
-				disabled: true
-			}],
-			bbar: [{
-				text    : 'Сохранить',
-				handler : function() {
-					var selection=sellPricesPanel.getSelectionModel().getSelection()[0];
-					
-					var error=false, errorTxt;
-					sellPricesStore.each(function(record){
-						var msg="";
-						var data=(record.data!=null)?record.data:{};
-						if(!(data.goods_id)>0){
-							msg+="Не заполнено поле \"Товар\"\n";
-							error=true;
-						}
-						
-						if(!(data.sell_reason_id)>0){
-							msg+="Не заполнено поле \"Причина скидки\"\n";
-							error=true;
-						}
-						
-						errorTxt=checkDateError(data.goods_id, (data.ddateb)?data.ddateb:(new Date('0000-01-01')));
-						if(errorTxt){
-							msg+="Дата начала действия скидки должна лежать в интервалах: "+errorTxt+"\n";
-							error=true;
-						}
-						
-						errorTxt=checkDateError(data.goods_id, (data.ddatee)?data.ddatee:(new Date('9999-01-01')));
-						if(errorTxt){
-							msg+="Дата окончания действия скидки  должна лежать в интервалах: "+errorTxt+"\n";
-							error=true;
-						}
-						
-						if(error){
-							Ext.Msg.alert('Ошибка', msg);
-							sellPricesPanel.getSelectionModel().select(record.id);
-							return false;
-						} else {
-							return true;
-						}
-					});
-					if(!error){
-						sellPricesStore.proxy.extraParams={};
-						sellPricesStore.sync();
-					}
-					if(selection!=null && selection.date!=null){
-						partnersCombo.value=selection.data.partner_id;
-						sellPricesPanel.getSelectionModel().select(sellPricesStore.getById(selection.data.id));
-					}
-				}
-			}],
-			listeners: {
-				'selectionchange': function(view, records) {
-					var disabled=!records.length;
-					
-					sellPricesPanel.down('#removeSellPrice').setDisabled(disabled);
-				}
-			}
+			height: 400
 		});
 		
 		movementDiffContainer.add(movementDiffPanel);
