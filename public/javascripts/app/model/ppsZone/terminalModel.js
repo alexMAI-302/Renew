@@ -3,11 +3,11 @@ Ext.define('app.model.ppsZone.terminalModel', {
 	fields: [
 	{name: 'id'					, type:'int'},
 	{name: 'name'				, type:'string'},
-	{name: 'bound_notes'		, type:'int'},
+	{name: 'bound_notes'		, type:'auto'},
 	{name: 'avg_notes'			, type:'float'},
 	{name: 'stdev_notes'		, type:'float'},
-	{name: 'bound_summ'			, type:'int'},
-	{name: 'opt_bound'			, type:'float'},
+	{name: 'bound_summ'			, type:'auto'},
+	{name: 'opt_bound'			, type:'int'},
 	{name: 'avg_summ'			, type:'float'},
 	{name: 'stdev_summ'			, type:'float'},
 	{name: 'opt_bound_summ'		, type:'float'},
@@ -17,6 +17,6 @@ Ext.define('app.model.ppsZone.terminalModel', {
 	{name: 'longitude'			, type:'float'},
 	{name: 'has_zone_bind'		, type:'bool'},
 	{name: 'has_geo_zone_bind'	, type:'bool'},
-	{name: 'required'			, type:'bool'},
+	{name: 'required'			, type:'int'},
 	]
 });
