@@ -322,14 +322,14 @@ Ext.define('app.controller.ppsZone', {
 				},
 				{
 					header: 'Граница #',
-					dataIndex: 'opt_bound',
+					dataIndex: 'bound_notes',
 					field: {
 						xtype: 'numberfield'
 					}
 				},
 				{
 					header: 'Граница (расчет) #',
-					dataIndex: 'bound_notes',
+					dataIndex: 'opt_bound',
 					field: {
 						xtype: 'numberfield'
 					}
@@ -350,14 +350,14 @@ Ext.define('app.controller.ppsZone', {
 				},
 				{
 					header: 'граница $',
-					dataIndex: 'opt_bound_summ',
+					dataIndex: 'bound_summ',
 					field: {
 						xtype: 'numberfield'
 					}
 				},
 				{
 					header: 'Граница (расчет) $',
-					dataIndex: 'bound_summ',
+					dataIndex: 'opt_bound_summ',
 					field: {
 						xtype: 'numberfield'
 					}

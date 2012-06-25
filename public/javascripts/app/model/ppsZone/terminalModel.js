@@ -3,10 +3,10 @@ Ext.define('app.model.ppsZone.terminalModel', {
 	fields: [
 	{name: 'id'					, type:'int'},
 	{name: 'name'				, type:'string'},
-	{name: 'bound_notes'		, type:'int'},
+	{name: 'bound_notes'		, type:'auto'},
 	{name: 'avg_notes'			, type:'float'},
 	{name: 'stdev_notes'		, type:'float'},
-	{name: 'bound_summ'			, type:'int'},
+	{name: 'bound_summ'			, type:'auto'},
 	{name: 'opt_bound'			, type:'float'},
 	{name: 'avg_summ'			, type:'float'},
 	{name: 'stdev_summ'			, type:'float'},
