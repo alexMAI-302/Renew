@@ -53,6 +53,23 @@ class BuyersRouteController < ApplicationController
 	end
 	redirect_to :action => "index"
   end
+  
+  #выгрузка файла с точками
+  def get_info_csv
+	pack=500
+	points=params[:points].split(",")
+	data=[]
+	i=0
+	while i*pack < points.length
+		data=data.concat(Proxycat.connection.select_all("exec buyers_route_get_placeunload_info '#{points[i .. i+pack].join(",")}'"))
+		i=i+1
+	end
+	
+	send_data(
+		data.collect {|point| "#{point["partner_group_name"]}\t#{point["partner_name"]}\t#{point["buyer_name"]}\t#{point["loadto"]}\t#{point["buyers_route_name"]}"}.join("\n"),
+		:filename => "points.csv",
+		:type => 'text/csv')
+  end
 
 private
 
