@@ -112,7 +112,7 @@ class PlaceunloadController < ApplicationController
 	@latitude  = params[:latitude]   
     @places = Proxycat.connection.select_all("exec find_place #{@latitude}, #{@longitude}")
 	@pointsj = @places.to_json( :only => ["id", "name", "latitude", "longitude"] )	
-	render :partial => 'upd_end' 
+	render :partial => params[:prov]? 'upd_end_prov' : 'upd_end'
   end
   
   def find_place_fake
@@ -191,35 +191,25 @@ class PlaceunloadController < ApplicationController
 			@flt_ischeck = session[:flt_ischeck] || -1 
 			@flt_buyers_route_id = session[:flt_buyers_route_id] || 0 
 			@flt_ddate = session[:flt_ddate] || 0
-			@flt_ddate = session[:flt_ddate] || 0
 			@flt_notgeo = session[:flt_notgeo] || 0
 		end
 	end
   	
-	@rst_buyers=Proxycat.connection.select_all("exec placeunload_index
-		#{@id},
-		'#{@flt_name}',
-		'#{@flt_address}',
-		'#{@flt_tp}',
-		#{@flt_ischeck},
-		#{@flt_buyers_route_id},
-		#{@flt_ddate},
-		#{@flt_notgeo}")
-	
-	@rst_new = @rst_buyers.to_json( :only => [ "id", "longitude", "latitude", "pname" ] ) 
-	if @rst_buyers.size > 0 
-		if @rst_buyers[0]["longitude"] and @rst_buyers[0]["latitude"]
-			@longitude = @rst_buyers[0]["longitude"]
-			@latitude  = @rst_buyers[0]["latitude"]
-		end
-	end
+	init_placeunload_data
   end
 
   def prov
-  	@longitude = 37.498995
+	@longitude = 37.498995
 	@latitude  = 55.842610
-	@buyers_route_list  = ActiveRecord::Base.connection.select_all( "select id, name from buyers_route
-																	 order by 2" ).collect{|p| [ p["name"], p["id"] ]}
+	@buyers_route_list = ActiveRecord::Base.connection.select_all("
+	select
+		id,
+		name
+	from
+		buyers_route
+	order by
+		2" ).collect{|p| [ p["name"], p["id"] ]}
+  
 	if params[:flt]
 		@flt_ischeck          = params[:flt][:ischeck].to_i
 		@flt_buyers_route_id  = params[:flt][:buyers_route_id].to_i
@@ -229,34 +219,14 @@ class PlaceunloadController < ApplicationController
 		@flt_ischeck = session[:flt_ischeck] || -1 
 		@flt_buyers_route_id = session[:flt_buyers_route_id] || 0 
 	end
-	sw = "p.buyers_route_id = #{@flt_buyers_route_id}"
-	if @flt_ischeck != -1 
-		sw += " and isnull(p.ischeck,0) = #{@flt_ischeck}"
-	end
+	@id='null'
+	@flt_name = "" 
+	@flt_address = ""
+	@flt_tp = ""
+	@flt_ddate = 0
+	@flt_notgeo = 0
 	
-  	@rst_buyers = ActiveRecord::Base.connection.select_all("
-			select 
-				p.id                			id,
-				p.name              			pname,
-				p.address           			srcaddress, 
-				p.fulladdress       			fulladdress, 
-				p.latitude          			latitude,
-				p.longitude         			longitude,
-				p.descr             			descr,
-				isnull(p.placecategory_id,-1)  	placecategory_id,
-				isnull(p.ischeck,0)            	ischeck
-			from
-				placeunload p
-			where #{sw} order by p.name") 
-
-	@rst_new = @rst_buyers.to_json( :only => [ "id", "longitude", "latitude", "pname" ] ) 
-	if @rst_buyers.size > 0 
-		if @rst_buyers[0]["longitude"] and @rst_buyers[0]["latitude"]
-			@longitude = @rst_buyers[0]["longitude"]
-			@latitude  = @rst_buyers[0]["latitude"]
-		end
-	end
-	@menu_subjects=nil
+  	init_placeunload_data
   end
   
   def route
@@ -306,31 +276,55 @@ class PlaceunloadController < ApplicationController
 		end
 	end
 	
-	res=Proxycat.connection.select_value("exec dbo.placeunload_save_point '#{new_xml}'")
+	res=Proxycat.connection.select_value("exec dbo.placeunload_save_point '#{new_xml}', 0")
 	
 	if !res.nil?
 		flash[:notice]=res
 	end
 	redirect_to :action => "index"
   end
+  
   def save_point_r
+	new_xml=""
 	if params[:a]
-		params[:a].each_pair do |id, value|
-			if value[:needsave] == "1"
-				p = Placeunload.find( id )
-				p.name = value[:pname]
-				p.address = value[:srcaddress]
-				p.fulladdress = value[:fulladdress]
-				p.latitude = value[:latitude]
-				p.longitude = value[:longitude]
-				p.ischeck = value[:ischeck]
-				p.descr   = value[:descr]
-				p.save
+		xml = Builder::XmlMarkup.new(:target => new_xml)
+
+		xml.points do
+			params[:a].each_pair do |key, value|
+				if value[:needsave].to_i == 1
+					xml.point(
+						:id => key,
+						:name => value[:pname],
+						:address => value[:srcaddress],
+						:fulladdress => value[:fulladdress],
+						:descr => value[:descr],
+						:latitude => value[:latitude],
+						:longitude => value[:longitude],
+						:ischeck => value[:ischeck],
+						:join => value[:join]
+					)
+				end
+			end
+			
+			params[:b].each_pair do |key, value|
+				if value[:join].to_i == 1
+					xml.point(
+						:id => key,
+						:join => value[:join]
+					)
+				end
 			end
 		end
 	end
-  	redirect_to :action => "prov"
+	
+	res=Proxycat.connection.select_value("exec dbo.placeunload_save_point '#{new_xml}', 1")
+	
+	if !res.nil?
+		flash[:notice]=res
+	end
+	redirect_to :action => "prov"
   end
+  
   def save_route
 	if params[:a]
 		params[:a].each_pair do |id, value|
@@ -357,6 +351,26 @@ private
 	
 	@buyers_route_list  = (res.select{|p| p["type"]=="buyers_route_list"}).collect{|p| [ p["name"], p["id"] ]}
 	@route_json = ((res.select {|p| p["type"]=="route_json" }).collect{|p| {"id" => p["id"], "name" => p["name"], "points" => p["point"]} }).to_json
+  end
+  
+  def init_placeunload_data
+	@rst_buyers=Proxycat.connection.select_all("exec placeunload_index
+		#{@id},
+		'#{@flt_name}',
+		'#{@flt_address}',
+		'#{@flt_tp}',
+		#{@flt_ischeck},
+		#{@flt_buyers_route_id},
+		#{@flt_ddate},
+		#{@flt_notgeo}")
+	
+	@rst_new = @rst_buyers.to_json( :only => [ "id", "longitude", "latitude", "pname" ] ) 
+	if @rst_buyers.size > 0 
+		if @rst_buyers[0]["longitude"] and @rst_buyers[0]["latitude"]
+			@longitude = @rst_buyers[0]["longitude"]
+			@latitude  = @rst_buyers[0]["latitude"]
+		end
+	end
   end
 
 end
