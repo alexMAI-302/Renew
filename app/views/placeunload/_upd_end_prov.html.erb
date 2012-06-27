@@ -1,0 +1,20 @@
+<% if !@places.nil? %>
+	<div>Точки рядом:</div>
+	<table width="100%" border="0" cellpadding="2" cellspacing="1">
+		<% @places.each do |b| %>
+			<tr <%= "id=\"row_#{b["id"]}_\"" %> class="rdata" onclick="on_sub_select(<%= b["id"] %>);" >
+				<td width="15%" id="small_name" ><%= b["name"] %></td>
+				<td width="60%">
+					<%= b["address"] %>
+					<br/>
+					<%= b["fulladdress"] %>
+					<br/>
+					<%= b["descr"] %>
+					<input type="hidden" id="b_<%= b["id"] %>_join" name="b[<%= b["id"] %>][join]" value="-1" />
+				</td>
+				<td width="25%"><%= b["tp"] %></td>
+			</tr>
+		<% end %>
+	</table>
+	<%= hidden_field(:points, :j, :value => @pointsj, :size => 50, :maxlength => 20000, :style=>"background-color : transparent", :readonly => 'true') %>
+<% end %>
