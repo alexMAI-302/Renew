@@ -136,7 +136,7 @@
 					$('a_' + current_id + '_longitude').value = Math.round(geoResult.getGeoPoint().getLng()*1000000)/1000000;
 					$('a_' + current_id + '_latitude').value  = Math.round(geoResult.getGeoPoint().getLat()*1000000)/1000000;
 				};
-				<%= remote_function :url =>{ :action => "find_place" }, :with => "'latitude=' + $('a_'+current_id+'_latitude').value + '&longitude=' + $('a_'+current_id+'_longitude').value +'&prov=1'", :update => "subform", :complete => "after_select();" %>
+				<%= remote_function :url =>{ :action => "find_place" }, :with => "'latitude=' + $('a_'+current_id+'_latitude').value + '&longitude=' + $('a_'+current_id+'_longitude').value +'&prov=1&remove='+current_id", :update => "subform", :complete => "after_select();" %>
 			});
 			// Процесс геокодирования завершен неудачно
 			YMaps.Events.observe(geocoder, geocoder.Events.Fault, function (geocoder, error) {
@@ -221,7 +221,7 @@
 			};
 		};
 		function on_select( sid ){
-			if(sid != current){
+			if(sid != current_id){
 				var pred_id=0;
 				var longitude = parseFloat($('a_' + sid + '_longitude').value);
 				var latitude = parseFloat($('a_' + sid + '_latitude').value);

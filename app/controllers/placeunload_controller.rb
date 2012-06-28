@@ -111,6 +111,11 @@ class PlaceunloadController < ApplicationController
   	@longitude = params[:longitude]
 	@latitude  = params[:latitude]   
     @places = Proxycat.connection.select_all("exec find_place #{@latitude}, #{@longitude}")
+	if !params[:remove].nil? then
+		@places.delete_if do |r|
+			r["id"]==params[:remove].to_i
+		end
+	end
 	@pointsj = @places.to_json( :only => ["id", "name", "latitude", "longitude"] )	
 	render :partial => params[:prov]? 'upd_end_prov' : 'upd_end'
   end
@@ -199,16 +204,7 @@ class PlaceunloadController < ApplicationController
   end
 
   def prov
-	@longitude = 37.498995
-	@latitude  = 55.842610
-	@buyers_route_list = ActiveRecord::Base.connection.select_all("
-	select
-		id,
-		name
-	from
-		buyers_route
-	order by
-		2" ).collect{|p| [ p["name"], p["id"] ]}
+	set_conditions
   
 	if params[:flt]
 		@flt_ischeck          = params[:flt][:ischeck].to_i
