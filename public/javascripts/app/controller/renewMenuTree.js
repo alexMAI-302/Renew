@@ -123,7 +123,7 @@ Ext.define('app.controller.renewMenuTree', {
 		var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
 			clicksToEdit: 1,
 			listeners: {
-				beforeedit: function(e, options){
+				beforeedit: function(editor, e, options){
 					var disabled=!e.record;
 					menuTreePanel.down('#removeItem').setDisabled(disabled);
 					

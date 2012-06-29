@@ -290,12 +290,8 @@ Ext.define('app.controller.ppsZone', {
 			}
 		});
 		
-		function terminalAction(grid, rowIndex, colIndex) {
-			var val=grid.store.getAt(rowIndex).get("has_zone_bind");
-			console.log(val);
-			grid.store.getAt(rowIndex).set("has_zone_bind", !val);
-			this.addCls((!val)?'x-grid-center-icon':'x-hide-display');
-			this.removeCls((val)?'x-hide-display':'x-grid-center-icon');
+		function getTerminalClass(v, meta, rec) {
+			return (rec.get('has_zone_bind'))?'del-col':'add-col';
 		};
 		
 		var terminalColumns=[
@@ -326,14 +322,14 @@ Ext.define('app.controller.ppsZone', {
 				},
 				{
 					header: 'Граница #',
-					dataIndex: 'opt_bound',
+					dataIndex: 'bound_notes',
 					field: {
 						xtype: 'numberfield'
 					}
 				},
 				{
 					header: 'Граница (расчет) #',
-					dataIndex: 'bound_notes',
+					dataIndex: 'opt_bound',
 					field: {
 						xtype: 'numberfield'
 					}
@@ -354,14 +350,14 @@ Ext.define('app.controller.ppsZone', {
 				},
 				{
 					header: 'граница $',
-					dataIndex: 'opt_bound_summ',
+					dataIndex: 'bound_summ',
 					field: {
 						xtype: 'numberfield'
 					}
 				},
 				{
 					header: 'Граница (расчет) $',
-					dataIndex: 'bound_summ',
+					dataIndex: 'opt_bound_summ',
 					field: {
 						xtype: 'numberfield'
 					}
@@ -375,13 +371,18 @@ Ext.define('app.controller.ppsZone', {
 					xtype:'actioncolumn',
 					width:50,
 					items: [{
-						getClass: function(v, meta, rec) {
-							return (rec.get('has_zone_bind'))?'del-col':'add-col';
-						},
-						handler: function(grid, rowIndex, colIndex) {
-							var val=grid.store.getAt(rowIndex).get("has_zone_bind");
-							grid.store.getAt(rowIndex).set("has_zone_bind", !val);
-							grid.refresh();
+						getClass: getTerminalClass,
+						handler: function(view, rowIndex, colIndex) {
+							var currentRecord=view.store.getAt(rowIndex);
+							var val=currentRecord.get("has_zone_bind");
+							var node=view.getNode(currentRecord);
+							
+							var img=Ext.fly(Ext.fly(node).down(this.getCellSelector())).down('img');
+							
+							img.removeCls(getTerminalClass(null, null, currentRecord));
+							
+							currentRecord.set("has_zone_bind", !val);
+							img.addCls(getTerminalClass(null, null, currentRecord));
 						}
 					}]
 				},

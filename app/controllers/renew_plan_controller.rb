@@ -19,6 +19,7 @@ class RenewPlanController < ApplicationController
   
   def do_renew_eremsite
 	rst = Proxycat.connection.select_all('exec prc_eremsite')
+	render :text => 'ok'
   end
   
   def get_refreshddate

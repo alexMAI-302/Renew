@@ -21,20 +21,14 @@ class PpsZoneUsersController < ApplicationController
 	
 	
     case request.method.to_s
-		when "put"
-		begin
+		when "post"
 			zone_id=params[:zone_id]
 			user_id=params[:user_id]
-			begin
-				ActiveRecord::Base.connection.insert("INSERT INTO renew_user_zone(zone, renew_user_id) VALUES (#{zone_id}, #{user_id})")
-			rescue => t
-				puts "#{t}"
-			end
+			
+			ActiveRecord::Base.connection.insert("INSERT INTO renew_user_zone(zone, renew_user_id) VALUES (#{zone_id}, #{user_id})")
 			
 			render :text=>"[]"
-		end
 		when "delete"
-		begin
 			strs=params[:id].split("_")
 			zone_id=strs[0]
 			user_id=strs[1]
@@ -45,9 +39,7 @@ class PpsZoneUsersController < ApplicationController
 			end
 			
 			render :text=>"[]"
-		end
 		when "get"
-		begin
 			zone_id=params[:zone_id]
 			user_id=params[:user_id]
 	
@@ -61,7 +53,6 @@ class PpsZoneUsersController < ApplicationController
 				(0=#{zone_id} OR zone=#{zone_id}) AND
 				(0=#{user_id} OR renew_user_id=#{user_id})")
 			render :text => data.to_json
-		end
 	end
   end
 end
