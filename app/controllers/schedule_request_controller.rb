@@ -4,7 +4,7 @@ class ScheduleRequestController < ApplicationController
 	def index
 		@displayname=session[:user_displayname]
 		@mail=session[:user_mail]
-	end		
+	end
 
 	def sending
 		@comments=params[:comments].to_s
@@ -27,6 +27,29 @@ class ScheduleRequestController < ApplicationController
 			ddatee_minute=params[:ddatee_minute][:minute].to_i
 			ddatee=DateTime.civil(ddatee_year, ddatee_month, ddatee_day, ddatee_hour, ddatee_minute, 0, 0)
 
+			if !params[:homework]
+				ddateb_future_year=params[:ddateb_future][:year].to_i
+				ddateb_future_month=params[:ddateb_future][:month].to_i
+				ddateb_future_day=params[:ddateb_future][:day].to_i
+				ddateb_future_hour=params[:ddateb_future_hour][:hour].to_i
+				ddateb_future_minute=params[:ddateb_future_minute][:minute].to_i
+				ddateb_future=DateTime.civil(ddateb_future_year, ddateb_future_month, ddateb_future_day, ddateb_future_hour, ddateb_future_minute, 0, 0)
+
+				ddatee_future_year=params[:ddatee_future][:year].to_i
+				ddatee_future_month=params[:ddatee_future][:month].to_i
+				ddatee_future_day=params[:ddatee_future][:day].to_i
+				ddatee_future_hour=params[:ddatee_future_hour][:hour].to_i
+				ddatee_future_minute=params[:ddatee_future_minute][:minute].to_i
+				ddatee_future=DateTime.civil(ddatee_future_year, ddatee_future_month, ddatee_future_day, ddatee_future_hour, ddatee_future_minute, 0, 0)
+
+				homework = 0
+			else
+
+				ddateb_future = nil
+				ddatee_future = nil
+				homework = 1
+			end if
+
 			schedule_request=Schedule_Request.new
 			schedule_request.id=ActiveRecord::Base.connection.select_value("select idgenerator('schedule_request')")
 			schedule_request.person=ActiveRecord::Base.connection.select_value("select top 1 person_id from person where lname+' '+fname='#{session[:user_displayname]}' ")
@@ -34,9 +57,12 @@ class ScheduleRequestController < ApplicationController
 			schedule_request.ddateb=ddateb
 			schedule_request.ddatee=ddatee
 			schedule_request.comments=@comments
+			schedule_request.ddateb_future=ddateb_future
+			schedule_request.ddatee_future=ddatee_future
+			schedule_request.homework = homework
 			schedule_request.save
 
-		end	
+		end
 
 
 	end
@@ -53,7 +79,7 @@ class ScheduleRequestController < ApplicationController
 			@ddatee = params[:ddatee]
 			session[:ddatee] = @ddatee
 		end
-		
+
 		if (not @ddateb) || (@ddateb=="")
 			@ddateb = Date.today().to_s
 			session[:ddateb]=@ddateb
@@ -104,7 +130,7 @@ class ScheduleRequestController < ApplicationController
 		ddate_hour=params[:ddate_hour][:hour].to_i
 		ddate_minute=params[:ddate_minute][:minute].to_i
 		ddate=DateTime.civil(ddate_year, ddate_month, ddate_day, ddate_hour, ddate_minute, 0, 0)
-		
+
 		id=params[:id]
 		entrance=Entrance.find(id)
 		entrance.ddatetime=ddate
