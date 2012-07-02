@@ -302,12 +302,14 @@ class PlaceunloadController < ApplicationController
 				end
 			end
 			
-			params[:b].each_pair do |key, value|
-				if value[:join].to_i == 1
-					xml.point(
-						:id => key,
-						:join => value[:join]
-					)
+			if params[:b]
+				params[:b].each_pair do |key, value|
+					if value[:join].to_i == 1
+						xml.point(
+							:id => key,
+							:join => value[:join]
+						)
+					end
 				end
 			end
 		end
