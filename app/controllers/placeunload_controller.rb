@@ -5,14 +5,14 @@ class PlaceunloadController < ApplicationController
     
   def set
 	if params[:buyer]
-		@buyer = ActiveRecord::Base.connection.select_one("select name, loadto from buyers where id = #{params[:buyer]}")
+		@buyer = ActiveRecord::Base.connection.select_one("select name, loadto from buyers where id = #{params[:buyer].to_i}")
 	end
   end
   
   def autocomplete_pgroup_name
 	pname = params[:pgroup][:name] 
 	
-	@pg = Proxycat.connection.select_all( "exec placeunload_autocomplete_pgroup_name '#{pname}'") 
+	@pg = Proxycat.connection.select_all( "exec placeunload_autocomplete_pgroup_name '#{Proxycat.connection.quote_string(pname)}'") 
 	
 	render :layout => false
   end
@@ -23,7 +23,7 @@ class PlaceunloadController < ApplicationController
 	pname = params[:partner][:name]
 	pgid  = params[:partner][:parent] 	
 	
-	@pnames = Proxycat.connection.select_all( "exec placeunload_autocomplete_partner_name '#{pname}', #{pgid}")
+	@pnames = Proxycat.connection.select_all( "exec placeunload_autocomplete_partner_name '#{Proxycat.connection.quote_string(pname)}', #{pgid.to_i}")
 		
 	render :layout => false
   end
@@ -32,7 +32,7 @@ class PlaceunloadController < ApplicationController
 	bname = params[:buyer][:name]
     pid  = params[:buyer][:partner]
 	
-	@bnames = Proxycat.connection.select_all( "exec placeunload_autocomplete_buyer_name '#{bname}', #{pid}")
+	@bnames = Proxycat.connection.select_all( "exec placeunload_autocomplete_buyer_name '#{Proxycat.connection.quote_string(bname)}', #{pid.to_i}")
 	
 	render :layout => false
   end
@@ -77,7 +77,7 @@ class PlaceunloadController < ApplicationController
 		@partners_time = {"Водители ООРТ" => 15, "Водители ОПТ" => 30, "VIP" => 60}
 		
 		@partner_id = params[:partner].to_i
-		pa = Proxycat.connection.select_one("exec placeunload_add_buyer_partner #{@partner_id}")
+		pa = Proxycat.connection.select_one("exec placeunload_add_buyer_partner #{@partner_id.to_i}")
 		#logger.info pa["pgroup_name"]
 		@pgroup_id    = (pa["pgroup_id"].nil?)?nil:(pa["pgroup_id"].to_i)
 		@pgroup_name  = pa["pgroup_name"]
@@ -89,7 +89,7 @@ class PlaceunloadController < ApplicationController
 	elsif params[:buyer] 
 		@buyer_id = params[:buyer].to_i
 		
-		pa = Proxycat.connection.select_one("exec placeunload_add_buyer_buyer #{@buyer_id}")
+		pa = Proxycat.connection.select_one("exec placeunload_add_buyer_buyer #{@buyer_id.to_i}")
 		
 		@pgroup_id      = pa["pgroup_id"].to_i
 		@pgroup_name    = pa["pgroup_name"]
@@ -110,7 +110,7 @@ class PlaceunloadController < ApplicationController
   def find_place
   	@longitude = params[:longitude]
 	@latitude  = params[:latitude]   
-    @places = Proxycat.connection.select_all("exec find_place #{@latitude}, #{@longitude}")
+    @places = Proxycat.connection.select_all("exec find_place #{@latitude.to_f}, #{@longitude.to_f}")
 	if !params[:remove].nil? then
 		@places.delete_if do |r|
 			r["id"]==params[:remove].to_i
@@ -134,20 +134,20 @@ class PlaceunloadController < ApplicationController
 	exec dbo.placeunload_save_buyer
 	#{params[:partner][:id].to_i},
 	#{params[:pgroup][:id].to_i},
-	'#{params[:partner][:name].strip}',
-	'#{params[:buyer][:name].strip}',
+	'#{Proxycat.connection.quote_string(params[:partner][:name].strip)}',
+	'#{Proxycat.connection.quote_string(params[:buyer][:name].strip)}',
 	#{params[:buyer][:id].to_i},
 	#{params[:placeunload][:id].to_i},
-    '#{params[:a][:loadto].strip}',
-    '#{params[:a][:fulladdress]}',
-	#{params[:a][:longitude]},
-	#{params[:a][:latitude]},
-	'#{params[:placeunload][:descr].strip}',
+    '#{Proxycat.connection.quote_string(params[:a][:loadto].strip)}',
+    '#{Proxycat.connection.quote_string(params[:a][:fulladdress])}',
+	#{params[:a][:longitude].to_f},
+	#{params[:a][:latitude].to_f},
+	'#{Proxycat.connection.quote_string(params[:placeunload][:descr].strip)}',
 	#{params[:placeunload][:unloading]=="-1" ? 'null' : params[:placeunload][:unloading]},
-	#{params[:placeunload][:delscheduleid]},
-	#{params[:placeunload][:incscheduleid]},
+	#{params[:placeunload][:delscheduleid].to_i},
+	#{params[:placeunload][:incscheduleid].to_i},
 	#{params[:placeunload][:buyers_route_id]=="-1" ? 'null' : params[:placeunload][:buyers_route_id]},
-	#{params[:placeunload][:placecategory_id]}")
+	#{params[:placeunload][:placecategory_id].to_i}")
 	if serr.size==0
 		flash[:notice] = "Данные сохранены успешно"
 	else
@@ -336,6 +336,36 @@ class PlaceunloadController < ApplicationController
   	redirect_to :action => "index"
   end
   
+  def schedule
+  end
+  
+  def schedule_operations
+	case request.method.to_s
+		when "get"
+			res=Proxycat.connection.select_all("exec dbo.placeunload_schedule_get #{params[:salesman_id].to_i}")
+			
+			render :text => res.to_json
+		when "put"
+			Proxycat.connection.execute("
+			exec dbo.placeunload_schedule_save
+			#{params[:id].to_i},
+			#{Proxycat.connection.quote(params[:monday])},
+			#{Proxycat.connection.quote(params[:tuesday])},
+			#{Proxycat.connection.quote(params[:wednesday])},
+			#{Proxycat.connection.quote(params[:thursday])},
+			#{Proxycat.connection.quote(params[:friday])},
+			#{params[:site_id].to_i}")
+			
+			render :text => "[]"
+	end
+  end
+  
+  def get_salesman
+	res = Proxycat.connection.select_all("exec placeunload_schedule_get_salesman '#{Proxycat.connection.quote_string(params[:query])}'")
+	
+	render :text => res.to_json
+  end
+  
 private
   def set_conditions
   	@longitude = 37.498995
@@ -354,9 +384,9 @@ private
   def init_placeunload_data
 	@rst_buyers=Proxycat.connection.select_all("exec placeunload_index
 		#{@id},
-		'#{@flt_name}',
-		'#{@flt_address}',
-		'#{@flt_tp}',
+		'#{Proxycat.connection.quote_string(@flt_name)}',
+		'#{Proxycat.connection.quote_string(@flt_address)}',
+		'#{Proxycat.connection.quote_string(@flt_tp)}',
 		#{@flt_ischeck},
 		#{@flt_buyers_route_id},
 		#{@flt_ddate},
