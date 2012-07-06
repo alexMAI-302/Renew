@@ -54,7 +54,7 @@ Ext.define('app.controller.placeunloadSchedule', {
 		});
 	
 		var mainContainer=Ext.create('Ext.container.Container', {
-			width: 1000,
+			width: 1300,
 			layout: {
 				type: 'anchor'
 			},
@@ -120,6 +120,11 @@ Ext.define('app.controller.placeunloadSchedule', {
 					width: 300,
 					header: 'Торговая точка',
 					dataIndex: 'name'
+				},
+				{
+					width: 300,
+					header: 'Адрес',
+					dataIndex: 'address'
 				},
 				{
 					width: 80,
