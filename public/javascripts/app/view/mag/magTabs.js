@@ -2,8 +2,11 @@ Ext.define('app.view.mag.magTabs', {
     extend: 'Ext.tab.Panel',
     alias: 'widget.magTabs',
     
-    requires: ['app.view.mag.currentPalmSaleOrder.Grid'],
-	requires: ['app.view.mag.goods.Grid'],
+    requires: [
+		'app.view.mag.currentPalmSaleOrder.Grid',
+		'app.view.mag.goods.Grid',
+		'app.view.mag.palmSaleOrders.container'
+	],
     
     activeTab: 0,
     margins: '5 5 5 5',
@@ -30,9 +33,13 @@ Ext.define('app.view.mag.magTabs', {
 					xtype: 'orderGrid',
 					title: 'Текущий заказ'
 				},{
+					xtype: 'ordersContainer',
+					title: 'Оформленные заказы'
+				},
+				{
 					xtype: 'goodsGrid',
 					title: 'Товары в наличии'
-				},
+				}
 			]
 		});
         

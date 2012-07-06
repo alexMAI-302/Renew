@@ -38,18 +38,20 @@ Ext.define('app.controller.mag', {
 	
 	makePalmItemVolume: function(
 		palmGoods,
-		volume,
-		increase	//надо ли добавлять количество. если не надо, то перезаписывается
+		volume
 	){
 		var controller = this;
 		var storageGoods=controller.goodsStore.data.findBy(function(record){
-			return (record.get('barcode') == palmGoods.get('barcode') && record.get('volume') >= volume);
+			return (
+				record.get('barcode') == palmGoods.get('barcode') &&
+				(palmGoods.get('volume') + record.get('volume')) >= volume
+			);
 		});
 		
-		//если есть остаток товара, то добавляем одну позицию в заказ
-		if(storageGoods!=null){
-			storageGoods.set('volume', storageGoods.get('volume') + increase ? palmGoods.get('volume') : 0 - volume);
-			palmGoods.set('volume', increase ? palmGoods.get('volume') : 0 + volume);
+		//если есть достаточное количество остатка товара, то меняем количетсво в позиции заказа и остаток
+		if(storageGoods!=null && storageGoods.get('id') > 0){
+			storageGoods.set('volume', storageGoods.get('volume') + palmGoods.get('volume') - volume);
+			palmGoods.set('volume', volume);
 			
 			controller.currentPalmSaleItemsLocalStore.sync();
 			controller.goodsStore.sync();
@@ -104,7 +106,7 @@ Ext.define('app.controller.mag', {
 						
 						//если товар уже есть в заказе
 						if(palmGoods!=null){
-							controller.makePalmItemVolume(palmGoods, 1);
+							controller.makePalmItemVolume(palmGoods, palmGoods.get('volume') + 1);
 						}
 						//если нет, то надо добавить в заказ из имеющихся в наличии
 						else
@@ -153,38 +155,42 @@ Ext.define('app.controller.mag', {
 					return true;
 				}
             },
-			'#removePalmSaleItem': {
-				handler: function(view, rowIndex, colIndex) {
-					var currentRecord=view.store.getAt(rowIndex);
-					cellEditingPalmSale.cancelEdit();
-					
-					controller.makePalmItemVolume(currentRecord, -currentRecord.get('volume'));
-					
-					controller.currentPalmSaleItemsLocalStore.remove(currentRecord);
-					controller.currentPalmSaleItemsLocalStore.sync();
-				}
+			'': function(){
+				
 			}
         });
 	},
 	
 	onLaunch: function(){
-		var controller = this;
+		var controller = this,
+			cellEditingPalmSale = Ext.getCmp('currentPalmSaleTable').getPlugin('cellEditingPalmSale');
 		
-		Ext.getCmp('currentPalmSaleTable').getPlugin('cellEditingPalmSale').addListener(
+		cellEditingPalmSale.addListener(
 			'validateedit',
 			function(editor, e, eOpts ){
-				var
+				var v = editor.getEditor(e.record, e.column).getValue(),
 					sb=Ext.getCmp('palmSaleItemStatusBar'),
-					noError=controller.makePalmItemVolume(e.record, e.value);
-				
+					noError=controller.makePalmItemVolume(e.record, v);
+
 				if(noError){
 					sb.setStatus({text: controller.ready});
 				} else {
+					e.cancel = true;
 					sb.setStatus({text: controller.noRemains});
 				}
-				return noError;
 			}
 		);
+		
+		//ХАРДКОД НОМЕРА КОЛОНКИ!!! колонка удаления позиции
+		Ext.getCmp('currentPalmSaleTable').columns[5].handler=function(view, rowIndex, colIndex) {
+			var currentRecord=view.store.getAt(rowIndex);
+			cellEditingPalmSale.cancelEdit();
+			
+			controller.makePalmItemVolume(currentRecord, 0);
+			
+			controller.currentPalmSaleItemsLocalStore.remove(currentRecord);
+			controller.currentPalmSaleItemsLocalStore.sync();
+		};
 		
 		controller.currentPalmSaleItemsLocalStore = controller.getAppStoreMagCurrentPalmSaleItemsLocalStore();
 		controller.goodsStore = controller.getAppStoreMagGoodsStore();
