@@ -2,70 +2,70 @@
 class ScheduleRequestController < ApplicationController
 
 	def index
-		@displayname=session[:user_displayname]
-		@mail=session[:user_mail]
+	end
+	
+	def get_name
+		displayname=session[:user_displayname]
+		mail=session[:user_mail]	
+
+		ddates = ActiveRecord::Base.connection.select_all(
+"select top 1
+		isnull(left(sch.beginning,5), '9:00') ddateb,
+		isnull(left(convert(time, dateadd(hour, 9, sch.beginning)), 5), '18:00') ddatee
+from
+		person
+			left outer join schedule_person sch on  sch.person = person.person_id
+			                                    and dateadd(day, 1, today()) between sch.ddateb and sch.ddatee
+where
+		    person.lname+' '+person.fname = '#{session[:user_displayname]}'").first()
+		
+		render :text => {:displayname => displayname, :mail => mail, :ddateb => ddates['ddateb'], :ddatee => ddates['ddatee']}.to_json
 	end
 
 	def sending
-		@comments=params[:comments].to_s
-		if @comments==""
-			flash[:notice] ="Причина должна быть указана"
-			redirect_to :action => "index"
-		else
-			flash[:notice] =nil
-			ddateb_year=params[:ddateb][:year].to_i
-			ddateb_month=params[:ddateb][:month].to_i
-			ddateb_day=params[:ddateb][:day].to_i
-			ddateb_hour=params[:ddateb_hour][:hour].to_i
-			ddateb_minute=params[:ddateb_minute][:minute].to_i
-			ddateb=DateTime.civil(ddateb_year, ddateb_month, ddateb_day, ddateb_hour, ddateb_minute, 0, 0)
+		begin
+			ddateb  =(params[:ddateb].nil?   || params[:ddateb].to_s=='')   ? nil : params[:ddateb].to_s
+			ddatee  =(params[:ddatee].nil?   || params[:ddatee].to_s=='')   ? nil : params[:ddatee].to_s
+			reason  =(params[:reason].nil?   || params[:reason].to_s=='')   ? nil : params[:reason].to_s
+			comments=(params[:comments].nil? || params[:comments].to_s=='') ? nil : params[:comments].to_s
+			ddatebF =(params[:ddatebF].nil?  || params[:ddatebF].to_s=='')  ? nil : params[:ddatebF].to_s
+			ddateeF =(params[:ddateeF].nil?  || params[:ddateeF].to_s=='')  ? nil : params[:ddateeF].to_s	
 
-			ddatee_year=params[:ddatee][:year].to_i
-			ddatee_month=params[:ddatee][:month].to_i
-			ddatee_day=params[:ddatee][:day].to_i
-			ddatee_hour=params[:ddatee_hour][:hour].to_i
-			ddatee_minute=params[:ddatee_minute][:minute].to_i
-			ddatee=DateTime.civil(ddatee_year, ddatee_month, ddatee_day, ddatee_hour, ddatee_minute, 0, 0)
-
-			if !params[:homework]
-				ddateb_future_year=params[:ddateb_future][:year].to_i
-				ddateb_future_month=params[:ddateb_future][:month].to_i
-				ddateb_future_day=params[:ddateb_future][:day].to_i
-				ddateb_future_hour=params[:ddateb_future_hour][:hour].to_i
-				ddateb_future_minute=params[:ddateb_future_minute][:minute].to_i
-				ddateb_future=DateTime.civil(ddateb_future_year, ddateb_future_month, ddateb_future_day, ddateb_future_hour, ddateb_future_minute, 0, 0)
-
-				ddatee_future_year=params[:ddatee_future][:year].to_i
-				ddatee_future_month=params[:ddatee_future][:month].to_i
-				ddatee_future_day=params[:ddatee_future][:day].to_i
-				ddatee_future_hour=params[:ddatee_future_hour][:hour].to_i
-				ddatee_future_minute=params[:ddatee_future_minute][:minute].to_i
-				ddatee_future=DateTime.civil(ddatee_future_year, ddatee_future_month, ddatee_future_day, ddatee_future_hour, ddatee_future_minute, 0, 0)
-
-				homework = 0
-			else
-
-				ddateb_future = nil
-				ddatee_future = nil
-				homework = 1
-			end if
-
+			case reason
+				when 'r0' then 
+					reason_id = 0
+				when 'r1' then
+					reason_id = 1
+					comments = "Работаю дома"
+				when 'r2' then
+					reason_id = 2
+					comments = "Отпуск"
+				else
+					reason_id = nil
+					comments = nil
+			end
+			
 			schedule_request=Schedule_Request.new
 			schedule_request.id=ActiveRecord::Base.connection.select_value("select idgenerator('schedule_request')")
 			schedule_request.person=ActiveRecord::Base.connection.select_value("select top 1 person_id from person where lname+' '+fname='#{session[:user_displayname]}' ")
 			schedule_request.status=0
 			schedule_request.ddateb=ddateb
 			schedule_request.ddatee=ddatee
-			schedule_request.comments=@comments
-			schedule_request.ddateb_future=ddateb_future
-			schedule_request.ddatee_future=ddatee_future
-			schedule_request.homework = homework
+			schedule_request.comments=comments
+			schedule_request.ddateb_future=ddatebF
+			schedule_request.ddatee_future=ddateeF
+			schedule_request.reason=reason_id
 			schedule_request.save
+			
+			render :text => {"success" => true,  "msg" => "Заявка принята"}.to_json
 
+		rescue => t
+			puts "Error!!! #{t}"
+			render :text => {"success" => false, "msg" => "Error!!! #{t}"}.to_json
 		end
-
-
 	end
+	
+	
 	def inout
 		@ddatee=Date.today().to_s
 
