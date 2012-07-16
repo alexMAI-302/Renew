@@ -1,30 +1,29 @@
 Ext.define('app.view.scheduleRequest.ScheduleRequest' ,{
     extend: 'Ext.form.Panel',
-	
+
 	border: false,
 	margin: "5 0 0 5",
-		
+
 	layout: {
 		type: 'table',
 		columns: 2
 	},
-					
+
 	items: [{
 		xtype: 'displayfield',
 		fieldLabel: '',
 		name: 'label_name',
-		value: '.',		
+		value: '.',
 		colspan: 2,
 		id: 'label_name'
 	}, {
 		xtype: 'datefield',
 		name: 'ddateb_ddate',
 		fieldLabel: 'с',
-		format: 'd.m.Y',
 		labelWidth: 20,
 		value: Ext.Date.add(new Date(Ext.Date.now()), Ext.Date.DAY, 1),
 		id: 'ddateb_ddate',
-		submitValue: false,
+		submitValue: false
 	}, {
 		xtype: 'timefield',
 		name: 'ddateb_time',
@@ -32,7 +31,6 @@ Ext.define('app.view.scheduleRequest.ScheduleRequest' ,{
 		minValue: '8:00',
 		maxValue: '19:00',
 		increment: 15,
-		format: 'H:i',
 		labelWidth: 20,
 		value: "9:00",
 		margin: "0 0 0 10",
@@ -42,7 +40,6 @@ Ext.define('app.view.scheduleRequest.ScheduleRequest' ,{
 		xtype: 'datefield',
 		name: 'ddatee_ddate',
 		fieldLabel: 'по',
-		format: 'd.m.Y',
 		labelWidth: 20,
 		value: Ext.Date.add(new Date(Ext.Date.now()), Ext.Date.DAY, 1),
 		id: 'ddatee_ddate',
@@ -54,13 +51,12 @@ Ext.define('app.view.scheduleRequest.ScheduleRequest' ,{
 		minValue: '8:00',
 		maxValue: '19:00',
 		increment: 15,
-		format: 'H:i',
 		labelWidth: 20,
 		value: "18:00",
 		margin: "0 0 0 10",
 		id: 'ddatee_time',
 		submitValue: false
-	}, {					
+	}, {
 		colspan: 2,
 		xtype: 'radiofield',
 		name: 'reason',
@@ -77,7 +73,7 @@ Ext.define('app.view.scheduleRequest.ScheduleRequest' ,{
 		hideEmptyLabel: false,
 		boxLabel: 'отпуск',
 		colspan: 2,
-		id: 'r2'				
+		id: 'r2'
 	}, {
 		xtype: 'radiofield',
 		name: 'reason',
@@ -107,7 +103,6 @@ Ext.define('app.view.scheduleRequest.ScheduleRequest' ,{
 		xtype: 'datefield',
 		name: 'ddateb_future_ddate',
 		fieldLabel: 'с',
-		format: 'd.m.Y',
 		labelWidth: 20,
 		disabled: true,
 		id: 'ddateb_future_ddate',
@@ -120,7 +115,6 @@ Ext.define('app.view.scheduleRequest.ScheduleRequest' ,{
 		minValue: '0:00',
 		maxValue: '23:45',
 		increment: 15,
-		format: 'H:i',
 		labelWidth: 20,
 		disabled: true,
 		id: 'ddateb_future_time',
@@ -131,7 +125,6 @@ Ext.define('app.view.scheduleRequest.ScheduleRequest' ,{
 		xtype: 'datefield',
 		name: 'ddatee_future_ddate',
 		fieldLabel: 'по',
-		format: 'd.m.Y',
 		labelWidth: 20,
 		disabled: true,
 		id: 'ddatee_future_ddate',
@@ -144,7 +137,6 @@ Ext.define('app.view.scheduleRequest.ScheduleRequest' ,{
 		minValue: '0:00',
 		maxValue: '23:45',
 		increment: 15,
-		format: 'H:i',
 		labelWidth: 20,
 		disabled: true,
 		id: 'ddatee_future_time',
@@ -153,7 +145,7 @@ Ext.define('app.view.scheduleRequest.ScheduleRequest' ,{
 		allowBlank: false
 	}],
 
-	
+
 	dockedItems: {
 		xtype: 'toolbar',
 		dock: 'bottom',
@@ -163,12 +155,12 @@ Ext.define('app.view.scheduleRequest.ScheduleRequest' ,{
 			id: 'submit_button'
 		}]
 	},
-	
+
 	initComponent: function() {
 		var config = {
 			url: '/schedule_request/sending',
 		}
-		
+
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 		this.superclass.initComponent.apply(this);
 	}
