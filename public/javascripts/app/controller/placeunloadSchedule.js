@@ -28,7 +28,7 @@ Ext.define('app.controller.placeunloadSchedule', {
 			model: 'app.model.valueModel',
 			proxy: {
 				type: 'rest',
-				url : '/placeunload/get_salesman',
+				url : '/placeunload_schedule/get_salesman',
 				reader: {
 					type: 'json'
 				}
@@ -39,7 +39,10 @@ Ext.define('app.controller.placeunloadSchedule', {
 			model: 'app.model.placeunloadSchedule.scheduleModel',
 			proxy: {
 				type: 'rest',
-				url : '/placeunload/schedule_operations',
+				api: {
+					update: '/placeunload_schedule/save'
+				},
+				url : '/placeunload_schedule/get',
 				reader: {
 					type: 'json'
 				}
