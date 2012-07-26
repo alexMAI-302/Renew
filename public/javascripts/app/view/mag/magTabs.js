@@ -27,6 +27,8 @@ Ext.define('app.view.mag.magTabs', {
     
     initComponent: function() {
         Ext.apply(this, {
+			activeItem: 1,
+			activeTab: 1,
 			items:
 			[
 				{

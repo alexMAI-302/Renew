@@ -16,14 +16,16 @@ Ext.define('app.view.mag.palmSaleOrders.Grid', {
 					// disabled: true
 				// },
 				{
+					xtype: 'datecolumn',
 					width: 120,
 					header: 'Дата и время',
-					dataIndex: 'ddate'
+					dataIndex: 'ddate',
+					format: 'd.m.Y H:i'
 				},
 				{
 					width: 90,
 					header: 'Сумма заказа',
-					dataIndex: 'cost'
+					dataIndex: 'sumtotal'
 				},
 				{
 					width: 100,
@@ -38,14 +40,20 @@ Ext.define('app.view.mag.palmSaleOrders.Grid', {
 					}
 				},
 				{
-					xtype:'actioncolumn',
-					width:20,
+					xtype: 'actioncolumn',
+					width: 20,
 					id: 'printPalmSale',
 					items: [
 					{
-						icon: 'ext/examples/shared/icons/fam/cross.gif'
+						icon: 'ext/examples/ux/grid/gridPrinterCss/printer.png'
 					}]
 				},
+			],
+			tbar: [
+				{
+					text: 'Синхронизировать заказы',
+					id: 'syncPalmSales'
+				}
 			],
 			selModel: {
 				selType: 'rowmodel'

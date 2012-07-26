@@ -53,12 +53,17 @@ Ext.define('app.view.mag.palmSaleOrders.itemsGrid', {
 						xtype: 'numberfield',
 						minValue: 1
 					}
-				}
+				},
+				{
+					header: 'Сумма',
+					dataIndex: 'cost',
+					width: 70
+				},
 			],
+			height: 150,
 			viewConfig: {
 				enableTextSelection: true
 			}
-
 		});
         
         this.callParent(arguments);

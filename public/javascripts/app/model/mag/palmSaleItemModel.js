@@ -1,7 +1,8 @@
 Ext.define('app.model.mag.palmSaleItemModel', {
 	extend: 'Ext.data.Model',
 	fields: [
-		{name: 'id'			, type: 'int'},
+		{name: 'id'			, type: 'string'},
+		{name: 'goods_id'	, type: 'int'},
 		{name: 'barcode'	, type: 'string'},
 		{name: 'name'		, type: 'string'},
 		{name: 'price'		, type: 'float'},

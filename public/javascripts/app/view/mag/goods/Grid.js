@@ -49,6 +49,12 @@ Ext.define('app.view.mag.goods.Grid', {
 					width: 70
 				}
 			],
+			tbar: [
+				{
+					text: 'Обновить информацию о товарах и остатках',
+					id: 'refreshGoods'
+				}
+			],
 			viewConfig: {
 				enableTextSelection: true
 			}

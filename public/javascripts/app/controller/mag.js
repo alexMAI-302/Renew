@@ -1,14 +1,18 @@
 Ext.Loader.setPath('Ext.ux', '/ext/examples/ux');
 Ext.require([
     'Ext.ux.CheckColumn',
-	'Ext.ux.statusbar.StatusBar'
+	'Ext.ux.grid.Printer'
 ]);
 Ext.define('app.controller.mag', {
     extend: 'Ext.app.Controller',
 	
 	stores: [
 		'app.store.mag.goods',
-		'app.store.mag.currentPalmSaleItemsLocal'
+		'app.store.mag.currentPalmSaleItemsLocal',
+		'app.store.mag.palmSaleItemsLocal',
+		'app.store.mag.palmSalesLocal',
+		'app.store.mag.palmSaleItems',
+		'app.store.mag.palmSales'
 	],
 	
 	models: [
@@ -25,15 +29,24 @@ Ext.define('app.controller.mag', {
 	],
 	
 	noRemains: 'Не хватает остатков',
-	ready: 'Готово',
 	
 	currentPalmSaleItemsLocalStore: null,
+	
+	palmSaleItemsLocalStore: null,
+	palmSalesLocalStore: null,
+	
+	palmSaleItemsStore: null,
+	palmSalesStore: null,
+	
 	goodsStore: null,
+	
 	mainContainer: null,
 	
-	showServerError: function(response, options) {
+	salesToSync: 0,
+	requestsRemains: 0,
+	
+	showServerError: function(response) {
 		Ext.Msg.alert('Ошибка', response.responseText);
-		this.mainContainer.setLoading(false);
 	},
 	
 	makePalmItemVolume: function(
@@ -52,6 +65,7 @@ Ext.define('app.controller.mag', {
 		if(storageGoods!=null && storageGoods.get('id') > 0){
 			storageGoods.set('volume', storageGoods.get('volume') + palmGoods.get('volume') - volume);
 			palmGoods.set('volume', volume);
+			palmGoods.set('cost', volume*palmGoods.get('price'));
 			
 			controller.currentPalmSaleItemsLocalStore.sync();
 			controller.goodsStore.sync();
@@ -61,10 +75,99 @@ Ext.define('app.controller.mag', {
 		}
 	},
 	
+	syncPalmSale: function(palmSale){
+		var controller=this;
+		
+		Ext.Ajax.request({
+			url: '/new_mag/palm_sales_save',
+			timeout: 300000,
+			jsonData: {
+				palm_sale: palmSale
+			},
+			callback: function(options, success, response){
+				if(success===true){
+					controller.palmSalesLocalStore.each(function(r){
+						if(r.get('id')==palmSale.id){
+							palmSalesLocalStore.remove(r);
+							return false;
+						} else {
+							return true;
+						}
+					});
+					
+					controller.palmSaleItemsLocalStore.each(function(r){
+						if(r.get('sale_id')==palmSale.id){
+							palmSalesLocalStore.remove(r);
+						}
+						return true;
+					});
+					controller.salesToSync--;
+				}
+				
+				controller.requestsRemains--;
+				if(controller.requestsRemains==0){
+					if(controller.salesToSync>0){
+						Ext.Msg.alert('', 'Остались несинхронизированные заказы');
+					} else {
+						Ext.Msg.alert('', 'Все заказы успешно синхронизированы');
+					}
+					
+					Ext.getCmp('syncPalmSales').setText('Синхронизировать заказы');
+					Ext.getCmp('syncPalmSales').setDisabled(false);
+				}
+			}
+		});
+	},
+	
+	saveCurrentPalmSale: function(){
+		var controller = this,
+			minPalmSale = -controller.palmSalesLocalStore.getCount() - 1,
+			minPalmSaleItems = -controller.palmSaleItemsLocalStore.getCount(),
+			sumTotal = 0,
+			saleItems=[];
+		
+		controller.currentPalmSaleItemsLocalStore.each(function(record){
+			minPalmSaleItems--;
+			
+			var r = record.copy();
+			sumTotal += r.get('cost');
+			r.set('id', minPalmSaleItems);
+			r.set('sale_id', minPalmSale);
+			r.setDirty();
+			
+			controller.palmSaleItemsLocalStore.add(r);
+			saleItems.push(r.gedData());
+			
+			return true;
+		});
+		
+		var r = Ext.ModelManager.create({
+			id: minPalmSale,
+			ddate: new Date(),
+			sumtotal: sumTotal
+		}, 'app.model.mag.palmSaleModel');
+		r.setDirty();
+		
+		controller.palmSalesLocalStore.add(r);
+		
+		controller.salesToSync++;
+
+		controller.currentPalmSaleItemsLocalStore.proxy.clear();
+		controller.currentPalmSaleItemsLocalStore.load();
+		controller.palmSaleItemsLocalStore.sync();
+		controller.palmSalesLocalStore.sync();
+		
+		var palmSale=r.getData();
+		palmSale.sale_items=saleItems;
+		
+		controller.syncPalmSale(palmSale);
+	},
+	
 	loadGoods: function(){
 		var controller = this;
+
 		controller.mainContainer.setLoading(true);
-		controller.goodsStore.data.clear();
+		controller.goodsStore.proxy.clear();
 		Ext.Ajax.request({
 			url: '/new_mag/get_goods',
 			timeout: 300000,
@@ -82,8 +185,79 @@ Ext.define('app.controller.mag', {
 					},
 					failure: controller.showServerError
 				});
-			}
+			},
+			failure: controller.showServerError
 		});
+	},
+	
+	palmSaleSelect: function(r, print){
+		var controller=this;
+		controller.palmSaleItemsStore.removeAll();
+					
+		if(r != null){
+			Ext.getCmp('palmSaleOrderItemsTable').setLoading(true);
+			
+			if(r.get('id') < 0){
+				controller.palmSaleItemsLocalStore.data.each(function(record){
+					if(record.get('sale_id')==r.get('id')){
+						controller.palmSaleItemsStore.add(record);
+					}
+					return true;
+				});
+				if(print){
+					controller.print('palmSaleOrderItemsTable');
+				}
+				Ext.getCmp('palmSaleOrderItemsTable').setLoading(false);
+			} else {
+				Ext.Ajax.request({
+					url: '/new_mag/palm_sale_items',
+					timeout: 300000,
+					method: 'GET',
+					params: {
+						sale_id: r.get('id')
+					},
+					callback: function(options, success, response){
+						if(success===true){
+							var data = eval('('+response.responseText+')');
+							controller.palmSaleItemsStore.add(data);
+							
+							controller.palmSaleItemsStore.each(function(record){
+								var isGood=record.get('goods_id')>0;
+								record.set('is_good', isGood);
+								
+								controller.goodsStore.each(function(recGoods){
+									var match=false;
+									if( (isGood ? recGoods.get('id') : recGoods.get('bad_goods_id')) == record.get('goods_id')){
+										record.set('barcode', recGoods.get('barcode'));
+										record.set('name', isGood ? recGoods.get('good_goods_name') : recGoods.get('bad_goods_name'));
+										
+										match=true;
+									}
+									
+									return !match;
+								});
+								
+								return true;
+							});
+							
+							if(print){
+								controller.print('palmSaleOrderItemsTable');
+							}
+						} else {
+							controller.showServerError(response);
+						}
+						Ext.getCmp('palmSaleOrderItemsTable').setLoading(false);
+					}
+				});
+			}
+		}
+	},
+	
+	print: function(cmpId){
+		Ext.ux.grid.Printer.printAutomatically=true;
+		Ext.ux.grid.Printer.closeAutomaticallyAfterPrint=false;
+		Ext.ux.grid.Printer.extraCSS=['/ext/examples/ux/css/CheckHeader.css'];
+		Ext.ux.grid.Printer.print(Ext.getCmp(cmpId));
 	},
 	
     init: function() {
@@ -100,22 +274,25 @@ Ext.define('app.controller.mag', {
 						var isGood = val.length>1 && val[0]=='*';
 						val = isGood? val.substr(1, val.length-1) : val;
 						
-						var palmGoods=controller.currentPalmSaleItemsLocalStore.data.findBy(function(record){
-							return (record.get('barcode')==val && record.get('is_good')==isGood);
-						});
+						var 
+							palmGoods=controller.currentPalmSaleItemsLocalStore.data.findBy(function(record){
+								return (record.get('barcode')==val && record.get('is_good')==isGood);
+							});
+						
+						field.setValue('');
 						
 						//если товар уже есть в заказе
 						if(palmGoods!=null){
-							controller.makePalmItemVolume(palmGoods, palmGoods.get('volume') + 1);
+							if(!controller.makePalmItemVolume(palmGoods, palmGoods.get('volume') + 1)){
+								field.markInvalid(controller.noRemains);
+							}
 						}
 						//если нет, то надо добавить в заказ из имеющихся в наличии
 						else
 						{
-							var
-								selectedGoods=controller.goodsStore.data.filterBy(function(record){
+							var selectedGoods=controller.goodsStore.data.filterBy(function(record){
 									return (record.get('barcode')==val && record.get('volume')>0);
-								}),
-								sb=Ext.getCmp('palmSaleItemStatusBar');
+								});
 							
 							if(selectedGoods!=null && selectedGoods.length!=0){
 								selectedGoods.sortBy(function(a, b){
@@ -126,6 +303,9 @@ Ext.define('app.controller.mag', {
 								
 								var r = Ext.ModelManager.create({
 									barcode	: sel.get('barcode'),
+									goods_id: (isGood || (sel.get('bad_goods_id') == null))?
+										sel.get('id') :
+										sel.get('bad_goods_id'),
 									name	: (isGood || (sel.get('bad_goods_name') == null || sel.get('bad_goods_name').length == 0))?
 										sel.get('good_goods_name') :
 										sel.get('bad_goods_name'),
@@ -142,21 +322,106 @@ Ext.define('app.controller.mag', {
 								controller.currentPalmSaleItemsLocalStore.sync();
 								
 								controller.goodsStore.sync();
-								
-								sb.setStatus({text: controller.ready});
 							} else {
-								sb.setStatus({text: controller.noRemains});
+								field.markInvalid(controller.noRemains);
 							}
 						}
-						
-						field.setValue('');
 					}
 						
 					return true;
 				}
             },
-			'': function(){
-				
+			'#saveCurrentPalmSale': {
+				click: function(button, e, eOpts){
+					controller.saveCurrentPalmSale();
+					
+					return true;
+				}
+			},
+			'#savePrintCurrentPalmSale': {
+				click: function(button, e, eOpts){
+					controller.print('currentPalmSaleTable');
+					
+					controller.saveCurrentPalmSale();
+					
+					return true;
+				}
+			},
+			'#filterPalmSales': {
+				click: function(button, e, eOpts){
+					Ext.getCmp('palmSaleOrdersTable').setLoading(true);
+					Ext.getCmp('palmSaleOrderItemsTable').setLoading(true);
+					
+					controller.palmSalesStore.removeAll();
+					
+					controller.palmSalesLocalStore.data.each(function(record){
+						if(
+							record.get('ddate')>=Ext.getCmp('startDate').getValue() &&
+							record.get('ddate')<=Ext.getCmp('endDate').getValue()){
+							controller.palmSalesStore.add(record);
+						}
+						return true;
+					});
+					
+					Ext.Ajax.request({
+						url: '/new_mag/palm_sales',
+						timeout: 300000,
+						method: 'GET',
+						params: {
+							ddateb: Ext.getCmp('startDate').getValue(),
+							ddatee: Ext.getCmp('endDate').getValue()
+						},
+						callback: function(options, success, response){
+							if(success===true){
+								var data = eval('('+response.responseText+')');
+								controller.palmSalesStore.add(data);
+							} else {
+								controller.showServerError(response);
+							}
+							Ext.getCmp('palmSaleOrdersTable').setLoading(false);
+							Ext.getCmp('palmSaleOrderItemsTable').setLoading(false);
+						}
+					});
+					
+					return true;
+				}
+			},
+			'#palmSaleOrdersTable': {
+				selectionchange: function(sm, selected, eOpts){
+					var r=selected[0];
+					
+					controller.palmSaleSelect(r, false);
+					
+					return true;
+				}
+			},
+			'#refreshGoods': {
+				click: function(button, e, eOpts){
+					controller.loadGoods();
+				}
+			},
+			'#syncPalmSales': {
+				click: function(button, e, eOpts){
+					button.setDisabled(true);
+					button.setText('Заказы синхронизируются, подождите');
+					controller.requestsRemains=controller.palmSalesLocalStore.getCount();
+					
+					controller.palmSalesLocalStore.each(function(r){
+						var palmSale=r.getData(),
+							saleItems=[];
+						
+						controller.palmSaleItemsLocalStore.each(function(record){
+							if(record.get('sale_id')==palmSale.id){
+								saleItems.push(record.getData());
+							}
+							return true;
+						});
+						
+						palmSale.sale_items=saleItems;
+						
+						controller.syncPalmSale(palmSale);
+					});
+				}
 			}
         });
 	},
@@ -164,25 +429,36 @@ Ext.define('app.controller.mag', {
 	onLaunch: function(){
 		var controller = this,
 			cellEditingPalmSale = Ext.getCmp('currentPalmSaleTable').getPlugin('cellEditingPalmSale');
+
+		Ext.tip.QuickTipManager.init();
+		Ext.apply(Ext.tip.QuickTipManager.getQuickTip(), {
+			maxWidth: 200,
+			minWidth: 100
+		});
 		
 		cellEditingPalmSale.addListener(
 			'validateedit',
 			function(editor, e, eOpts ){
 				var v = editor.getEditor(e.record, e.column).getValue(),
-					sb=Ext.getCmp('palmSaleItemStatusBar'),
-					noError=controller.makePalmItemVolume(e.record, v);
-
+					noError=controller.makePalmItemVolume(e.record, v)
+					
 				if(noError){
-					sb.setStatus({text: controller.ready});
+					Ext.tip.QuickTipManager.getQuickTip().hide();
 				} else {
 					e.cancel = true;
-					sb.setStatus({text: controller.noRemains});
+					Ext.tip.QuickTipManager.register({
+						target: e.row,
+						title: 'Ошибка',
+						text: controller.noRemains,
+						width: 100,
+						autoHide: false
+					});
 				}
 			}
 		);
 		
-		//ХАРДКОД НОМЕРА КОЛОНКИ!!! колонка удаления позиции
-		Ext.getCmp('currentPalmSaleTable').columns[5].handler=function(view, rowIndex, colIndex) {
+		//ХАРДКОД НОМЕРА КОЛОНКИ!!! колонка удаления позиции в таблице текущего заказа
+		Ext.getCmp('currentPalmSaleTable').columns[6].handler=function(view, rowIndex, colIndex) {
 			var currentRecord=view.store.getAt(rowIndex);
 			cellEditingPalmSale.cancelEdit();
 			
@@ -192,9 +468,30 @@ Ext.define('app.controller.mag', {
 			controller.currentPalmSaleItemsLocalStore.sync();
 		};
 		
+		//ХАРДКОД НОМЕРА КОЛОНКИ!!! колонка печати заказа в таблице заказов
+		Ext.getCmp('palmSaleOrdersTable').columns[3].handler=function(view, rowIndex, colIndex) {
+			var
+				sel=Ext.getCmp('palmSaleOrdersTable').getSelectionModel().getSelection(),
+				current=view.store.getAt(rowIndex);
+				
+			if(sel!=null && sel[0].get('id')!=current.get('id') ){
+				controller.palmSaleSelect(current, true);
+			} else {
+				print('palmSaleOrderItemsTable');
+			}
+		};
+		
 		controller.currentPalmSaleItemsLocalStore = controller.getAppStoreMagCurrentPalmSaleItemsLocalStore();
+		
+		controller.palmSaleItemsLocalStore = controller.getAppStoreMagPalmSaleItemsLocalStore();
+		controller.palmSalesLocalStore = controller.getAppStoreMagPalmSalesLocalStore();
+		
+		controller.palmSaleItemsStore = controller.getAppStoreMagPalmSaleItemsStore();
+		controller.palmSalesStore = controller.getAppStoreMagPalmSalesStore();
+		
 		controller.goodsStore = controller.getAppStoreMagGoodsStore();
-		controller.mainContainer = controller.getAppViewMainContainerView();
+		
+		controller.mainContainer = Ext.getCmp('mainContainer');
 		
 		controller.goodsStore.load(function(records, operation, success) {
 			if(controller.goodsStore.data.length<1){
@@ -203,8 +500,14 @@ Ext.define('app.controller.mag', {
 		});
 		
 		controller.currentPalmSaleItemsLocalStore.load();
+		controller.palmSaleItemsLocalStore.load();
+		controller.palmSalesLocalStore.load();
+		
+		controller.salesToSync=controller.palmSalesLocalStore.getCount();
 		
 		Ext.getCmp('currentPalmSaleTable').reconfigure(controller.currentPalmSaleItemsLocalStore);
+		Ext.getCmp('palmSaleOrdersTable').reconfigure(controller.palmSalesStore);
+		Ext.getCmp('palmSaleOrderItemsTable').reconfigure(controller.palmSaleItemsStore);
 		Ext.getCmp('goodsTable').reconfigure(controller.goodsStore);
 	}
 });

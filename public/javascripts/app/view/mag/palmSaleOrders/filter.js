@@ -35,6 +35,7 @@ Ext.define('app.view.mag.palmSaleOrders.filter', {
 			value: new Date(Ext.Date.now())
 		},
 		{
+			id: 'filterPalmSales',
 			xtype: 'button',
 			text: 'Фильтр'
 		}

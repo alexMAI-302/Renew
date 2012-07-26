@@ -4,8 +4,6 @@ Ext.define('app.view.mag.currentPalmSaleOrder.Grid', {
 	alias: 'widget.orderGrid',
 	
 	cls: 'currentPalmSaleOrder-grid',
-	
-	noRemains: 'Не хватает остатков',
 	ready: 'Готово',
     
     initComponent: function() {
@@ -61,51 +59,49 @@ Ext.define('app.view.mag.currentPalmSaleOrder.Grid', {
 					}
 				},
 				{
+					header: 'Сумма',
+					dataIndex: 'cost',
+					width: 70,
+					summaryType: 'sum'
+				},
+				{
 					xtype:'actioncolumn',
-					width:50,
+					width:20,
 					id: 'removePalmSaleItem',
 					items: [
 					{
 						icon: 'ext/examples/shared/icons/fam/cross.gif'
 					}]
-				},
+				}
 			],
 			selModel: {
 				selType: 'rowmodel'
 			},
 			plugins: [cellEditingPalmSale],
+			features: [{
+				ftype: 'summary'
+			}],
 			height: 400,
 			tbar: [
 				{
 					text: 'Сохранить',
-					//handler : savePalmSale
+					id: 'saveCurrentPalmSale'
 				},
 				{
 					text: 'Сохранить и распечатать',
-					handler : function() {
-						//savePalmSale();
-						
-					}
+					id: 'savePrintCurrentPalmSale'
 				}
 			],
-			bbar: Ext.create('Ext.ux.StatusBar',
-			{
-				defaultText: this.ready,
-				id: 'palmSaleItemStatusBar',
-				text: this.ready,
-				statusAlign: 'right',
-				items:
-				[
-					{
-						id: 'palmSaleItemReadCode',
-						xtype: 'textfield',
-						name: 'name',
-						fieldLabel: 'Штрих-код',
-						labelWitdh: 70,
-						enableKeyEvents: true
-					}
-				]
-			}),
+			bbar: [
+				{
+					id: 'palmSaleItemReadCode',
+					xtype: 'textfield',
+					name: 'name',
+					fieldLabel: 'Штрих-код',
+					labelWitdh: 70,
+					enableKeyEvents: true
+				}
+			],
 			viewConfig: {
 				enableTextSelection: true
 			}
