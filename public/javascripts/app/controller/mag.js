@@ -79,7 +79,7 @@ Ext.define('app.controller.mag', {
 		var controller=this;
 		
 		Ext.Ajax.request({
-			url: '/new_mag/palm_sales_save',
+			url: '/new_mag/palm_sale_save',
 			timeout: 300000,
 			jsonData: {
 				palm_sale: palmSale
@@ -303,7 +303,7 @@ Ext.define('app.controller.mag', {
 								
 								var r = Ext.ModelManager.create({
 									barcode	: sel.get('barcode'),
-									goods_id: (isGood || (sel.get('bad_goods_id') == null))?
+									goods_id: (isGood || (sel.get('bad_goods_id') == null || sel.get('bad_goods_id') == 0))?
 										sel.get('id') :
 										sel.get('bad_goods_id'),
 									name	: (isGood || (sel.get('bad_goods_name') == null || sel.get('bad_goods_name').length == 0))?
@@ -364,7 +364,7 @@ Ext.define('app.controller.mag', {
 					});
 					
 					Ext.Ajax.request({
-						url: '/new_mag/palm_sales',
+						url: '/new_mag/palm_sales_get',
 						timeout: 300000,
 						method: 'GET',
 						params: {

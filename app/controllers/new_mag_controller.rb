@@ -1,4 +1,5 @@
 # encoding: utf-8
+require 'json'
 
 class NewMagController < ApplicationController
 
@@ -17,21 +18,36 @@ class NewMagController < ApplicationController
 		bad_price,
 		volume
 	FROM
-		renew_web.get_mag_goods_data(5620)")
+		renew_web.get_mag_goods_data(#{17})")
 	render :text => res.to_json
   end
   
-  def palm_sales
+  def palm_sales_get
 	case request.method.to_s
 		when 'get' then
 		    res=ActiveRecord::Base.connection.select_all("
 			CALL renew_web.get_mag_sales(
-				1099,
+				#{17},
 				'#{Time.parse(params[:ddateb]).strftime('%F %T')}',
 				'#{Time.parse(params[:ddatee]).strftime('%F %T')}'
 			)")
 			render :text => res.to_json
+	end
+  end
+  
+  def palm_sale_save
+	case request.method.to_s
 		when 'post' then
+			sale=JSON.parse(request.body.gets)["palm_sale"]
+			items=sale["sale_items"].to_xml(:root => "sale_items")
+		    res=ActiveRecord::Base.connection.select_all("
+			CALL renew_web.save_mag_sale(
+				#{17},
+				'#{Time.parse(sale["ddate"]).strftime('%F %T')}',
+				#{sale["sumtotal"].to_f},
+				'#{items}'
+			)")
+			render :text => ""
 	end
   end
   
@@ -61,7 +77,6 @@ class NewMagController < ApplicationController
 				psi.cost
 			")
 			render :text => res.to_json
-		when 'post' then
 	end
   end
 end
