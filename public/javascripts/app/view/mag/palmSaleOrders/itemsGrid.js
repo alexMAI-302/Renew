@@ -60,7 +60,7 @@ Ext.define('app.view.mag.palmSaleOrders.itemsGrid', {
 					width: 70
 				},
 			],
-			height: 150,
+			height: 200,
 			viewConfig: {
 				enableTextSelection: true
 			}

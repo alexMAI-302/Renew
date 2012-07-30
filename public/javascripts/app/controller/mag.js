@@ -88,7 +88,7 @@ Ext.define('app.controller.mag', {
 				if(success===true){
 					controller.palmSalesLocalStore.each(function(r){
 						if(r.get('id')==palmSale.id){
-							palmSalesLocalStore.remove(r);
+							controller.palmSalesLocalStore.remove(r);
 							return false;
 						} else {
 							return true;
@@ -97,10 +97,12 @@ Ext.define('app.controller.mag', {
 					
 					controller.palmSaleItemsLocalStore.each(function(r){
 						if(r.get('sale_id')==palmSale.id){
-							palmSalesLocalStore.remove(r);
+							controller.palmSalesLocalStore.remove(r);
 						}
 						return true;
 					});
+					controller.palmSalesLocalStore.sync();
+					controller.palmSaleItemsLocalStore.sync();
 					controller.salesToSync--;
 				}
 				
@@ -136,14 +138,14 @@ Ext.define('app.controller.mag', {
 			r.setDirty();
 			
 			controller.palmSaleItemsLocalStore.add(r);
-			saleItems.push(r.gedData());
+			saleItems.push(r.getData());
 			
 			return true;
 		});
 		
 		var r = Ext.ModelManager.create({
 			id: minPalmSale,
-			ddate: new Date(),
+			ddate: Ext.Date.format(new Date(), 'Y-m-d H:i:s'),
 			sumtotal: sumTotal
 		}, 'app.model.mag.palmSaleModel');
 		r.setDirty();
@@ -164,27 +166,21 @@ Ext.define('app.controller.mag', {
 	},
 	
 	loadGoods: function(){
-		var controller = this;
+		var controller = this, key, i;
 
 		controller.mainContainer.setLoading(true);
-		controller.goodsStore.proxy.clear();
+		localStorage.removeItem('unactmag-goods');
 		Ext.Ajax.request({
 			url: '/new_mag/get_goods',
 			timeout: 300000,
 			success: function(response){
 				var data = eval('('+response.responseText+')');
-				controller.goodsStore.add(data);
-				controller.goodsStore.each(function(record){
-					record.setDirty();
-				});
+				localStorage.setItem('unactmag-goods', response.responseText);
 				
-				controller.goodsStore.sync({
-					success: function(){
-						Ext.Msg.alert('', 'Остатки и цены успешно обновлены');
-						controller.mainContainer.setLoading(false);
-					},
-					failure: controller.showServerError
-				});
+				controller.goodsStore.loadData(data);
+				
+				Ext.Msg.alert('', 'Остатки и цены успешно обновлены');
+				controller.mainContainer.setLoading(false);
 			},
 			failure: controller.showServerError
 		});
@@ -428,7 +424,8 @@ Ext.define('app.controller.mag', {
 	
 	onLaunch: function(){
 		var controller = this,
-			cellEditingPalmSale = Ext.getCmp('currentPalmSaleTable').getPlugin('cellEditingPalmSale');
+			cellEditingPalmSale = Ext.getCmp('currentPalmSaleTable').getPlugin('cellEditingPalmSale'),
+			goodsData = localStorage.getItem('unactmag-goods');
 
 		Ext.tip.QuickTipManager.init();
 		Ext.apply(Ext.tip.QuickTipManager.getQuickTip(), {
@@ -493,11 +490,15 @@ Ext.define('app.controller.mag', {
 		
 		controller.mainContainer = Ext.getCmp('mainContainer');
 		
-		controller.goodsStore.load(function(records, operation, success) {
-			if(controller.goodsStore.data.length<1){
-				controller.loadGoods();
-			}
-		});
+		try
+		{
+			controller.goodsStore.loadData(goodsData);
+		}
+		catch(e){}
+		
+		if(controller.goodsStore.getCount()==0){
+			controller.loadGoods();
+		}
 		
 		controller.currentPalmSaleItemsLocalStore.load();
 		controller.palmSaleItemsLocalStore.load();

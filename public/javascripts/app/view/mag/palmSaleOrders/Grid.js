@@ -58,7 +58,7 @@ Ext.define('app.view.mag.palmSaleOrders.Grid', {
 			selModel: {
 				selType: 'rowmodel'
 			},
-			height: 150,
+			height: 200,
 			viewConfig: {
 				enableTextSelection: true
 			}

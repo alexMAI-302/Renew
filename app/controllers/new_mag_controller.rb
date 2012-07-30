@@ -18,7 +18,7 @@ class NewMagController < ApplicationController
 		bad_price,
 		volume
 	FROM
-		renew_web.get_mag_goods_data(#{17})")
+		renew_web.get_mag_goods_data('#{session[:user_id]}')")
 	render :text => res.to_json
   end
   
@@ -27,7 +27,7 @@ class NewMagController < ApplicationController
 		when 'get' then
 		    res=ActiveRecord::Base.connection.select_all("
 			CALL renew_web.get_mag_sales(
-				#{17},
+				'#{session[:user_id]}',
 				'#{Time.parse(params[:ddateb]).strftime('%F %T')}',
 				'#{Time.parse(params[:ddatee]).strftime('%F %T')}'
 			)")
@@ -42,8 +42,8 @@ class NewMagController < ApplicationController
 			items=sale["sale_items"].to_xml(:root => "sale_items")
 		    res=ActiveRecord::Base.connection.select_all("
 			CALL renew_web.save_mag_sale(
-				#{17},
-				'#{Time.parse(sale["ddate"]).strftime('%F %T')}',
+				'#{session[:user_id]}',
+				'#{Time.parse(sale["ddate"].gsub(/[T]/, ' ')).strftime('%F %T')}',
 				#{sale["sumtotal"].to_f},
 				'#{items}'
 			)")
