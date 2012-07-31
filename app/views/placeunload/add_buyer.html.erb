@@ -300,7 +300,23 @@
 		};
 	};
 	
-	
+	function checkForm(){
+		var noError=true;
+		
+		if($('placeunload_placecategory_id').value == -1){
+			$('newplace').style.display = "";
+			alert('Введите категорию точки');
+			noError=false;
+		} else {
+			$('newplace').style.display = "none";
+		}
+		
+		if (isadr == 1 ){
+			isadr=0;
+			noError=false;
+		}
+		return noError;
+	}
 
 	</script>
 <%	end -%>
@@ -318,7 +334,7 @@
 			<div id="YMapsID" style="heigth: 390px;"></div>
 		</div>
 		
-		<% form_tag( {:action => "save_buyer"} , {:id => "form1", :onsubmit => "if (isadr == 1 ) {isadr=0;return false;}"} ) do %>
+		<% form_tag( {:action => "save_buyer"} , {:id => "form1", :onsubmit => "return checkForm()"} ) do %>
 			<div id="tableheader" style="width: 48%; float: left;">
 			
 				<div class="gray">1. Выберите группу партнеров</div>
@@ -396,7 +412,8 @@
 					<%= text_field(:placeunload, :name, :value => @placeunload_name, :size => 50, :maxlength => 255, :style=>"background-color : transparent") %>
 					<br/>
 					<label class="gray">Категория точки</label>
-					<%=  select(:placeunload, :placecategory_id, @placecategory_list, {:selected => @placecategory_id}) %>
+					<%=  select(:placeunload, :placecategory_id, @placecategory_list, {:selected => @placecategory_id}, :onchange => "$('placecategory_err_msg').style.display = ($('placeunload_placecategory_id').value==-1) ? '' : 'none';") %>
+					<span id='placecategory_err_msg'>Введите категорию точки</span>
 					<br/>
 					<label class="gray">Продолжительность разгрузки</label>
 					<%=  select(:placeunload, :unloading, @unloading_list, {:selected => @unloading}) %>

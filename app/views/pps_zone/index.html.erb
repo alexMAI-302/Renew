@@ -20,9 +20,6 @@
 
 <% content_for :js do %>
 <script src="http://api-maps.yandex.ru/1.1/index.xml?key=ADh8UkwBAAAA-f5qPAIAXlBgstzuwer3VtCIdJ9TLbfB6WoAAAAAAAAAAADcdhGtjFd6a6RPHi8luz3UxLa8JA==" type="text/javascript"></script>
-<script type="text/javascript">
-	var map;
-</script>
 <% end -%>
 
 <% content_for :title do %>
@@ -30,38 +27,8 @@
 <%	end -%>
 
 <% content_for :content do %>
-	<div id="tst">
-	</div>
-	<div id="YMapsID">
+	<div id="pps_zone_js">
 	</div>
 <% end -%>
 
-<% content_for :body_attrs do %>
-onload="
-		YMaps.jQuery(function () {
-			var style1;
-			var style2;
-            // Создание экземпляра карты и его привязка к созданному контейнеру
-            map = new YMaps.Map(YMaps.jQuery('#YMapsID')[0]);
-            var placemark;
-            // Установка для карты ее центра и масштаба
-            map.setCenter(new YMaps.GeoPoint(37.64, 55.76), 10);
-
-            // Добавление элементов управления
-            map.enableScrollZoom();
-            map.addControl(new YMaps.Zoom());
-            map.addControl(new YMaps.TypeControl());
-            map.addControl(new YMaps.ToolBar());
-
-			style1 = new YMaps.Style('default#greenPoint');
-			style1.polygonStyle = new YMaps.PolygonStyle();
-			style1.polygonStyle.fillColor = 'ffff0088';
-			YMaps.Styles.add('polygon#Example1', style1);
-		
-			style2 = new YMaps.Style('default#greenPoint');
-			style2.polygonStyle = new YMaps.PolygonStyle();
-			style2.polygonStyle.fillColor = 'ff000055';
-			YMaps.Styles.add('polygon#Example2', style2);
-        });"
-<% end %>
 <% render :file => 'layouts/application' %>
