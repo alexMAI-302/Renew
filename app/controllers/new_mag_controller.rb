@@ -1,5 +1,4 @@
 # encoding: utf-8
-require 'json'
 
 class NewMagController < ApplicationController
 
@@ -38,7 +37,7 @@ class NewMagController < ApplicationController
   def palm_sale_save
 	case request.method.to_s
 		when 'post' then
-			sale=JSON.parse(request.body.gets)["palm_sale"]
+			sale=ActiveSupport::JSON.decode(request.body.gets)["palm_sale"]
 			items=sale["sale_items"].to_xml(:root => "sale_items")
 		    res=ActiveRecord::Base.connection.select_all("
 			CALL renew_web.save_mag_sale(

@@ -116,7 +116,7 @@ class PlaceunloadController < ApplicationController
 			r["id"]==params[:remove].to_i
 		end
 	end
-	@pointsj = @places.to_json
+	@pointsj = @places.to_json( :only => ["id", "name", "latitude", "longitude"] )
 	render :partial => params[:prov]? 'upd_end_prov' : 'upd_end'
   end
 
