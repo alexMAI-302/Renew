@@ -162,12 +162,17 @@ Ext.define('app.controller.ppsZone', {
 				itemId: 'saveZone',
 				text: 'Сохранить зону',
 				handler : function() {
-					var selected=zonesPanel.getSelectionModel().getSelection()[0].data.id;
-				
-					zonesStore.sync();
-					zonesStore.load(function(records, operation, success){
-						zonesPanel.getSelectionModel().select(zonesStore.getById(selected));
-					});
+					var r=zonesPanel.getSelectionModel().getSelection()[0],
+						selected=r.data.id;
+					
+					if(!r.get('subdealerid')>0 || !r.get('spv_id')>0){
+						Ext.msg.alert('Поля "Тип зоны" и "Субдилер" должны быть заполнены!');
+					} else {
+						zonesStore.sync();
+						zonesStore.load(function(records, operation, success){
+							zonesPanel.getSelectionModel().select(zonesStore.getById(selected));
+						});
+					}
 				},
 				disabled: true
 			}],
