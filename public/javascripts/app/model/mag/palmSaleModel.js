@@ -8,7 +8,7 @@ Ext.define('app.model.mag.palmSaleModel', {
 		dateFormat: 'Y-m-d H:i:s',
 		convert: function(v, record){
 			var val=Ext.Date.parse(v, 'Y-m-d H:i:s');
-			val = (val==null) ? Ext.Date.parse(val, "Y-m-d\\TH:i:s") : val;
+			val = (val==null || val==undefined) ? Ext.Date.parse(v, "Y-m-d\\TH:i:s") : val;
 			return val;
 		}
 	},

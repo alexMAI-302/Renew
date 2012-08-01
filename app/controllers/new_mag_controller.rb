@@ -9,12 +9,11 @@ class NewMagController < ApplicationController
 	res=ActiveRecord::Base.connection.select_all("
 	SELECT
 		id,
+		goods_id,
+		is_good,
 		barcode,
-		good_goods_name,
-		bad_goods_id,
-		bad_goods_name,
-		good_price,
-		bad_price,
+		name,
+		price,
 		volume
 	FROM
 		renew_web.get_mag_goods_data('#{session[:user_id]}')")
