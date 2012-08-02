@@ -19,7 +19,7 @@ Ext.define('app.view.mag.goods.Grid', {
 					// disabled: true
 				// },
 				{
-					width: 100,
+					width: 300,
 					header: 'Штрих-код',
 					dataIndex: 'barcode'
 				},
@@ -41,8 +41,8 @@ Ext.define('app.view.mag.goods.Grid', {
 					}
 				},
 				{
-					width: 150,
-					header: 'Цена товара',
+					width: 70,
+					header: 'Цена<br/>товара',
 					dataIndex: 'price'
 				},
 				{
