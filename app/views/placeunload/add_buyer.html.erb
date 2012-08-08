@@ -303,12 +303,9 @@
 	function checkForm(){
 		var noError=true;
 		
-		if($('placeunload_placecategory_id').value == -1){
-			$('newplace').style.display = "";
+		if($('placeunload_placecategory_id').value == -1 && $('newplace').style.display != "none"){
 			alert('Введите категорию точки');
 			noError=false;
-		} else {
-			$('newplace').style.display = "none";
 		}
 		
 		if (isadr == 1 ){
