@@ -4,6 +4,8 @@ Ext.define('app.view.mag.palmSaleOrders.filter', {
 	alias: 'widget.ordersFilter',
 	
 	cls: 'ordersFilter',
+	
+	date: new Date(),
     
     layout: {
 		type: 'hbox'
@@ -22,7 +24,7 @@ Ext.define('app.view.mag.palmSaleOrders.filter', {
 			format: 'd.m.Y H:i',
 			altFormat: 'd/m/Y|d m Y',
 			startDay: 1,
-			value: Ext.Date.add(new Date(Ext.Date.now()), Ext.Date.DAY, -1)
+			value: Ext.Date.parse(Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d')
 		},
 		{
 			id: 'endDate',
@@ -32,7 +34,7 @@ Ext.define('app.view.mag.palmSaleOrders.filter', {
 			format: 'd.m.Y H:i',
 			altFormat: 'd/m/Y|d m Y',
 			startDay: 1,
-			value: new Date(Ext.Date.now())
+			value: Ext.Date.parse(Ext.Date.format(Ext.Date.add(new Date(), Ext.Date.DAY, +1), 'Y.m.d'), 'Y.m.d')
 		},
 		{
 			id: 'filterPalmSales',

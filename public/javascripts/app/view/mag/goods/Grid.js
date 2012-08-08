@@ -19,29 +19,31 @@ Ext.define('app.view.mag.goods.Grid', {
 					// disabled: true
 				// },
 				{
-					width: 100,
+					width: 300,
 					header: 'Штрих-код',
 					dataIndex: 'barcode'
 				},
 				{
 					width: 400,
-					header: 'Наименование "хорошего" товара',
-					dataIndex: 'good_goods_name'
+					header: 'Наименование товара',
+					dataIndex: 'name'
 				},
 				{
-					width: 250,
-					header: 'Наименование "плохого" товара',
-					dataIndex: 'bad_goods_name'
+					width: 70,
+					header: '"Хороший"<br/>товар',
+					align: 'center',
+					dataIndex: 'is_good',
+					xtype: 'checkcolumn',
+					listeners: {
+						beforecheckchange: function(checkColumn, rowIndex, checked, eOpts){
+							return false;
+						}
+					}
 				},
 				{
-					width: 150,
-					header: 'Цена "хорошего" товара',
-					dataIndex: 'good_price'
-				},
-				{
-					width: 150,
-					header: 'Цена "плохого" товара',
-					dataIndex: 'bad_price'
+					width: 70,
+					header: 'Цена<br/>товара',
+					dataIndex: 'price'
 				},
 				{
 					header: 'Остаток',

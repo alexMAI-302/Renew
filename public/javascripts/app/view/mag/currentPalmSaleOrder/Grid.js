@@ -100,6 +100,15 @@ Ext.define('app.view.mag.currentPalmSaleOrder.Grid', {
 					fieldLabel: 'Штрих-код',
 					labelWitdh: 70,
 					enableKeyEvents: true
+				},
+				{
+					id: 'errorField',
+					xtype: 'tbtext',
+					text: 'Не хватает остатков или товар не найден',
+					hidden: true,
+					style: {
+						color: 'red'
+					}
 				}
 			],
 			viewConfig: {

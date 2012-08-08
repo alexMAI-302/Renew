@@ -57,9 +57,8 @@ Ext.define('app.controller.placeunloadSchedule', {
 		});
 	
 		var mainContainer=Ext.create('Ext.container.Container', {
-			width: 1300,
 			layout: {
-				type: 'anchor'
+				type: 'fit'
 			},
 			renderTo: Ext.get('placeunload_schedule_js'),
 			defaults: {
@@ -186,8 +185,7 @@ Ext.define('app.controller.placeunloadSchedule', {
 					}
 				}
 			],
-			plugins: [cellEditing],
-			height: 400
+			plugins: [cellEditing]
 		});
 		
 		mainContainer.add(schedulePanel);
