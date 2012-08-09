@@ -1,10 +1,12 @@
-Ext.define('app.view.mainContainer', {
+Ext.define('app.view.mag.MainContainer', {
     extend: 'Ext.container.Container',
 	
 	requires: ['app.view.mag.magTabs'],
+	
+	id: 'MainContainer',
 
     layout: {
-		type: 'anchor'
+		type: 'fit'
 	},
 	
 	renderTo: Ext.get('mag_js'),

@@ -4,7 +4,6 @@ Ext.define('app.view.mag.currentPalmSaleOrder.Grid', {
 	alias: 'widget.orderGrid',
 	
 	cls: 'currentPalmSaleOrder-grid',
-	ready: 'Готово',
     
     initComponent: function() {
 		var cellEditingPalmSale = Ext.create('Ext.grid.plugin.CellEditing', {
@@ -14,7 +13,6 @@ Ext.define('app.view.mag.currentPalmSaleOrder.Grid', {
 		
         Ext.apply(this, {
 			id: 'currentPalmSaleTable',
-			//store: getAppStoreMagCurrentPalmSaleItemsLocalStore(),
 			columns: [
 				// {
 					// header: 'Идентификатор',
@@ -67,7 +65,6 @@ Ext.define('app.view.mag.currentPalmSaleOrder.Grid', {
 				{
 					xtype:'actioncolumn',
 					width:20,
-					id: 'removePalmSaleItem',
 					items: [
 					{
 						icon: 'ext/examples/shared/icons/fam/cross.gif'

@@ -7,12 +7,12 @@ Ext.define('app.controller.mag', {
     extend: 'Ext.app.Controller',
 	
 	stores: [
-		'app.store.mag.goods',
-		'app.store.mag.currentPalmSaleItemsLocal',
-		'app.store.mag.palmSaleItemsLocal',
-		'app.store.mag.palmSalesLocal',
-		'app.store.mag.palmSaleItems',
-		'app.store.mag.palmSales'
+		'mag.goods',
+		'mag.currentPalmSaleItemsLocal',
+		'mag.palmSaleItemsLocal',
+		'mag.palmSalesLocal',
+		'mag.palmSaleItems',
+		'mag.palmSales'
 	],
 	
 	models: [
@@ -23,10 +23,12 @@ Ext.define('app.controller.mag', {
 	],
 	
 	views: [
-		'app.view.mainContainer',
-		'app.view.mag.magTabs',
-		'app.view.mag.currentPalmSaleOrder.Grid'
+		'mag.MainContainer',
+		'mag.magTabs',
+		'mag.currentPalmSaleOrder.Grid'
 	],
+	
+	mainContainer: null,
 	
 	noRemains: 'Не хватает остатков',
 	
@@ -39,8 +41,6 @@ Ext.define('app.controller.mag', {
 	palmSalesStore: null,
 	
 	goodsStore: null,
-	
-	mainContainer: null,
 	
 	salesToSync: 0,
 	requestsRemains: 0,
@@ -245,7 +245,7 @@ Ext.define('app.controller.mag', {
 								controller.print('palmSaleOrderItemsTable');
 							}
 						} else {
-							controller.showServerError(response);
+							controller.showServerError(response.responseText);
 						}
 						Ext.getCmp('palmSaleOrderItemsTable').setLoading(false);
 					}
@@ -284,7 +284,7 @@ Ext.define('app.controller.mag', {
 					var data = eval('('+response.responseText+')');
 					controller.palmSalesStore.add(data);
 				} else {
-					controller.showServerError(response);
+					controller.showServerError(response.responseText);
 				}
 				Ext.getCmp('palmSaleOrdersTable').setLoading(false);
 				Ext.getCmp('palmSaleOrderItemsTable').setLoading(false);
@@ -303,6 +303,8 @@ Ext.define('app.controller.mag', {
 	
     init: function() {
 		var controller = this;
+		
+		controller.mainContainer = Ext.create('app.view.mag.MainContainer');
 		
 		this.control({
             '#palmSaleItemReadCode': {
@@ -492,17 +494,15 @@ Ext.define('app.controller.mag', {
 			}
 		};
 		
-		controller.currentPalmSaleItemsLocalStore = controller.getAppStoreMagCurrentPalmSaleItemsLocalStore();
+		controller.currentPalmSaleItemsLocalStore = controller.getMagCurrentPalmSaleItemsLocalStore();
 		
-		controller.palmSaleItemsLocalStore = controller.getAppStoreMagPalmSaleItemsLocalStore();
-		controller.palmSalesLocalStore = controller.getAppStoreMagPalmSalesLocalStore();
+		controller.palmSaleItemsLocalStore = controller.getMagPalmSaleItemsLocalStore();
+		controller.palmSalesLocalStore = controller.getMagPalmSalesLocalStore();
 		
-		controller.palmSaleItemsStore = controller.getAppStoreMagPalmSaleItemsStore();
-		controller.palmSalesStore = controller.getAppStoreMagPalmSalesStore();
+		controller.palmSaleItemsStore = controller.getMagPalmSaleItemsStore();
+		controller.palmSalesStore = controller.getMagPalmSalesStore();
 		
-		controller.goodsStore = controller.getAppStoreMagGoodsStore();
-		
-		controller.mainContainer = Ext.getCmp('mainContainer');
+		controller.goodsStore = controller.getMagGoodsStore();
 		
 		try
 		{

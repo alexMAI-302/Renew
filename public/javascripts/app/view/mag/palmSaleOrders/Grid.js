@@ -1,4 +1,4 @@
-//проба
+//таблица
 Ext.define('app.view.mag.palmSaleOrders.Grid', {
 	extend: 'Ext.grid.Panel',
 	alias: 'widget.ordersGrid',
@@ -9,12 +9,6 @@ Ext.define('app.view.mag.palmSaleOrders.Grid', {
         Ext.apply(this, {
 			id: 'palmSaleOrdersTable',
 			columns: [
-				// {
-					// header: 'Идентификатор',
-					// dataIndex: 'id',
-					// hidden: true,
-					// disabled: true
-				// },
 				{
 					xtype: 'datecolumn',
 					width: 120,

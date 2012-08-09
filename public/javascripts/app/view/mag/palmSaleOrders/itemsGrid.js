@@ -4,9 +4,6 @@ Ext.define('app.view.mag.palmSaleOrders.itemsGrid', {
 	alias: 'widget.orderItemsGrid',
 	
 	cls: 'palmSaleOrderItems-grid',
-	
-	noRemains: 'Не хватает остатков',
-	ready: 'Готово',
     
     initComponent: function() {
         Ext.apply(this, {
