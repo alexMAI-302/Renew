@@ -25,8 +25,6 @@
 			paths: {app: '/javascripts/app'}
 		});
 		
-		Ext.require('app.view.mainContainer');
-		
 		Ext.application({
 			controllers: ['menu'<%= yield :js_controller %>],
 			name: 'app',

@@ -4,9 +4,6 @@ Ext.define('app.view.mag.goods.Grid', {
 	alias: 'widget.goodsGrid',
 	
 	cls: 'goods-grid',
-	
-	noRemains: 'Не хватает остатков',
-	ready: 'Готово',
     
     initComponent: function() {
         Ext.apply(this, {

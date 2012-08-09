@@ -1,4 +1,4 @@
-//проба
+//фильтр
 Ext.define('app.view.mag.palmSaleOrders.filter', {
 	extend: 'Ext.container.Container',
 	alias: 'widget.ordersFilter',
