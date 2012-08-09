@@ -9,28 +9,14 @@ Ext.define('app.controller.ppsZone', {
 		'app.model.ppsZone.zoneModel',
 		'app.model.ppsZone.terminalModel'],
     init: function() {
+		var map;
 	
 		function changeTerminal(view, records){
 			var rec=records[0];
 			if(rec!=null){
 				map.setCenter(new YMaps.GeoPoint(rec.get("longitude"), rec.get("latitude")), 100);
 			}
-		}
-	
-		var mainContainer=Ext.create('Ext.container.Container', {
-			layout: {
-				type: 'anchor'
-			},
-			renderTo: Ext.get('tst'),
-			border: 1,
-			style: {borderColor:'#000000', borderStyle:'solid', borderWidth:'1px'},
-			defaults: {
-				labelWidth: 80,
-				style: {
-					padding: '10px'
-				}
-			}
-		});
+		};
 		
 		var filterContainer=Ext.create('Ext.container.Container', {
 			layout: {
@@ -141,8 +127,55 @@ Ext.define('app.controller.ppsZone', {
 		
 		var zonesPanel=Ext.create('Ext.grid.Panel', {
 			id: zoneGridId,
-			title: 'Зоны терминалов',
 			store: zonesStore,
+			region: 'north',
+			title: 'Зоны терминалов',
+			split: true,
+			height: '33%',
+			autoScroll: true,
+			tbar: [{
+				text: 'Добавить зону',
+				handler : function() {
+					cellEditingZones.cancelEdit();
+					
+					var r = Ext.ModelManager.create({
+						name: 'Введите наименование зоны'
+					}, 'app.model.ppsZone.zoneModel');
+
+					zonesStore.insert(0, r);
+					cellEditingZones.startEdit();
+				}
+			}, {
+				itemId: 'removeZone',
+				text: 'Удалить зону',
+				handler: function() {
+					var sm = zonesPanel.getSelectionModel();
+					cellEditingZones.cancelEdit();
+					zonesStore.remove(sm.getSelection());
+					if (zonesStore.getCount() > 0) {
+						sm.select(0);
+					}
+				},
+				disabled: true
+			}],
+			bbar: [{
+				itemId: 'saveZone',
+				text: 'Сохранить зону',
+				handler : function() {
+					var r=zonesPanel.getSelectionModel().getSelection()[0],
+						selected=r.data.id;
+					
+					if(!r.get('subdealerid')>0 || !r.get('spv_id')>0){
+						Ext.Msg.alert('Ошибка', 'Поля "Тип зоны" и "Субдилер" должны быть заполнены!');
+					} else {
+						zonesStore.sync();
+						zonesStore.load(function(records, operation, success){
+							zonesPanel.getSelectionModel().select(zonesStore.getById(selected));
+						});
+					}
+				},
+				disabled: true
+			}],
 			columns: [
 				{
 					header: 'Идентификатор',
@@ -240,45 +273,6 @@ Ext.define('app.controller.ppsZone', {
 				selType: 'rowmodel'
 			},
 			plugins: [cellEditingZones],
-			height: 200,
-			tbar: [{
-				text: 'Добавить зону',
-				handler : function() {
-					cellEditingZones.cancelEdit();
-					
-					var r = Ext.ModelManager.create({
-						name: 'Введите наименование зоны'
-					}, 'app.model.ppsZone.zoneModel');
-
-					zonesStore.insert(0, r);
-					cellEditingZones.startEdit();
-				}
-			}, {
-				itemId: 'removeZone',
-				text: 'Удалить зону',
-				handler: function() {
-					var sm = zonesPanel.getSelectionModel();
-					cellEditingZones.cancelEdit();
-					zonesStore.remove(sm.getSelection());
-					if (zonesStore.getCount() > 0) {
-						sm.select(0);
-					}
-				},
-				disabled: true
-			}],
-			bbar: [{
-				itemId: 'saveZone',
-				text: 'Сохранить зону',
-				handler : function() {
-					var selected=zonesPanel.getSelectionModel().getSelection()[0].data.id;
-				
-					zonesStore.sync();
-					zonesStore.load(function(records, operation, success){
-						zonesPanel.getSelectionModel().select(zonesStore.getById(selected));
-					});
-				},
-				disabled: true
-			}],
 			listeners: {
 				'selectionchange': function(view, records) {
 					var disabled=!records.length;
@@ -322,14 +316,14 @@ Ext.define('app.controller.ppsZone', {
 				},
 				{
 					header: 'Граница #',
-					dataIndex: 'opt_bound',
+					dataIndex: 'bound_notes',
 					field: {
 						xtype: 'numberfield'
 					}
 				},
 				{
 					header: 'Граница (расчет) #',
-					dataIndex: 'bound_notes',
+					dataIndex: 'opt_bound',
 					field: {
 						xtype: 'numberfield'
 					}
@@ -350,14 +344,14 @@ Ext.define('app.controller.ppsZone', {
 				},
 				{
 					header: 'граница $',
-					dataIndex: 'opt_bound_summ',
+					dataIndex: 'bound_summ',
 					field: {
 						xtype: 'numberfield'
 					}
 				},
 				{
 					header: 'Граница (расчет) $',
-					dataIndex: 'bound_summ',
+					dataIndex: 'opt_bound_summ',
 					field: {
 						xtype: 'numberfield'
 					}
@@ -411,7 +405,6 @@ Ext.define('app.controller.ppsZone', {
 			plugins: [Ext.create('Ext.grid.plugin.CellEditing', {
 				clicksToEdit: 1
 			})],
-			height: 200,
 			listeners: {
 				'selectionchange': changeTerminal
 			}
@@ -429,7 +422,6 @@ Ext.define('app.controller.ppsZone', {
 			plugins: [Ext.create('Ext.grid.plugin.CellEditing', {
 				clicksToEdit: 1
 			})],
-			height: 200,
 			listeners: {
 				'selectionchange': changeTerminal
 			}
@@ -437,9 +429,12 @@ Ext.define('app.controller.ppsZone', {
 		
 		var terminalTabs = Ext.create('Ext.tab.Panel', {
 			activeTab: 0,
-			height: 270,
 			plain: true,
-			defaults :{
+			region: 'center',
+			split: true,
+			autoScroll: true,
+			height: '33%',
+			defaults: {
 				autoScroll: true,
 				bodyPadding: 10
 			},
@@ -740,13 +735,76 @@ Ext.define('app.controller.ppsZone', {
 			
 		filterContainer.add(zoneTypesCombo);
 		filterContainer.add(subdealersCombo);
-		mainContainer.add(filterContainer);
 		
-		mainContainer.add(zonesPanel);
-		mainContainer.add(terminalTabs);
-		mainContainer.add(saveZonePointsButton);
+		var mainContainer=Ext.create('Ext.panel.Panel', {
+			height: 1000,
+			layout: 'border',
+			split: true,
+			resizable: true,
+			items: [{
+				region: 'north',
+				xtype: 'panel',
+				items: [filterContainer]
+			},
+			{
+				region: 'center',
+				xtype: 'panel',
+				layout: 'border',
+				split: true,
+				defaults:{
+					border: 5
+				},
+				items: [
+					zonesPanel,
+					terminalTabs,
+					{
+						region: 'south',
+						xtype: 'panel',
+						layout: 'border',
+						tbar: [saveZonePointsButton],
+						items:[
+							{
+								region: 'center',
+								xtype: 'panel',
+								id: 'YMapsID',
+								height: '100%'
+							}
+						],
+						split: true,
+						height: '33%'
+					}
+				]
+			}],
+			renderTo: Ext.get('pps_zone_js'),
+		});
 		
 		zonesPanel.setDisabled(true);
 		terminalTabs.setDisabled(true);
+		
+		YMaps.jQuery(function () {
+			var style1;
+			var style2;
+            // Создание экземпляра карты и его привязка к созданному контейнеру
+            map = new YMaps.Map(YMaps.jQuery('#YMapsID')[0]);
+            var placemark;
+            // Установка для карты ее центра и масштаба
+            map.setCenter(new YMaps.GeoPoint(37.64, 55.76), 10);
+
+            // Добавление элементов управления
+            map.enableScrollZoom();
+            map.addControl(new YMaps.Zoom());
+            map.addControl(new YMaps.TypeControl());
+            map.addControl(new YMaps.ToolBar());
+
+			style1 = new YMaps.Style('default#greenPoint');
+			style1.polygonStyle = new YMaps.PolygonStyle();
+			style1.polygonStyle.fillColor = 'ffff0088';
+			YMaps.Styles.add('polygon#Example1', style1);
+		
+			style2 = new YMaps.Style('default#greenPoint');
+			style2.polygonStyle = new YMaps.PolygonStyle();
+			style2.polygonStyle.fillColor = 'ff000055';
+			YMaps.Styles.add('polygon#Example2', style2);
+        });
     }
 });

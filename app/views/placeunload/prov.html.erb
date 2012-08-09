@@ -8,6 +8,7 @@
 		var map;
 		var pp = <%= @rst_new %> ; 
 		var placemarks = new Array;
+		var placemark;
 		var current_id = 0;
 		var isadr = 0;
 		var main_city = [{"city": "Москва"}];
@@ -37,7 +38,7 @@
 					on_needsave(current_id);		
 				});
 				YMaps.Events.observe(placemarks[i], placemarks[i].Events.BalloonOpen, function (obj) {
-					$$('tr.rdata').each(function(d){
+					$('topform').select('tr.rdata').each(function(d){
 						d.style.backgroundColor = 'white';
 					});
 					$('row_' + obj.row_id ).style.backgroundColor = '#FFFBB2';
@@ -68,11 +69,86 @@
 				on_needsave(current_id);
             });
         };
+		
+		function geocode_addr(srcaddress, iscoord) {
+			var geocoder = new YMaps.Geocoder(srcaddress);
+			$('spinner1').show();
+			$('subform').update('Подождите пожалуйста, идет поиск.....');			
+			YMaps.Events.observe(geocoder, geocoder.Events.Load, function () {
+				var n = this.length();
+				var geoResult;
+				if (n>0) {
+					geoResult = this.get(0);
+				}
+				else {
+					alert("Ничего не найдено!");
+					$('spinner1').hide(); 
+					$('subform').update('Ошибка!');
+					return;
+				};
+					
+				if (geoResult.kind == "country" || geoResult.kind == "province" || geoResult.kind == "district") {
+					alert("Слишком общий адрес!");
+					$('spinner1').hide(); 
+					$('subform').update('Ошибка!');
+					return;
+				};
+				if (geoResult.kind == 'locality') {
+					for (var i = 0; i < main_city.length; i++) { 
+						try {
+							if (geoResult.AddressDetails.Country.Locality.LocalityName == main_city[i].city) {
+								alert("Не могу найти улицу в городе!");
+								$('spinner1').hide(); 
+								$('subform').update('Ошибка!');
+								return;
+							};
+						}
+						catch(e) {
+							;
+						};
+						try {
+							if (geoResult.AddressDetails.Country.AdministrativeArea.Locality.LocalityName == main_city[i].city) {
+								alert("Не могу найти улицу в области!");
+								$('spinner1').hide(); 
+								$('subform').update('Ошибка!');
+								return;
+							};
+						}
+						catch(e) {
+							;
+						};
+					};
+				};
+				$('a_'+current_id+'_fulladdress').value = geoResult.text;
+				if (iscoord) {
+					map.setCenter(geoResult.getGeoPoint(), 16);
+					for (var i = 0; i < pp.length; i++) {
+						if (pp[i].id == current_id) {
+								placemarks[i].setGeoPoint(geoResult.getGeoPoint());
+								placemarks[i].setOptions({style: "default#workshopIcon", draggable: true});
+								$('a_' + current_id + '_fulladdress').value = geoResult.text;
+								$('a_' + current_id + '_needsave').checked = true;
+						}
+						else {
+							placemarks[i].setOptions({style: "default#shopIcon", draggable: false});
+						};
+					};
+					$('a_' + current_id + '_longitude').value = Math.round(geoResult.getGeoPoint().getLng()*1000000)/1000000;
+					$('a_' + current_id + '_latitude').value  = Math.round(geoResult.getGeoPoint().getLat()*1000000)/1000000;
+				};
+				<%= remote_function :url =>{ :action => "find_place" }, :with => "'latitude=' + $('a_'+current_id+'_latitude').value + '&longitude=' + $('a_'+current_id+'_longitude').value +'&prov=1&remove='+current_id", :update => "subform", :complete => "after_select();" %>
+			});
+			// Процесс геокодирования завершен неудачно
+			YMaps.Events.observe(geocoder, geocoder.Events.Fault, function (geocoder, error) {
+				alert("Произошла ошибка: " + error);
+				$('spinner1').hide(); 
+				$('subform').update('Ошибка!');
+			});
+		};
+		
 		function find_addr(sid){ 
 			var srcaddress = $('a_' + sid + '_srcaddress').value;
 			var geocoder = new YMaps.Geocoder(srcaddress);
-			
-			on_select( sid );
 			
 			// Создание обработчика для успешного завершения геокодирования
             YMaps.Events.observe(geocoder, geocoder.Events.Load, function () {
@@ -145,37 +221,68 @@
 			};
 		};
 		function on_select( sid ){
-			var pred_id=0;
-			var longitude = parseFloat($('a_' + sid + '_longitude').value);
-			var latitude = parseFloat($('a_' + sid + '_latitude').value);
-			
-			if ( !isNaN(longitude) && !isNaN(latitude) ) {
-				map.setCenter(new YMaps.GeoPoint(longitude, latitude), 16);
+			if(sid != current_id){
+				var pred_id=0;
+				var longitude = parseFloat($('a_' + sid + '_longitude').value);
+				var latitude = parseFloat($('a_' + sid + '_latitude').value);
+				
+				if ( !isNaN(longitude) && !isNaN(latitude) ) {
+					map.setCenter(new YMaps.GeoPoint(longitude, latitude), 16);
+					for (var i = 0; i < pp.length; i++) {
+						if (pp[i].id == sid) {
+								placemarks[i].setOptions({style: "default#workshopIcon", draggable: true});
+						}
+						else {
+							placemarks[i].setOptions({style: "default#shopIcon", draggable: false});
+						};
+					};	
+				};
+				$('topform').select('tr.rdata').each(function(d){
+					d.style.backgroundColor = 'white'; 
+				});
+				//очищаем привязку элементов в верхней таблице
+				$('topform').select('input.join').each(function(i){
+					i.value="-1";
+				});
+				$('row_' + sid ).style.backgroundColor = '#FFFBB2';
+				pred_id = current_id; 
+				current_id = sid;
 				for (var i = 0; i < pp.length; i++) {
-					if (pp[i].id == sid) {
-							placemarks[i].setOptions({style: "default#workshopIcon", draggable: true});
+					if (pp[i].id == current_id) {
+						placemarks[i].setOptions({style: "default#workshopIcon", draggable: true});
 					}
 					else {
-						placemarks[i].setOptions({style: "default#shopIcon", draggable: false});
-					};
-				};	
-			};
-			$$('tr.rdata').each(function(d){
-				d.style.backgroundColor = 'white'; 
-			});
-			$('row_' + sid ).style.backgroundColor = '#FFFBB2';
-			pred_id = current_id; 
-			current_id = sid;
-			for (var i = 0; i < pp.length; i++) {
-				if (pp[i].id == current_id) {
-					placemarks[i].setOptions({style: "default#workshopIcon", draggable: true});
-				}
-				else {
-					if (pp[i].id == pred_id) { 
-						placemarks[i].setOptions({style: "default#shopIcon", draggable: false});
+						if (pp[i].id == pred_id) { 
+							placemarks[i].setOptions({style: "default#shopIcon", draggable: false});
+						};
 					};
 				};
-			};
+				
+				geocode_addr($('a_'+sid+'_fulladdress').value, true);
+			}
+		};
+		
+		function on_sub_select( sid ){
+			if(sid != current_id){
+				$('subform').select('tr.rdata').each(function(d){
+					d.style.backgroundColor = 'white';
+				});
+				//очищаем привязку элементов
+				$$('input.join').each(function(i){
+					i.value="-1";
+				});
+				
+				$('b_'+sid+'_join').value="1";
+				
+				$('a_'+current_id+'_join').value="2";
+				$('a_'+current_id+'_needsave').checked=true;
+				
+				$('row_' + sid +'_').style.backgroundColor = 'yellow';
+			}
+		};
+		
+		function after_select(){
+			$('spinner1').hide();
 		};
 
 	</script>
@@ -222,21 +329,24 @@
 		</div>
 		
 		<% form_tag( {:action => 'save_point_r'}, {:onsubmit => "if (isadr == 1 ) {isadr=0;return false;}"} ) do %>	
-			<div id="buyers" style="width: 58%">	
+			<div id="buyers" style="width: 58%; height: 380px;">	
 				<div id="mainform">
+					<div id="topform">
 						<table width="100%" border="0" cellpadding="2" cellspacing="1">
 							<% @rst_buyers.each do |a| %>
 							<tr
-								<%= "id=\"row_#{a["id"]}\"" %> class="rdata" onclick="on_select(<%= a["id"] %>)" >
+								<%= "id=\"row_#{a["id"]}\"" %> class="rdata" onclick="on_select(<%= a["id"] %>)"
+							>
 								<td width="25%" id="small_name" ><%= text_field(:a, :pname, :index => a["id"] , :value => a["pname"], :maxlength => 255, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "on_needsave(#{a["id"]})" ) %>
-												<br/>
+									<br/>
 									<%= text_field(:a, :descr, :index => a["id"] , :value => a["descr"], :maxlength => 255, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "on_needsave(#{a["id"]})" ) %>			
 								</td>
 								<td width="70%"><%= text_field(:a, :srcaddress, :index => a["id"] , :value => a["srcaddress"], :maxlength => 255, :class => "boxintbl", :style=>"background-color : transparent", :onkeypress => "submitIt(event, #{a["id"]});" ) %>
-												<br/>
-											   <%= text_field(:a, :fulladdress, :index => a["id"] , :value => a["fulladdress"], :maxlength => 255, :class => "boxintable gray", :style=>"background-color : transparent", :readonly => 'true') %>
-<%= hidden_field(:a, :latitude,  :index => a["id"] , :value => a["latitude"], :maxlength => 20, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "on_needsave(#{a["id"]})" ) %>
-<%= hidden_field(:a, :longitude, :index => a["id"] , :value => a["longitude"], :maxlength => 20, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "on_needsave(#{a["id"]})" ) %>											   
+									<br/>
+									<%= text_field(:a, :fulladdress, :index => a["id"] , :value => a["fulladdress"], :maxlength => 255, :class => "boxintable gray", :style=>"background-color : transparent", :readonly => 'true') %>
+									<%= hidden_field(:a, :latitude,  :index => a["id"] , :value => a["latitude"], :maxlength => 20, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "on_needsave(#{a["id"]})" ) %>
+									<%= hidden_field(:a, :longitude, :index => a["id"] , :value => a["longitude"], :maxlength => 20, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "on_needsave(#{a["id"]})" ) %>
+									<input type="hidden" id="a_<%= a["id"] %>_join" name="a[<%= a["id"] %>][join]" value="-1" class="join"/>
 								</td>			
 								<td width="5%">
 									<%= check_box(:a, :ischeck, :index => a["id"], :style=>"border : none", :value => a["ischeck"], :checked => (a["ischeck"]==1), :onclick => "on_needsave(#{a["id"]})" ) %>
@@ -244,17 +354,23 @@
 								</td>			
 							</tr>
 							<% end %>				
-						</table>			
-						
+						</table>
+					</div>
 				</div>
 			</div>
-			<div id="operblock">		
-				<%= submit_tag "Сохранить" %>
+			<div style="float: left;">
+				<%= image_tag('ajax-loader.gif', :id => 'spinner1', :style => 'display:none') %>
+				<div id="subform">
+					<%= render :partial => "upd_end_prov" %>
+				</div>
+				<div id="operblock">
+					<%= submit_tag "Сохранить" %>
+				</div>
 			</div>
 		<% end %>
 		
 	</div>
-<% end -%>
+<% end %>
 <% render :file => 'layouts/application' %>
 </body>
 </html>

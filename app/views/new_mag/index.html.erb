@@ -1,0 +1,43 @@
+<% content_for :stylesheets do %>
+
+	.x-action-col-cell img {\
+		height: 16px;
+		width: 16px;
+		cursor: pointer;
+	}
+	.x-action-col-cell img.del-col {
+		background-image: url(/ext/examples/shared/icons/fam/delete.gif);
+	}
+	.x-action-col-cell img.add-col {
+		background-image: url(/ext/examples/shared/icons/fam/add.gif);
+	}
+	
+	.x-statusbar .status-bad {
+		padding-left: 25px;
+		background: transparent url(/ext/resources/themes/images/default/form/exclamation.gif) no-repeat 3px 2px;
+	}
+	
+	.x-statusbar .status-good {
+		padding-left: 25px;
+		background: transparent url(/ext/resources/themes/images/default/dd/drop-yes.gif) no-repeat 3px 2px;
+	}
+<% end -%>
+
+<% content_for :js_controller do %>
+,'mag'
+<% end -%>
+
+<% content_for :view_loader do %>
+Ext.create("app.view.mainContainer").show();
+<% end -%>
+
+<% content_for :title do %>
+Магазин брака
+<%	end -%>
+
+<% content_for :content do %>
+	<div id="mag_js">
+	</div>
+<% end -%>
+
+<% render :file => 'layouts/application' %>

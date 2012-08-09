@@ -2,38 +2,15 @@
 Заявка на изменение графика
 <%	end -%>
 
+<% content_for :js_controller do %>
+, 'ScheduleRequest'
+<% end %>
+
+<% content_for :js do %>
+	<%= javascript_tag "window._token = '#{form_authenticity_token}'" %>
+<% end %>
+
 <% content_for :content do %>
-	<p>Я, <%= h(@displayname)%> (<%= h(@mail)%>), буду отсутствовать в офисе</p>
-	<div style="text-align:left">
-		<% form_tag ('/schedule_request/sending')do %>
-				<nobr>
-					<p>
-
-					<label for="ddateb">C:</label>
-					<%=select_date(Time.now+1.days,:prefix=>"ddateb",:order=>[:year,:month,:day],:use_month_names => %w(Январь Февраль Март Апрель Май Июнь Июль Август Сентябрь Октябрь Ноябрь Декабрь))%> 
-					<label for="ddateb_hour"> с </label>
-					<%=select_hour(9, :prefix =>"ddateb_hour")%>
-					<label for="ddateb">:</label>
-					<%=select_minute(00, :prefix =>"ddateb_minute")%>
-					</p>
-					<p>
-					<label for="ddateb"> по </label>
-					<%=select_date(Time.now+ 1.days, :prefix =>"ddatee", :use_month_names => %w(Январь Февраль Март Апрель Май Июнь Июль Август Сентябрь Октябрь Ноябрь Декабрь))%> 
-					<label for="ddatee_hour"> до</label>
-					<%=select_hour(18, :prefix =>"ddatee_hour")%>
-					<label for="ddatee_minute">:</label>
-					<%=select_minute(00, :prefix =>"ddatee_minute")%>
-					
-					</p>
-				</nobr>
-				<p>
-					<label for="ddateb">По причине</label>
-				</p>
-				<p>
-					<%=text_area_tag :comments, @comments, :rows => 8, :cols => 45%> 
-				</p>
-				<%= submit_tag "Отправить руководителю"%>
-		<% end %> 
+	<div id="schedule_request_js">
 	</div>
-<%	end -%>
-
+<% end -%>

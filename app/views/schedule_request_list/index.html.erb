@@ -6,6 +6,24 @@
 <% content_for :title do %>
 Заявки на изменение графика
 <% end %>
+
+<% content_for :js do %>
+<script type="text/javascript">
+	function on_select(id) {
+		$('spinner_'+id).show();
+		$('mail_'+id).hide();
+
+		<%= remote_function :url =>{ :action => "send_mail" }, :with => "'id='+id", :complete => "after_select(id);" %>
+	}
+
+	function after_select(id){
+		$('spinner_'+id).hide();
+		$('mail_'+id).show();
+	};
+</script>
+<% end -%>
+
+
 <% content_for :content do %>
 	<div style="text-align:left">
 		<% form_tag do%>
@@ -13,31 +31,44 @@
 				<legend>Фильтр</legend>
 				<nobr>
 					<label for="ddateb">C:</label>
-					<%=text_field_tag :ddateb, @ddateb %> 
+					<%=text_field_tag :ddateb, @ddateb %>
 					<label for="ddateb"> по </label>
-					<%=text_field_tag :ddatee, @ddatee %> 
+					<%=text_field_tag :ddatee, @ddatee %>
 				</nobr>
 				<%= submit_tag "Apply"%>
 			</fieldset>
-		<% end %> 
+		<% end %>
 	</div>
 	<table border="1">
-	<tr>
-	<td>Сотрудник</td> 
-	<td>Начало отсутствия</td>
-	<td>Конец отсутствия</td>
-	<td>Причина</td>
-	<td>Статус заявки</td>
-	</tr>
-	<% @rst.each_with_index do |row, i| %> 
-	<tr>
-	<td><%=row['shortened'] %></td>
-	<td><%= row['ddateb'].first(16)%></td>
-	<td><%= row['ddatee'].first(16) %></td>
-	<td><%= row['comments'] %></td>
-	<td><%= row['status_name'] %></td>
-	</tr>
-	<% end %>
+		<thead>
+			<tr>
+				<th>Сотрудник</th>
+				<th>Начало отсутствия</th>
+				<th>Конец отсутствия</th>
+				<th>Причина</th>
+				<th>Статус заявки</th>
+				<th>Послать письмо</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% @rst.each_with_index do |row, i| %>
+			<tr>
+				<td><%= row["shortened"] %></td>
+				<td><%= row["ddateb"].first(16)%></td>
+				<td><%= row["ddatee"].first(16) %></td>
+				<td><%= row["comments"] %></td>
+				<td><%= row["status_name"] %></td>
+				<td align="center">
+					<div id="email_<%=row["id"] %>">
+						<% if row["status"] == 0%>
+							<%= image_tag("mail.gif", :id => "mail_#{row["id"]}", :onclick => "on_select(#{row["id"]})") %>
+							<%= image_tag("spinner.gif", :id => "spinner_#{row["id"]}", :style => "display:none") %>
+						<% end %>
+					</div>
+				</td>
+			</tr>
+			<% end %>
+		</tbody>
 	</table>
 <% end %>
 
