@@ -11,17 +11,12 @@ Ext.define('app.view.movementDiff.diffs.Grid', {
     
     initComponent: function() {
         Ext.apply(this, {
+			id: 'movementDiffTable',
 			title: 'Расхождения межплощадочных перемещений',
-			store: movementDiffStore,
 			enableColumnHide: false,
 			enableColumnMove: false,
 			enableColumnResize: false,
 			columns: [
-				{
-					header: 'Идентификатор',
-					dataIndex: 'id',
-					hidden: true
-				},
 				{
 					text: 'Отправитель',
 					width: 85,
@@ -107,7 +102,6 @@ Ext.define('app.view.movementDiff.diffs.Grid', {
 				{
 					id: 'actionType',
 					xtype: 'combobox',
-					store: actionTypeStore,
 					queryMode: 'local',
 					displayField: 'name',
 					valueField: 'id',
@@ -119,7 +113,6 @@ Ext.define('app.view.movementDiff.diffs.Grid', {
 				{
 					id: 'siteSrcAction',
 					xtype: 'combobox',
-					store: sitesSrcClearStore,
 					queryMode: 'local',
 					displayField: 'name',
 					valueField: 'id',
@@ -129,7 +122,6 @@ Ext.define('app.view.movementDiff.diffs.Grid', {
 				{
 					id: 'siteDestAction',
 					xtype: 'combobox',
-					store: sitesDestClearStore,
 					queryMode: 'local',
 					displayField: 'name',
 					valueField: 'id',
@@ -139,7 +131,6 @@ Ext.define('app.view.movementDiff.diffs.Grid', {
 				{
 					id: 'ndocSOAction',
 					xtype: 'combobox',
-					store: ndocsSOClearStore,
 					queryMode: 'local',
 					displayField: 'id',
 					valueField: 'id',
@@ -149,7 +140,6 @@ Ext.define('app.view.movementDiff.diffs.Grid', {
 				{
 					id: 'ndocSupAction',
 					xtype: 'combobox',
-					store: ndocsSupClearStore,
 					queryMode: 'local',
 					displayField: 'id',
 					valueField: 'id',
@@ -168,7 +158,8 @@ Ext.define('app.view.movementDiff.diffs.Grid', {
 			},
 			viewConfig: {
 				enableTextSelection: true
-			}
+			},
+			height: 500
 		});
         
         this.callParent(arguments);

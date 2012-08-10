@@ -1,4 +1,4 @@
-Ext.define('app.view.mag.palmSaleOrders.Container', {
+Ext.define('app.view.movementDiff.diffs.Container', {
     extend: 'Ext.container.Container',
 	alias: 'widget.diffsContainer',
 	
@@ -7,17 +7,15 @@ Ext.define('app.view.mag.palmSaleOrders.Container', {
 		'app.view.movementDiff.diffs.Grid'
 	],
 
-    layout: {
-		type: 'border'
+	layout: {
+		type: 'anchor'
 	},
 	
 	items: [
         {
-			region: 'north',
 			xtype: 'diffsFilter'
 		},
 		{
-			region: 'center',
 			xtype: 'diffsGrid'
 		}
     ]

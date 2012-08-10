@@ -1,5 +1,5 @@
 //хранилище площадок
-Ext.define('app.store.movementDiff.sitesDestClearStore', {
+Ext.define('app.store.movementDiff.sitesSrcClear', {
 	extend: 'Ext.data.Store',
 
     model: 'app.model.valueModel',

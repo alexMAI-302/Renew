@@ -1,5 +1,5 @@
 //локальное хранилище площадок
-Ext.define('app.store.movementDiff.sitesStore', {
+Ext.define('app.store.movementDiff.sites', {
 	extend: 'Ext.data.Store',
 
 	model: 'app.model.valueModel',
@@ -14,7 +14,7 @@ Ext.define('app.store.movementDiff.sitesStore', {
 	listeners: {
 		"load": function(store, records, successful, operation, options ){
 			if(successful==true){
-				sitesStore.insert(0, Ext.ModelManager.create({id: -1, name : 'ВСЕ'}, 'app.model.valueModel'));
+				store.insert(0, Ext.ModelManager.create({id: -1, name : 'ВСЕ'}, 'app.model.valueModel'));
 			}
 		}
 	}

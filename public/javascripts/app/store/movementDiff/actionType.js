@@ -1,5 +1,5 @@
 //локальное хранилище записей по текущему заказу
-Ext.define('app.store.movementDiff.actionTypeStore', {
+Ext.define('app.store.movementDiff.actionType', {
 	extend: 'Ext.data.Store',
 
 	fields: ['id', 'name'],

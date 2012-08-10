@@ -3,14 +3,14 @@
 class MovementDiffController < ApplicationController
 
 	def movement_diff
-		ddateb=params[:ddateb]
-		ddatee=params[:ddatee]
-		
-		site_from=params[:site_from]
-		site_to=params[:site_to]
-		
 		case request.method.to_s
 			when "get"
+				ddateb=params[:ddateb]
+				ddatee=params[:ddatee]
+				
+				site_from=params[:site_from]
+				site_to=params[:site_to]
+				
                 movement_diff_list = Proxycat.connection.select_all("exec dbo.ask_movement_diff
 				'#{ddateb}',
 				'#{ddatee}',

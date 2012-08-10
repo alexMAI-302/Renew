@@ -1,12 +1,12 @@
-Ext.define('app.view.üùìóüóòåÂøàà.MainContainer', {
+Ext.define('app.view.movementDiff.MainContainer', {
     extend: 'Ext.container.Container',
 	
-	requires: ['app.view.movementDiff.'],
+	requires: ['app.view.movementDiff.diffs.Container'],
 	
 	id: 'MainContainer',
 
     layout: {
-		type: 'fit'
+		type: 'anchor'
 	},
 	
 	renderTo: Ext.get('movement_diff_js'),

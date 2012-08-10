@@ -1,5 +1,5 @@
 //проба
-Ext.define('app.view.mag.movementDiff.diffs.Filter', {
+Ext.define('app.view.movementDiff.diffs.Filter', {
 	extend: 'Ext.container.Container',
 	alias: 'widget.diffsFilter',
 	
@@ -39,7 +39,7 @@ Ext.define('app.view.mag.movementDiff.diffs.Filter', {
 	{
 		xtype	: 'button',
 		text    : 'Фильтр',
-		id		: 'filter',
+		id		: 'filterDiff',
 		rowspan	: 2
 	},
 	{

@@ -1,5 +1,5 @@
 //хранилище расхождений межплощадочных перемещений
-Ext.define('app.store.mag.movementDiffStore', {
+Ext.define('app.store.movementDiff.movementDiff', {
 	extend: 'Ext.data.Store',
 
 	model: 'app.model.movementDiff.movementDiffModel',

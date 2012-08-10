@@ -5,13 +5,13 @@ Ext.require([
 Ext.define('app.controller.movementDiff', {
     extend: 'Ext.app.Controller',
 	stores: [
-		'movementDiff.actionTypeStore',
-		'movementDiff.movementDiffStore',
-		'movementDiff.ndocsSOClearStore',
-		'movementDiff.ndocsSupClearStore',
-		'movementDiff.sitesDestClearStore',
-		'movementDiff.sitesSrcClearStore',
-		'movementDiff.sitesStore'
+		'movementDiff.actionType',
+		'movementDiff.movementDiff',
+		'movementDiff.ndocsSOClear',
+		'movementDiff.ndocsSupClear',
+		'movementDiff.sitesDestClear',
+		'movementDiff.sitesSrcClear',
+		'movementDiff.sites'
 	],
 	
 	models: [
@@ -24,17 +24,14 @@ Ext.define('app.controller.movementDiff', {
 	],
 	
 	sitesStore: null,
+	movementDiffStore: null,
+	actionTypeStore: null,
+	sitesSrcClearStore: null,
+	sitesDestClearStore: null,
+	ndocsSOClearStore: null,
+	ndocsSupClearStore: null,
 	
-	sitesRenderer: function(value){
-		var matching=null;
-		sitesStore.each(function(record){
-			if(record.get('id')==value){
-				matching=record.get('name');
-			}
-			return !matching;
-		});
-		return matching;
-	},
+	mainContainer: null,
 	
 	onActionComboEvent: function(field){
 		if(field.getValue() != null){
@@ -43,10 +40,11 @@ Ext.define('app.controller.movementDiff', {
 	},
 	
 	loadMovementDiff: function(){
-		var ddateb = new Date(filterPanel.down('#startDate').getValue());
-		var ddatee = new Date(filterPanel.down('#endDate').getValue());
-		var siteFrom = filterPanel.down('#siteFrom').getValue();
-		var siteTo = filterPanel.down('#siteTo').getValue();
+		var controller=this,
+			ddateb = new Date(Ext.getCmp('startDate').getValue()),
+			ddatee = new Date(Ext.getCmp('endDate').getValue()),
+			siteFrom = Ext.getCmp('siteFrom').getValue(),
+			siteTo = Ext.getCmp('siteTo').getValue();
 		
 		controller.mainContainer.setLoading(true);
 
@@ -60,10 +58,10 @@ Ext.define('app.controller.movementDiff', {
 		controller.movementDiffStore.load(
 			function(records, operation, success){
 				if(success){
-					var siteSrcArray=movementDiffStore.collect('site_src_id'),
-						siteDestArray=movementDiffStore.collect('site_dest_id'),
-						ndocSOArray=movementDiffStore.collect('ndoc_so'),
-						ndocSupArray=movementDiffStore.collect('ndoc_sup');
+					var siteSrcArray=controller.movementDiffStore.collect('site_src_id'),
+						siteDestArray=controller.movementDiffStore.collect('site_dest_id'),
+						ndocSOArray=controller.movementDiffStore.collect('ndoc_so'),
+						ndocSupArray=controller.movementDiffStore.collect('ndoc_sup');
 					var ndocSO, ndocSup;
 						
 					controller.sitesSrcClearStore.removeAll();
@@ -71,19 +69,19 @@ Ext.define('app.controller.movementDiff', {
 					controller.ndocsSOClearStore.removeAll();
 					controller.ndocsSupClearStore.removeAll();
 					
-					sitesStore.each(function(record){
+					controller.sitesStore.each(function(record){
 						for(var i=0; i<siteSrcArray.length; i++){
 							if(record.get('id')==siteSrcArray[i] || record.get('id')==-1){
-								sitesSrcClearStore.add(record);
+								controller.sitesSrcClearStore.add(record);
 							}
 						}
 						return true;
 					});
 					
-					sitesStore.each(function(record){
+					controller.sitesStore.each(function(record){
 						for(var i=0; i<siteDestArray.length; i++){
 							if(record.get('id')==siteDestArray[i] || record.get('id')==-1){
-								sitesDestClearStore.add(record);
+								controller.sitesDestClearStore.add(record);
 							}
 						}
 						return true;
@@ -105,8 +103,7 @@ Ext.define('app.controller.movementDiff', {
 						controller.ndocsSupClearStore.add(ndocSup);
 					}
 					
-					movementDiffContainer.setDisabled(false);
-					mainContainer.setLoading(false);
+					controller.mainContainer.setLoading(false);
 				}
 			});
 		},
@@ -117,40 +114,40 @@ Ext.define('app.controller.movementDiff', {
 		controller.mainContainer = Ext.create('app.view.movementDiff.MainContainer');
 		
 		controller.control({
-			'selectedDiffs': {
-				"checkchange": function(){
-					if(movementDiffStore.collect('to_clear').length>1){
-						movementDiffPanel.down('#clearDiff').show();
+			'#selectedDiffs': {
+				checkchange: function(){
+					if(controller.movementDiffStore.collect('to_clear').length>1){
+						Ext.getCmp('clearDiff').show();
 					} else {
-						movementDiffPanel.down('#clearDiff').hide();
+						Ext.getCmp('clearDiff').hide();
 					}
 				}
 			},
-			'actionType' : {
-				"change": function(field, newValue, oldValue, eOpts){
+			'#actionType' : {
+				change: function(field, newValue, oldValue, eOpts){
 					field.ownerCt.items.each(function(i){
 						i.hide();
 					});
-					movementDiffPanel.down('#selectedDiffs').hide();
-					field.ownerCt.down('#actionType').show();
+					Ext.getCmp('selectedDiffs').hide();
+					Ext.getCmp('actionType').show();
 					switch(newValue){
 						case 1:
-							field.ownerCt.down('#siteSrcAction').show();
+							Ext.getCmp('siteSrcAction').show();
 						break;
 						case 2:
-							field.ownerCt.down('#siteDestAction').show();
+							Ext.getCmp('siteDestAction').show();
 						break;
 						case 3:
-							field.ownerCt.down('#ndocSOAction').show();
+							Ext.getCmp('ndocSOAction').show();
 						break;
 						case 4:
-							field.ownerCt.down('#ndocSupAction').show();
+							Ext.getCmp('ndocSupAction').show();
 						break;
 						case 5:
-							movementDiffPanel.down('#selectedDiffs').show();
+							Ext.getCmp('selectedDiffs').show();
 							if(newValue==5){
 								//если больше одного уникального значения, т.е. если есть выбранные для списания позиции
-								if(movementDiffStore.collect('to_clear').length>1){
+								if(controller.movementDiffStore.collect('to_clear').length>1){
 									field.ownerCt.down('#clearDiff').show();
 								}
 							}
@@ -158,17 +155,17 @@ Ext.define('app.controller.movementDiff', {
 					}
 				}
 			},
-			'siteSrcAction, siteDestAction, ndocSOAction, ndocSupAction': {
+			'#siteSrcAction, #siteDestAction, #ndocSOAction, #ndocSupAction': {
 				"show": controller.onActionComboEvent,
 				"change": controller.onActionComboEvent
 			},
 			'#clearDiff': {
 				"click": function(button, e){
-					var siteSrc, siteDest, ndocSO, ndocSup, ids = null;
-					var ddateb = new Date(filterPanel.down('#startDate').getValue()),
-						ddatee = new Date(filterPanel.down('#endDate').getValue());
+					var siteSrc, siteDest, ndocSO, ndocSup, ids = [];
+					var ddateb = new Date(Ext.getCmp('startDate').getValue()),
+						ddatee = new Date(Ext.getCmp('endDate').getValue());
 					
-					switch(button.ownerCt.down('#actionType')){
+					switch(button.ownerCt.down('#actionType').value){
 						case 1:
 							siteSrc = button.ownerCt.down('#siteSrcAction').getValue;
 						break;
@@ -182,16 +179,17 @@ Ext.define('app.controller.movementDiff', {
 							ndocSup = button.ownerCt.down('#ndocSupAction').getValue;
 						break;
 						case 5:
-							movementDiffStore.each(function(record){
+							controller.movementDiffStore.each(function(record){
+								console.log(record.get('to_clear'));
 								if(record.get('to_clear')){
 									ids.push(record.get('id'));
 								}
 								return true;
 							});
-						break;
+							break;
 					}
 					
-					mainContainer.setLoading(true);
+					controller.mainContainer.setLoading(true);
 					Ext.Ajax.request({
 						params:{
 							authenticity_token: window._token,
@@ -206,19 +204,19 @@ Ext.define('app.controller.movementDiff', {
 						method: 'post',
 						url: '/movement_diff/clear_diff',
 						success: function(response){
-							loadMovementDiff();
+							controller.loadMovementDiff();
 						}
 					});
 				}
 			},
-			'#filter': {
-				'click': loadMovementDiff
+			'#filterDiff': {
+				'click': controller.loadMovementDiff
 			}
 		});
 		
 		function showServerError(response, options) {
 			Ext.Msg.alert('Ошибка', response.responseText);
-			mainContainer.setLoading(false);
+			controller.mainContainer.setLoading(false);
 		}
 		
 		Ext.Ajax.request.failure = showServerError;
@@ -227,62 +225,35 @@ Ext.define('app.controller.movementDiff', {
 	onLaunch: function(){
 		var controller = this;
 		
-		//ХАРДКОД НОМЕРА КОЛОНКИ!!! колонка удаления позиции в таблице текущего заказа
-		Ext.getCmp('currentPalmSaleTable').columns[6].handler=function(view, rowIndex, colIndex) {
-			var currentRecord=view.store.getAt(rowIndex);
-			cellEditingPalmSale.cancelEdit();
-			
-			controller.makePalmItemVolume(currentRecord, 0);
-			
-			controller.currentPalmSaleItemsLocalStore.remove(currentRecord);
-			controller.currentPalmSaleItemsLocalStore.sync();
+		controller.sitesStore = controller.getMovementDiffSitesStore();
+		controller.movementDiffStore = controller.getMovementDiffMovementDiffStore();
+		controller.actionTypeStore = controller.getMovementDiffActionTypeStore();
+		controller.sitesSrcClearStore = controller.getMovementDiffSitesSrcClearStore();
+		controller.sitesDestClearStore = controller.getMovementDiffSitesDestClearStore();
+		controller.ndocsSOClearStore = controller.getMovementDiffNdocsSOClearStore();
+		controller.ndocsSupClearStore = controller.getMovementDiffNdocsSupClearStore();
+		
+		function sitesRenderer(value){
+			var matching=null;
+			controller.sitesStore.each(function(record){
+				if(record.get('id')==value){
+					matching=record.get('name');
+				}
+				return !matching;
+			});
+			return matching;
 		};
-		
-		//ХАРДКОД НОМЕРА КОЛОНКИ!!! колонка печати заказа в таблице заказов
-		Ext.getCmp('palmSaleOrdersTable').columns[3].handler=function(view, rowIndex, colIndex) {
-			var
-				sel=Ext.getCmp('palmSaleOrdersTable').getSelectionModel().getSelection(),
-				current=view.store.getAt(rowIndex);
-				
-			if(sel!=null && (sel[0]==null || sel[0].get('id')!=current.get('id')) ){
-				controller.palmSaleSelect(current, true);
-			} else {
-				print('palmSaleOrderItemsTable');
-			}
-		};
-		
-		controller.sitesStore = controller.getSitesStore();
-		
-		controller.palmSaleItemsLocalStore = controller.getMagPalmSaleItemsLocalStore();
-		controller.palmSalesLocalStore = controller.getMagPalmSalesLocalStore();
-		
-		controller.palmSaleItemsStore = controller.getMagPalmSaleItemsStore();
-		controller.palmSalesStore = controller.getMagPalmSalesStore();
-		
-		controller.goodsStore = controller.getMagGoodsStore();
-		
-		try
-		{
-			controller.goodsStore.loadData(goodsData);
-		}
-		catch(e)
-		{
-			localStorage.removeItem('unactmag-goods');
-		}
-		
-		if(controller.goodsStore.getCount()==0){
-			controller.loadGoods();
-		}
-		
-		controller.currentPalmSaleItemsLocalStore.load();
-		controller.palmSaleItemsLocalStore.load();
-		controller.palmSalesLocalStore.load();
-		
-		controller.salesToSync=controller.palmSalesLocalStore.getCount();
+		//ХАРДКОД НОМЕРА КОЛОНКИ!!!
+		Ext.getCmp('movementDiffTable').columns[0].renderer=sitesRenderer;
+		Ext.getCmp('movementDiffTable').columns[1].renderer=sitesRenderer;
 		
 		Ext.getCmp('siteFrom').bindStore(controller.sitesStore);
 		Ext.getCmp('siteTo').bindStore(controller.sitesStore);
-		Ext.getCmp('palmSaleOrderItemsTable').reconfigure(controller.palmSaleItemsStore);
-		Ext.getCmp('goodsTable').reconfigure(controller.goodsStore);
+		Ext.getCmp('movementDiffTable').reconfigure(controller.movementDiffStore);
+		Ext.getCmp('actionType').bindStore(controller.actionTypeStore);
+		Ext.getCmp('siteSrcAction').bindStore(controller.sitesSrcClearStore);
+		Ext.getCmp('siteDestAction').bindStore(controller.sitesDestClearStore);
+		Ext.getCmp('ndocSOAction').bindStore(controller.ndocsSOClearStore);
+		Ext.getCmp('ndocSupAction').bindStore(controller.ndocsSupClearStore);
 	}
 });
