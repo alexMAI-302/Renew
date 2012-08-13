@@ -11,44 +11,37 @@ class MovementDiffController < ApplicationController
 				site_from=params[:site_from]
 				site_to=params[:site_to]
 				
-                movement_diff_list = Proxycat.connection.select_all("exec dbo.ask_movement_diff
+                movement_diff_list = Proxycat.connection.select_all("exec dbo.movement_diff_get
 				'#{ddateb}',
 				'#{ddatee}',
 				#{site_from},
 				#{site_to}")
 				
 				render :text => movement_diff_list.to_json
-			when "post"
-				Proxycat.connection.execute(
-				"exec dbo.prc_ins_sell_price
-				#{partner_id},
-				#{params[:goods_id]},
-				'#{ddateb}',
-				'#{ddatee}',
-				#{params[:discount]/100.0},
-				#{nullify params[:sell_reason_id]},
-				#{site_id}")
-				
-				render :text => "[]"
-			when "put"
-				Proxycat.connection.execute(
-				"exec dbo.prc_ins_sell_price
-				#{partner_id},
-				#{params[:goods_id]},
-				'#{ddateb}',
-				'#{ddatee}',
-				#{params[:discount]/100.0},
-				#{nullify params[:sell_reason_id]},
-				#{site_id}")
-				
-				render :text => "[]"
-			when "delete"
-				Proxycat.connection.execute("exec prc_del_sell_price #{site_id}, #{params[:id]}")
-				render :text => "[]"
 		end
 	end
 	
 	def clear_diff
+		ids=ActiveSupport::JSON.decode(request.body.gets)["ids"]
+		new_xml=""
+		xml = Builder::XmlMarkup.new(:target => new_xml)
+
+		xml.sale_items do
+			ids.each do |i|
+				elements=i.split('_')
+				xml.item(
+					:site_from => elements[0],
+					:site_to => elements[1],
+					:id => elements[2],
+					:subid => elements[3]
+				)
+			end
+		end
+		
+		logger.info "exec dbo.movement_diff_clear '#{new_xml}'"
+		
+		Proxycat.connection.execute("exec dbo.movement_diff_clear '#{new_xml}'")
+		
 		render :text => 'ok'
 	end
 

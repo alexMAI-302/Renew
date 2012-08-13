@@ -98,7 +98,7 @@ Ext.define('app.view.movementDiff.diffs.Grid', {
 					xtype: 'checkcolumn'
 				}
 			],
-			bbar: [
+			tbar: [
 				{
 					id: 'actionType',
 					xtype: 'combobox',

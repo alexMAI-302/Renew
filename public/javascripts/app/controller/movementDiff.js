@@ -105,6 +105,10 @@ Ext.define('app.controller.movementDiff', {
 					
 					controller.mainContainer.setLoading(false);
 				}
+				else {
+					Ext.Msg.alert('Ошибка', 'Попробуйте еще раз.');
+					controller.mainContainer.setLoading(false);
+				}
 			});
 		},
 	
@@ -180,7 +184,6 @@ Ext.define('app.controller.movementDiff', {
 						break;
 						case 5:
 							controller.movementDiffStore.each(function(record){
-								console.log(record.get('to_clear'));
 								if(record.get('to_clear')){
 									ids.push(record.get('id'));
 								}
@@ -192,14 +195,10 @@ Ext.define('app.controller.movementDiff', {
 					controller.mainContainer.setLoading(true);
 					Ext.Ajax.request({
 						params:{
-							authenticity_token: window._token,
-							site_src: siteSrc,
-							site_dest: siteDest,
-							ndoc_so: ndocSO,
-							ndoc_sup: ndocSup,
-							ids: ids.toString(),
-							ddateb: Ext.Date.format(ddateb, 'Y-m-d'),
-							ddatee: Ext.Date.format(ddatee, 'Y-m-d')
+							authenticity_token: window._token
+						},
+						jsonData: {
+							ids: ids
 						},
 						method: 'post',
 						url: '/movement_diff/clear_diff',
