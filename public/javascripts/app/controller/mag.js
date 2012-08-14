@@ -310,21 +310,18 @@ Ext.define('app.controller.mag', {
             '#palmSaleItemReadCode': {
                 keypress: function(field, e, eOpts ){
 					if(e.getKey()==Ext.EventObject.ENTER){
-						if(field.value==null) {
-							return;
+						var val=field.getValue();
+						if(val==null || val=='') {
+							return true;
 						}
-						var val=field.value,
-							isGood = val.length>1 && val[0]=='*',
+						var isGood = val.length>1 && val[0]=='*',
 							errorField = Ext.getCmp('errorField');
 						val = isGood? val.substr(1, val.length-1) : val;
-						
 						var 
 							palmGoods=controller.currentPalmSaleItemsLocalStore.data.findBy(function(record){
 								return (record.get('barcode')==val && record.get('is_good')==isGood);
 							});
-						
 						field.setValue('');
-						
 						//если товар уже есть в заказе
 						if(palmGoods!=null){
 							if(!controller.makePalmItemVolume(palmGoods, palmGoods.get('volume') + 1)){
