@@ -35,13 +35,22 @@ Ext.define('app.view.mag.palmSaleOrders.Grid', {
 				},
 				{
 					xtype: 'actioncolumn',
-					width: 20,
+					width: 50,
+					align: 'center',
 					id: 'printPalmSale',
 					items: [
 					{
 						icon: 'ext/examples/ux/grid/gridPrinterCss/printer.png'
 					}]
 				},
+				{
+					xtype: 'actioncolumn',
+					width: 20,
+					id: 'delPalmSale',
+					getClass: function(value, metaData, record){
+						return record.get('closed') ? '' : 'x-remove-palm-sale';
+					}
+				}
 			],
 			tbar: [
 				{

@@ -80,11 +80,12 @@ Ext.define('app.controller.mag', {
 		var controller=this;
 		
 		Ext.Ajax.request({
-			url: '/new_mag/palm_sale_save',
+			url: '/new_mag/palm_sale',
 			timeout: 300000,
 			jsonData: {
 				palm_sale: palmSale
 			},
+			method: "POST",
 			callback: function(options, success, response){
 				if(success===true){
 					controller.palmSalesLocalStore.each(function(r){
@@ -311,9 +312,11 @@ Ext.define('app.controller.mag', {
                 keypress: function(field, e, eOpts ){
 					if(e.getKey()==Ext.EventObject.ENTER){
 						var val=field.getValue();
+						
 						if(val==null || val=='') {
 							return true;
 						}
+						
 						var isGood = val.length>1 && val[0]=='*',
 							errorField = Ext.getCmp('errorField');
 						val = isGood? val.substr(1, val.length-1) : val;
@@ -321,7 +324,9 @@ Ext.define('app.controller.mag', {
 							palmGoods=controller.currentPalmSaleItemsLocalStore.data.findBy(function(record){
 								return (record.get('barcode')==val && record.get('is_good')==isGood);
 							});
+							
 						field.setValue('');
+						
 						//если товар уже есть в заказе
 						if(palmGoods!=null){
 							if(!controller.makePalmItemVolume(palmGoods, palmGoods.get('volume') + 1)){
@@ -489,6 +494,40 @@ Ext.define('app.controller.mag', {
 			} else {
 				print('palmSaleOrderItemsTable');
 			}
+		};
+		
+		//ХАРДКОД НОМЕРА КОЛОНКИ!!! колонка удаления заказа в таблице заказов
+		Ext.getCmp('palmSaleOrdersTable').columns[4].handler=function(view, rowIndex, colIndex) {
+			var
+				sel=Ext.getCmp('palmSaleOrdersTable').getSelectionModel().getSelection(),
+				current=view.store.getAt(rowIndex);
+			
+			//если заказ из локального хранилища, то удалить его из локального хранилища
+			if(current.get('id') < 0) {
+				controller.palmSalesLocalStore.remove(current);
+				controller.palmSalesLocalStore.sync();
+			}
+			//иначе отправить запрос на уделение
+			else {
+				Ext.getCmp('palmSaleOrdersTable').setLoading(true);
+				Ext.Ajax.request({
+					url: '/new_mag/palm_sale',
+					timeout: 300000,
+					method: 'DELETE',
+					params: {
+						id: current.get('id')
+					},
+					callback: function(options, success, response){
+						if(success===true){
+						} else {
+							controller.showServerError(response.responseText);
+						}
+						Ext.getCmp('palmSaleOrdersTable').setLoading(false);
+					}
+				});
+			}
+			
+			view.store.remove(current);
 		};
 		
 		controller.currentPalmSaleItemsLocalStore = controller.getMagCurrentPalmSaleItemsLocalStore();
