@@ -552,7 +552,8 @@ Ext.define('app.controller.mag', {
 						timeout: 300000,
 						method: 'DELETE',
 						params: {
-							id: current.get('id')
+							id: current.get('id'),
+							authenticity_token: window._token
 						},
 						callback: function(options, success, response){
 							if(success===true){

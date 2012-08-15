@@ -56,7 +56,7 @@ class NewMagController < ApplicationController
 			render :text => ""
 		when 'delete' then
 			id=params[:id].to_i
-			ActiveRecord::connection.execute("
+			ActiveRecord::Base.connection.execute("
 			DELETE FROM palm_saleitemmagaz WHERE sale_id = #{id};
 			DELETE FROM palm_sale WHERE sale_id = #{id};")
 			render :text => ""
