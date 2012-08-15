@@ -76,6 +76,34 @@ Ext.define('app.controller.mag', {
 		}
 	},
 	
+	removeLocalPalmSale: function(controller, palmSaleId){
+		var data = controller.palmSaleItemsLocalStore.data, i=0, record;
+		controller.palmSalesLocalStore.each(function(r){
+			if(r.get('id')==palmSaleId){
+				controller.palmSalesLocalStore.remove(r);
+				return false;
+			} else {
+				return true;
+			}
+		});
+		
+		while(i < controller.palmSaleItemsLocalStore.getCount()){
+			record = controller.palmSaleItemsLocalStore.getAt(i);
+			if(record.get('sale_id') == palmSaleId){
+				controller.palmSaleItemsLocalStore.remove(record);
+			} else {
+				i++;
+			}
+		};
+		if(data.getCount() == 0){
+			controller.palmSaleItemsLocalStore.proxy.clear();
+		}
+		
+		controller.palmSalesLocalStore.sync();
+		controller.palmSaleItemsLocalStore.sync();
+		controller.salesToSync--;
+	},
+	
 	syncPalmSale: function(palmSale){
 		var controller=this;
 		
@@ -88,24 +116,7 @@ Ext.define('app.controller.mag', {
 			method: "POST",
 			callback: function(options, success, response){
 				if(success===true){
-					controller.palmSalesLocalStore.each(function(r){
-						if(r.get('id')==palmSale.id){
-							controller.palmSalesLocalStore.remove(r);
-							return false;
-						} else {
-							return true;
-						}
-					});
-					
-					controller.palmSaleItemsLocalStore.each(function(r){
-						if(r.get('sale_id')==palmSale.id){
-							controller.palmSaleItemsLocalStore.remove(r);
-						}
-						return true;
-					});
-					controller.palmSalesLocalStore.sync();
-					controller.palmSaleItemsLocalStore.sync();
-					controller.salesToSync--;
+					controller.removeLocalPalmSale(controller, palmSale.id);
 				}
 				
 				controller.requestsRemains--;
@@ -124,9 +135,19 @@ Ext.define('app.controller.mag', {
 	},
 	
 	saveCurrentPalmSale: function(){
+		function findMinId(store){
+			var min=0;
+			store.each(function(record){
+				if(min>record.get('id')){
+					min=record.get('id');
+				}
+				return true;
+			});
+			return min;
+		};
 		var controller = this,
-			minPalmSale = -controller.palmSalesLocalStore.getCount() - 1,
-			minPalmSaleItems = -controller.palmSaleItemsLocalStore.getCount(),
+			minPalmSale = findMinId(controller.palmSalesLocalStore) - 1,
+			minPalmSaleItems = findMinId(controller.palmSaleItemsLocalStore),
 			sumTotal = 0,
 			saleItems=[];
 		controller.currentPalmSaleItemsLocalStore.each(function(record){
@@ -296,10 +317,11 @@ Ext.define('app.controller.mag', {
 	},
 	
 	print: function(cmpId){
+		var grid=Ext.getCmp(cmpId);
 		Ext.ux.grid.Printer.printAutomatically=true;
-		Ext.ux.grid.Printer.closeAutomaticallyAfterPrint=false;
+		Ext.ux.grid.Printer.closeAutomaticallyAfterPrint=true;
 		Ext.ux.grid.Printer.extraCSS=['/ext/examples/ux/css/CheckHeader.css'];
-		Ext.ux.grid.Printer.print(Ext.getCmp(cmpId));
+		Ext.ux.grid.Printer.print(grid, ['barcode', 'is_good'], 'Итого: '+grid.store.sum('cost'));
 	},
 	
     init: function() {
@@ -313,6 +335,8 @@ Ext.define('app.controller.mag', {
 					if(e.getKey()==Ext.EventObject.ENTER){
 						var val=field.getValue();
 						
+						field.setValue('');
+						
 						if(val==null || val=='') {
 							return true;
 						}
@@ -321,16 +345,25 @@ Ext.define('app.controller.mag', {
 							errorField = Ext.getCmp('errorField');
 						val = isGood? val.substr(1, val.length-1) : val;
 						var 
-							palmGoods=controller.currentPalmSaleItemsLocalStore.data.findBy(function(record){
-								return (record.get('barcode')==val && record.get('is_good')==isGood);
-							});
-							
-						field.setValue('');
+							palmGoods=controller.currentPalmSaleItemsLocalStore.data.findBy(
+								function(record){
+									var match=false, vals=record.get('barcode').split(',');
+										for(var i=0; i<vals.length; i++){
+											if(vals[i]==val){
+												match=true;
+												break;
+											}
+										}
+									return (match && record.get('is_good')==isGood);
+								}
+							);
 						
 						//если товар уже есть в заказе
 						if(palmGoods!=null){
 							if(!controller.makePalmItemVolume(palmGoods, palmGoods.get('volume') + 1)){
 								errorField.show();
+							} else {
+								errorField.hide();
 							}
 						}
 						//если нет, то надо добавить в заказ из имеющихся в наличии
@@ -484,7 +517,7 @@ Ext.define('app.controller.mag', {
 		};
 		
 		//ХАРДКОД НОМЕРА КОЛОНКИ!!! колонка печати заказа в таблице заказов
-		Ext.getCmp('palmSaleOrdersTable').columns[3].handler=function(view, rowIndex, colIndex) {
+		Ext.getCmp('palmSaleOrdersTable').columns[4].handler=function(view, rowIndex, colIndex) {
 			var
 				sel=Ext.getCmp('palmSaleOrdersTable').getSelectionModel().getSelection(),
 				current=view.store.getAt(rowIndex);
@@ -492,42 +525,51 @@ Ext.define('app.controller.mag', {
 			if(sel!=null && (sel[0]==null || sel[0].get('id')!=current.get('id')) ){
 				controller.palmSaleSelect(current, true);
 			} else {
-				print('palmSaleOrderItemsTable');
+				controller.print('palmSaleOrderItemsTable');
 			}
 		};
 		
 		//ХАРДКОД НОМЕРА КОЛОНКИ!!! колонка удаления заказа в таблице заказов
-		Ext.getCmp('palmSaleOrdersTable').columns[4].handler=function(view, rowIndex, colIndex) {
+		Ext.getCmp('palmSaleOrdersTable').columns[5].handler=function(view, rowIndex, colIndex) {
 			var
 				sel=Ext.getCmp('palmSaleOrdersTable').getSelectionModel().getSelection(),
 				current=view.store.getAt(rowIndex);
 			
-			//если заказ из локального хранилища, то удалить его из локального хранилища
-			if(current.get('id') < 0) {
-				controller.palmSalesLocalStore.remove(current);
-				controller.palmSalesLocalStore.sync();
-			}
-			//иначе отправить запрос на уделение
-			else {
-				Ext.getCmp('palmSaleOrdersTable').setLoading(true);
-				Ext.Ajax.request({
-					url: '/new_mag/palm_sale',
-					timeout: 300000,
-					method: 'DELETE',
-					params: {
-						id: current.get('id')
-					},
-					callback: function(options, success, response){
-						if(success===true){
-						} else {
-							controller.showServerError(response.responseText);
+			//если заказ нельзя удалять, то не удалять
+			if(current.get('closed')){
+				return false;
+			} else {
+			//если можно, то удалить
+				//если заказ из локального хранилища, то удалить его из локального хранилища
+				if(current.get('id') < 0) {
+					controller.removeLocalPalmSale(controller, current.get('id'));
+				}
+				//иначе отправить запрос на уделение
+				else {
+					Ext.getCmp('palmSaleOrdersTable').setLoading(true);
+					Ext.Ajax.request({
+						url: '/new_mag/palm_sale',
+						timeout: 300000,
+						method: 'DELETE',
+						params: {
+							id: current.get('id')
+						},
+						callback: function(options, success, response){
+							if(success===true){
+							} else {
+								controller.showServerError(response.responseText);
+							}
+							Ext.getCmp('palmSaleOrdersTable').setLoading(false);
 						}
-						Ext.getCmp('palmSaleOrdersTable').setLoading(false);
-					}
-				});
+					});
+				}
+				
+				view.store.remove(current);
+				
+				if(view.store.getCount()>0){
+					Ext.getCmp('palmSaleOrdersTable').getSelectionModel().select(0);
+				}
 			}
-			
-			view.store.remove(current);
 		};
 		
 		controller.currentPalmSaleItemsLocalStore = controller.getMagCurrentPalmSaleItemsLocalStore();

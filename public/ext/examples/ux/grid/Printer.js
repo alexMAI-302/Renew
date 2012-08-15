@@ -50,8 +50,10 @@ Ext.define("Ext.ux.grid.Printer", {
         /**
          * Prints the passed grid. Reflects on the grid's column model to build a table, and fills it using the store
          * @param {Ext.grid.Panel} grid The grid to print
+		 * @param {Ext.grid.Panel} columnsToExclude Array of dataIndex names for columns to exclude from grid
+		 * @param {Ext.grid.Panel} bottomText Text after table
          */
-        print: function(grid, extraCSS) {
+        print: function(grid, columnsToExclude, bottomText) {
             //We generate an XTemplate here by using 2 intermediary XTemplates - one to create the header,
             //the other to create the body (see the escaped {} below)
             var columns = [];
@@ -92,7 +94,19 @@ Ext.define("Ext.ux.grid.Printer", {
             var clearColumns = [];
             Ext.each(columns, function (column) {
                 if (column!=null && !Ext.isEmpty(column.dataIndex) && !column.hidden) {
-                    clearColumns.push(column);
+					//удаляем колонки, которые не надо включать
+					var match=false;
+					if(columnsToExclude!=null && Ext.isArray(columnsToExclude) && columnsToExclude.length>0){
+						for(var i=0; i<columnsToExclude.length; i++){
+							if(columnsToExclude[i] == column.dataIndex){
+								match=true;
+								break;
+							}
+						}
+					}
+                    if(!match){
+						clearColumns.push(column);
+					}
                 }
             });
             columns = clearColumns;
@@ -159,6 +173,7 @@ Ext.define("Ext.ux.grid.Printer", {
                         pluginsBodyMarkup.join(''),
                       '</tpl>',
                     '</table>',
+					bottomText,
                   '</body>',
                 '</html>'           
             ];

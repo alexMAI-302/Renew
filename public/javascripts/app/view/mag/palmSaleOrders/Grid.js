@@ -10,6 +10,9 @@ Ext.define('app.view.mag.palmSaleOrders.Grid', {
 			id: 'palmSaleOrdersTable',
 			columns: [
 				{
+					xtype: 'rownumberer'
+				},
+				{
 					xtype: 'datecolumn',
 					width: 120,
 					header: 'Дата и время',
