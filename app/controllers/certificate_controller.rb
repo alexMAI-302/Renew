@@ -5,7 +5,6 @@ require 'base64'
 class CertificateController < ApplicationController
 
   def index
-	logger.info "???"
   end
   
   #получение информации о сертификатах
@@ -14,37 +13,18 @@ class CertificateController < ApplicationController
 	@ndoc=params[:info_ndoc]
 	@goods_name=params[:info_goods_name]
 	
-	logger.info "SELECT
-			c.id,
-			g.short_name goods_name
-		FROM
-			sale_order so
-			JOIN sordgoods sog ON sog.id=so.id
-			JOIN cert_goods cg ON sog.goods = cg.goods
-			join certificate c on c.id = cg.certificate
-			join cert_center cc on c.center = cc.id
-			JOIN goods g ON g.id=sog.goods
-			JOIN buyers b ON b.id=sog.client
-			JOIN payers p ON b.payer=p.id OR p.partner=b.partner
-		WHERE
-			(p.inn=#{ActiveRecord::Base.connection.quote(@inn)} OR p.inn IS NULL)
-			AND
-			so.ndoc=#{ActiveRecord::Base.connection.quote(@ndoc)}
-			AND
-			g.short_name like '%'+#{ActiveRecord::Base.connection.quote(@goods_name)}+'%'
-			AND
-			cg.status=1
-			AND
-			so.ddate BETWEEN c.ddateb AND c.ddatee"
 	begin
 		@res=ActiveRecord::Base.connection.select_all("SELECT
-			c.id,
+			picture.id,
+			picture.ts,
 			g.short_name goods_name
 		FROM
 			sale_order so
 			JOIN sordgoods sog ON sog.id=so.id
 			JOIN cert_goods cg ON sog.goods = cg.goods
 			join certificate c on c.id = cg.certificate
+			JOIN cert_image ci ON ci.certificate=c.id
+			JOIN picture ON picture.id=ci.picture
 			JOIN goods g ON g.id=sog.goods
 			JOIN buyers b ON b.id=sog.client
 			JOIN payers p ON b.payer=p.id OR p.partner=b.partner
@@ -60,6 +40,13 @@ class CertificateController < ApplicationController
 			so.ddate BETWEEN c.ddateb AND c.ddatee")
 	rescue => t
 		logger.info t
+	end
+	
+	if !@res.nil? then
+		@res.each |picture| do
+			if !File.exist("/var/www/renew_test/public/images/certificates/#{picture['id']}.jpg")? then
+			end
+		end
 	end
 	
 	render :partial => 'certificate'
