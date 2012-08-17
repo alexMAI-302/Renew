@@ -51,7 +51,7 @@ class NewMagController < ApplicationController
 				'#{session[:user_id]}',
 				'#{Time.parse(sale["ddate"].gsub(/[T]/, ' ')).strftime('%F %T')}',
 				#{sale["sumtotal"].to_f},
-				'#{items}'
+				#{ActiveRecord::Base.connection.quote(items)}
 			)")
 			render :text => ""
 		when 'delete' then
