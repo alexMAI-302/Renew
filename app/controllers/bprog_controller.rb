@@ -1,5 +1,5 @@
 # encoding: utf-8
-class BprogController < ApplicationController
+class BprogController < ApplicationSimpleErrorController
 
 	def index
 	end

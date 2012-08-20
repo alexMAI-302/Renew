@@ -2,7 +2,7 @@
 require 'spreadsheet'
 Spreadsheet.client_encoding = 'UTF-8'
 
-class TransitController < ApplicationController
+class TransitController < ApplicationSimpleErrorController
 	
 	def index
 		

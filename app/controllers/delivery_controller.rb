@@ -1,4 +1,4 @@
-class DeliveryController < ApplicationController  
+class DeliveryController < ApplicationPageErrorController  
   def index
 	set_conditions	
 	@rst_site = ActiveRecord::Base.connection.select_all( " select id, name from site where istarget = 1 " )

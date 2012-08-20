@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class SellPriceController < ApplicationController
+class SellPriceController < ApplicationSimpleErrorController
 
 	def sell_prices
 		ddateb=(nullify params[:ddateb])[0..9]

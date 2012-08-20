@@ -1,5 +1,5 @@
 # encoding: utf-8
-class GoodsRemainsController < ApplicationController
+class GoodsRemainsController < ApplicationPageErrorController
 
   protect_from_forgery :except => [:autocomplete_goods]
   

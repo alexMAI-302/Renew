@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class SimPlaceController < ApplicationController
+class SimPlaceController < ApplicationSimpleErrorController
 
 	def sim_places
 		ddateb=(nullify params[:ddateb])[0..9]

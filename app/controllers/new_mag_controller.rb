@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class NewMagController < ApplicationController
+class NewMagController < ApplicationSimpleErrorController
 
   def index
   end

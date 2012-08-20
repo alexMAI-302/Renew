@@ -1,5 +1,5 @@
 # encoding: utf-8
-class ScheduleRequestController < ApplicationController
+class ScheduleRequestController < ApplicationSimpleErrorController
 
 	def index
 	end

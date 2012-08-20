@@ -1,5 +1,5 @@
 # encoding: utf-8
-class GeoBuyerController < ApplicationController
+class GeoBuyerController < ApplicationPageErrorController
   
   def index
 	@longitude = 37.498995

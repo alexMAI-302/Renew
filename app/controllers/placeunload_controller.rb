@@ -1,5 +1,5 @@
 # encoding: utf-8
-class PlaceunloadController < ApplicationController
+class PlaceunloadController < ApplicationPageErrorController
 
   protect_from_forgery :except => [:autocomplete_pgroup_name, :autocomplete_partner_name, :autocomplete_buyer_name]
 

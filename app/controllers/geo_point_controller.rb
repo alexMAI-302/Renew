@@ -1,4 +1,4 @@
-class GeoPointController < ApplicationController
+class GeoPointController < ApplicationPageErrorController
   
   def index
 	@longitude = 30

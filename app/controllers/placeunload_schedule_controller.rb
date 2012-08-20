@@ -1,5 +1,5 @@
 # encoding: utf-8
-class PlaceunloadScheduleController < ApplicationController
+class PlaceunloadScheduleController < ApplicationSimpleErrorController
   def index
   end
   

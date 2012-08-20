@@ -1,5 +1,5 @@
 # encoding: utf-8
-class CompController < ApplicationController  
+class CompController < ApplicationPageErrorController  
   def index
 	if params[:post]
 		@loc_id = params[:post][:loc_id].to_i

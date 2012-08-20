@@ -1,5 +1,5 @@
 # encoding: utf-8
-class TermDeliveryController < ApplicationController
+class TermDeliveryController < ApplicationPageErrorController
   layout "application_ocean", :except => "route_print"
 
   def index

@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class ScheduleRequestListController < ApplicationController
+class ScheduleRequestListController < ApplicationPageErrorController
 
 before_filter :authorize
 

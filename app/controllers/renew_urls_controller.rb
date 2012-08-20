@@ -1,4 +1,6 @@
-class RenewUrlsController < ApplicationController
+# encoding: utf-8
+
+class RenewUrlsController < ApplicationPageErrorController
   def index
     set_conditions
     set_order
