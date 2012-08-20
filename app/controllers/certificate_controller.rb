@@ -51,7 +51,7 @@ class CertificateController < ApplicationController
 	if !@res.nil? then
 		@res.each do |picture|
 			actual=false
-			file_name = "/var/www/renew_test/public/images/certificates/#{picture['id']}.jpg"
+			file_name = "./public/images/certificates/#{picture['id']}.jpg"
 			if File.exist?(file_name) then
 				if File.ctime(file_name) >= Time.parse(picture['ts']) then
 					actual=true
