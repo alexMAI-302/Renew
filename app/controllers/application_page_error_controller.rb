@@ -4,6 +4,11 @@
 
 class ApplicationPageErrorController < ApplicationController
   
+  rescue_from ActiveRecord::ActiveRecordError, :with => :show_errors
+  rescue_from ActionController::RoutingError, :with => :render_not_found
+  rescue_from ActionController::UnknownController, :with => :render_not_found
+  rescue_from ActionController::UnknownAction, :with => :render_not_found
+  
   protected
    def show_errors(exception)
 	@error_text=exception.message
