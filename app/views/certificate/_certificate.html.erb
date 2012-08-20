@@ -3,7 +3,7 @@
 		<% @res.each do |cert| %>
 			<tr>
 				<td>
-					<%= image_tag "/certificate/get_certificate?inn=#{@inn}&ndoc=#{@ndoc}&id=#{cert['id']}", :alt=>"#{cert['goods_name']}" %>
+					<a target="blank" href="<%= "/images/certificates/#{cert['id']}.jpg" %>"> <%= cert['goods_name'] %> </a>
 				<td>
 			</tr>
 		<% end %>
