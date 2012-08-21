@@ -29,7 +29,7 @@
 		</tr>
 		<tr>
 			<td>
-				Номер заказа
+				Номер накладной
 			</td>
 			<td>
 				<%= text_field(:info, :ndoc, :value => @ndoc, :size => 50, :maxlength => 255) %>
@@ -37,10 +37,10 @@
 		</tr>
 		<tr>
 			<td>
-				Наименование товара
+				Артикул товара
 			</td>
 			<td>
-				<%= text_field(:info, :goods_name, :value => @goods_name, :size => 50, :maxlength => 255) %>
+				<%= text_field(:info, :goods_code, :value => @goods_name, :size => 50, :maxlength => 255) %>
 			</td>
 		</tr>
 	</table>
