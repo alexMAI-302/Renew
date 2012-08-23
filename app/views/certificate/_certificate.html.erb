@@ -1,0 +1,38 @@
+<% if !@res.nil? %>
+	<table width="100%" border="0">
+		<tr>
+			<th>
+				Номер накладной
+			</th>
+			<th>
+				Код товара
+			</th>
+			<th>
+				Наименование товара
+			</th>
+			<th>
+				Сертификат
+			</th>
+		</tr>
+		<% @certificates.each do |key, cert| %>
+			<tr>
+				<td>
+					<%= cert['ndoc'] %>
+				</td>
+				<td>
+					<%= cert['goods_code'] %>
+				</td>
+				<td>
+					<%= cert['goods_name'] %> </a>
+				</td>
+				<td>
+					<a target="blank" href="<%= "/certificate/certificate_pages?pictures=#{cert['picture_ids'].join(',')}&certificate_number=#{cert['certificate_number']}&goods_name=#{cert['goods_name']}" %>">
+						<%= cert['certificate_number'] %>
+					</a>
+				</td>
+			</tr>
+		<% end %>
+	</table>
+<% else %>
+	По вашему запрсу ничего не найдено
+<% end %>

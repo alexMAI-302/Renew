@@ -1,5 +1,5 @@
 # encoding: utf-8
-class MagController < ApplicationController
+class MagController < ApplicationPageErrorController
   layout "mag"
   
   before_filter :authorize_mag, :except => :login 

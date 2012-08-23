@@ -1,4 +1,4 @@
-class GeoRouteController < ApplicationController
+class GeoRouteController < ApplicationPageErrorController
   
   def index
 	@rst = ActiveRecord::Base.connection.select_all("

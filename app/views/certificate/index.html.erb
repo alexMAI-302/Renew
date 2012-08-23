@@ -1,0 +1,58 @@
+<% content_for :title do %>
+Сертификаты
+<%	end -%>
+
+<% content_for :js do %>
+	<script type="text/javascript">
+		function before_query(){
+			$('certificate').hide();
+			$('load_spinner').show();
+		};
+		
+		function after_query(){
+			$('load_spinner').hide();
+			$('certificate').show();
+		};
+	</script>
+	
+<%	end -%>
+
+<% content_for :content do %>
+	<table>
+		<tr>
+			<td>
+				ИНН
+			</td>
+			<td>
+				<%= text_field(:info, :inn, :value => @inn, :size => 50, :maxlength => 255) %>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Номер накладной
+			</td>
+			<td>
+				<%= text_field(:info, :ndoc, :value => @ndoc, :size => 50, :maxlength => 255) %>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Артикул товара
+			</td>
+			<td>
+				<%= text_field(:info, :goods_code, :value => @goods_name, :size => 50, :maxlength => 255) %>
+			</td>
+		</tr>
+	</table>
+	<br/>
+	<%= link_to_remote 'Просмотреть сертификаты', :update => 'certificate', :url =>'/certificate/certificate_info', :with => "'info_inn='+$('info_inn').value + '&info_ndoc='+$('info_ndoc').value + '&info_goods_name='+$('info_goods_name').value", :before => 'before_query();', :complete => "after_query();"
+	%>
+	<br/>
+	<br/>
+	<%= image_tag('ajax-loader.gif', :id => 'load_spinner', :style => 'display:none') %>
+	<div id="certificate">
+		<%= render :partial => "certificate" %>
+	</div>
+<% end -%>
+
+<% render :file => 'layouts/application' %>

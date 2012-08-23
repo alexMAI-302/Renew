@@ -55,18 +55,6 @@ Ext.define('app.controller.placeunloadSchedule', {
 				}
 			}
 		});
-	
-		var mainContainer=Ext.create('Ext.container.Container', {
-			layout: {
-				type: 'fit'
-			},
-			renderTo: Ext.get('placeunload_schedule_js'),
-			defaults: {
-				style: {
-					margin: '10px'
-				}
-			}
-		});
 		
 		var filterPanel=Ext.create('Ext.form.Panel',{
 			layout: {
@@ -106,7 +94,6 @@ Ext.define('app.controller.placeunloadSchedule', {
 		
 		filterPanel.add(salesmansCombo);
 		filterPanel.add(filterSchedule);
-		mainContainer.add(filterPanel);
 		
 		var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
 			clicksToEdit: 1
@@ -117,6 +104,9 @@ Ext.define('app.controller.placeunloadSchedule', {
 			id: gridId,
 			title: 'График доставок',
 			store: scheduleStore,
+			height: '92%',
+			region: 'north',
+			autoScroll: true,
 			columns: [
 				{
 					width: 300,
@@ -188,6 +178,19 @@ Ext.define('app.controller.placeunloadSchedule', {
 			plugins: [cellEditing]
 		});
 		
-		mainContainer.add(schedulePanel);
+		var mainContainer=Ext.create('Ext.panel.Panel', {
+			height: 600,
+			layout: 'border',
+			resizable: true,
+			renderTo: Ext.get('placeunload_schedule_js'),
+			items: [
+				{
+					region: 'north',
+					xtype: 'panel',
+					items: [filterPanel]
+				},
+				schedulePanel
+			]
+		});
 	}
 });

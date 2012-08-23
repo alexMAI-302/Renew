@@ -4,7 +4,7 @@ Ext.define('app.model.mag.palmSaleItemModel', {
 		{name: 'id'			, type: 'string'},
 		{name: 'goods_id'	, type: 'int'},
 		{name: 'barcode'	, type: 'string'},
-		{name: 'name'		, type: 'string'},
+		{name: 'name'		, type: 'string',	persist: false},
 		{name: 'price'		, type: 'float'},
 		{name: 'volume'		, type: 'int'},
 		{name: 'cost'		, type: 'float'},

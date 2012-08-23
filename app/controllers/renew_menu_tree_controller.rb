@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class RenewMenuTreeController < ApplicationController
+class RenewMenuTreeController < ApplicationSimpleErrorController
   def index
   end
   

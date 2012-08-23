@@ -1,6 +1,6 @@
 # encoding: utf-8
 # Группы пользователей
-class RenewUserGroupsController < ApplicationController
+class RenewUserGroupsController < ApplicationPageErrorController
   def index
     @renew_user_groups = RenewUserGroup.all(:order => "name")
 

@@ -8,3 +8,13 @@ require 'rake/testtask'
 require 'rake/rdoctask'
 
 require 'tasks/rails'
+
+desc "clear certificates"
+task :clear_certificates do
+	d = Dir.new("#{RAILS_ROOT}/public/images/certificates")
+	d.each do |filename|
+		if filename.end_with? ".jpg" then
+			File.delete("#{RAILS_ROOT}/public/images/certificates/#{filename}")
+		end
+	end
+end

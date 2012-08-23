@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class NewMagController < ApplicationController
+class NewMagController < ApplicationSimpleErrorController
 
   def index
   end
@@ -28,7 +28,8 @@ class NewMagController < ApplicationController
 				id,
 				ddate,
 				sumtotal,
-				is_sync
+				is_sync,
+				closed
 			FROM
 				renew_web.get_mag_sales(
 				'#{session[:user_id]}',
@@ -39,7 +40,7 @@ class NewMagController < ApplicationController
 	end
   end
   
-  def palm_sale_save
+  def palm_sale
   
 	case request.method.to_s
 		when 'post' then
@@ -50,10 +51,17 @@ class NewMagController < ApplicationController
 				'#{session[:user_id]}',
 				'#{Time.parse(sale["ddate"].gsub(/[T]/, ' ')).strftime('%F %T')}',
 				#{sale["sumtotal"].to_f},
-				'#{items}'
+				#{ActiveRecord::Base.connection.quote(items)}
 			)")
 			render :text => ""
+		when 'delete' then
+			id=params[:id].to_i
+			ActiveRecord::Base.connection.execute("
+			DELETE FROM palm_saleitemmagaz WHERE sale_id = #{id};
+			DELETE FROM palm_sale WHERE sale_id = #{id};")
+			render :text => ""
 	end
+	
   end
   
   def palm_sale_items

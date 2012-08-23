@@ -1,4 +1,6 @@
-class RenewPlanController < ApplicationController
+# encoding: utf-8
+
+class RenewPlanController < ApplicationSimpleErrorController
 
   def get_renew_plans
 	ddateb="'#{params[:ddateb]}'"

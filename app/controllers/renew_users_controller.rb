@@ -1,4 +1,6 @@
-class RenewUsersController < ApplicationController
+# encoding: utf-8
+
+class RenewUsersController < ApplicationPageErrorController
   def index
     @renew_users = RenewUser.all(:order => "name")
 

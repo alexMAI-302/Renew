@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class UtilDataController < ApplicationController
+class UtilDataController < ApplicationSimpleErrorController
 
   def get_menu
 	main_subjects=ActiveRecord::Base.connection.select_all("

@@ -1,5 +1,5 @@
 # encoding: utf-8
-class SouthwmsCellsController < ApplicationController
+class SouthwmsCellsController < ApplicationSimpleErrorController
 	
 	def index
 		

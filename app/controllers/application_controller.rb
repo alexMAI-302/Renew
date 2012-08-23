@@ -9,11 +9,6 @@ class ApplicationController < ActionController::Base
 
   # Scrub sensitive parameters from your log
   filter_parameter_logging :password
-  
-  rescue_from ActiveRecord::ActiveRecordError, :with => :show_errors
-  rescue_from ActionController::RoutingError, :with => :render_not_found
-  rescue_from ActionController::UnknownController, :with => :render_not_found
-  rescue_from ActionController::UnknownAction, :with => :render_not_found
 
   before_filter :store_location, :except => [:login, :logout]
   before_filter :check_access
@@ -61,23 +56,4 @@ class ApplicationController < ActionController::Base
 		end
 	end
   end
-  
-  protected
-   def show_errors(exception)
-	@error_text=exception.message
-	if @error_text.index("-57010") then
-		@error_text.insert(6," Не найдены агенты для маршрутов ")
-	end
-	
-	render :template => "/errors/500.html.erb", :status => 500
-  end
-  
-  protected
-  def render_not_found(exception)
-	@error_text="Запрашиваемый Вами ресурс #{request.request_uri} не найден"
-	
-	render :template => "/errors/500.html.erb", :status => 404
-  end
-  
-  
 end

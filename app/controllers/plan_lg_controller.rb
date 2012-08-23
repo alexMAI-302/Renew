@@ -1,4 +1,4 @@
-class PlanLgController < ApplicationController
+class PlanLgController < ApplicationPageErrorController
 
   def index
 

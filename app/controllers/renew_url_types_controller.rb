@@ -1,4 +1,6 @@
-class RenewUrlTypesController < ApplicationController
+# encoding: utf-8
+
+class RenewUrlTypesController < ApplicationPageErrorController
   def index
     @renew_url_types = RenewUrlType.all
 	

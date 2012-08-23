@@ -13,5 +13,6 @@ Ext.define('app.model.mag.palmSaleModel', {
 		}
 	},
 	{name: 'sumtotal'	, type: 'float'},
-	{name: 'is_sync'	, type: 'bool'}]
+	{name: 'is_sync'	, type: 'bool'},
+	{name: 'closed'		, type: 'bool'}]
 });

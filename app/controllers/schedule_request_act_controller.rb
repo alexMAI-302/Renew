@@ -1,5 +1,5 @@
 # encoding: utf-8
-class ScheduleRequestActController < ApplicationController
+class ScheduleRequestActController < ApplicationPageErrorController
 	def index
 		@act=params[:act]
 		@id=params[:id]

@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class BuyersRouteController < ApplicationController
+class BuyersRouteController < ApplicationPageErrorController
   
   def index
 	set_conditions

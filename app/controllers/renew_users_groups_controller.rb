@@ -1,4 +1,6 @@
-class RenewUsersGroupsController < ApplicationController
+# encoding: utf-8
+
+class RenewUsersGroupsController < ApplicationPageErrorController
   def index
     set_conditions
   

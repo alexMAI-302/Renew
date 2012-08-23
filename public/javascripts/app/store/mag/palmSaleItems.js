@@ -2,5 +2,8 @@
 Ext.define('app.store.mag.palmSaleItems', {
 	extend: 'Ext.data.Store',
 
-	model: 'app.model.mag.palmSaleItemModel'
+	model: 'app.model.mag.palmSaleItemModel',
+	proxy: {
+        type: 'memory'
+	}
 });

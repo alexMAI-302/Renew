@@ -1,6 +1,6 @@
 # encoding: utf-8
 # терминалы
-class PpsZoneController < ApplicationController
+class PpsZoneController < ApplicationSimpleErrorController
 
   def index
 

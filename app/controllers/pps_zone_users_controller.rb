@@ -1,5 +1,5 @@
 # encoding: utf-8
-class PpsZoneUsersController < ApplicationController
+class PpsZoneUsersController < ApplicationSimpleErrorController
 
   def index
 
