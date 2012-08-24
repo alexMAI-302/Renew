@@ -60,7 +60,7 @@ Ext.define('app.view.movementDiff.diffs.Filter', {
 		displayField: 'name',
 		valueField: 'id',
 		name: 'siteTo',
-		fieldLabel: 'Площадка отправителя',
+		fieldLabel: 'Площадка получателя',
 		width: 300,
 		labelWidth: 150
 	}]

@@ -165,22 +165,44 @@ Ext.define('app.controller.movementDiff', {
 			},
 			'#clearDiff': {
 				"click": function(button, e){
-					var siteSrc, siteDest, ndocSO, ndocSup, ids = [];
-					var ddateb = new Date(Ext.getCmp('startDate').getValue()),
-						ddatee = new Date(Ext.getCmp('endDate').getValue());
+					var ids = [];
 					
 					switch(button.ownerCt.down('#actionType').value){
 						case 1:
-							siteSrc = button.ownerCt.down('#siteSrcAction').getValue;
+							var siteSrc=button.ownerCt.down('#siteSrcAction').getValue();
+							controller.movementDiffStore.each(function(record){
+								if(record.get('site_src_id')==siteSrc){
+									ids.push(record.get('id'));
+								}
+								return true;
+							});
 						break;
 						case 2:
-							siteDest = button.ownerCt.down('#siteDestAction').getValue;
+							var siteDest = button.ownerCt.down('#siteDestAction').getValue();
+							controller.movementDiffStore.each(function(record){
+								if(record.get('site_dest_id')==siteDest){
+									ids.push(record.get('id'));
+								}
+								return true;
+							});
 						break;
 						case 3:
-							ndocSO = button.ownerCt.down('#ndocSOAction').getValue;
+							var ndocSO = button.ownerCt.down('#ndocSOAction').getValue();
+							controller.movementDiffStore.each(function(record){
+								if(record.get('ndoc_so')==ndocSO){
+									ids.push(record.get('id'));
+								}
+								return true;
+							});
 						break;
 						case 4:
-							ndocSup = button.ownerCt.down('#ndocSupAction').getValue;
+							var ndocSup = button.ownerCt.down('#ndocSupAction').getValue();
+							controller.movementDiffStore.each(function(record){
+								if(record.get('ndoc_sup')==ndocSup){
+									ids.push(record.get('id'));
+								}
+								return true;
+							});
 						break;
 						case 5:
 							controller.movementDiffStore.each(function(record){
@@ -189,7 +211,7 @@ Ext.define('app.controller.movementDiff', {
 								}
 								return true;
 							});
-							break;
+						break;
 					}
 					
 					controller.mainContainer.setLoading(true);
@@ -218,6 +240,7 @@ Ext.define('app.controller.movementDiff', {
 			controller.mainContainer.setLoading(false);
 		}
 		
+		Ext.Ajax.timeout = 60000;
 		Ext.Ajax.request.failure = showServerError;
 	},
 	
@@ -254,5 +277,17 @@ Ext.define('app.controller.movementDiff', {
 		Ext.getCmp('siteDestAction').bindStore(controller.sitesDestClearStore);
 		Ext.getCmp('ndocSOAction').bindStore(controller.ndocsSOClearStore);
 		Ext.getCmp('ndocSupAction').bindStore(controller.ndocsSupClearStore);
+		
+		controller.sitesStore.addListener(
+			"load",
+			function(store, records, successful, operation, options ){
+				if(successful==true){
+					var r=Ext.ModelManager.create({id: -1, name : 'ВСЕ'}, 'app.model.valueModel');
+					store.insert(0, r);
+					Ext.getCmp('siteFrom').select(r);
+					Ext.getCmp('siteTo').select(r);
+				}
+			}
+		);
 	}
 });
