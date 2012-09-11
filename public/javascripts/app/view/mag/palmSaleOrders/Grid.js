@@ -22,7 +22,8 @@ Ext.define('app.view.mag.palmSaleOrders.Grid', {
 				{
 					width: 90,
 					header: 'Сумма заказа',
-					dataIndex: 'sumtotal'
+					dataIndex: 'sumtotal',
+					summaryType: 'sum'
 				},
 				{
 					width: 100,
@@ -55,6 +56,9 @@ Ext.define('app.view.mag.palmSaleOrders.Grid', {
 					}
 				}
 			],
+			features: [{
+				ftype: 'summary'
+			}],
 			tbar: [
 				{
 					text: 'Синхронизировать заказы',
