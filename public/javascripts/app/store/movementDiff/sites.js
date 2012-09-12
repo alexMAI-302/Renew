@@ -10,12 +10,5 @@ Ext.define('app.store.movementDiff.sites', {
 			type: 'json'
 		}
 	},
-	autoLoad: true,
-	listeners: {
-		"load": function(store, records, successful, operation, options ){
-			if(successful==true){
-				store.insert(0, Ext.ModelManager.create({id: -1, name : 'ВСЕ'}, 'app.model.valueModel'));
-			}
-		}
-	}
+	autoLoad: true
 });
