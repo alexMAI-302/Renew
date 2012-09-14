@@ -511,15 +511,13 @@ if (root){
 				<br/>	
 				<%=  select(:post, :spv_id, @zone_type_list, {:selected => @spv_id}) %>
 				<br/>	
-				<% if !@shift.nil? and @shift>0 -%>
-					<%=  select(:post, :shift, @zone_shift_list , {:selected => @shift}) %>
-				<% else -%>
-					<b>Нет смен</b>
-				<% end -%>
-				<br/>
 				<label for="ddate">Дата</label>
 				<%=text_field_tag :ddate, @ddate %> 
 				<br/>
+				<label for="ddate">Только c ошибками</label>
+				<%= check_box(:post, :err_only, :class => "err_only", :value => @err_only, :checked => @err_only==0 ? false : true) %>
+				<br/>
+				
 				<label for="ddate">Только в маршруте </label>
 				<%= check_box(:post, :show_inroute, :class => "show_inroute", :value => @show_inroute, :checked => @show_inroute==0 ? false : true) %>
 				<br/>
