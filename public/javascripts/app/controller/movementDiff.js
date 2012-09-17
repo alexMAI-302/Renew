@@ -171,7 +171,7 @@ Ext.define('app.controller.movementDiff', {
 						case 1:
 							var siteSrc=button.ownerCt.down('#siteSrcAction').getValue();
 							controller.movementDiffStore.each(function(record){
-								if(record.get('site_src_id')==siteSrc){
+								if(record.get('site_src_id')==siteSrc || siteSrc==-1){
 									ids.push(record.get('id'));
 								}
 								return true;
@@ -180,7 +180,7 @@ Ext.define('app.controller.movementDiff', {
 						case 2:
 							var siteDest = button.ownerCt.down('#siteDestAction').getValue();
 							controller.movementDiffStore.each(function(record){
-								if(record.get('site_dest_id')==siteDest){
+								if(record.get('site_dest_id')==siteDest || siteDest==-1){
 									ids.push(record.get('id'));
 								}
 								return true;
@@ -189,7 +189,7 @@ Ext.define('app.controller.movementDiff', {
 						case 3:
 							var ndocSO = button.ownerCt.down('#ndocSOAction').getValue();
 							controller.movementDiffStore.each(function(record){
-								if(record.get('ndoc_so')==ndocSO){
+								if(record.get('ndoc_so')==ndocSO || ndocSO==-1){
 									ids.push(record.get('id'));
 								}
 								return true;
@@ -198,7 +198,7 @@ Ext.define('app.controller.movementDiff', {
 						case 4:
 							var ndocSup = button.ownerCt.down('#ndocSupAction').getValue();
 							controller.movementDiffStore.each(function(record){
-								if(record.get('ndoc_sup')==ndocSup){
+								if(record.get('ndoc_sup')==ndocSup || ndocSup==-1){
 									ids.push(record.get('id'));
 								}
 								return true;
