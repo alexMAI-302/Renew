@@ -105,7 +105,7 @@ class CompController < ApplicationPageErrorController
 	  @cl = CompLocation.find(:all, :conditions => "id in (select loc_id from comp_user where name like '#{session[:user_id]}') or not exists( select 1 from comp_user where name like '#{session[:user_id]}' )").collect {|p| [ p.name, p.id ] }
 	  @osmp_person = ActiveRecord::Base.connection.select_all( "select distinct p.person_id id, p.shortened name 
 	                  from emp_rel r join person  p on p.person_id = r.person_id 
-					  where r.dept_id in (select id from emp_dept where (parent_id = 93 or id in (335,351,405,410,466))) and (r.ddatee is null or today() between ddateb and ddatee)
+					  where r.dept_id in (select id from emp_dept where (parent_id = 93 or id in (335,351,405,410,466, 494))) and (r.ddatee is null or today() between ddateb and ddatee)
                       order by 2").collect {|p| [ p["name"], p["id"] ] }
 	  @osmp_terminal = Component.rst_terminal.collect {|p| [ p["code"], p["id"] ] }
   end
