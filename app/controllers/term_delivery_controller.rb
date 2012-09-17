@@ -3,7 +3,6 @@ class TermDeliveryController < ApplicationPageErrorController
   layout "application_ocean", :except => "route_print"
 
   def index
-	set_conditions	
 	@longitude = 30
 	@latitude = 50
 
@@ -54,7 +53,7 @@ class TermDeliveryController < ApplicationPageErrorController
 	logger.info "save_osh="
 	logger.info @save_osh.to_s
 			
-	@rst_term = ActiveRecord::Base.connection.select_all( "select * from spp.Terminal_Delivery('#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',#{@subdealer},#{@spv_id},'#{@ddate}',#{@shift}, #{@show_inroute})")														   
+	@rst_term = ActiveRecord::Base.connection.select_all( "select * from spp.Terminal_Delivery('#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',#{@subdealer},#{@spv_id},'#{@ddate}',#{@err_only}, #{@show_inroute})")														   
 	zone=""
 	@rst_route = []
 	i=0
@@ -78,7 +77,7 @@ class TermDeliveryController < ApplicationPageErrorController
 	date=params[:date]
 	
 	set_conditions	
-	s = "select * from spp.Terminal_Delivery(@renew_user='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}', @subdealerID= #{@subdealer}, @zone_type=#{@spv_id},@ddate='#{@ddate}',@shift=#{@shift}, @show_inroute= #{@show_inroute}, @zone=#{zone})"
+	s = "select * from spp.Terminal_Delivery(@renew_user='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}', @subdealerID= #{@subdealer}, @zone_type=#{@spv_id},@ddate='#{@ddate}',@err_only=#{@err_only}, @show_inroute= #{@show_inroute}, @zone=#{zone})"
 	logger.info s
 	@rst_term = ActiveRecord::Base.connection.select_all( s)														   
 	
@@ -88,11 +87,6 @@ end
   
   	def save_terminal	
 		begin 
-			if params[:shift]
-				@shift = params[:shift][:shift].to_i
-			else
-				@shift = session[:shift] if session[:shift]
-			end
 			if params[:a]
 				params[:a].delete_if do | key, value |
 					 value[:modified] == "0" || value[:zone_check] == "0" 
@@ -108,7 +102,7 @@ end
 					@ddate=Date.today().to_s
 				end 
 				@xml = params.to_xml(:only => [:a])
-				s = "begin declare @r int;  @r = call spp.Terminal_DeliverySave('#{@xml}','#{@ddate}',#{@shift}); commit; select @r r; end;"
+				s = "begin declare @r int;  @r = call spp.Terminal_DeliverySave('#{@xml}','#{@ddate}'); commit; select @r r; end;"
 				r = ActiveRecord::Base.connection.select_value(s)
 			end
 		rescue ActiveRecord::StatementInvalid => exc
@@ -265,7 +259,6 @@ end
 def term_update_servstatus
 		logger.info "term_update_servstatus"
 		@terminalid = params[:terminalid].to_i
-		@shift = session[:shift]
 		@ddate = session[:ddate]
 		@spv_id = session[:spv_id]
 		req = "
@@ -277,7 +270,7 @@ def term_update_servstatus
 								join delivery on delivery.id=r.delivery
 								join agents on delivery.securer=agents.id
 								join pps_zone on pps_zone.name=agents.name 
-						where	delivery.ddate =(select cast('#{@ddate}' as date) +pps_zone_shift.delivery_time from pps_zone_shift where #{@shift}=pps_zone_shift.id) and 
+						where	cast( delivery.ddate as date) =cast('#{@ddate}' as date) and 
 								ot.pps_terminal = #{@terminalid} and
 								pps_zone.spv_id=#{@spv_id}";
 		@value=ActiveRecord::Base.connection.select_value(req);
@@ -336,7 +329,7 @@ private
   def set_conditions
 	@subdealer = 7
 	@spv_id = 5626
-	@shift = -1
+	@err_only= -1
 	logger.info "this"+params.to_s
 	@show_inroute = -1
 	if params[:post] 
@@ -344,16 +337,15 @@ private
 		session[:subdealer]  = @subdealer
 		@spv_id = params[:post][:spv_id].to_i
 		session[:spv_id]  = @spv_id
-		@shift = params[:post][:shift].to_i
-		session[:shift]  = @shift
-		
+		@err_only = params[:post][:err_only].to_i
+		session[:err_only ] = @err_only
 		@show_inroute = params[:post][:show_inroute].to_i
 		session[:show_inroute]  = @show_inroute
 		logger.info "params@show_inroute="+@show_inroute.to_s
 	else
 		@subdealer = session[:subdealer] if session[:subdealer]
 		@spv_id = session[:spv_id] if session[:spv_id]
-		@shift = session[:shift] if session[:shift]
+		@err_only = session[:err_only] if session[:err_only]
 		@show_inroute = session[:show_inroute] if session[:show_inroute]
 		logger.info "session@show_inroute="+@show_inroute.to_s
 	end
@@ -364,15 +356,13 @@ private
 	else
 		session[:ddate] = @ddate
 	end
-	logger.info "1@shift="+@shift.to_s
-	if @shift.nil? or @shift<=0 then 
-		@shift=ActiveRecord::Base.connection.select_value("	SELECT fn_get_zone_shift( #{@spv_id})")
-		if @shift.nil? then
-			@shift = -1
-		end
-		session[:shift]  = @shift
-		logger.info "2@shift="+@shift.to_s
-	end 
+	
+	logger.info "2@err_only="
+	logger.info @err_only.to_s
+	if @err_only.nil?
+		@err_only= -1
+	end
+	
  end
  
   
