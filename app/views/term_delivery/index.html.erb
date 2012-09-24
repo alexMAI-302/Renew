@@ -673,7 +673,7 @@ if (root){
 							
 							<td width="3%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%=  i+1 %></td>							
 							<td width="8%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["zone_name"]%></td>
-							<td width="4%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%=  a["terminalid"] %></td>
+							<td width="4%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%=  a["real_terminalid"] %></td>
 							<td width="17%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%=  a["name"] %></td>
 							<% if (@spv_id==5626) -%><td width="6%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%=  a["summ"] %></td> <% end -%>
 							<% if (@spv_id==5626) -%><td width="6%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["cnt"] %></td> <% end -%>
