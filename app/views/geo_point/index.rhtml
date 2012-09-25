@@ -1,158 +1,19 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
 <%= stylesheet_link_tag :all, :media => "all" %>
-
-<head>
 <% content_for :js do %>
-    <script src="http://api-maps.yandex.ru/1.1/index.xml?key=ADh8UkwBAAAA-f5qPAIAXlBgstzuwer3VtCIdJ9TLbfB6WoAAAAAAAAAAADcdhGtjFd6a6RPHi8luz3UxLa8JA==" type="text/javascript">
-	</script>
+    <script src="http://api-maps.yandex.ru/2.0/?load=package.full&mode=debug&lang=ru-RU" type="text/javascript"></script>
+    <%= javascript_include_tag "geo" %>
     <script type="text/javascript">
 		var map;
 		var pp = <%= @rst_new %> ; 
 		var placemarks = new Array;
 		var current_id = 0;
 		var main_city = <%= @city_list %>;
-        window.onload  = function () {
-            map = new YMaps.Map(document.getElementById("YMapsID"));
-            map.setCenter(new YMaps.GeoPoint(<%= @longitude %> , <%= @latitude %>), 13);
-      
-  	        map.addControl(new YMaps.TypeControl());
-            map.addControl(new YMaps.Zoom());
-            
-			for (var i = 0; i < pp.length; i++) {
-				placemarks[i] = new YMaps.Placemark(new YMaps.GeoPoint(pp[i].longitude, pp[i].latitude), 
-				{style: "default#bankIcon", draggable: false,
-				balloonOptions: {
-						maxWidth: 100,
-						mapAutoPan: 0
-				}
-				});
-				placemarks[i].description = pp[i].pname;
-				map.addOverlay(placemarks[i]);
-				YMaps.Events.observe(placemarks[i], placemarks[i].Events.DragEnd, function (obj) {
-					$('a_' + current_id + '_longitude').value = Math.round(obj.getGeoPoint().getLng()*1000000)/1000000;
-					$('a_' + current_id + '_latitude').value  = Math.round(obj.getGeoPoint().getLat()*1000000)/1000000;
-					$('a_' + current_id + '_ismanual').checked = true;
-					on_needsave(current_id);
-				});
-            };
-            YMaps.Events.observe(map, map.Events.Click, function (map, mEvent) {
-				for (var i = 0; i < pp.length; i++) {
-					if (pp[i].id == current_id) {
-						placemarks[i].setGeoPoint(mEvent.getGeoPoint());
-					};
-				};
-				$('a_' + current_id + '_longitude').value = Math.round(mEvent.getGeoPoint().getLng()*1000000)/1000000;
-			    $('a_' + current_id + '_latitude').value  = Math.round(mEvent.getGeoPoint().getLat()*1000000)/1000000;
-				$('a_' + current_id + '_ismanual').checked = true;
-				on_needsave(current_id);
-            });
-
-        };
-
-		function find_addr(sid){ 
-			var srcaddress = $('a_' + sid + '_srcaddress').value;
-			var geocoder = new YMaps.Geocoder(srcaddress);
-			
-			on_select( sid );
-			
-			// Создание обработчика для успешного завершения геокодирования
-            YMaps.Events.observe(geocoder, geocoder.Events.Load, function () {
-				var n = this.length();
-				var geoResult;
-				if (n>0) {
-						geoResult = this.get(0);
-				}else {
-					alert("Ничего не найдено!");
-					return;
-				};
-				
-				if (geoResult.kind == "country" || geoResult.kind == "province" || geoResult.kind == "district") {
-					alert("Слишком общий адрес!");
-					return;
-				};
-				if (geoResult.kind == 'locality') {
-					for (var i = 0; i < main_city.length; i++) { 
-						try {
-							if (geoResult.AddressDetails.Country.Locality.LocalityName == main_city[i].city) {
-								alert("Не могу найти улицу в городе!");
-								return;
-							};
-						}
-						catch(e) {
-								;
-						};
-						try {
-							if (geoResult.AddressDetails.Country.AdministrativeArea.Locality.LocalityName == main_city[i].city) {
-								alert("Не могу найти улицу в области!");
-								return;
-							};
-						}
-						catch(e) {
-								;
-						};
-					};
-				};
-				map.setCenter(geoResult.getGeoPoint(), 13);
-				for (var i = 0; i < pp.length; i++) {
-					if (pp[i].id == sid) {
-							placemarks[i].setGeoPoint(geoResult.getGeoPoint());
-							placemarks[i].setOptions({style: "default#workshopIcon", draggable: true});
-							placemarks[i].openBalloon();
-							$('a_' + sid + '_fulladdress').value = geoResult.text;
-							$('a_' + sid + '_needsave').checked = true;
-					}
-					else {
-						placemarks[i].setOptions({style: "default#bankIcon", draggable: false});
-					};
-				};
-				$('a_' + current_id + '_longitude').value = Math.round(geoResult.getGeoPoint().getLng()*1000000)/1000000;
-				$('a_' + current_id + '_latitude').value  = Math.round(geoResult.getGeoPoint().getLat()*1000000)/1000000;
-            });
-
-            // Процесс геокодирования завершен неудачно
-            YMaps.Events.observe(geocoder, geocoder.Events.Fault, function (geocoder, error) {
-                alert("Произошла ошибка: " + error);
-            })
-			
-		};
-		function on_needsave( sid ){
-			$('a_' + sid + '_needsave').checked = true;
-		};
-		function on_select( sid ){
-			var pred_id=0;
-			var longitude = parseFloat($('a_' + sid + '_longitude').value);
-			var latitude = parseFloat($('a_' + sid + '_latitude').value);
-			
-			if ( !isNaN(longitude) && !isNaN(latitude) ) {
-				map.setCenter(new YMaps.GeoPoint( longitude, latitude), 13);
-				for (var i = 0; i < pp.length; i++) {
-					if (pp[i].id == sid) {
-							placemarks[i].setOptions({style: "default#workshopIcon", draggable: true});
-							placemarks[i].openBalloon();
-					}
-					else {
-						placemarks[i].setOptions({style: "default#bankIcon", draggable: false});
-					};
-				};	
-			};
-			$$('tr.rdata').each(function(d){
-				d.style.backgroundColor = 'transparent';
-			});
-			$('row_' + sid ).style.backgroundColor = 'yellow';
-			pred_id = current_id; 
-			current_id = sid;
-			for (var i = 0; i < pp.length; i++) {
-				if (pp[i].id == current_id) {
-					placemarks[i].setOptions({style: "default#workshopIcon", draggable: true});
-				}
-				else {
-					if (pp[i].id == pred_id) { 
-						placemarks[i].setOptions({style: "default#bankIcon", draggable: false});
-					};
-				};
-			};
-		};
+		var unact;
+		ymaps.ready(function(){
+			unact=new Unact();
+			unact.geo.init([<%= @latitude %>, <%= @longitude %>])
+		});
+		
 		function start_proc(){
 			$('spinner1').show();
 			$('results').update('Подождите, пожалуйста.....');
@@ -160,9 +21,6 @@
 
     </script>
 <% end %>
-</head>
-
-<body>
 <% content_for :title do %>
 Координаты терминалов
 <%	end -%>
@@ -194,5 +52,3 @@
 		<%= render(:partial => "point_list" ) %>
 	</div>
 <% end %>
-</body>
-</html>
