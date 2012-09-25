@@ -1,8 +1,5 @@
-﻿<html>
-<!--<%= stylesheet_link_tag :all, :media => "all" %>-->
-<head>
 <% content_for :js do %>
-    <script src="http://api-maps.yandex.ru/1.1/index.xml?key=ADh8UkwBAAAA-f5qPAIAXlBgstzuwer3VtCIdJ9TLbfB6WoAAAAAAAAAAADcdhGtjFd6a6RPHi8luz3UxLa8JA==" type="text/javascript">
+    <script src="http://api-maps.yandex.ru/2.0/?load=package.full&mode=debug&lang=ru-RU" type="text/javascript"></script>
 	</script>
 	<%= javascript_include_tag :defaults %>
     <script type="text/javascript">
@@ -12,108 +9,119 @@
 		var current_id = 0;
 		var isadr = 0;
 		var main_city = [{"city": "Москва"}];
-        window.onload  = function () {
-            map = new YMaps.Map(document.getElementById("YMapsID"));
-            map.setCenter(new YMaps.GeoPoint(<%= @longitude %> , <%= @latitude %>), 13);
+        ymaps.ready(function(){
+			map = new ymaps.Map("YMapsID",
+				{
+					center: [<%= @latitude %>, <%= @longitude %>],
+					zoom: 13,
+			        behaviors: ["default", "scrollZoom"]
+				});
       
-  	        map.addControl(new YMaps.TypeControl());
-            map.addControl(new YMaps.Zoom());
+  	        // Добавление элементов управления
+            map.controls.add("zoomControl");
+            map.controls.add("typeSelector");
             
 			for (var i = 0; i < pp.length; i++) {
-				placemarks[i] = new YMaps.Placemark(new YMaps.GeoPoint(pp[i].longitude, pp[i].latitude), 
-				{style: "default#shopIcon", draggable: false,
-				balloonOptions: {
-						maxWidth: 100,
-						mapAutoPan: 0
-				}
-				});
-				placemarks[i].description = pp[i].pname;
-				map.addOverlay(placemarks[i]);
-				YMaps.Events.observe(placemarks[i], placemarks[i].Events.DragEnd, function (obj) {
-					$('a_' + current_id + '_longitude').value = Math.round(obj.getGeoPoint().getLng()*1000000)/1000000;
-					$('a_' + current_id + '_latitude').value  = Math.round(obj.getGeoPoint().getLat()*1000000)/1000000;
-					$('a_' + current_id + '_ismanual').checked = true;
-					on_needsave(current_id);
+				placemarks[i] = new ymaps.Placemark(
+					(pp[i].latitude!=null && pp[i].longitude!=null &&
+					pp[i].latitude!="" && pp[i].longitude!="")?
+						[pp[i].latitude, pp[i].longitude]:
+						[<%= @latitude %>, <%= @longitude %>], 
+					{
+						draggable: false,
+						balloonMaxWidth: 100,
+						balloonAutoPan: true,
+						balloonContent: pp[i].pname 
+					},
+					{
+						preset: "twirl#shopIcon",
+					}
+				);
+				map.geoObjects.add(placemarks[i]);
+				placemarks[i].events.add("dragend", function (mEvent) {
+					var coords=mEvent.originalEvent.target.geometry.getCoordinates();
+					setCoords(coords);
 				});
             };
-            YMaps.Events.observe(map, map.Events.Click, function (map, mEvent) {
-				for (var i = 0; i < pp.length; i++) {
-					if (pp[i].id == current_id) {
-						placemarks[i].setGeoPoint(mEvent.getGeoPoint());
+            map.events.add("click", function (mEvent) {
+            	if($('a_' + current_id + '_latitude') != null){
+            		var coords=mEvent.get('coordPosition');
+					for (var i = 0; i < pp.length; i++) {
+						if (pp[i].id == current_id) {
+							placemarks[i].geometry.setCoordinates(coords);
+						};
 					};
-				};
-				$('a_' + current_id + '_longitude').value = Math.round(mEvent.getGeoPoint().getLng()*1000000)/1000000;
-			    $('a_' + current_id + '_latitude').value  = Math.round(mEvent.getGeoPoint().getLat()*1000000)/1000000;
-				$('a_' + current_id + '_ismanual').checked = true;
-				on_needsave(current_id);
+					setCoords(coords);    		
+            	}
             });
 
+        });
+        
+        function setCoords(coords){
+        	$('a_' + current_id + '_latitude').value  = Math.round(coords[0]*1000000)/1000000;
+			$('a_' + current_id + '_longitude').value = Math.round(coords[1]*1000000)/1000000;
+			$('a_' + current_id + '_ismanual').checked = true;
+			on_needsave(current_id);
         };
-			function find_addr(sid){ 
+        
+		function find_addr(sid){ 
 			var srcaddress = $('a_' + sid + '_srcaddress').value;
-			var geocoder = new YMaps.Geocoder(srcaddress);
+			var geocoder = new ymaps.geocode(srcaddress);
 			
 			on_select( sid );
 			
 			// Создание обработчика для успешного завершения геокодирования
-            YMaps.Events.observe(geocoder, geocoder.Events.Load, function () {
-				var n = this.length();
-				var geoResult;
-				if (n>0) {
-						geoResult = this.get(0);
-				}else {
-					alert("Ничего не найдено!");
-					return;
-				};
-				
-				if (geoResult.kind == "country" || geoResult.kind == "province" || geoResult.kind == "district") {
-					alert("Слишком общий адрес!");
-					return;
-				};
-				if (geoResult.kind == 'locality') {
-					for (var i = 0; i < main_city.length; i++) { 
-						try {
-							if (geoResult.AddressDetails.Country.Locality.LocalityName == main_city[i].city) {
-								alert("Не могу найти улицу в городе!");
-								return;
+            geocoder.then(
+            	function (res) {
+					var n = res.geoObjects.getLength();
+					var geoResultInfo, geoResultPoint;
+					if (n>0) {
+							geoResultInfo = res.geoObjects.get(0).properties.get("metaDataProperty").GeocoderMetaData;
+							geoResultPoint = res.geoObjects.get(0).geometry.getCoordinates();
+					} else {
+						alert("Ничего не найдено!");
+						return;
+					};
+					if (geoResultInfo.kind == "country" || geoResultInfo.kind == "province" || geoResultInfo.kind == "district") {
+						alert("Слишком общий адрес!");
+						return;
+					};
+					if (geoResultInfo.kind == 'locality') {
+						for (var i = 0; i < main_city.length; i++) { 
+							try {
+								if (geoResultInfo.AddressDetails.Country.AdministrativeArea.SubAdministrativeArea.Locality.LocalityName == main_city[i].city) {
+									alert("Не могу найти улицу в городе!");
+									return;
+								};
+							}
+							catch(e) {
+									;
 							};
-						}
-						catch(e) {
-								;
-						};
-						try {
-							if (geoResult.AddressDetails.Country.AdministrativeArea.Locality.LocalityName == main_city[i].city) {
-								alert("Не могу найти улицу в области!");
-								return;
-							};
-						}
-						catch(e) {
-								;
 						};
 					};
-				};
-				map.setCenter(geoResult.getGeoPoint(), 13);
-				for (var i = 0; i < pp.length; i++) {
-					if (pp[i].id == sid) {
-							placemarks[i].setGeoPoint(geoResult.getGeoPoint());
-							placemarks[i].setOptions({style: "default#workshopIcon", draggable: true});
-							placemarks[i].openBalloon();
-							$('a_' + sid + '_fulladdress').value = geoResult.text;
-							$('a_' + sid + '_needsave').checked = true;
-					}
-					else {
-						placemarks[i].setOptions({style: "default#shopIcon", draggable: false});
+					console.log(geoResultPoint);
+					map.setCenter(geoResultPoint, 13, {checkZoomRange: true});
+					for (var i = 0; i < pp.length; i++) {
+						if (pp[i].id == sid) {
+								placemarks[i].options.set("preset", "twirl#workshopIcon");
+								placemarks[i].options.set("draggable", true);
+								placemarks[i].geometry.setCoordinates(geoResultPoint);
+								placemarks[i].balloon.open(geoResultPoint);
+								$('a_' + sid + '_fulladdress').value = geoResultInfo.text;
+								$('a_' + sid + '_needsave').checked = true;
+						}
+						else {
+							placemarks[i].options.set("preset", "twirl#shopIcon");
+							placemarks[i].options.set("draggable", false);
+						};
 					};
-				};
-				$('a_' + current_id + '_longitude').value = Math.round(geoResult.getGeoPoint().getLng()*1000000)/1000000;
-				$('a_' + current_id + '_latitude').value  = Math.round(geoResult.getGeoPoint().getLat()*1000000)/1000000;
-            });
-
-            // Процесс геокодирования завершен неудачно
-            YMaps.Events.observe(geocoder, geocoder.Events.Fault, function (geocoder, error) {
-                alert("Произошла ошибка: " + error);
-            })
-			
+					$('a_' + current_id + '_longitude').value = geoResultPoint[1];
+					$('a_' + current_id + '_latitude').value  = geoResultPoint[0];
+	            },
+	            function (error) {
+	            	alert("Произошла ошибка: " + error);
+				}
+			);
 		};
 		function on_needsave( sid ){
 			$('a_' + sid + '_needsave').checked = true;
@@ -132,14 +140,16 @@
 			var latitude = parseFloat($('a_' + sid + '_latitude').value);
 			
 			if ( !isNaN(longitude) && !isNaN(latitude) ) {
-				map.setCenter(new YMaps.GeoPoint( longitude, latitude), 13);
+				map.setCenter([latitude, longitude], 13);
 				for (var i = 0; i < pp.length; i++) {
 					if (pp[i].id == sid) {
-							placemarks[i].setOptions({style: "default#workshopIcon", draggable: true});
-							placemarks[i].openBalloon();
+							placemarks[i].options.set("preset", "twirl#workshopIcon");
+							placemarks[i].options.set("draggable", true);
+							placemarks[i].balloon.open([latitude, longitude]);
 					}
 					else {
-						placemarks[i].setOptions({style: "default#shopIcon", draggable: false});
+						placemarks[i].options.set("preset", "twirl#shopIcon");
+						placemarks[i].options.set("draggable", false);
 					};
 				};	
 			};
@@ -151,11 +161,13 @@
 			current_id = sid;
 			for (var i = 0; i < pp.length; i++) {
 				if (pp[i].id == current_id) {
-					placemarks[i].setOptions({style: "default#workshopIcon", draggable: true});
+					placemarks[i].options.set("preset", "twirl#workshopIcon");
+					placemarks[i].options.set("draggable", true);
 				}
 				else {
 					if (pp[i].id == pred_id) { 
-						placemarks[i].setOptions({style: "default#shopIcon", draggable: false});
+						placemarks[i].options.set("preset", "twirl#shopIcon");
+						placemarks[i].options.set("draggable", false);
 					};
 				};
 			};
@@ -189,7 +201,6 @@
 			style="width: 60%;
 			float: right;">
 			<div id="YMapsID" ></div>
-			<!--<%= link_to "Выход", :controller => :login, :action => :logout %>-->
 		</div>
 		
 		<div
@@ -215,18 +226,21 @@
 							<tr
 								<%= "id=\"row_#{a["id"]}\"" %> class="rdata" onclick="on_select(<%= a["id"] %>)" >
 								<td width="20%" id="small_name" ><%= a["pname"] %></td>
-								<td width="80%"><%= text_field(:a, :srcaddress, :index => a["id"] , :value => a["srcaddress"], :maxlength => 255, :class => "boxintbl", :style=>"background-color : transparent", :onkeypress => "submitIt(event, #{a["id"]});" ) %>
-												<br/>
-											   <%= text_field(:a, :fulladdress, :index => a["id"] , :value => a["fulladdress"], :maxlength => 255, :class => "boxintable gray", :style=>"background-color : transparent", :readonly => 'true') %>
-											   <%= hidden_field(:a, :taddress, :index => a["id"] , :value => a["taddress"], :maxlength => 255) %>
+								<td width="80%">
+									<%= text_field(:a, :srcaddress, :index => a["id"] , :value => a["srcaddress"], :maxlength => 255, :class => "boxintbl", :style=>"background-color : transparent", :onkeypress => "submitIt(event, #{a["id"]});" ) %>
+									<br/>
+									<%= text_field(:a, :fulladdress, :index => a["id"] , :value => a["fulladdress"], :maxlength => 255, :class => "boxintable gray", :style=>"background-color : transparent", :readonly => 'true') %>
+									<%= hidden_field(:a, :taddress, :index => a["id"] , :value => a["taddress"], :maxlength => 255) %>
 								</td>
-								<td style='display:none;' width="0%"><%= text_field(:a, :latitude, :size => 8, :index => a["id"] , :value => a["latitude"], :maxlength => 20, :style=>"background-color : transparent", :onkeydown => "on_needsave(#{a["id"]}); $('a_#{a["id"]}_ismanual').checked = true;" ) %>
-												<br/>
-												<%= text_field(:a, :longitude, :size => 8, :index => a["id"] , :value => a["longitude"], :maxlength => 20, :style=>"background-color : transparent", :onkeydown => "on_needsave(#{a["id"]}); $('a_#{a["id"]}_ismanual').checked = true;" ) %>
+								<td style='display:none;' width="0%">
+									<%= text_field(:a, :latitude, :size => 8, :index => a["id"] , :value => a["latitude"], :maxlength => 20, :style=>"background-color : transparent", :onkeydown => "on_needsave(#{a["id"]}); $('a_#{a["id"]}_ismanual').checked = true;" ) %>
+									<br/>
+									<%= text_field(:a, :longitude, :size => 8, :index => a["id"] , :value => a["longitude"], :maxlength => 20, :style=>"background-color : transparent", :onkeydown => "on_needsave(#{a["id"]}); $('a_#{a["id"]}_ismanual').checked = true;" ) %>
 								</td>
-								<td style='display:none;' width="0%" align="center"> <%= check_box(:a, :ismanual, :index => a["id"], :value => a["ismanual"], :style=>"border : none", :checked => (a["ismanual"]==1), :onclick => "on_needsave(#{a["id"]})" ) %> 
-												<br/>
-												 <%= check_box(:a, :needsave, :index => a["id"], :style=>"border : none", :value => '0', :checked => false ) %>
+								<td style='display:none;' width="0%" align="center">
+									<%= check_box(:a, :ismanual, :index => a["id"], :value => a["ismanual"], :style=>"border : none", :checked => (a["ismanual"]==1), :onclick => "on_needsave(#{a["id"]})" ) %> 
+									<br/>
+									<%= check_box(:a, :needsave, :index => a["id"], :style=>"border : none", :value => '0', :checked => false ) %>
 								</td>			
 							</tr>
 							<% end %>				
@@ -236,12 +250,9 @@
 			</div>
 			<div id="operblock">		
 				<%= submit_tag "Сохранить" %>
-				<!--<%= submit_tag "Обновить" %>-->
 			</div>
 		<% end %>
 		
 	</div>
 <% end -%>
 <% render :file => 'layouts/application' %>
-</body>
-</html>

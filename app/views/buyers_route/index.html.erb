@@ -10,19 +10,18 @@
 		var style2;
 		var map;
 		ymaps.ready(function(){
+			var center=[55.76, 37.64];
             // Создание экземпляра карты и его привязка к созданному контейнеру
             map = new ymaps.Map("YMapsID",
             	{
 			        // Центр карты
-			        center: [55.76, 37.64],
+			        center: center,
 			        zoom: 10,
 			        // Тип карты
 			        type: "yandex#map",
 			        behaviors: ["default", "scrollZoom"]
 			    }
 			);
-            
-            var placemark;
 
             // Добавление элементов управления
             map.controls.add("zoomControl");
@@ -31,13 +30,6 @@
 
 			style1 = 
 			{
-				/* Опции многоугольника:
-				- флаг использования заливки */
-				fill: true,
-				// - флаг отрисовки контурной линии
-				stroke: true,
-				// - ширина линии
-				strokeWidth: 5,
 				// - цвет и прозрачность линии
 				strokeColor: "ffff0088",
 				// - цвет и прозрачность заливки
@@ -55,14 +47,12 @@
 					
 					polygons[i] = new ymaps.Polygon(
 						ymaps.geometry.Polygon.fromEncodedCoordinates(rr[i].points),
-						{
-							hintContent: rr[i].name
-						},
+						null,
 						style1);
 				}
 				else
 				{
-					polygons[i] = new ymaps.Polygon([[[]]], {hintContent: rr[i].name}, style1);
+					polygons[i] = new ymaps.Polygon([[center]], null, style1);
 				};
 				map.geoObjects.add(polygons[i]);
 				polygons[i].events.add("geometrychange", function () {
@@ -70,65 +60,60 @@
 				});
             };
             
-			polygons[current_route].editor.startDrawing();
-			polygons[current_route].options=style2;
-			set_points();
-			set_route();
+			slavesel(current_route);
       });
 		
 		function set_points() {
-			var cc = 0;
-			$('a_points').value = ymaps.geometry.Polygon.toEncodedCoordinates(polygons[current_route].geometry);
-			var route_points=[];
-			var points_ids;
+			var cc = 0, route_points=[]; points_ids="", geometry=polygons[current_route].geometry, isEmpty=isEmptyGeometry(geometry);
+			$('a_points').value =  isEmpty? "" : ymaps.geometry.Polygon.toEncodedCoordinates(geometry);
 			rr[current_route].points = $('a_points').value;
-			for (var i = 0; i < pp.length; i++) {
-				if ( polygons[current_route].geometry.contains([pp[i].longitude, pp[i].latitude]) ) {
-					route_points.push(pp[i].id);
-					cc++;
+			if(!isEmpty){
+				for (var i = 0; i < pp.length; i++) {
+					if (pp[i].latitude!=null && pp[i].longitude!=null && geometry.contains([pp[i].latitude, pp[i].longitude])) {
+						route_points.push(pp[i].id);
+						cc++;
+					}
 				}
+				points_ids=route_points.join();				
 			}
-			points_ids=route_points.join();
-			$('a_lroute').value="";
 			$('load_csv_link').href="";
 			if(points_ids.length>0){
-				$('a_lroute').value=points_ids;
 				$('load_csv_link').href="/buyers_route/get_info_csv?points="+points_ids;
 			}
 			$('a_cc').value = cc;
 		};
-
-		function set_route() {
-			var bounds = polygons[current_route].geometry.getBounds();
-			if(bounds!=null){
-				map.setBounds(bounds);				
-			} else {
-				map.setCenter([55.76, 37.64], 10);
-			}
-		};
 		
+		function isEmptyGeometry(geometry){
+			var points=(geometry!=null)?geometry.get(0):null;
+			return (points==null || ((points.length==2) && (points[0][0]==points[1][0] && points[0][1]==points[1][1])));
+		};
 		
 		function slavesel( v ){
 			$('a_routeid').value = rr[v].id;
-			polygons[current_route].editor.stopDrawing();
-			polygons[current_route].options=style1;
-			rr[current_route].points = $('a_points').value;
+			polygons[current_route].editor.stopEditing();
+			polygons[current_route].options.set("fillColor", "ff000055");
+			rr[current_route].points = ymaps.geometry.Polygon.toEncodedCoordinates(polygons[current_route].geometry);
 			current_route = v;
-			polygons[current_route].editor.startDrawing();
-			polygons[current_route].options=style2;
+			polygons[current_route].editor.startEditing();
+			polygons[current_route].options.set("fillColor", "ffff0055");
+			if(!isEmptyGeometry(polygons[current_route].geometry)){
+				map.setBounds(polygons[current_route].geometry.getBounds());
+			} else {
+				var points=(polygons[current_route].geometry!=null)?polygons[current_route].geometry.getCoordinates()[0]:[];
+				map.setCenter((points.length>=1? points[0] : [55.76, 37.64]), 10);
+			}
 			set_points();
-			set_route();
 		};
 		
-	function changePointsStr()
-	{
-		$('a_points_str').value="";
-		var currentPoints=polygons[current_route].getPoints()
-		for(var i=0; i<currentPoints.length; i++){
-			$('a_points_str').value+=i+", "+currentPoints[i].getX()+", "+currentPoints[i].getY()+";";
+		function changePointsStr()
+		{
+			$('a_points_str').value="";
+			var currentPoints=polygons[current_route].geometry.getCoordinates()[0];
+			for(var i=0; i<currentPoints.length; i++){
+				$('a_points_str').value+=i+", "+currentPoints[i][1]+", "+currentPoints[i][0]+";";
+			}
+			return false;
 		}
-		return false;
-	}
     </script>
 <%	end -%>
 
@@ -170,8 +155,6 @@
 				<%= text_field(:a, :cc, :size => "15",  :value => 0, :class => "w30px", :align => "center", :readonly => 'true') %>	<input type="submit" value="Сохранить" onclick="changePointsStr();"></p>
 				<%= hidden_field(:a, :points,  :size => "100", :value => @route_points, :class => "encode-points", :readonly => 'true') %>
 				<%= hidden_field(:a, :points_str, :class => "encode-points", :readonly => 'true') %>
-				
-				<%= hidden_field(:a, :lroute,  :size => "100", :value => "", :class => "l-route", :readonly => 'true') %>
 				
 				<%= hidden_field(:a, :routeid, :size => "30",  :value => @route_id, :class => "routeid", :readonly => 'true') %>
 				
