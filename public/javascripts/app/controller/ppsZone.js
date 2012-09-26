@@ -542,15 +542,11 @@ Ext.define('app.controller.ppsZone', {
 					return true;
 				}
 			);
-			map.geoObjects.add(pointsGroup);
 		}
 		
 		function changeZoneMap(zonePoints, zoneId){
 			var polygon;
-			map.geoObjects.each(function(o){
-				map.geoObjects.remove(o);
-				return true;
-			});
+			
 			//исключаем текущую зону из рисования всех зон
 			drawZones(zoneId);
 			
@@ -613,7 +609,6 @@ Ext.define('app.controller.ppsZone', {
 					polygons.add(polygon);
 				}
 			}
-			map.geoObjects.add(polygons);
 		};
 		
 		function refreshTerminals(points, zoneId){
