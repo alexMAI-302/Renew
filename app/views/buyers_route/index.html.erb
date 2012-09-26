@@ -10,7 +10,19 @@
 		var style2;
 		var map;
 		ymaps.ready(function(){
-			var center=[55.76, 37.64];
+			var center=[55.76, 37.64],
+				style1 = 
+				{
+					// - цвет и прозрачность линии
+					strokeColor: "ffff0088",
+					// - цвет и прозрачность заливки
+					fillColor: "ff000055"
+				},
+				style2 = 
+				{
+					// - цвет и прозрачность заливки
+					fillColor: "ffff0055"
+				};
             // Создание экземпляра карты и его привязка к созданному контейнеру
             map = new ymaps.Map("YMapsID",
             	{
@@ -27,20 +39,6 @@
             map.controls.add("zoomControl");
             map.controls.add("typeSelector");
             map.controls.add("mapTools");
-
-			style1 = 
-			{
-				// - цвет и прозрачность линии
-				strokeColor: "ffff0088",
-				// - цвет и прозрачность заливки
-				fillColor: "ff000055"
-			};
-			
-			style2 = 
-			{
-				// - цвет и прозрачность заливки
-				fillColor: "ffff0055"
-			};
 			
 			for (var i = 0; i < rr.length; i++) {
 				if (rr[i].points != null && rr[i].points != '') {

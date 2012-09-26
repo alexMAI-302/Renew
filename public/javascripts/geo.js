@@ -114,7 +114,7 @@ function Unact(){
 			var latitude = parseFloat($('a_' + sid + '_latitude').value);
 			
 			if ( !isNaN(longitude) && !isNaN(latitude) ) {
-				map.setCenter([latitude, longitude], 13);
+				map.setCenter([latitude, longitude], 13, {checkZoomRange: true});
 				for (var i = 0; i < pp.length; i++) {
 					if (pp[i].id == sid) {
 							placemarks[i].options.set("preset", "twirl#workshopIcon");
@@ -158,4 +158,4 @@ function Unact(){
 			$('a_' + sid + '_needsave').checked = true;
 		}
 	}
-};
+}
