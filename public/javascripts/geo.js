@@ -32,7 +32,7 @@ function Unact(){
 				map.geoObjects.add(placemarks[i]);
 				placemarks[i].events.add("dragend", function (mEvent) {
 					var coords=mEvent.originalEvent.target.geometry.getCoordinates();
-					setCoords(coords);
+					this.setCoords(coords);
 				});
 			};
 			map.events.add("click", function (mEvent) {
@@ -43,12 +43,12 @@ function Unact(){
 							placemarks[i].geometry.setCoordinates(coords);
 						};
 					};
-					setCoords(coords);
+					this.setCoords(coords);
 				}
 			});
 		},
 		
-		find_addr: function(sid){
+		find_addr: function(sid, page){
 			var srcaddress = $('a_' + sid + '_srcaddress').value;
 			var geocoder = new ymaps.geocode(srcaddress);
 			
@@ -90,7 +90,16 @@ function Unact(){
 								placemarks[i].options.set("preset", "twirl#workshopIcon");
 								placemarks[i].options.set("draggable", true);
 								placemarks[i].geometry.setCoordinates(geoResultPoint);
-								placemarks[i].balloon.open(geoResultPoint);
+								
+								switch(page){
+									case "geo":
+										functionGeo(i, geoResultPoint);
+									break;
+									case "placeunload":
+										functionPlaceunload(sid, i);
+									break;
+								}
+								
 								$('a_' + sid + '_fulladdress').value = geoResultInfo.text;
 								$('a_' + sid + '_needsave').checked = true;
 						}
@@ -106,6 +115,18 @@ function Unact(){
 	            	alert("Произошла ошибка: " + error);
 				}
 			);
+		},
+		
+		functionPlaceunload: function(sid, i){
+			for (var j = 0; j < rr.length; j++) {
+				if ( polygons[j].geometry.contains(placemarks[i].getCoordinates() ) ) {
+					$('a_' + sid + '_buyers_route_id').value = rr[j].id;
+				};
+			};
+		},
+		
+		functionGeo: function(i, geoResultPoint){
+			placemarks[i].balloon.open(geoResultPoint);
 		},
 		
 		on_select: function(sid){
@@ -152,8 +173,8 @@ function Unact(){
 			$('a_' + current_id + '_longitude').value = coords[1];
 			$('a_' + current_id + '_ismanual').checked = true;
 			this.on_needsave(current_id);
-       },
-        
+		},
+		
 		on_needsave: function( sid ){
 			$('a_' + sid + '_needsave').checked = true;
 		}

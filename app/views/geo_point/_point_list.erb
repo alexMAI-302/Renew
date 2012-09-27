@@ -21,7 +21,7 @@
 					<td id=small_name width=”10%”><%= a.pname %></td>
 					<td width=”70%”>
 						<%= text_field(:a, :srcaddress, :size => "100", :index => a.id , :value => a.srcaddress, :maxlength => 255, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "unact.geo.on_needsave(#{a.id})" ) %>
-						<%= link_to_function "...", "unact.geo.find_addr(#{a.id})" %>
+						<%= link_to_function "...", "unact.geo.find_addr(#{a.id}, 'geo')" %>
 						<br/>
 						<%= text_field(:a, :fulladdress, :size => "110", :index => a.id , :value => a.fulladdress, :maxlength => 255, :class => "boxintable", :style=>"background-color : transparent", :readonly => 'true') %>
 						<%= hidden_field(:a, :taddress, :size => "110", :index => a.id , :value => a.taddress, :maxlength => 255) %>

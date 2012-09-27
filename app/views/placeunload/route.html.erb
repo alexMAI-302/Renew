@@ -13,7 +13,8 @@
 					strokeColor: "ffff0088",
 					// - цвет и прозрачность заливки
 					fillColor: "ff000055"
-				};
+				},
+				center=[55.76, 37.64];
 			// Создание экземпляра карты и его привязка к созданному контейнеру
 			map = new ymaps.Map("YMapsID", {
 				// Центр карты
@@ -34,7 +35,7 @@
 					ymaps.geometry.Polygon.fromEncodedCoordinates(rr[i].points),
 					null,
 					style1);
-				map.geoObjects.add(polygons);
+				map.geoObjects.add(polygon);
 				for(var j = 0; j < pp.length; j++) {
 					if(polygon.geometry.contains(pp[j].latitude, pp[j].longitude)) {
 						if($('a_' + pp[j].id + '_buyers_route_id').value != rr[i].id) {
