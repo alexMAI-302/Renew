@@ -38,6 +38,10 @@
 					behaviors: ["default", "scrollZoom"]
 				}
 			);
+			
+			// Добавление элементов управления
+            map.controls.add("zoomControl");
+            map.controls.add("typeSelector");
             
 			for (var i = 0; i < pp.length; i++) {
 				placemarks[i] = new ymaps.Placemark(

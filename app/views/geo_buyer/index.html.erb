@@ -12,7 +12,7 @@
 			unact;
 		ymaps.ready(function(){
 			unact=new Unact();
-			unact.geo.init([<%= @latitude %>, <%= @longitude %>])
+			unact.geo.init([<%= @latitude %>, <%= @longitude %>]);
 		});
 		function submitIt(event, sid) {
 			$('a_' + sid + '_needsave').checked = true;
