@@ -107,7 +107,7 @@
 onload="loadPoints(1);"
 <%	end -%>
 <% content_for :title do %>
-Координаты торговых точек
+Перекодирование точек
 <%	end -%>
 <% content_for :content do %>
 	<% form_remote_tag( {:url => '/convert_base64/points_string_save', :html => {:onsubmit => "makeData()"}, :complete => "hideSpinner();" }) do %>

@@ -1,7 +1,7 @@
 <% content_for :js do %>
    <script src="http://api-maps.yandex.ru/2.0/?load=package.full&mode=debug&lang=ru-RU" type="text/javascript"></script>
 	<%= javascript_include_tag :defaults %>
-
+	<%= javascript_include_tag "geo" %>
     <script type="text/javascript">	
 	var main_city = [{"city": "Москва"}],
 		placemark,
@@ -9,7 +9,8 @@
 		rr = <%= @route_json %>,
 		polygons = [],
 		center=[<%= @latitude %>, <%= @longitude %>],
-		isadr = 0;
+		isadr = 0
+		unact;
 	ymaps.ready(function(){
 		var style1 = 
 			{
@@ -18,7 +19,7 @@
 				// - цвет и прозрачность заливки
 				fillColor: "ff000055"
 			};
-		
+		unact = new Unact();
 		<%= (flash[:notice] and flash[:notice]["Ошибка"]) ? "" : "document.getElementById('form1').reset();" %>
 	    
 		map = new ymaps.Map("YMapsID",
@@ -75,7 +76,7 @@
 		<% else %>
 			if ($('a_loadto').value.length > 0)
 			{
-				geocode_addr($('a_loadto').value, true);
+				unact.placeunload.geocode_addr($('a_loadto').value, true);
 			};
 		<% end %>
 	});
@@ -89,7 +90,7 @@
 	function setCoords(coords){
 		$('a_' + current_id + '_latitude').value  = coords[0];
 		$('a_' + current_id + '_longitude').value = coords[1];
-		geocode_addr($('a_longitude').value + ' ' + $('a_latitude').value, false);
+		unact.placeunload.geocode_addr($('a_longitude').value + ' ' + $('a_latitude').value, false);
 	}
     
     function getSelectionId(text, li) {
@@ -142,71 +143,6 @@
 		};
 	};
 	
-	function geocode_addr(srcaddress, iscoord, isFake) {
-		var geocoder = new ymaps.geocode(srcaddress);
-		$('spinner1').show();
-		$('mainform').update('Подождите пожалуйста, идет поиск.....');			
-        // Создание обработчика для успешного завершения геокодирования
-		geocoder.then(
-			function (res) {
-				var n = res.geoObjects.getLength();
-				var geoResultInfo, geoResultPoint;
-				if (n>0) {
-						geoResultInfo = res.geoObjects.get(0).properties.get("metaDataProperty").GeocoderMetaData;
-						geoResultPoint = res.geoObjects.get(0).geometry.getCoordinates();
-				} else {
-					alert("Ничего не найдено!");
-					return;
-				};
-				if (geoResultInfo.kind == "country" || geoResultInfo.kind == "province" || geoResultInfo.kind == "district") {
-					alert("Слишком общий адрес!");
-					return;
-				};
-				if (geoResultInfo.kind == 'locality') {
-					for (var i = 0; i < main_city.length; i++) { 
-						try {
-							if (geoResultInfo.AddressDetails.Country.AdministrativeArea.SubAdministrativeArea.Locality.LocalityName == main_city[i].city) {
-								alert("Не могу найти улицу в городе!");
-								return;
-							};
-						}
-						catch(e) {
-								;
-						};
-					};
-				};
-				
-			if (iscoord || isFake) {
-				placemark.geometry.setCoordinates(geoResultPoint);
-				map.setCenter(geoResultPoint, 16);
-				$('a_longitude').value = geoResultPoint[1];
-				$('a_latitude').value  = geoResultPoint[0];
-			};
-			for (var i = 0; i < rr.length; i++) {
-				if ( polygons[i].geometry.contains(geoResultPoint) ) {
-					$('placeunload_buyers_route_id').value = rr[i].id;
-				};
-            };
-            if(isFake){
-            	$('a_fulladdress').value = geoResult.text;
-            	<%= remote_function :url =>{ :action => "find_place" }, :with => "'latitude=' + $('a_latitude').value + '&longitude=' + $('a_longitude').value ", :update => "mainform", :complete => "after_select();" %>
-            } else {
-            	$('a_fulladdress').value = $('a_loadto').value;
-            	<%= remote_function :url =>{ :action => "find_place_fake" }, :with => "'latitude=' + $('a_latitude').value + '&longitude=' + $('a_longitude').value ", :update => "mainform", :complete => "after_select();" %>
-            }
-        },
-        function (error) {
-        	alert("Произошла ошибка: " + error);
-        	$('spinner1').hide(); 
-			$('mainform').update('Ошибка!');
-		});
-        
-        if(isFake){
-	        $('a_fulladdress').value = $('a_loadto').value;
-			$('placeunload_ischeck').value = 0;
-		}
-	};
-	
 	function on_select( sid ){
 		$$('tr.rdata').each(function(d){
 			d.style.backgroundColor = 'white';
@@ -247,7 +183,7 @@
 	function submitIt(event) {
 		if ((event.keyCode == 0xA) || (event.keyCode == 0xD)) {
 			isadr = 1;
-			geocode_addr($('a_loadto').value, true);
+			unact.placeunload.geocode_addr($('a_loadto').value, true);
 		};
 	};
 	
@@ -311,7 +247,7 @@
 				
 				<%= text_area(:a, :loadto, :value => @loadto, :cols => 40, :rows => 2, :maxlength => 255, :style=>"background-color : transparent",  :onkeypress => "submitIt(event);" ) %>	
 				
-				<div class="gray">5. Нажмите <%= link_to_function "...", "geocode_addr($('a_loadto').value, true);" %>
+				<div class="gray">5. Нажмите <%= link_to_function "...", "unact.placeunload.geocode_addr($('a_loadto').value, true);" %>
 					<% if @placeunload_id > 0 %>
 						или <%= link_to " отредактируйте точку", :action => "index", :id => @placeunload_id %>
 					<% end %>
@@ -320,11 +256,11 @@
 				
 				<%= text_area(:a, :fulladdress, :value => "", :cols => 40, :rows => 2, :maxlength => 255, :style=>"background-color : transparent", :readonly => 'true') %>	
 				<br>
-				<%= link_to_function "Север", "geocode_addr_fake('Москва, Красная пл., 2', null, true);" %>
-				<%= link_to_function "Юг", "geocode_addr_fake('Россия, Москва, Варшавское шоссе, 2', null, true);" %>
-				<%= link_to_function "Электросталь", "geocode_addr_fake('Россия, Электросталь', null, true);" %>
-				<%= link_to_function "Коломна", "geocode_addr_fake('Россия, Коломна', null, true);" %>
-				<%= link_to_function "Руза", "geocode_addr_fake('Россия, Руза', null, true);" %>
+				<%= link_to_function "Север", "unact.placeunload.geocode_addr('Москва, Красная пл., 2', null, true);" %>
+				<%= link_to_function "Юг", "unact.placeunload.geocode_addr('Россия, Москва, Варшавское шоссе, 2', null, true);" %>
+				<%= link_to_function "Электросталь", "unact.placeunload.geocode_addr('Россия, Электросталь', null, true);" %>
+				<%= link_to_function "Коломна", "unact.placeunload.geocode_addr('Россия, Коломна', null, true);" %>
+				<%= link_to_function "Руза", "unact.placeunload.geocode_addr('Россия, Руза', null, true);" %>
 				</br>
 				<br/>
 				<%= text_field(:a, :latitude, :value => "", :size => 9, :maxlength => 30, :style=>"background-color : transparent", :readonly => 'true') %>

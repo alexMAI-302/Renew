@@ -28,125 +28,17 @@
 
         ymaps.ready(function(){
 			unact=new Unact();
-			map = new ymaps.Map("YMapsID",
-				{
-					// Центр карты
-					center: center,
-					zoom: 13,
-					// Тип карты
-					type: "yandex#map",
-					behaviors: ["default", "scrollZoom"]
-				}
-			);
 			
-			// Добавление элементов управления
-            map.controls.add("zoomControl");
-            map.controls.add("typeSelector");
-            
-			for (var i = 0; i < pp.length; i++) {
-				placemarks[i] = new ymaps.Placemark(
-					(pp[i].latitude!=null && pp[i].longitude!=null &&
-					pp[i].latitude!="" && pp[i].longitude!="")?
-						[pp[i].latitude, pp[i].longitude]:
-						center, 
-					{
-						draggable: false,
-						balloonMaxWidth: 100,
-						balloonAutoPan: true,
-						balloonContent: pp[i].pname 
-					},
-					{
-						preset: "twirl#shopIcon",
-					}
-				);
-				placemarks[i].row_id = pp[i].id;
-				
-				map.geoObjects.add(placemarks[i]);
-				
-				placemarks[i].events.add("dragend", function (mEvent) {
-					var coords=mEvent.originalEvent.target.geometry.getCoordinates();
-					$('a_' + current_id + '_longitude').value = coords[1];
-					$('a_' + current_id + '_latitude').value  = coords[0];
-					unact.geo.on_needsave(current_id);
-					for (var i = 0; i < rr.length; i++) {
-						if ( polygons[i].geometry.contains(coords) ) {
-							$('a_' + current_id + '_buyers_route_id').value = rr[i].id;
-						};
-					};		
-				});
-				
-				placemarks[i].events.add("balloonopen", function (obj) {
-					var rowId=obj.originalEvent.balloon.getData().geoObject.row_id;
-					$$('tr.rdata').each(function(d){
-						d.style.backgroundColor = 'white';
-					});
-					$('row_' + rowId ).style.backgroundColor = '#FFFBB2';
-					$('row_' + rowId ).scrollIntoView();
-					pred_id = current_id; 
-					current_id = rowId;
-					for (var i = 0; i < pp.length; i++) {
-						if (pp[i].id == current_id) {
-							placemarks[i].options.set("preset", "twirl#workshopIcon");
-							placemarks[i].options.set("draggable", true);
-						}
-						else {
-							if (pp[i].id == pred_id) { 
-								placemarks[i].options.set("preset", "twirl#shopIcon");
-								placemarks[i].options.set("draggable", false);
-							};
-						};
-					};
-				});
-            };
-            map.events.add("click", onMapClick);
-			
-			for (var i = 0; i < rr.length; i++) {
-				polygons[i] = new ymaps.Polygon(
-					ymaps.geometry.Polygon.fromEncodedCoordinates(rr[i].points),
-					{
-						balloonContent:	rr[i].name 
-					},
-					style1);
-
-				map.geoObjects.add(polygons[i]);
-				
-				polygons[i].events.add("click", function (mEvent) {
-					onMapClick(mEvent);
-				});
-				for (var j = 0; j < pp.length; j++) {
-					if ( polygons[i].geometry.contains(placemarks[j].geometry.getCoordinates()) ) {
-						if ($('a_' + pp[j].id + '_buyers_route_id').value != rr[i].id) {
-							$('a_' + pp[j].id + '_buyers_route_id').value = rr[i].id;
-						};
-					};
-				};			
-            };
+			unact.placeunload.init([<%= @latitude %>, <%= @longitude %>]);
         });
 		
 		function submitIt(event, sid) {
 			$('a_' + sid + '_needsave').checked = true;
 			if ((event.keyCode == 0xA) || (event.keyCode == 0xD)) {
 				isadr = 1;
-				unact.geo.find_addr(sid, "placeunload");
+				unact.common.find_addr(sid, "placeunload");
 			};
 		};
-		
-		function onMapClick(mEvent) {
-        	var coords=mEvent.get('coordPosition');
-			for (var i = 0; i < pp.length; i++) {
-				if (pp[i].id == current_id) {
-					placemarks[i].geometry.setCoordinates(coords);
-				};
-			};
-			$('a_' + current_id + '_longitude').value = coords[1];
-		    $('a_' + current_id + '_latitude').value  = coords[0];
-			unact.geo.on_needsave(current_id);
-			for (var i = 0; i < rr.length; i++) {
-				if ( polygons[i].geometry.contains(coords) ) {
-					$('a_' + current_id + '_buyers_route_id').value = rr[i].id;
-				};
-			};					
-       };
 	</script>
 <%	end -%>
 <% content_for :title do %>
@@ -211,11 +103,11 @@
 						<table width="100%" border="0" cellpadding="2" cellspacing="1">
 							<% @rst_buyers.each do |a| %>
 							<tr
-								<%= "id=\"row_#{a["id"]}\"" %> class="rdata" onclick="unact.geo.on_select(<%= a["id"] %>)" >
+								<%= "id=\"row_#{a["id"]}\"" %> class="rdata" onclick="unact.common.on_select(<%= a["id"] %>)" >
 								<td width="20%" id="small_name" >
-									<%= text_field(:a, :pname, :index => a["id"] , :value => a["pname"], :maxlength => 255, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "unact.geo.on_needsave(#{a["id"]})" ) %>
+									<%= text_field(:a, :pname, :index => a["id"] , :value => a["pname"], :maxlength => 255, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "unact.common.on_needsave(#{a["id"]})" ) %>
 									<br/>
-									<%= text_field(:a, :descr, :index => a["id"] , :value => a["descr"], :maxlength => 255, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "unact.geo.on_needsave(#{a["id"]})" ) %>			
+									<%= text_field(:a, :descr, :index => a["id"] , :value => a["descr"], :maxlength => 255, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "unact.common.on_needsave(#{a["id"]})" ) %>			
 								</td>
 								<td width="35%">
 									<%= text_field(:a, :srcaddress, :index => a["id"] , :value => a["srcaddress"], :maxlength => 255, :class => "boxintbl", :style=>"background-color : transparent", :onkeypress => "submitIt(event, #{a["id"]});" ) %>
@@ -225,38 +117,38 @@
 									<%= text_field(:a, :tp, :index => a["id"] , :value => a["tp"], :maxlength => 255, :class => "boxintable gray", :style=>"background-color : transparent", :readonly => 'true') %>											   
 								</td>
 								<td width="8%">
-									<%= text_field(:a, :latitude, :index => a["id"] , :value => a["latitude"], :maxlength => 20, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "unact.geo.on_needsave(#{a["id"]})" ) %>
+									<%= text_field(:a, :latitude, :index => a["id"] , :value => a["latitude"], :maxlength => 20, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "unact.common.on_needsave(#{a["id"]})" ) %>
 									<br/>
-									<%= text_field(:a, :longitude, :index => a["id"] , :value => a["longitude"], :maxlength => 20, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "unact.geo.on_needsave(#{a["id"]})" ) %>
+									<%= text_field(:a, :longitude, :index => a["id"] , :value => a["longitude"], :maxlength => 20, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "unact.common.on_needsave(#{a["id"]})" ) %>
 									<br/>
-									<select id="a_<%= a["id"] %>_join" name="a[<%= a["id"] %>][join]" style="width : 90%; background-color : transparent" onChange="unact.geo.on_needsave(<%= a["id"] %>)" >
+									<select id="a_<%= a["id"] %>_join" name="a[<%= a["id"] %>][join]" style="width : 90%; background-color : transparent" onChange="unact.common.on_needsave(<%= a["id"] %>)" >
 										<%= options_for_select [['_',-1],['Осн.',1],['Доб.',2]], -1 %>
 									</select>
 								</td>
 								<td width="10%">
-									<select id="a_<%= a["id"] %>_placecategory_id" name="a[<%= a["id"] %>][placecategory_id]" style="width : 100%; background-color : transparent" onChange="unact.geo.on_needsave(<%= a["id"] %>)" >
+									<select id="a_<%= a["id"] %>_placecategory_id" name="a[<%= a["id"] %>][placecategory_id]" style="width : 100%; background-color : transparent" onChange="unact.common.on_needsave(<%= a["id"] %>)" >
 										<%= options_for_select @placecategory_list, a["placecategory_id"] %>
 									</select>
 									<br/>
-									<select id="a_<%= a["id"] %>_unloading" name="a[<%= a["id"] %>][unloading]" style="width : 100%; background-color : transparent" onChange="unact.geo.on_needsave(<%= a["id"] %>)" >
+									<select id="a_<%= a["id"] %>_unloading" name="a[<%= a["id"] %>][unloading]" style="width : 100%; background-color : transparent" onChange="unact.common.on_needsave(<%= a["id"] %>)" >
 										<%= options_for_select @unloading_list, a["unloading"] %>
 									</select>
 								</td>		
 								<td width="10%">
-									<select id="a_<%= a["id"] %>_delscheduleid" name="a[<%= a["id"] %>][delscheduleid]" style="width : 100%; background-color : transparent" onChange="unact.geo.on_needsave(<%= a["id"] %>)" >
+									<select id="a_<%= a["id"] %>_delscheduleid" name="a[<%= a["id"] %>][delscheduleid]" style="width : 100%; background-color : transparent" onChange="unact.common.on_needsave(<%= a["id"] %>)" >
 										<%= options_for_select @schedule_list, a["delscheduleid"] %>
 									</select>
 									<br/>
-									<select id="a_<%= a["id"] %>_incscheduleid" name="a[<%= a["id"] %>][incscheduleid]" style="width : 100%; background-color : transparent" onChange="unact.geo.on_needsave(<%= a["id"] %>)" >
+									<select id="a_<%= a["id"] %>_incscheduleid" name="a[<%= a["id"] %>][incscheduleid]" style="width : 100%; background-color : transparent" onChange="unact.common.on_needsave(<%= a["id"] %>)" >
 										<%= options_for_select @schedule_list, a["incscheduleid"] %>
 									</select>
 								</td>
 								<td width="10%">
-									<select id="a_<%= a["id"] %>_buyers_route_id" name="a[<%= a["id"] %>][buyers_route_id]" style="width : 100%; background-color : transparent" onChange="unact.geo.on_needsave(<%= a["id"] %>)" >
+									<select id="a_<%= a["id"] %>_buyers_route_id" name="a[<%= a["id"] %>][buyers_route_id]" style="width : 100%; background-color : transparent" onChange="unact.common.on_needsave(<%= a["id"] %>)" >
 										<%= options_for_select @buyers_route_list, a["buyers_route_id"] %>
 									</select>
 									<br/>
-									<%= check_box(:a, :ischeck, :index => a["id"], :style=>"border : none", :value => a["ischeck"], :checked => (a["ischeck"]==1), :onclick => "unact.geo.on_needsave(#{a["id"]})" ) %>
+									<%= check_box(:a, :ischeck, :index => a["id"], :style=>"border : none", :value => a["ischeck"], :checked => (a["ischeck"]==1), :onclick => "unact.common.on_needsave(#{a["id"]})" ) %>
 								</td>
 								<td width="4%">
 									<%= check_box(:a, :needsave, :index => a["id"], :style=>"border : none", :value => '0', :checked => false ) %>

@@ -17,23 +17,23 @@
 				</td>
 			</tr>
 			<% @addr.each do |a| %>
-				<tr <%= "id=\"row_#{a.id}\"" %> class="rdata" onclick="unact.geo.on_select(<%= a.id %>)" >
+				<tr <%= "id=\"row_#{a.id}\"" %> class="rdata" onclick="unact.common.on_select(<%= a.id %>)" >
 					<td id=small_name width=”10%”><%= a.pname %></td>
 					<td width=”70%”>
-						<%= text_field(:a, :srcaddress, :size => "100", :index => a.id , :value => a.srcaddress, :maxlength => 255, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "unact.geo.on_needsave(#{a.id})" ) %>
-						<%= link_to_function "...", "unact.geo.find_addr(#{a.id}, 'geo')" %>
+						<%= text_field(:a, :srcaddress, :size => "100", :index => a.id , :value => a.srcaddress, :maxlength => 255, :class => "boxintbl", :style=>"background-color : transparent", :onkeydown => "unact.common.on_needsave(#{a.id})" ) %>
+						<%= link_to_function "...", "unact.common.find_addr(#{a.id}, 'geo')" %>
 						<br/>
 						<%= text_field(:a, :fulladdress, :size => "110", :index => a.id , :value => a.fulladdress, :maxlength => 255, :class => "boxintable", :style=>"background-color : transparent", :readonly => 'true') %>
 						<%= hidden_field(:a, :taddress, :size => "110", :index => a.id , :value => a.taddress, :maxlength => 255) %>
 					</td>
 					</td>
 					<td width=”10%”>
-						<%= text_field(:a, :latitude, :size => 8, :index => a.id , :value => a.latitude, :maxlength => 20, :style=>"background-color : transparent", :onkeydown => "unact.geo.on_needsave(#{a.id}); $('a_#{a.id}_ismanual').checked = true;" ) %>
+						<%= text_field(:a, :latitude, :size => 8, :index => a.id , :value => a.latitude, :maxlength => 20, :style=>"background-color : transparent", :onkeydown => "unact.common.on_needsave(#{a.id}); $('a_#{a.id}_ismanual').checked = true;" ) %>
 						<br/>
-						<%= text_field(:a, :longitude, :size => 8, :index => a.id , :value => a.longitude, :maxlength => 20, :style=>"background-color : transparent", :onkeydown => "unact.geo.on_needsave(#{a.id}); $('a_#{a.id}_ismanual').checked = true;" ) %>
+						<%= text_field(:a, :longitude, :size => 8, :index => a.id , :value => a.longitude, :maxlength => 20, :style=>"background-color : transparent", :onkeydown => "unact.common.on_needsave(#{a.id}); $('a_#{a.id}_ismanual').checked = true;" ) %>
 					</td>
 					<td width=”10%”>
-						<%= check_box(:a, :ismanual, :index => a.id, :value => a.ismanual, :checked => (a.ismanual==1), :onclick => "unact.geo.on_needsave(#{a.id})" ) %> 
+						<%= check_box(:a, :ismanual, :index => a.id, :value => a.ismanual, :checked => (a.ismanual==1), :onclick => "unact.common.on_needsave(#{a.id})" ) %> 
 						<br/>
 						<%= check_box(:a, :needsave, :index => a.id, :value => '0', :checked => false ) %>
 					</td>

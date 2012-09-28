@@ -3,12 +3,12 @@
     <script src="http://api-maps.yandex.ru/2.0/?load=package.full&mode=debug&lang=ru-RU" type="text/javascript"></script>
     <%= javascript_include_tag "geo" %>
     <script type="text/javascript">
-		var map;
-		var pp = <%= @rst_new %> ; 
-		var placemarks = new Array;
-		var current_id = 0;
-		var main_city = <%= @city_list %>;
-		var unact;
+		var map,
+			pp = <%= @rst_new %>,
+			placemarks = [],
+			current_id = 0,
+			main_city = <%= @city_list %>,
+			unact;
 		ymaps.ready(function(){
 			unact=new Unact();
 			unact.geo.init([<%= @latitude %>, <%= @longitude %>])
