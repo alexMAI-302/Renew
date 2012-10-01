@@ -185,12 +185,12 @@
 			<% end %>	
 		
 		};
-		function on_term_click(zone,terminal){
+		function on_term_click(zone,row){
 			var a = '';
 			var b = '';
 			if ( mode != 'move' ) 
 			{
-				if ($('a_'+terminal+'_termsave').checked)
+				if ($('a_'+row+'_termsave').checked)
 					$('zone_'+zone).cells[3].textContent = $('zone_'+zone).cells[3].textContent -0 +1;
 				else
 					$('zone_'+zone).cells[3].textContent -= 1;		
@@ -282,7 +282,7 @@
 				$('a_'+term+'_modified').value = 1;
 			}
 		};
-		function on_select_terminal(sid,e)
+		function on_select_terminal(row,e)
 		{
 			var objSel = document.getElementById('c_terminal_break');
 			var len = objSel.options.length;
@@ -290,33 +290,33 @@
 			{
 				$('term_'+term).style.borderStyle = '';
 			}
-			$('term_'+sid).style.borderStyle = 'solid';
-			term = sid
+			$('term_'+row).style.borderStyle = 'solid';
+			term = row
 			
-			if (!$('a_'+sid+'_terminal_break').value)
+			if (!$('a_'+row+'_terminal_break').value)
 				objSel.options[objSel.options.length - 1].selected = true;
 				else
 					for (var i=0; i < objSel.options.length; i++)
 					{
 						objSel.options[i].selected = false;
-						if (objSel.options[i].value == $('a_'+sid+'_terminal_break').value)
+						if (objSel.options[i].value == $('a_'+row+'_terminal_break').value)
 						{
 							objSel.options[i].selected = true;
 							break;
 						}
 					}
 				
-				$('c_terminal_break').value = $('a_'+sid+'_terminal_break').value;
+				$('c_terminal_break').value = $('a_'+row+'_terminal_break').value;
 				
 			<% if !(@spv_id==5626) and !(@save_osh==0) -%>
-				$('techinfo').value = $('a_'+sid+'_techinfo').value;
-				$('c_penaltystatus').value = $('a_'+term+'_penaltystatus').value ;
-				$('c_penaltystatus').checked = $('a_'+term+'_penaltystatus').checked ;
+				$('techinfo').value = $('a_'+row+'_techinfo').value;
+				$('c_penaltystatus').value = $('a_'+row+'_penaltystatus').value ;
+				$('c_penaltystatus').checked = $('a_'+row+'_penaltystatus').checked ;
 			<% end -%>
 
 			<% if !(@spv_id==5626) -%>
-				$('c_servstatus').value = $('a_'+term+'_servstatus').value ;
-				$('c_servstatus').checked = $('a_'+term+'_servstatus').checked ;
+				$('c_servstatus').value = $('a_'+row+'_servstatus').value ;
+				$('c_servstatus').checked = $('a_'+row+'_servstatus').checked ;
 			<% end -%>
 			
 		};
@@ -662,13 +662,14 @@ if (root){
 				</thead>
 				<tbody>
 					<% @rst_term.each_with_index do |a, i| %>
-						<tr <%= "id=\"term_#{a["terminalid"]}\"" %> class="term_<%=a["zone"]%>"  style="display:none; <% if not a["style"].nil? -%><%= a["style"]%><% end -%>" onclick="on_select_terminal(<%= a["terminalid"] %>,event)" >
-						<td width="2%"><%= check_box(:a, :termsave, :index => a["terminalid"], :class => "termsave", :value => '0', :checked => a["inroute"]==0 ? false : true, :onclick => "on_term_click(#{a["zone"]},#{a["terminalid"]})") %>
-								<%= hidden_field(:a, :zone, :index => a["terminalid"], :value => a["zone"] ) %>
-								<%= hidden_field(:a, :zone_check, :class => "zone_check_#{a["zone"]}", :index => a["terminalid"], :value => 1 ) %>
-								<%= hidden_field(:a, :modified, :index => a["terminalid"], :value => a["modified"] ) %>		
-								<%= hidden_field(:a, :terminal_break, :index => a["terminalid"], :value => a["terminal_break"] ) %>								
-								<%= hidden_field(:a, :techinfo, :index => a["terminalid"], :value => a["techinfo"] ) %>								
+						<tr <%= "id=\"term_#{a["row"]}\"" %> class="term_<%=a["zone"]%>"  style="display:none; <% if not a["style"].nil? -%><%= a["style"]%><% end -%>" onclick="on_select_terminal(<%= a["row"] %>,event)" >
+						<td width="2%"><%= check_box(:a, :termsave, :index => a["row"], :class => "termsave", :value => '0', :checked => a["inroute"]==0 ? false : true, :onclick => "on_term_click(#{a["zone"]},#{a["row"]})") %>
+								<%= hidden_field(:a, :terminalid, :index => a["row"], :value => a["terminalid"] ) %>
+								<%= hidden_field(:a, :zone, :index => a["row"], :value => a["zone"] ) %>
+								<%= hidden_field(:a, :zone_check, :class => "zone_check_#{a["zone"]}", :index => a["row"], :value => 1 ) %>
+								<%= hidden_field(:a, :modified, :index => a["row"], :value => a["modified"] ) %>		
+								<%= hidden_field(:a, :terminal_break, :index => a["row"], :value => a["terminal_break"] ) %>								
+								<%= hidden_field(:a, :techinfo, :index => a["row"], :value => a["techinfo"] ) %>								
 							</td>
 							
 							<td width="3%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%=  i+1 %></td>							
@@ -705,11 +706,11 @@ if (root){
 								<td width="2%">
 									<%= image_tag('ajax-loader.gif', :id => 'spinner_servstatus_'+a["terminalid"].to_s, :style => 'display:none') %>
 									<div id="term_errortext_<%=a["terminalid"]%>">
-										<%= check_box(:a, :servstatus, :index => a["terminalid"], :class => "servstatus", :value => '0', :checked => a["servstatus"]==0 ? false : true) %>
+										<%= check_box(:a, :servstatus, :index => a["row"], :class => "servstatus", :value => '0', :checked => a["servstatus"]==0 ? false : true) %>
 									</div>
 								</td>
 							<% end -%>	
-							<% if !(@spv_id==5626) and !(@save_osh==0) -%><td width="2%"><%= check_box(:a, :penaltystatus, :index => a["terminalid"], :class => "penaltystatus", :value => '0', :checked => a["penaltystatus"]==0 ? false : true) %> <% end -%>	
+							<% if !(@spv_id==5626) and !(@save_osh==0) -%><td width="2%"><%= check_box(:a, :penaltystatus, :index => a["row"], :class => "penaltystatus", :value => '0', :checked => a["penaltystatus"]==0 ? false : true) %> <% end -%>	
 							<% if !(@spv_id==5626) and !(@save_osh==0)  -%><td width="16%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["techinfo"] %></td>	<% end -%>		
 							<td width="4%"><%= link_to_function 'Обновить', remote_function(:update =>"term_errortext_"+a["terminalid"].to_s, :before => "$('spinner_errortext_"+a["terminalid"].to_s+"').show();", :complete => "$('spinner_errortext_"+a["terminalid"].to_s+"').hide();"+
 								remote_function(:update =>"term_servstatus_"+a["terminalid"].to_s, :before => "$('spinner_servstatus_"+a["terminalid"].to_s+"').show();", :complete => "$('spinner_servstatus_"+a["terminalid"].to_s+"').hide();",:url => { :action => "term_update_servstatus"}, :with => "'terminalid="+a["terminalid"].to_s+"'" )+";"+
