@@ -29,7 +29,7 @@
         ymaps.ready(function(){
 			unact=new Unact();
 			
-			unact.placeunload.init([<%= @latitude %>, <%= @longitude %>]);
+			unact.placeunload.init([<%= @latitude %>, <%= @longitude %>], "index");
         });
 		
 		function submitIt(event, sid) {

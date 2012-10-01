@@ -15,7 +15,7 @@
         ymaps.ready(function(){
 			unact=new Unact();
 			
-			unact.placeunload.init();
+			unact.placeunload.init([<%= @latitude %>, <%= @longitude %>], "prov");
         };
 		
 		function submitIt(event, sid) {
@@ -48,7 +48,10 @@
 		function after_select(){
 			$('spinner1').hide();
 		};
-
+		
+		function findPlace(){
+			<%= remote_function :url =>{ :action => "find_place" }, :with => "'latitude=' + $('a_'+current_id+'_latitude').value + '&longitude=' + $('a_'+current_id+'_longitude').value +'&prov=1&remove='+current_id", :update => "subform", :complete => "after_select();" %>
+		};
 	</script>
 <%	end -%>
 <% content_for :title do %>

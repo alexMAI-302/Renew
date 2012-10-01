@@ -9,7 +9,7 @@
 		rr = <%= @route_json %>,
 		polygons = [],
 		center=[<%= @latitude %>, <%= @longitude %>],
-		isadr = 0
+		isadr = 0,
 		unact;
 	ymaps.ready(function(){
 		var style1 = 
@@ -200,7 +200,15 @@
 			noError=false;
 		}
 		return noError;
-	}
+	};
+	
+	function findPlace(){
+		<%= remote_function :url =>{ :action => "find_place" }, :with => "'latitude=' + $('a_latitude').value + '&longitude=' + $('a_longitude').value ", :update => "mainform", :complete => "after_select();" %>
+	};
+	
+	function findPlaceFake(){
+		<%= remote_function :url =>{ :action => "find_place_fake" }, :with => "'latitude=' + $('a_latitude').value + '&longitude=' + $('a_longitude').value ", :update => "mainform", :complete => "after_select();" %>
+	};
 
 	</script>
 <%	end -%>

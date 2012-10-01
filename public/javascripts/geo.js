@@ -1,5 +1,7 @@
 function Unact(){
-	this.common = {
+	var me=this;
+	
+	me.common = {
 		on_select: function(sid, prov){
 			if(sid != current_id){
 				var pred_id=0,
@@ -51,7 +53,7 @@ function Unact(){
 				}
 				
 				if(prov){
-					this.geo.geocode_addr($('a_'+sid+'_fulladdress').value, true, false, current_id);
+					me.geo.geocode_addr($('a_'+sid+'_fulladdress').value, true, false, current_id);
 				}
 			}
 		},
@@ -60,7 +62,7 @@ function Unact(){
 			var srcaddress = $('a_' + sid + '_srcaddress').value;
 			var geocoder = new ymaps.geocode(srcaddress);
 			
-			this.common.on_select( sid );
+			me.common.on_select( sid );
 			
 			// Создание обработчика для успешного завершения геокодирования
             geocoder.then(
@@ -101,10 +103,10 @@ function Unact(){
 								
 								switch(page){
 									case "geo":
-										this.geo.functionGeo(i, geoResultPoint);
+										me.geo.functionGeo(i, geoResultPoint);
 									break;
 									case "placeunload":
-										this.geo.functionPlaceunload(sid, i);
+										me.geo.functionPlaceunload(sid, i);
 									break;
 								}
 								
@@ -142,7 +144,7 @@ function Unact(){
 		}
 	};
 	
-	this.geo = {
+	me.geo = {
 		init: function(center){
 			map = new ymaps.Map("YMapsID",
 				{
@@ -175,7 +177,7 @@ function Unact(){
 				map.geoObjects.add(placemarks[i]);
 				placemarks[i].events.add("dragend", function (mEvent) {
 					var coords=mEvent.originalEvent.target.geometry.getCoordinates();
-					this.geo.setCoords(coords);
+					me.geo.setCoords(coords);
 				});
 			};
 			map.events.add("click", function (mEvent) {
@@ -186,7 +188,7 @@ function Unact(){
 							placemarks[i].geometry.setCoordinates(coords);
 						};
 					};
-					this.geo.setCoords(coords);
+					me.geo.setCoords(coords);
 				}
 			});
 		},
@@ -195,11 +197,11 @@ function Unact(){
         	$('a_' + current_id + '_latitude').value  = coords[0];
 			$('a_' + current_id + '_longitude').value = coords[1];
 			$('a_' + current_id + '_ismanual').checked = true;
-			this.common.on_needsave(current_id);
+			me.common.on_needsave(current_id);
 		}
 	};
 	
-	this.placeunload={
+	me.placeunload={
 		geocode_addr: function(srcaddress, iscoord, isFake, currentId) {
 			var geocoder = new ymaps.geocode(srcaddress);
 			$('spinner1').show();
@@ -270,14 +272,13 @@ function Unact(){
 		            if(!isFake){
 		            	if(currentId!=null){
 		            		$('a_'+currentId+'_fulladdress').value = geoResult.text;
-		            		<%= remote_function :url =>{ :action => "find_place" }, :with => "'latitude=' + $('a_'+current_id+'_latitude').value + '&longitude=' + $('a_'+current_id+'_longitude').value +'&prov=1&remove='+current_id", :update => "subform", :complete => "after_select();" %>
 		            	} else {
 		            		$('a_fulladdress').value = geoResult.text;
-			            	<%= remote_function :url =>{ :action => "find_place" }, :with => "'latitude=' + $('a_latitude').value + '&longitude=' + $('a_longitude').value ", :update => "mainform", :complete => "after_select();" %>
 		            	}
+		            	findPlace();
 		            } else {
 		            	$('a_fulladdress').value = $('a_loadto').value;
-		            	<%= remote_function :url =>{ :action => "find_place_fake" }, :with => "'latitude=' + $('a_latitude').value + '&longitude=' + $('a_longitude').value ", :update => "mainform", :complete => "after_select();" %>
+		            	findPlaceFake();
 		            }
 		        },
 		        function (error) {
@@ -331,7 +332,7 @@ function Unact(){
 				
 				placemarks[i].events.add("dragend", function (mEvent) {
 					var coords=mEvent.originalEvent.target.geometry.getCoordinates();
-					this.placeunload.setCoords(coords, page);
+					me.placeunload.setCoords(coords, page);
 				});
 				
 				placemarks[i].events.add("balloonopen", function (obj) {
@@ -368,7 +369,7 @@ function Unact(){
 				});
             };
             map.events.add("click", function(mEvent){
-            	onMapClick(mEvent, page);
+            	me.placeunload.onMapClick(mEvent, page);
             });
 			
 			for (var i = 0; i < rr.length; i++) {
@@ -382,7 +383,7 @@ function Unact(){
 				map.geoObjects.add(polygons[i]);
 				
 				polygons[i].events.add("click", function (mEvent) {
-					onMapClick(mEvent, page);
+					me.placeunload.onMapClick(mEvent, page);
 				});
 				for (var j = 0; j < pp.length; j++) {
 					if ( polygons[i].geometry.contains(placemarks[j].geometry.getCoordinates()) ) {
@@ -390,14 +391,14 @@ function Unact(){
 							$('a_' + pp[j].id + '_buyers_route_id').value = rr[i].id;
 						};
 					};
-				};			
+				};
             };
 		},
 		
 		setCoords: function(coords, page){
 			$('a_' + current_id + '_longitude').value = coords[1];
 			$('a_' + current_id + '_latitude').value  = coords[0];
-			this.common.on_needsave(current_id);
+			me.common.on_needsave(current_id);
 			switch(page){
 				case "index":
 					for (var i = 0; i < rr.length; i++) {
@@ -412,14 +413,14 @@ function Unact(){
 			}
 		},
 		
-		onMapClick: function(mEvent) {
+		onMapClick: function(mEvent, page) {
         	var coords=mEvent.get('coordPosition');
 			for (var i = 0; i < pp.length; i++) {
 				if (pp[i].id == current_id) {
 					placemarks[i].geometry.setCoordinates(coords);
 				};
 			}
-			this.placeunload.setCoords(coords, page);
+			me.placeunload.setCoords(coords, page);
 		}
 	}
 }
