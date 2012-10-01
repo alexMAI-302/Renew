@@ -12,10 +12,10 @@ class ConvertBase64Controller < ApplicationPageErrorController
       'SELECT
         buyers_route,
         pps_zone,
-        ''[''+list(''[''+CONVERT(varchar(30), latitude)+'', ''+CONVERT(varchar(30), longitude)+'']'')+'']'' points_string
+        ''[''+list(''[''+CONVERT(varchar(30), latitude)+'', ''+CONVERT(varchar(30), longitude)+'']'' ORDER BY gc.number)+'']'' points_string
       FROM
         geozone_coordinates gc
-       GROUP BY
+      GROUP BY
         gc.buyers_route,
         gc.pps_zone',
       #{site}")

@@ -1,65 +1,98 @@
-<html>
-<head>
 <% content_for :js do %>
-    <script src="http://api-maps.yandex.ru/1.1/index.xml?key=ADh8UkwBAAAA-f5qPAIAXlBgstzuwer3VtCIdJ9TLbfB6WoAAAAAAAAAAADcdhGtjFd6a6RPHi8luz3UxLa8JA==" type="text/javascript">
-	</script>
+   <script src="http://api-maps.yandex.ru/2.0/?load=package.full&mode=debug&lang=ru-RU" type="text/javascript"></script>
 	<%= javascript_include_tag :defaults %>
-
+	<%= javascript_include_tag "geo" %>
     <script type="text/javascript">	
-	var main_city = [{"city": "Москва"}];
-	var placemark;
-	var placemarks = [];
-	var rr = <%= @route_json %> ;
-	var polygons = new Array; 
-	var style1;
-	var isadr = 0; 
-    window.onload  = function () {
-	    <%= (flash[:notice] and flash[:notice]["Ошибка"]) ? "" : "document.getElementById('form1').reset();" %>
-        map = new YMaps.Map(document.getElementById("YMapsID"));
-        map.setCenter(new YMaps.GeoPoint(<%= @longitude %> , <%= @latitude %>), 13);
-  	    map.addControl(new YMaps.TypeControl());
-        map.addControl(new YMaps.Zoom());
-        placemark = new YMaps.Placemark(new YMaps.GeoPoint(0, 0), 
-			{style: "default#workshopIcon", draggable: true,
-				balloonOptions: {
-					maxWidth: 100,
-					mapAutoPan: 0
-				}
-			});    
-		map.addOverlay(placemark);
-		YMaps.Events.observe(map, map.Events.Click, function (map, mEvent) {
-			placemark.setGeoPoint(mEvent.getGeoPoint());
-			$('a_longitude').value = Math.round(mEvent.getGeoPoint().getLng()*1000000)/1000000;
-			$('a_latitude').value  = Math.round(mEvent.getGeoPoint().getLat()*1000000)/1000000;
-			geocode_addr($('a_longitude').value + ' ' + $('a_latitude').value, false);
+	var main_city = [{"city": "Москва"}],
+		placemark,
+		placemarks,
+		rr = <%= @route_json %>,
+		polygons = [],
+		center=[<%= @latitude %>, <%= @longitude %>],
+		isadr = 0,
+		unact;
+	ymaps.ready(function(){
+		var style1 = 
+			{
+				// - цвет и прозрачность линии
+				strokeColor: "ffff0088",
+				// - цвет и прозрачность заливки
+				fillColor: "ff000055"
+			};
+		unact = new Unact();
+		<%= (flash[:notice] and flash[:notice]["Ошибка"]) ? "" : "document.getElementById('form1').reset();" %>
+	    
+		map = new ymaps.Map("YMapsID",
+			{
+				// Центр карты
+				center: center,
+				zoom: 13,
+				// Тип карты
+				type: "yandex#map",
+				behaviors: ["default", "scrollZoom"]
+			}
+		);
+		
+		placemark = new ymaps.Placemark(
+			[0,0], 
+			{
+				draggable: true,
+				balloonMaxWidth: 100,
+				balloonAutoPan: true
+			},
+			{
+				preset: "twirl#workShopIcon",
+			}
+		);
+		
+		map.geoObjects.add(placemark);
+		
+		placemarks = new ymaps.GeoObjectArray();
+		map.geoObjects.add(placemarks);
+		
+		map.events.add("click", function (mEvent) {
+			onMapClick(mEvent);
         });
-		YMaps.Events.observe(placemark, placemark.Events.DragEnd, function (obj) {
-			$('a_longitude').value = Math.round(obj.getGeoPoint().getLng()*1000000)/1000000;
-			$('a_latitude').value  = Math.round(obj.getGeoPoint().getLat()*1000000)/1000000;
-			geocode_addr($('a_longitude').value + ' ' + $('a_latitude').value, false);
+        placemark.events.add("dragend", function (mEvent) {
+			var coords=mEvent.originalEvent.target.geometry.getCoordinates();
+			setCoords(coords);
 		});
-		style1 = new YMaps.Style("default#greenPoint");
-		style1.polygonStyle = new YMaps.PolygonStyle();
-		style1.polygonStyle.fillColor = "ffff0011";
-		style1.hasBalloon = false;
-		YMaps.Styles.add("polygon#Example1", style1);
+		
 		for (var i = 0; i < rr.length; i++) {
-			polygons[i] = YMaps.Polygon.fromEncodedPoints( rr[i].points, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", {style: "polygon#Example1"});
-			polygons[i].name = rr[i].name;
-			map.addOverlay(polygons[i]);
-			YMaps.Events.observe(polygons[i], polygons[i].Events.Click, function (polygon, mEvent) {
-				YMaps.Events.notify(map, map.Events.Click, map, mEvent);
+			polygons[i] = new ymaps.Polygon(
+				ymaps.geometry.Polygon.fromEncodedCoordinates(rr[i].points),
+				{
+					balloonContent:	rr[i].name 
+				},
+				style1);
+			
+			map.geoObjects.add(polygons[i]);
+			polygons[i].events.add("click", function (mEvent) {
+				onMapClick(mEvent);
 			});
         };		
 		<% if @placeunload_id > 0 %>
-			placemark.setGeoPoint(new YMaps.GeoPoint(<%= @longitude %> , <%= @latitude %>));
+			placemark.geometry.setCoordinates([<%= @latitude %>, <%= @longitude %>]);
 		<% else %>
 			if ($('a_loadto').value.length > 0)
 			{
-				geocode_addr($('a_loadto').value, true);
+				unact.placeunload.geocode_addr($('a_loadto').value, true);
 			};
 		<% end %>
-    };
+	});
+	
+	function onMapClick(mEvent) {
+    	var coords=mEvent.get('coordPosition');
+		placemark.geometry.setCoordinates(coords);
+		setCoords(coords);				
+	};
+	
+	function setCoords(coords){
+		$('a_' + current_id + '_latitude').value  = coords[0];
+		$('a_' + current_id + '_longitude').value = coords[1];
+		unact.placeunload.geocode_addr($('a_longitude').value + ' ' + $('a_latitude').value, false);
+	}
+    
     function getSelectionId(text, li) {
 		$('pgroup_id').value = li.id;
 		$('pgroup_descr').update('');
@@ -110,153 +143,6 @@
 		};
 	};
 	
-	function geocode_addr(srcaddress, iscoord ) {
-		var geocoder = new YMaps.Geocoder(srcaddress);
-		$('spinner1').show();
-		$('mainform').update('Подождите пожалуйста, идет поиск.....');			
-        YMaps.Events.observe(geocoder, geocoder.Events.Load, function () {
-			var n = this.length();
-			var geoResult;
-			if (n>0) {
-				geoResult = this.get(0);
-			}
-			else {
-				alert("Ничего не найдено!");
-				$('spinner1').hide(); 
-				$('mainform').update('Ошибка!');
-				return;
-			};
-				
-			if (geoResult.kind == "country" || geoResult.kind == "province" || geoResult.kind == "district") {
-				alert("Слишком общий адрес!");
-				$('spinner1').hide(); 
-				$('mainform').update('Ошибка!');
-				return;
-			};
-			if (geoResult.kind == 'locality') {
-				for (var i = 0; i < main_city.length; i++) { 
-					try {
-						if (geoResult.AddressDetails.Country.Locality.LocalityName == main_city[i].city) {
-							alert("Не могу найти улицу в городе!");
-							$('spinner1').hide(); 
-							$('mainform').update('Ошибка!');
-							return;
-						};
-					}
-					catch(e) {
-						;
-					};
-					try {
-						if (geoResult.AddressDetails.Country.AdministrativeArea.Locality.LocalityName == main_city[i].city) {
-							alert("Не могу найти улицу в области!");
-							$('spinner1').hide(); 
-							$('mainform').update('Ошибка!');
-							return;
-						};
-					}
-					catch(e) {
-						;
-					};
-				};
-			};
-			$('a_fulladdress').value = geoResult.text;
-			if (iscoord) {
-				placemark.setGeoPoint(geoResult.getGeoPoint());
-				map.setCenter(geoResult.getGeoPoint(), 16);
-				$('a_longitude').value = Math.round(geoResult.getGeoPoint().getLng()*1000000)/1000000;
-				$('a_latitude').value  = Math.round(geoResult.getGeoPoint().getLat()*1000000)/1000000;
-			};
-			for (var i = 0; i < rr.length; i++) {
-				if ( polygons[i].contains(placemark.getGeoPoint() ) ) {
-					$('placeunload_buyers_route_id').value = rr[i].id;
-				};
-            };		
-			<%= remote_function :url =>{ :action => "find_place" }, :with => "'latitude=' + $('a_latitude').value + '&longitude=' + $('a_longitude').value ", :update => "mainform", :complete => "after_select();" %>
-        });
-        // Процесс геокодирования завершен неудачно
-        YMaps.Events.observe(geocoder, geocoder.Events.Fault, function (geocoder, error) {
-            alert("Произошла ошибка: " + error);
-			$('spinner1').hide(); 
-			$('mainform').update('Ошибка!');
-        });
-	};
-	
-	function geocode_addr_fake(srcaddress) {
-		var geocoder = new YMaps.Geocoder(srcaddress);
-		$('spinner1').show();
-		$('mainform').update('Подождите пожалуйста, идет поиск.....');			
-        YMaps.Events.observe(geocoder, geocoder.Events.Load, function () {
-			var n = this.length();
-			var geoResult;
-			if (n>0) {
-				geoResult = this.get(0);
-			}
-			else {
-				alert("Ничего не найдено!");
-				$('spinner1').hide(); 
-				$('mainform').update('Ошибка!');
-				return;
-			};
-				
-			if (geoResult.kind == "country" || geoResult.kind == "province" || geoResult.kind == "district") {
-				alert("Слишком общий адрес!");
-				$('spinner1').hide(); 
-				$('mainform').update('Ошибка!');
-				return;
-			};
-			if (geoResult.kind == 'locality') {
-				for (var i = 0; i < main_city.length; i++) { 
-					try {
-						if (geoResult.AddressDetails.Country.Locality.LocalityName == main_city[i].city) {
-							alert("Не могу найти улицу в городе!");
-							$('spinner1').hide(); 
-							$('mainform').update('Ошибка!');
-							return;
-						};
-					}
-					catch(e) {
-						;
-					};
-					try {
-						if (geoResult.AddressDetails.Country.AdministrativeArea.Locality.LocalityName == main_city[i].city) {
-							alert("Не могу найти улицу в области!");
-							$('spinner1').hide(); 
-							$('mainform').update('Ошибка!');
-							return;
-						};
-					}
-					catch(e) {
-						;
-					};
-				};
-			};
-			$('a_fulladdress').value = $('a_loadto').value;
-			
-			placemark.setGeoPoint(geoResult.getGeoPoint());
-			map.setCenter(geoResult.getGeoPoint(), 16);
-			$('a_longitude').value = Math.round(geoResult.getGeoPoint().getLng()*1000000)/1000000;
-			$('a_latitude').value  = Math.round(geoResult.getGeoPoint().getLat()*1000000)/1000000;
-			
-			for (var i = 0; i < rr.length; i++) {
-				if ( polygons[i].contains(placemark.getGeoPoint() ) ) {
-					$('placeunload_buyers_route_id').value = rr[i].id;
-				};
-            };		
-			<%= remote_function :url =>{ :action => "find_place_fake" }, :with => "'latitude=' + $('a_latitude').value + '&longitude=' + $('a_longitude').value ", :update => "mainform", :complete => "after_select();" %>
-        });
-        // Процесс геокодирования завершен неудачно
-        YMaps.Events.observe(geocoder, geocoder.Events.Fault, function (geocoder, error) {
-            alert("Произошла ошибка: " + error);
-			$('spinner1').hide(); 
-			$('mainform').update('Ошибка!');
-        });
-		
-		//только тут и разница
-		$('a_fulladdress').value = $('a_loadto').value;
-		$('placeunload_ischeck').value = 0;
-		//$('form1').submit();
-	};
-	
 	function on_select( sid ){
 		$$('tr.rdata').each(function(d){
 			d.style.backgroundColor = 'white';
@@ -273,22 +159,23 @@
 	
 	function after_select(){
 		var pp = eval($('points_j').value);
-		for (var i = 0; i < placemarks.length; i++) {
-			map.removeOverlay(placemarks[i]);
-        };
-		placemarks = [];
+		placemarks.removeAll();
 		for (var i = 0; i < pp.length; i++) {
-			placemarks[i] = new YMaps.Placemark(new YMaps.GeoPoint(pp[i].longitude, pp[i].latitude), 
-				{style: "default#shopIcon", draggable: false,
-					balloonOptions: {
-							maxWidth: 100,
-							mapAutoPan: 0
+			placemarks.add(
+				new ymaps.Placemark(
+					[pp[i].latitude, pp[i].longitude], 
+					{
+						draggable: true,
+						balloonMaxWidth: 100,
+						balloonAutoPan: true,
+						balloonContent: pp[i].pname 
+					},
+					{
+						preset: "twirl#shopIcon",
 					}
-				}
+				)
 			);
-			placemarks[i].description = pp[i].name;
-			map.addOverlay(placemarks[i]);
-        };
+        }
 		$('spinner1').hide(); 
 		on_select($('placeunload_id').value);	
 	};
@@ -296,7 +183,7 @@
 	function submitIt(event) {
 		if ((event.keyCode == 0xA) || (event.keyCode == 0xD)) {
 			isadr = 1;
-			geocode_addr($('a_loadto').value, true);
+			unact.placeunload.geocode_addr($('a_loadto').value, true);
 		};
 	};
 	
@@ -313,19 +200,25 @@
 			noError=false;
 		}
 		return noError;
-	}
+	};
+	
+	function findPlace(){
+		<%= remote_function :url =>{ :action => "find_place" }, :with => "'latitude=' + $('a_latitude').value + '&longitude=' + $('a_longitude').value ", :update => "mainform", :complete => "after_select();" %>
+	};
+	
+	function findPlaceFake(){
+		<%= remote_function :url =>{ :action => "find_place_fake" }, :with => "'latitude=' + $('a_latitude').value + '&longitude=' + $('a_longitude').value ", :update => "mainform", :complete => "after_select();" %>
+	};
 
 	</script>
 <%	end -%>
-</head>
-<body>
 <% content_for :title do %>
 Добавить покупателя
 <%	end -%>
 <% content_for :content do %>
+	<input type="hidden" id="is_add_buyer" />
 	<div id="wrapper">
-		<div id="groupselect">	
-		</div>
+		<div id="groupselect"/>
 		
 		<div id="map" style="width: 50%; heigth: 390px; float: right;">
 			<div id="YMapsID" style="heigth: 390px;"></div>
@@ -339,8 +232,7 @@
 				<%= text_field(:pgroup, :name, :value => @pgroup_name, :size => 50, :maxlength => 255, :style=>"background-color : transparent", :onkeypress => "needclear(event)") %>	
 				<span id="pgroup_descr" style="white-space : nowrap"><%= @pgroup_descr %></span>	
 				<%= hidden_field(:pgroup, :id, :value => @pgroup_id, :size => 5, :maxlength => 30) %>
-				<div class='auto_complete' id='pgroup_name_auto_complete'>
-				</div>
+				<div class='auto_complete' id='pgroup_name_auto_complete'></div>
 				<%= auto_complete_field :pgroup_name, :frequency => 0.5, :url => {:action => :autocomplete_pgroup_name}, :after_update_element=>"getSelectionId" %>				
 				
 				<div class="gray">2. Задайте имя партнера</div>
@@ -348,8 +240,7 @@
 				<%= text_field(:partner, :name, :value => @partner_name, :size => 50, :maxlength => 255, :style=>"background-color : transparent", :onkeypress => "needclearPartner(event)", :onchange => "$('buyer_name').value = $('partner_name').value; $('placeunload_name').value = $('buyer_name').value;") %>	
 				<span id="partner_descr" style="white-space : nowrap"><%= @partner_descr %></span>
 				<%= hidden_field(:partner, :id, :value => @partner_id, :size => 5, :maxlength => 30) %>
-				<div class='auto_complete' id='partner_name_auto_complete'>
-				</div>
+				<div class='auto_complete' id='partner_name_auto_complete'></div>
 				<%= auto_complete_field :partner_name, :frequency => 0.5, :url => {:action => :autocomplete_partner_name}, :after_update_element=>"getPartnerSelectionId", :with => "'partner[name]=' + $('partner_name').value + '&partner[parent]='+$('pgroup_id').value" %>										
 				
 				<div class="gray">3. Задайте имя покупателя</div>
@@ -357,28 +248,27 @@
 				<%= text_field(:buyer, :name, :value => @buyer_name, :size => 50, :maxlength => 255, :style=>"background-color : transparent", :onkeypress => "needclearBuyer(event)", :onchange => "$('placeunload_name').value = $('buyer_name').value;") %>	
 				<span id="buyer_descr" style="white-space : nowrap"><%= @buyer_descr %></span>
 				<%= hidden_field(:buyer, :id, :value => @buyer_id, :size => 5, :maxlength => 30) %>
-				<div class='auto_complete' id='buyer_name_auto_complete'>
-				</div>
+				<div class='auto_complete' id='buyer_name_auto_complete'></div>
 				<%= auto_complete_field :buyer_name, :frequency => 0.5, :url => {:action => :autocomplete_buyer_name}, :after_update_element=>"getBuyerSelectionId", :with => "'buyer[name]=' + $('buyer_name').value + '&buyer[partner]='+$('partner_id').value" %>										
 								
 				<div class="gray">4. Введите подходящий адрес для покупателя</div>
 				
 				<%= text_area(:a, :loadto, :value => @loadto, :cols => 40, :rows => 2, :maxlength => 255, :style=>"background-color : transparent",  :onkeypress => "submitIt(event);" ) %>	
 				
-				<div class="gray">5. Нажмите <%= link_to_function "...", "geocode_addr($('a_loadto').value, true);" %>
-				<% if @placeunload_id > 0 %>
-					или <%= link_to " отредактируйте точку", :action => "index", :id => @placeunload_id %>
-				<% end %>
+				<div class="gray">5. Нажмите <%= link_to_function "...", "unact.placeunload.geocode_addr($('a_loadto').value, true);" %>
+					<% if @placeunload_id > 0 %>
+						или <%= link_to " отредактируйте точку", :action => "index", :id => @placeunload_id %>
+					<% end %>
 				</div>
 				
 				
 				<%= text_area(:a, :fulladdress, :value => "", :cols => 40, :rows => 2, :maxlength => 255, :style=>"background-color : transparent", :readonly => 'true') %>	
 				<br>
-				<%= link_to_function "Север", "geocode_addr_fake('Москва, Красная пл., 2');" %>
-				<%= link_to_function "Юг", "geocode_addr_fake('Россия, Москва, Варшавское шоссе, 2');" %>
-				<%= link_to_function "Электросталь", "geocode_addr_fake('Россия, Электросталь');" %>
-				<%= link_to_function "Коломна", "geocode_addr_fake('Россия, Коломна');" %>
-				<%= link_to_function "Руза", "geocode_addr_fake('Россия, Руза');" %>
+				<%= link_to_function "Север", "unact.placeunload.geocode_addr('Москва, Красная пл., 2', null, true);" %>
+				<%= link_to_function "Юг", "unact.placeunload.geocode_addr('Россия, Москва, Варшавское шоссе, 2', null, true);" %>
+				<%= link_to_function "Электросталь", "unact.placeunload.geocode_addr('Россия, Электросталь', null, true);" %>
+				<%= link_to_function "Коломна", "unact.placeunload.geocode_addr('Россия, Коломна', null, true);" %>
+				<%= link_to_function "Руза", "unact.placeunload.geocode_addr('Россия, Руза', null, true);" %>
 				</br>
 				<br/>
 				<%= text_field(:a, :latitude, :value => "", :size => 9, :maxlength => 30, :style=>"background-color : transparent", :readonly => 'true') %>
@@ -399,7 +289,7 @@
 				</table>
 					
 				<%= image_tag('ajax-loader.gif', :id => 'spinner1', :style => 'display:none') %>
-				<div id="mainform">					
+				<div id="mainform">
 					<%= render :partial => "upd_end" %> 					
 				</div>
 				
@@ -435,5 +325,3 @@
 	</div>
 <% end -%>
 <% render :file => 'layouts/application' %>
-</body>
-</html>
