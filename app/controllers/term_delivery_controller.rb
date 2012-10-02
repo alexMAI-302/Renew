@@ -93,7 +93,7 @@ end
 				end
 				ar = []
 				params[:a].each_pair do | key, value |
-					value[:terminalid] = key
+					value[:row] = key
 					ar << value
 				end
 				params[:a] = ar
