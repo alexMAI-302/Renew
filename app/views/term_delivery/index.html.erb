@@ -647,6 +647,8 @@ if (root){
 						<% if (@spv_id==5626) -%><td width="6%">Кол-во купюр в терминале</td> <% end -%>
 						<td width="4%">Последний сигнал</td>
 						<td width="4%">Последний платёж</td>
+						<% if (@spv_id==6626) -%><td width="6%">Кол-во денег в терминале</td> <% end -%>
+						<% if (@spv_id==6626) -%><td width="6%">Кол-во купюр в терминале</td> <% end -%>
 						<td width="4%">Уровень сигнала</td>		
 						<td width="10%">Состояние</td>		
 						<td width="8%">Причина включения в маршрут</td>		
@@ -690,6 +692,8 @@ if (root){
 									<%= a["LastPaymentTime"].nil? ? '' : a["LastPaymentTime"].to_time.strftime("%d/%m/%Y %H:%M") %>
 								</div>
 							</td>	
+							<% if (@spv_id==6626) -%><td width="6%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%=  a["summ"] %></td> <% end -%>
+							<% if (@spv_id==6626) -%><td width="6%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["cnt"] %></td> <% end -%>
 							<td width="4%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%= a["SignalLevel"] %></td>
 							<td width="10%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> >
 								<%= image_tag('ajax-loader.gif', :id => 'spinner_errortext_'+a["terminalid"].to_s, :style => 'display:none') %>
