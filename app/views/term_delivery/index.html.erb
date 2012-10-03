@@ -126,6 +126,14 @@
 			})		
 		};
 		
+		function on_super_termsave_click(e){
+			$$('input.termsave').each(function(d){
+				if (d.parentNode.parentNode.style.display == '') {
+					d.checked = $('super_termsave').checked;
+				}
+			});
+		};
+		
 		function on_super_route_click(e){
 			if ( mode == 'move' ) return;
 			<% @rst_route.each do	|a| %>
@@ -133,8 +141,6 @@
 				on_route_click(<%=  a["zone"] %>);
 			<% end %>
 		};
-		
-		
 		
 		function on_route_check(sid,e){
 			if ( mode == 'move' ) return;	
@@ -469,7 +475,8 @@ function init(e) {
 
     for (var j = 0; (thead = document.getElementsByTagName("thead").item(j)); j++) {
         var node;
-        for (var i = 0; (node = thead.getElementsByTagName("td").item(i)); i++) {
+		// было var i = 0, но мне не нужна сортировка по первому полю
+        for (var i = 1; (node = thead.getElementsByTagName("td").item(i)); i++) {
             if (node.addEventListener) node.addEventListener("click", sort, false);
             else if (node.attachEvent) node.attachEvent("onclick", sort);
             node.title = "Нажмите на заголовок, чтобы отсортировать колонку";
@@ -638,7 +645,7 @@ if (root){
 				<table class="sort" style="overflow: auto; height: 500px;">
 				<thead style="background-color: silver">
 					<tr>
-						<td width="2%">&nbsp</td>
+						<td width="2%">&nbsp<%= check_box(:super, :termsave, :value => '0', :checked => false, :onclick => "on_super_termsave_click()") %></td>
 						<td width="3%">п/п</td>
 						<td width="8%">Зона</td>
 						<td width="4%">Term. Id</td>
@@ -727,4 +734,4 @@ if (root){
 			</div>	
 		</div>
 	<% end %>
-<% end %> 
+<% end %>
