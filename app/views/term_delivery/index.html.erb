@@ -159,6 +159,7 @@
 		
 			
 		function on_select_zone( sid,e ){
+			var i=0;
 			if ( mode == 'move' ) return;
 			if (e.shiftKey)
 				if ($('zone_' + sid ).style.backgroundColor == 'yellow')
@@ -180,6 +181,8 @@
 				{
 					$$('tr.term_'+<%=  a["zone"] %>).each(function(d){
 						d.style.display='';
+						i = i + 1;
+						d.cells[1].textContent= i
 						})
 				}
 				else
@@ -624,7 +627,7 @@ if (root){
 						<label for="terminal_break">Вид поломки</label>
 						<%=select(:c, :terminal_break, @break_list, {:selected => -666}, :onchange => "on_techinfo_change(event)" ) %>
 						<% if !(@spv_id==5626) -%>
-							<label for="servstatus">C</label>
+							<label for="servstatus">Сделано</label>
 							<%= check_box(:c, :servstatus, :value => 0, :checked => false, :onchange => "on_techinfo_change(event)") %>
 							<% if !(@spv_id==5626) and !(@save_osh==0) -%>
 								<label for="penaltystatus">ОШ</label>
@@ -663,7 +666,7 @@ if (root){
 						<% if (@spv_id==5626) -%><td width="8%">Субагент</td>	<% end -%>					
 						<td width="5%">Вид поломки</td>						
 						<td width="7%">Отделение банка</td>
-						<% if !(@spv_id==5626) -%><td width="2%">С</td>	<% end -%>				
+						<% if !(@spv_id==5626) -%><td width="2%">Сделано</td>	<% end -%>				
 						<% if !(@spv_id==5626) and !(@save_osh==0) -%><td width="2%">ОШ</td>	<% end -%>				
 						<% if !(@spv_id==5626) and !(@save_osh==0) -%><td width="16%">Комментарий ОШ</td>	<% end -%>				
 						<td width="4%">&nbsp</td>
