@@ -126,6 +126,14 @@
 			})		
 		};
 		
+		function on_super_termsave_click(e){
+			$$('input.termsave').each(function(d){
+				if (d.parentNode.parentNode.style.display == '') {
+					d.checked = $('super_termsave').checked;
+				}
+			});
+		};
+		
 		function on_super_route_click(e){
 			if ( mode == 'move' ) return;
 			<% @rst_route.each do	|a| %>
@@ -133,8 +141,6 @@
 				on_route_click(<%=  a["zone"] %>);
 			<% end %>
 		};
-		
-		
 		
 		function on_route_check(sid,e){
 			if ( mode == 'move' ) return;	
@@ -153,6 +159,7 @@
 		
 			
 		function on_select_zone( sid,e ){
+			var i=0;
 			if ( mode == 'move' ) return;
 			if (e.shiftKey)
 				if ($('zone_' + sid ).style.backgroundColor == 'yellow')
@@ -174,6 +181,8 @@
 				{
 					$$('tr.term_'+<%=  a["zone"] %>).each(function(d){
 						d.style.display='';
+						i = i + 1;
+						d.cells[1].textContent= i
 						})
 				}
 				else
@@ -469,7 +478,8 @@ function init(e) {
 
     for (var j = 0; (thead = document.getElementsByTagName("thead").item(j)); j++) {
         var node;
-        for (var i = 0; (node = thead.getElementsByTagName("td").item(i)); i++) {
+		// было var i = 0, но мне не нужна сортировка по первому полю
+        for (var i = 1; (node = thead.getElementsByTagName("td").item(i)); i++) {
             if (node.addEventListener) node.addEventListener("click", sort, false);
             else if (node.attachEvent) node.attachEvent("onclick", sort);
             node.title = "Нажмите на заголовок, чтобы отсортировать колонку";
@@ -617,7 +627,7 @@ if (root){
 						<label for="terminal_break">Вид поломки</label>
 						<%=select(:c, :terminal_break, @break_list, {:selected => -666}, :onchange => "on_techinfo_change(event)" ) %>
 						<% if !(@spv_id==5626) -%>
-							<label for="servstatus">C</label>
+							<label for="servstatus">Сделано</label>
 							<%= check_box(:c, :servstatus, :value => 0, :checked => false, :onchange => "on_techinfo_change(event)") %>
 							<% if !(@spv_id==5626) and !(@save_osh==0) -%>
 								<label for="penaltystatus">ОШ</label>
@@ -638,7 +648,7 @@ if (root){
 				<table class="sort" style="overflow: auto; height: 500px;">
 				<thead style="background-color: silver">
 					<tr>
-						<td width="2%">&nbsp</td>
+						<td width="2%">&nbsp<%= check_box(:super, :termsave, :value => '0', :checked => false, :onclick => "on_super_termsave_click()") %></td>
 						<td width="3%">п/п</td>
 						<td width="8%">Зона</td>
 						<td width="4%">Term. Id</td>
@@ -647,6 +657,8 @@ if (root){
 						<% if (@spv_id==5626) -%><td width="6%">Кол-во купюр в терминале</td> <% end -%>
 						<td width="4%">Последний сигнал</td>
 						<td width="4%">Последний платёж</td>
+						<% if (@spv_id==6626) -%><td width="6%">Кол-во денег в терминале</td> <% end -%>
+						<% if (@spv_id==6626) -%><td width="6%">Кол-во купюр в терминале</td> <% end -%>
 						<td width="4%">Уровень сигнала</td>		
 						<td width="10%">Состояние</td>		
 						<td width="8%">Причина включения в маршрут</td>		
@@ -654,7 +666,7 @@ if (root){
 						<% if (@spv_id==5626) -%><td width="8%">Субагент</td>	<% end -%>					
 						<td width="5%">Вид поломки</td>						
 						<td width="7%">Отделение банка</td>
-						<% if !(@spv_id==5626) -%><td width="2%">С</td>	<% end -%>				
+						<% if !(@spv_id==5626) -%><td width="2%">Сделано</td>	<% end -%>				
 						<% if !(@spv_id==5626) and !(@save_osh==0) -%><td width="2%">ОШ</td>	<% end -%>				
 						<% if !(@spv_id==5626) and !(@save_osh==0) -%><td width="16%">Комментарий ОШ</td>	<% end -%>				
 						<td width="4%">&nbsp</td>
@@ -690,6 +702,8 @@ if (root){
 									<%= a["LastPaymentTime"].nil? ? '' : a["LastPaymentTime"].to_time.strftime("%d/%m/%Y %H:%M") %>
 								</div>
 							</td>	
+							<% if (@spv_id==6626) -%><td width="6%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%=  a["summ"] %></td> <% end -%>
+							<% if (@spv_id==6626) -%><td width="6%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> ><%=  a["cnt"] %></td> <% end -%>
 							<td width="4%" ALIGN="right" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%>><%= a["SignalLevel"] %></td>
 							<td width="10%" <% if not a["style"].nil? -%>style="<%= a["style"]%>" <% end -%> >
 								<%= image_tag('ajax-loader.gif', :id => 'spinner_errortext_'+a["terminalid"].to_s, :style => 'display:none') %>
