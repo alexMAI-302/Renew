@@ -33,7 +33,7 @@
 				<label for="subdealer">Дилер:</label>
 				<%=  select(:post, :subdealer, @subdealers_list, {:selected => @subdealer}) %>
 				<label for="poinkind" style="margin-left: 10px">Какие точки:</label>
-				<%=  select(:post, :pointkind, [['Не заполенные',1],['Все',2],['Только заполненные',3]], {:selected => @pointkind}) %>
+				<%=  select(:post, :pointkind, [['Не заполненные',1],['Все',2],['Только заполненные',3]], {:selected => @pointkind}) %>
 				<label for="pointname" style="margin-left: 10px">В имени:</label>
 				<%= text_field_tag :pointname, params[:pointname] %>
 				<label for="pointaddr" style="margin-left: 10px">В адресе:</label>

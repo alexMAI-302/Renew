@@ -45,7 +45,11 @@ Ext.define('app.controller.renewPlan', {
 		});
 		
 		var storagesStore = Ext.create('Ext.data.Store', {
-			model: 'app.model.valueModel'
+			model: 'app.model.valueModel',
+			
+			proxy: {
+		        type: 'memory'
+			}
 		});
 		
 		var renewPlansStore = Ext.create('Ext.data.Store', {
