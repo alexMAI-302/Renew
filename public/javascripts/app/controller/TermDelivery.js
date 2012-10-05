@@ -69,7 +69,7 @@ Ext.define('app.controller.TermDelivery', {
 		
 		Ext.getCmp('mainContainer').setLoading(true);
 		
-		controller.routesStore.proxy.extraParams={
+		controller.terminalsStore.proxy.extraParams={
 			ddate: ddate,
 			subdealer_id: subdealerId,
 			zone_type_id: zoneTypeId,

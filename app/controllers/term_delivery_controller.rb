@@ -38,9 +38,44 @@ class TermDeliveryController < ApplicationPageErrorController
   end
   
   def terminals
-    terminals = ActiveRecord::Base.connection.select_all("
+    terminals_list = ActiveRecord::Base.connection.select_all("
     SELECT
-      *
+      terminalid,
+      real_terminalid,
+      name,
+      address,
+      subdealer_name,
+      subdealer_id, 
+      summ,
+      cnt,
+      zone zone_id,
+      zone_name,
+      src_system src_system_id,
+      src_system_name,
+      LastConnectTime last_connect_time,
+      LastConnectTime_style last_connect_time_style,
+      LastPaymentTime last_payment_time,
+      LastPaymentTime_style last_payment_time_style,
+      SignalLevel signal_level,
+      flags,
+      inroute,
+      points,
+      points_inroute,
+      ErrorText error_text,
+      IncassReason incass_reason,
+      latitude,
+      longitude,
+      style,
+      delivery delivery_id,
+      delivery_status4,
+      delivery_status4_right,
+      terminal_break terminal_break_id,
+      terminal_break_name terminal_break_name,
+      techinfo techinfo,
+      branch_name,
+      servstatus serv_status,
+      penaltystatus penalty_status,
+      modified
     FROM
       spp.Terminal_Delivery(
         '#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',
@@ -48,10 +83,10 @@ class TermDeliveryController < ApplicationPageErrorController
         #{params[:zone_type_id].to_i},
         '#{Time.parse(params[:ddate]).strftime('%F')}',
         #{params[:only_with_errors].to_i},
-        #{params[:only_in_route].to_i})
+        #{params[:only_in_route].to_i},
         #{params[:zone_id].to_i})")
     
-    render :text => terminals.to_json
+    render :text => terminals_list.to_json
   end
 
   def index
