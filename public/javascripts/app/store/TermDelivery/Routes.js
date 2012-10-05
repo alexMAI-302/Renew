@@ -1,11 +1,10 @@
 //хранилище отделений банка
 Ext.define('app.store.TermDelivery.Routes', {
 	extend: 'Ext.data.Store',
-	model: 'app.model.valueModel',
-	autoLoad: true,
+	model: 'app.model.TermDelivery.RouteModel',
 	proxy: {
-		type: 'ajax',
-		url : '/pps_zone/get_branches',
+		type: 'rest',
+		url : '/term_delivery/routes',
 		reader: {
 			type: 'json'
 		}

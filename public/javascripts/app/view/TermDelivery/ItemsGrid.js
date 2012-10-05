@@ -33,7 +33,7 @@ Ext.define('app.view.TermDelivery.ItemsGrid', {
 					dataIndex: 'price'
 				},
 				{
-					width: 60,
+					width: 70,
 					header: 'Последний<br/>сигнал',
 					dataIndex: 'price',
 					renderer: function(value, metaData, record){
@@ -41,7 +41,7 @@ Ext.define('app.view.TermDelivery.ItemsGrid', {
 					}
 				},
 				{
-					width: 60,
+					width: 70,
 					header: 'Последний<br/>платеж',
 					dataIndex: 'price',
 					renderer: function(value, metaData, record){
@@ -49,12 +49,12 @@ Ext.define('app.view.TermDelivery.ItemsGrid', {
 					}
 				},
 				{
-					width: 60,
+					width: 70,
 					header: 'Кол-во<br/>денег<br/>в терминале',
 					dataIndex: 'price'
 				},
 				{
-					width: 60,
+					width: 70,
 					header: 'Кол-во<br/>купюр<br/>в терминале',
 					dataIndex: 'price'
 				},
@@ -64,17 +64,17 @@ Ext.define('app.view.TermDelivery.ItemsGrid', {
 					dataIndex: 'price'
 				},
 				{
-					width: 60,
+					width: 65,
 					header: 'Состояние',
 					dataIndex: 'price'
 				},
 				{
-					width: 60,
+					width: 70,
 					header: 'Причина<br/>включения<br/>в маршрут',
 					dataIndex: 'price'
 				},
 				{
-					width: 50,
+					width: 55,
 					header: 'Система',
 					dataIndex: 'price'
 				},
@@ -84,12 +84,12 @@ Ext.define('app.view.TermDelivery.ItemsGrid', {
 					dataIndex: 'price'
 				},
 				{
-					width: 60,
+					width: 65,
 					header: 'Отделение<br/>банка',
 					dataIndex: 'price'
 				},
 				{
-					width: 70,
+					width: 80,
 					header: 'Комментарий<br/>ОШ',
 					dataIndex: 'price'
 				}

@@ -1,4 +1,4 @@
-Ext.define('app.view.TermDelivery.Panel', {
+Ext.define('app.view.TermDelivery.Container', {
     extend: 'Ext.container.Container',
 	
 	requires: [
@@ -12,7 +12,7 @@ Ext.define('app.view.TermDelivery.Panel', {
 	},
 	
 	height: 600,
-	
+	id: 'mainContainer',
 	renderTo: Ext.get('term_delivery_js'),
 	
 	items: [

@@ -19,11 +19,13 @@ Ext.define('app.view.TermDelivery.Grid', {
 					columns: [
 						{
 							header: 'Всего',
+							align: 'center',
 							dataIndex: 'terminals_quantity',
 							width: 50
 						},
 						{
 							header: 'В<br/>маршруте',
+							align: 'center',
 							dataIndex: 'terminals_in_route',
 							width: 60
 						}
@@ -37,7 +39,7 @@ Ext.define('app.view.TermDelivery.Grid', {
 					id: 'p',
 					items: [
 					{
-						icon: 'ext/examples/ux/grid/gridPrinterCss/printer.png'
+						icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png'
 					}]
 				},
 				{
@@ -48,18 +50,16 @@ Ext.define('app.view.TermDelivery.Grid', {
 					id: 'is',
 					items: [
 					{
-						icon: 'ext/examples/ux/grid/gridPrinterCss/printer.png'
+						icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png'
 					}]
 				},
 				{
 					xtype: 'actioncolumn',
 					width: 25,
-					header: 'Э',
 					align: 'center',
-					id: 'e',
 					items: [
 					{
-						icon: 'ext/examples/ux/grid/gridPrinterCss/printer.png'
+						icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png'
 					}]
 				}
 			],
@@ -72,7 +72,7 @@ Ext.define('app.view.TermDelivery.Grid', {
 			selModel: {
 				selType: 'rowmodel'
 			},
-			width: 285,
+			width: 290,
 			viewConfig: {
 				enableTextSelection: true
 			}

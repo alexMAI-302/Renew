@@ -1,90 +1,139 @@
 # encoding: utf-8
 class TermDeliveryController < ApplicationPageErrorController
 
+  def get_zone_types
+    zone_types = ActiveRecord::Base.connection.select_all( "select id, name from sp_values where sp_tp=1626" )
+    
+    render :text => zone_types.to_json
+  end
+  
+  def routes
+        
+    terminals = ActiveRecord::Base.connection.select_all("
+    SELECT
+      *
+    FROM
+      spp.Terminal_Delivery(
+        '#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',
+        #{params[:subdealer_id].to_i},
+        #{params[:zone_type_id].to_i},
+        '#{Time.parse(params[:ddate]).strftime('%F')}',
+        #{params[:only_with_errors].to_i},
+        #{params[:only_in_route].to_i})")
+
+    routes = []
+    terminals.each do |a|
+      routes << {
+        "id" => a["zone"],
+        "name" => a["zone_name"],
+        "points" => a["points"],
+        "points_inroute" => a["points_inroute"],
+        "delivery" => a["delivery"],
+        "delivery_status4" => a["delivery_status4"],
+        "delivery_status4_right" => a["delivery_status4_right"]
+      }
+    end
+    routes.uniq!
+    render :text => routes.to_json
+  end
+  
+  def terminals
+    terminals = ActiveRecord::Base.connection.select_all("
+    SELECT
+      *
+    FROM
+      spp.Terminal_Delivery(
+        '#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',
+        #{params[:subdealer_id].to_i},
+        #{params[:zone_type_id].to_i},
+        '#{Time.parse(params[:ddate]).strftime('%F')}',
+        #{params[:only_with_errors].to_i},
+        #{params[:only_in_route].to_i})
+        #{params[:zone_id].to_i})")
+    
+    render :text => terminals.to_json
+  end
+
   def index
-	@longitude = 30
-	@latitude = 50
-
-	set_conditions
-	
-	@rst_sub = ActiveRecord::Base.connection.select_all("
-	select top 20
-		ps.subdealerid id,
-		ps.name name,
-		g.latitude latitude,
-		g.longitude longitude,
-		g.city city
-	from
-		pps_subdealers ps
-		join subdealer_geoaddress sg on sg.subdealerid = ps.subdealerid 
-		join geoaddress g on g.id = sg.geoaddressid 
-	where
-		ps.subdealerid in (select main_subdealerid from pps_terminal)" )
-	@subdealers_list = @rst_sub.collect {|p| [ p["name"], p["id"] ] }
-	@rst_sub.each do |p|
-		if p["id"] == @subdealer
-			@longitude = p["longitude"]
-			@latitude = p["latitude"]
-		end 
-	end
-	
-	@rst_zone_type = ActiveRecord::Base.connection.select_all( "select id, name from sp_values where sp_tp=1626" )
-	@zone_type_list = @rst_zone_type.collect {|p| [ p["name"], p["id"] ] }
-	@rst_zone_shift = ActiveRecord::Base.connection.select_all( "select id, name from pps_zone_shift where spv_id=#{@spv_id}" )
-	@zone_shift_list = @rst_zone_shift.collect {|p| [ p["name"], p["id"] ] }
-	@submit =ActiveRecord::Base.connection.select_value("
-			select isnull(rusgs.renew_user_id,0)
-			from renew_web.renew_users ru
-			left outer join renew_web.renew_users_groups rusgs on rusgs.renew_user_id=ru.id and rusgs.renew_user_group_id=13
-			where ru.name='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}' ");
-			
-	@save_IS =ActiveRecord::Base.connection.select_value("
-			select isnull(rusgs.renew_user_id,0)
-			from renew_web.renew_users ru
-			left outer join renew_web.renew_users_groups rusgs on rusgs.renew_user_id=ru.id and rusgs.renew_user_group_id=18
-			where ru.name='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}' ");
-
-	@save_osh =ActiveRecord::Base.connection.select_value("
-			select isnull(rusgs.renew_user_id,0)
-			from renew_web.renew_users ru
-			left outer join renew_web.renew_users_groups rusgs on rusgs.renew_user_id=ru.id and rusgs.renew_user_group_id=21
-			where ru.name='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}' ");
-	logger.info "save_osh="
-	logger.info @save_osh.to_s
-			
-	@rst_term = ActiveRecord::Base.connection.select_all( "select * from spp.Terminal_Delivery('#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',#{@subdealer},#{@spv_id},'#{@ddate}',#{@err_only}, #{@show_inroute})")														   
-	zone=""
-	@rst_route = []
-	i=0
-	@rst_term.each do |a|
-			if zone!=a["zone"] then
-				@rst_route<< Hash["zone", a["zone"], "zone_name", a["zone_name"], "points", a["points"],"points_inroute", a["points_inroute"],"delivery", a["delivery"],"delivery_status4", a["delivery_status4"], "delivery_status4_right", a["delivery_status4_right"]]				
-			end
-			zone=a["zone"]
-	end
-	@zone_list = @rst_route.collect {|p| [ p["zone_name"], p["zone"] ] }
-	@zone_list <<  ["Не выбрано",-666] 													   
-	@break = ActiveRecord::Base.connection.select_all( "SELECT 	id, break_name name, break_penalty FROM terminal_break order by name")														   	
-	@break_list = @break.collect {|p| [ p["name"], p["id"] ] }
-	@break_list <<  ["Не выбрано",-666] 
+  	@longitude = 30
+  	@latitude = 50
+  
+  	set_conditions
+  	
+  	@rst_sub = ActiveRecord::Base.connection.select_all("
+  	select top 20
+  		ps.subdealerid id,
+  		ps.name name,
+  		g.latitude latitude,
+  		g.longitude longitude,
+  		g.city city
+  	from
+  		pps_subdealers ps
+  		join subdealer_geoaddress sg on sg.subdealerid = ps.subdealerid 
+  		join geoaddress g on g.id = sg.geoaddressid 
+  	where
+  		ps.subdealerid in (select main_subdealerid from pps_terminal)" )
+  	@subdealers_list = @rst_sub.collect {|p| [ p["name"], p["id"] ] }
+  	@rst_sub.each do |p|
+  		if p["id"] == @subdealer
+  			@longitude = p["longitude"]
+  			@latitude = p["latitude"]
+  		end 
+  	end
+  	
+  	@rst_zone_shift = ActiveRecord::Base.connection.select_all( "select id, name from pps_zone_shift where spv_id=#{@spv_id}" )
+  	@zone_shift_list = @rst_zone_shift.collect {|p| [ p["name"], p["id"] ] }
+  	@submit =ActiveRecord::Base.connection.select_value("
+  			select isnull(rusgs.renew_user_id,0)
+  			from renew_web.renew_users ru
+  			left outer join renew_web.renew_users_groups rusgs on rusgs.renew_user_id=ru.id and rusgs.renew_user_group_id=13
+  			where ru.name='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}' ");
+  			
+  	@save_IS =ActiveRecord::Base.connection.select_value("
+  			select isnull(rusgs.renew_user_id,0)
+  			from renew_web.renew_users ru
+  			left outer join renew_web.renew_users_groups rusgs on rusgs.renew_user_id=ru.id and rusgs.renew_user_group_id=18
+  			where ru.name='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}' ");
+  
+  	@save_osh =ActiveRecord::Base.connection.select_value("
+  			select isnull(rusgs.renew_user_id,0)
+  			from renew_web.renew_users ru
+  			left outer join renew_web.renew_users_groups rusgs on rusgs.renew_user_id=ru.id and rusgs.renew_user_group_id=21
+  			where ru.name='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}' ");
+  			
+  	@rst_term = ActiveRecord::Base.connection.select_all( "select * from spp.Terminal_Delivery('#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',#{@subdealer},#{@spv_id},'#{@ddate}',#{@err_only}, #{@show_inroute})")														   
+  	zone=""
+  	@rst_route = []
+  	i=0
+  	@rst_term.each do |a|
+  			if zone!=a["zone"] then
+  				@rst_route<< Hash["zone", a["zone"], "zone_name", a["zone_name"], "points", a["points"],"points_inroute", a["points_inroute"],"delivery", a["delivery"],"delivery_status4", a["delivery_status4"], "delivery_status4_right", a["delivery_status4_right"]]				
+  			end
+  			zone=a["zone"]
+  	end
+  	@zone_list = @rst_route.collect {|p| [ p["zone_name"], p["zone"] ] }
+  	@zone_list <<  ["Не выбрано",-666] 													   
+  	@break = ActiveRecord::Base.connection.select_all( "SELECT 	id, break_name name, break_penalty FROM terminal_break order by name")														   	
+  	@break_list = @break.collect {|p| [ p["name"], p["id"] ] }
+  	@break_list <<  ["Не выбрано",-666] 
   end
   
   def route_export
-	headers['Content-Type'] = "application/vnd.ms-excel"
-    
-	zone=params[:zone].to_i
-	date=params[:date]
-	
-	set_conditions	
-	s = "select * from spp.Terminal_Delivery(@renew_user='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}', @subdealerID= #{@subdealer}, @zone_type=#{@spv_id},@ddate='#{@ddate}',@err_only=#{@err_only}, @show_inroute= #{@show_inroute}, @zone=#{zone})"
-	logger.info s
-	@rst_term = ActiveRecord::Base.connection.select_all( s)														   
-	
-	
-	render :layout => false
-end
+  	headers['Content-Type'] = "application/vnd.ms-excel"
+      
+  	zone=params[:zone].to_i
+  	date=params[:date]
+  	
+  	set_conditions	
+  	s = "select * from spp.Terminal_Delivery(@renew_user='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}', @subdealerID= #{@subdealer}, @zone_type=#{@spv_id},@ddate='#{@ddate}',@err_only=#{@err_only}, @show_inroute= #{@show_inroute}, @zone=#{zone})"
+  	logger.info s
+  	@rst_term = ActiveRecord::Base.connection.select_all( s)														   
+  	
+  	
+  	render :layout => false
+  end
   
-  	def save_terminal	
+  def save_terminal	
 		begin 
 			if params[:a]
 				params[:a].delete_if do | key, value |
@@ -111,7 +160,7 @@ end
   end
   
   
-  	def status4_save
+  def status4_save
 		begin 
 			if params[:r]
 				params[:r].each_pair do |id, value|
@@ -143,7 +192,7 @@ end
 	end
   
   	
-    def zone
+  def zone
 		set_conditions	
 		ActiveRecord::Base.include_root_in_json = false
 		@rst_site = ActiveRecord::Base.connection.select_all( "
@@ -220,9 +269,9 @@ end
 		@rst_term = ActiveRecord::Base.connection.select_all( "select* from spp.Terminal_Delivery(#{subdealer},'#{zone}')")
 		render :partial => 'upd_terminal'
 
-  	end
+  end
 	
-	 def term_update
+	def term_update
 		logger.info "term_update"
 		@terminalid = params[:terminalid].to_i
 		s = "begin declare @r int;  @r = call dbo.prc_refresh_terminal_status('#{@terminalid}'); commit; select @r r; end;"
@@ -235,143 +284,124 @@ end
 		logger.info "a_errortext="
 		logger.info @a["ErrorText"].to_s
 		render :partial => 'term_errortext'
-end
-def term_update_lastconnecttime
-		logger.info "term_update_lastconnecttime"
-		@terminalid = params[:terminalid].to_i
-		@value=ActiveRecord::Base.connection.select_value("SELECT lastactivitytime from cache_terminal_status cts join  pps_terminal pt on cts.terminalid=pt.terminalid and cts.src_system=pt.src_system where pt.id=#{@terminalid}")
-		@a = Hash.new()
-		@a["LastConnectTime"]   = @value
-		logger.info @terminalid.to_s+" "+@a.to_s
-		render :partial => 'term_lastconnecttime'
-end
-def term_update_lastpaymenttime
-		logger.info "term_update_lastpaymenttime"
-		@terminalid = params[:terminalid].to_i
-		@value=ActiveRecord::Base.connection.select_value("SELECT lastpaymenttime from cache_terminal_status cts join  pps_terminal pt on cts.terminalid=pt.terminalid and cts.src_system=pt.src_system where pt.id=#{@terminalid}")
-		@a = Hash.new()
-		@a["LastPaymentTime"]   = @value
-		logger.info @terminalid.to_s+" "+@a.to_s
-		render :partial => 'term_lastpaymenttime'
-end
-	
-def term_update_servstatus
-		logger.info "term_update_servstatus"
-		@terminalid = params[:terminalid].to_i
-		@ddate = session[:ddate]
-		@spv_id = session[:spv_id]
-		req = "
-						select	servstatus
-						from	dbo.osmp_routepoint orp
-								join dbo.osmp_placement op on op.id = orp.placement
-								join dbo.osmp_terminal ot on op.terminal = ot.id
-								join dbo.osmp_route r on orp.route = r.id
-								join delivery on delivery.id=r.delivery
-								join agents on delivery.securer=agents.id
-								join pps_zone on pps_zone.name=agents.name 
-						where	cast( delivery.ddate as date) =cast('#{@ddate}' as date) and 
-								ot.pps_terminal = #{@terminalid} and
-								pps_zone.spv_id=#{@spv_id}";
-		@value=ActiveRecord::Base.connection.select_value(req);
-		@a = Hash.new()
-		@a["servstatus"]   = @value
-		@a["terminalid"]   = @terminalid
-		logger.info @terminalid.to_s+" "+@a.to_s+" req="+req
-		render :partial => 'term_servstatus'
-end
+  end
+  def term_update_lastconnecttime
+  		logger.info "term_update_lastconnecttime"
+  		@terminalid = params[:terminalid].to_i
+  		@value=ActiveRecord::Base.connection.select_value("SELECT lastactivitytime from cache_terminal_status cts join  pps_terminal pt on cts.terminalid=pt.terminalid and cts.src_system=pt.src_system where pt.id=#{@terminalid}")
+  		@a = Hash.new()
+  		@a["LastConnectTime"]   = @value
+  		logger.info @terminalid.to_s+" "+@a.to_s
+  		render :partial => 'term_lastconnecttime'
+  end
+  def term_update_lastpaymenttime
+  		logger.info "term_update_lastpaymenttime"
+  		@terminalid = params[:terminalid].to_i
+  		@value=ActiveRecord::Base.connection.select_value("SELECT lastpaymenttime from cache_terminal_status cts join  pps_terminal pt on cts.terminalid=pt.terminalid and cts.src_system=pt.src_system where pt.id=#{@terminalid}")
+  		@a = Hash.new()
+  		@a["LastPaymentTime"]   = @value
+  		logger.info @terminalid.to_s+" "+@a.to_s
+  		render :partial => 'term_lastpaymenttime'
+  end
+  	
+  def term_update_servstatus
+  		logger.info "term_update_servstatus"
+  		@terminalid = params[:terminalid].to_i
+  		@ddate = session[:ddate]
+  		@spv_id = session[:spv_id]
+  		req = "
+  						select	servstatus
+  						from	dbo.osmp_routepoint orp
+  								join dbo.osmp_placement op on op.id = orp.placement
+  								join dbo.osmp_terminal ot on op.terminal = ot.id
+  								join dbo.osmp_route r on orp.route = r.id
+  								join delivery on delivery.id=r.delivery
+  								join agents on delivery.securer=agents.id
+  								join pps_zone on pps_zone.name=agents.name 
+  						where	cast( delivery.ddate as date) =cast('#{@ddate}' as date) and 
+  								ot.pps_terminal = #{@terminalid} and
+  								pps_zone.spv_id=#{@spv_id}";
+  		@value=ActiveRecord::Base.connection.select_value(req);
+  		@a = Hash.new()
+  		@a["servstatus"]   = @value
+  		@a["terminalid"]   = @terminalid
+  		logger.info @terminalid.to_s+" "+@a.to_s+" req="+req
+  		render :partial => 'term_servstatus'
+  end
+  
 	def route_print
-	@zone="11"
-	print params.to_s
-	#@zone="11"
-	
-	if params[:zone] 
-		zone=params[:zone].to_i
-		@date=params[:date]
-		@zone_name=ActiveRecord::Base.connection.select_value("	SELECT name	from pps_zone where id = #{zone} ")
-		@rep =ActiveRecord::Base.connection.select_all("		
-		SELECT
-			pps_zone.name	pps_zone_name,
-			osmp_terminal.code          terminal_code,
-			contract_placement.name     address,
-			isnull(convert(varchar,osmp_routepoint.sstack_to),'')   seal_to,
-			isnull(convert(varchar,osmp_routepoint.sstack_plan),'') seal_plan,
-			isnull(osmp_routepoint.info,'')        info,
-			pps_terminal.terminalid     terminalid
-	FROM	pps_zone
-			join agents on pps_zone.name=agents.name
-			join delivery on agents.id=delivery.securer
-			join osmp_route on osmp_route.delivery=delivery.id
-			join osmp_routepoint on osmp_routepoint.route=osmp_route.id
-				join osmp_placement on osmp_placement.id = osmp_routepoint.placement
-				join contract_placement on contract_placement.id = osmp_placement.cplacement
-				left outer join (osmp_increquest
-									join osmp_reqtype on osmp_reqtype.id = osmp_increquest.type
-								) on osmp_increquest.id = osmp_routepoint.reqid
-				join osmp_terminal on osmp_terminal.id = osmp_placement.terminal
-				join pps_terminal on pps_terminal.id = osmp_terminal.pps_terminal
-	WHERE		pps_zone.id = #{zone}  and delivery.ddate>='#{@date}' and delivery.ddate<dateadd(day,1,'#{@date}')
-	AND ISNULL(osmp_reqtype.code, '') <> 'service'
-	ORDER BY
-			osmp_routepoint.id		")
-			
-			
-			
-				
-	end	
-    
-  end 
-  
-   
- 
-private
-
-  def set_conditions
-	@subdealer = 7
-	@spv_id = 5626
-	@err_only= -1
-	logger.info "this"+params.to_s
-	@show_inroute = -1
-	if params[:post] 
-		@subdealer = params[:post][:subdealer].to_i
-		session[:subdealer]  = @subdealer
-		@spv_id = params[:post][:spv_id].to_i
-		session[:spv_id]  = @spv_id
-		@err_only = params[:post][:err_only].to_i
-		session[:err_only ] = @err_only
-		@show_inroute = params[:post][:show_inroute].to_i
-		session[:show_inroute]  = @show_inroute
-		logger.info "params@show_inroute="+@show_inroute.to_s
-	else
-		@subdealer = session[:subdealer] if session[:subdealer]
-		@spv_id = session[:spv_id] if session[:spv_id]
-		@err_only = session[:err_only] if session[:err_only]
-		@show_inroute = session[:show_inroute] if session[:show_inroute]
-		logger.info "session@show_inroute="+@show_inroute.to_s
-	end
-	@ddate =Date.today().to_s
-	if params[:ddate]
-		@ddate = params[:ddate]
-		session[:ddate] = @ddate
-	else
-		session[:ddate] = @ddate
-	end
-	
-	logger.info "2@err_only="
-	logger.info @err_only.to_s
-	if @err_only.nil?
-		@err_only= -1
-	end
-	
- end
- 
-  
-  
-  def authorize_geo
-
-    unless session[:user_id] and session[:isgeo]
-      flash[:notice] = " Autorization in GeoGroup (AD) "
-	  redirect_to :controller => "login", :action => "login" 
+  	@zone="11"
+  	print params.to_s
+  	#@zone="11"
+  	
+  	if params[:zone] 
+  		zone=params[:zone].to_i
+  		@date=params[:date]
+  		@zone_name=ActiveRecord::Base.connection.select_value("	SELECT name	from pps_zone where id = #{zone} ")
+  		@rep =ActiveRecord::Base.connection.select_all("		
+  		SELECT
+  			pps_zone.name	pps_zone_name,
+  			osmp_terminal.code          terminal_code,
+  			contract_placement.name     address,
+  			isnull(convert(varchar,osmp_routepoint.sstack_to),'')   seal_to,
+  			isnull(convert(varchar,osmp_routepoint.sstack_plan),'') seal_plan,
+  			isnull(osmp_routepoint.info,'')        info,
+  			pps_terminal.terminalid     terminalid
+  	FROM	pps_zone
+  			join agents on pps_zone.name=agents.name
+  			join delivery on agents.id=delivery.securer
+  			join osmp_route on osmp_route.delivery=delivery.id
+  			join osmp_routepoint on osmp_routepoint.route=osmp_route.id
+  				join osmp_placement on osmp_placement.id = osmp_routepoint.placement
+  				join contract_placement on contract_placement.id = osmp_placement.cplacement
+  				left outer join (osmp_increquest
+  									join osmp_reqtype on osmp_reqtype.id = osmp_increquest.type
+  								) on osmp_increquest.id = osmp_routepoint.reqid
+  				join osmp_terminal on osmp_terminal.id = osmp_placement.terminal
+  				join pps_terminal on pps_terminal.id = osmp_terminal.pps_terminal
+  	WHERE		pps_zone.id = #{zone}  and delivery.ddate>='#{@date}' and delivery.ddate<dateadd(day,1,'#{@date}')
+  	AND ISNULL(osmp_reqtype.code, '') <> 'service'
+  	ORDER BY
+  			osmp_routepoint.id		")	
     end
-  end 
-
+  end
+  
+  private
+  def set_conditions
+  	@subdealer = 7
+  	@spv_id = 5626
+  	@err_only= -1
+  	logger.info "this"+params.to_s
+  	@show_inroute = -1
+  	if params[:post] 
+  		@subdealer = params[:post][:subdealer].to_i
+  		session[:subdealer]  = @subdealer
+  		@spv_id = params[:post][:spv_id].to_i
+  		session[:spv_id]  = @spv_id
+  		@err_only = params[:post][:err_only].to_i
+  		session[:err_only ] = @err_only
+  		@show_inroute = params[:post][:show_inroute].to_i
+  		session[:show_inroute]  = @show_inroute
+  		logger.info "params@show_inroute="+@show_inroute.to_s
+  	else
+  		@subdealer = session[:subdealer] if session[:subdealer]
+  		@spv_id = session[:spv_id] if session[:spv_id]
+  		@err_only = session[:err_only] if session[:err_only]
+  		@show_inroute = session[:show_inroute] if session[:show_inroute]
+  		logger.info "session@show_inroute="+@show_inroute.to_s
+  	end
+  	@ddate =Date.today().to_s
+  	if params[:ddate]
+  		@ddate = params[:ddate]
+  		session[:ddate] = @ddate
+  	else
+  		session[:ddate] = @ddate
+  	end
+  	
+  	logger.info "2@err_only="
+  	logger.info @err_only.to_s
+  	if @err_only.nil?
+  		@err_only= -1
+  	end
+  end
 end

@@ -8,5 +8,6 @@ Ext.define('app.store.Subdealers', {
 		reader: {
 			type: 'json'
 		}
-	}
+	},
+	autoLoad: true
 });

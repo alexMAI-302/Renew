@@ -1,5 +1,5 @@
 //хранилище типов зоны
-Ext.define('app.store.ZoneTypes', {
+Ext.define('app.store.TermDelivery.ZoneTypes', {
 	extend: 'Ext.data.Store',
 	model: 'app.model.valueModel',
 	proxy: {
@@ -8,5 +8,6 @@ Ext.define('app.store.ZoneTypes', {
 		reader: {
 			type: 'json'
 		}
-	}
+	},
+	autoLoad: true
 });

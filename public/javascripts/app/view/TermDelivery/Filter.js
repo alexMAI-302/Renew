@@ -23,7 +23,9 @@ Ext.define('app.view.TermDelivery.Filter', {
 			displayField: 'name',
 			valueField: 'id',
 			queryMode: 'local',
-			allowBlank: false
+			allowBlank: false,
+			width: 250,
+			labelWidth: 100
 		},
 		{
 			id: 'zoneTypeCombo',
@@ -32,7 +34,9 @@ Ext.define('app.view.TermDelivery.Filter', {
 			displayField: 'name',
 			valueField: 'id',
 			queryMode: 'local',
-			allowBlank: false
+			allowBlank: false,
+			width: 200,
+			labelWidth: 100
 		},
 		{
 			id: 'ddate',
@@ -42,10 +46,26 @@ Ext.define('app.view.TermDelivery.Filter', {
 			format: 'd.m.Y',
 			altFormat: 'd/m/Y|d m Y',
 			startDay: 1,
-			value: Ext.Date.parse(Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d')
+			value: Ext.Date.parse(Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'),
+			width: 150,
+			labelWidth: 50
 		},
 		{
-			id: 'filter',
+			id: 'onlyWithErrors',
+			xtype: 'checkbox',
+			fieldLabel: 'Только с ошибками',
+			labelWidth: 120,
+			width: 145
+		},
+		{
+			id: 'onlyInRoute',
+			xtype: 'checkbox',
+			fieldLabel: 'Только в маршруте',
+			labelWidth: 120,
+			width: 145
+		},
+		{
+			id: 'filterRoutes',
 			xtype: 'button',
 			text: 'Фильтр'
 		}
