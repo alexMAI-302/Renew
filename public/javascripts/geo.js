@@ -273,9 +273,9 @@ function Unact(){
 					
 		            if(!isFake){
 		            	if(currentId!=null){
-		            		$('a_'+currentId+'_fulladdress').value = geoResultInfo;
+		            		$('a_'+currentId+'_fulladdress').value = geoResultInfo.text;
 		            	} else {
-		            		$('a_fulladdress').value = geoResultInfo;
+		            		$('a_fulladdress').value = geoResultInfo.text;
 		            	}
 		            	findPlace();
 		            } else {
