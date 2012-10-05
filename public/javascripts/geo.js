@@ -103,10 +103,10 @@ function Unact(){
 								
 								switch(page){
 									case "geo":
-										me.geo.functionGeo(i, geoResultPoint);
+										me.common.functionGeo(i, geoResultPoint);
 									break;
 									case "placeunload":
-										me.geo.functionPlaceunload(sid, i);
+										me.common.functionPlaceunload(sid, i);
 									break;
 								}
 								
@@ -242,13 +242,15 @@ function Unact(){
 						if(currentId!=null){
 							for (var i = 0; i < pp.length; i++) {
 								if (pp[i].id == current_id) {
-										placemarks[i].setGeoPoint(geoResult.getGeoPoint());
-										placemarks[i].setOptions({style: "default#workshopIcon", draggable: true});
-										$('a_' + current_id + '_fulladdress').value = geoResult.text;
-										$('a_' + current_id + '_needsave').checked = true;
+									placemarks[i].options.set("preset", "twirl#workshopIcon");
+									placemarks[i].options.set("draggable", true);
+									placemarks[i].geometry.setCoordinates(geoResultPoint);
+									$('a_' + current_id + '_fulladdress').value = geoResultInfo;
+									$('a_' + current_id + '_needsave').checked = true;
 								}
 								else {
-									placemarks[i].setOptions({style: "default#shopIcon", draggable: false});
+									placemarks[i].options.set("preset", "twirl#shopIcon");
+									placemarks[i].options.set("draggable", false);
 								};
 							}
 							
@@ -271,9 +273,9 @@ function Unact(){
 					
 		            if(!isFake){
 		            	if(currentId!=null){
-		            		$('a_'+currentId+'_fulladdress').value = geoResult.text;
+		            		$('a_'+currentId+'_fulladdress').value = geoResultInfo;
 		            	} else {
-		            		$('a_fulladdress').value = geoResult.text;
+		            		$('a_fulladdress').value = geoResultInfo;
 		            	}
 		            	findPlace();
 		            } else {
