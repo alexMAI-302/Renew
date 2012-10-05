@@ -10,31 +10,31 @@ Ext.define('app.view.TermDelivery.Grid', {
 			id: 'routesTable',
 			columns: [
 				{
-					width: 90,
+					width: 100,
 					header: 'Маршрут',
-					dataIndex: 'sumtotal'
+					dataIndex: 'name'
 				},
 				{
 					header: 'Терминалов',
 					columns: [
 						{
 							header: 'Всего',
-							dataIndex: 'volume_so',
-							width: 70
+							dataIndex: 'terminals_quantity',
+							width: 50
 						},
 						{
 							header: 'В<br/>маршруте',
-							dataIndex: 'donevol_so',
-							width: 40
+							dataIndex: 'terminals_in_route',
+							width: 60
 						}
 					]
 				},
 				{
 					xtype: 'actioncolumn',
-					width: 50,
+					width: 25,
 					header: 'П',
 					align: 'center',
-					id: 'printPalmSale',
+					id: 'p',
 					items: [
 					{
 						icon: 'ext/examples/ux/grid/gridPrinterCss/printer.png'
@@ -42,10 +42,10 @@ Ext.define('app.view.TermDelivery.Grid', {
 				},
 				{
 					xtype: 'actioncolumn',
-					width: 50,
+					width: 25,
 					header: 'ИЗ',
 					align: 'center',
-					id: 'printPalmSale',
+					id: 'is',
 					items: [
 					{
 						icon: 'ext/examples/ux/grid/gridPrinterCss/printer.png'
@@ -53,10 +53,10 @@ Ext.define('app.view.TermDelivery.Grid', {
 				},
 				{
 					xtype: 'actioncolumn',
-					width: 50,
+					width: 25,
 					header: 'Э',
 					align: 'center',
-					id: 'printPalmSale',
+					id: 'e',
 					items: [
 					{
 						icon: 'ext/examples/ux/grid/gridPrinterCss/printer.png'
@@ -72,7 +72,7 @@ Ext.define('app.view.TermDelivery.Grid', {
 			selModel: {
 				selType: 'rowmodel'
 			},
-			height: 200,
+			width: 285,
 			viewConfig: {
 				enableTextSelection: true
 			}

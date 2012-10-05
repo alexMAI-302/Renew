@@ -19,7 +19,7 @@ Ext.define('app.controller.TermDelivery', {
 	],
 	
 	views: [
-		'TermDelivery.Panel'
+		'TermDelivery.Container'
 	],
 	
 	zoneTypesStore: null,
@@ -33,7 +33,7 @@ Ext.define('app.controller.TermDelivery', {
 	init: function() {
 		var controller = this;
 		
-		controller.mainContainer = Ext.create('app.view.TermDelivery.Panel');
+		controller.mainContainer = Ext.create('app.view.TermDelivery.Container');
 		
 		controller.control({
 			
@@ -57,27 +57,9 @@ Ext.define('app.controller.TermDelivery', {
 		controller.terminalsStore = controller.getTermDeliveryTerminalsStore();
 		controller.branchesStore = controller.getBranchesStore();
 		
-		function sitesRenderer(value){
-			var matching=null;
-			controller.sitesStore.each(function(record){
-				if(record.get('id')==value){
-					matching=record.get('name');
-				}
-				return !matching;
-			});
-			return matching;
-		};
-		//ХАРДКОД НОМЕРА КОЛОНКИ!!!
-		Ext.getCmp('movementDiffTable').columns[0].renderer=sitesRenderer;
-		Ext.getCmp('movementDiffTable').columns[1].renderer=sitesRenderer;
-		
-		Ext.getCmp('siteFrom').bindStore(controller.sitesStore);
-		Ext.getCmp('siteTo').bindStore(controller.sitesStore);
-		Ext.getCmp('movementDiffTable').reconfigure(controller.movementDiffStore);
-		Ext.getCmp('actionType').bindStore(controller.actionTypeStore);
-		Ext.getCmp('siteSrcAction').bindStore(controller.sitesSrcClearStore);
-		Ext.getCmp('siteDestAction').bindStore(controller.sitesDestClearStore);
-		Ext.getCmp('ndocSOAction').bindStore(controller.ndocsSOClearStore);
-		Ext.getCmp('ndocSupAction').bindStore(controller.ndocsSupClearStore);
+		Ext.getCmp('zoneTypeCombo').bindStore(controller.zoneTypesStore);
+		Ext.getCmp('subdealerCombo').bindStore(controller.subdealersStore);
+		Ext.getCmp('routesTable').reconfigure(controller.routesStore);
+		Ext.getCmp('terminalsTable').bindStore(controller.terminalsStore);
 	}
 });
