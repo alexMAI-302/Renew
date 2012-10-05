@@ -1,6 +1,5 @@
-Ext.define('app.view.TermDelivery.container', {
-    extend: 'Ext.container.Container',
-	alias: 'widget.ordersContainer',
+Ext.define('app.view.TermDelivery.Panel', {
+    extend: 'Ext.form.Panel',
 	
 	requires: [
 		'app.view.mag.palmSaleOrders.filter',
@@ -11,6 +10,8 @@ Ext.define('app.view.TermDelivery.container', {
     layout: {
 		type: 'border'
 	},
+	
+	renderTo: Ext.get('term_delivery_js'),
 	
 	items: [
         {

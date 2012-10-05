@@ -5,11 +5,11 @@ Ext.require([
 Ext.define('app.controller.TermDelivery', {
     extend: 'Ext.app.Controller',
 	stores: [
-		'ZoneTypesStore',
-		'SubdealersStore',
-		'BranchesStore',
-		'TermDelivery.RoutesStore',
-		'TermDelivery.TerminalsStore'
+		'ZoneTypes',
+		'Subdealers',
+		'Branches',
+		'TermDelivery.Routes',
+		'TermDelivery.Terminals'
 	],
 	
 	models: [
@@ -19,7 +19,7 @@ Ext.define('app.controller.TermDelivery', {
 	],
 	
 	views: [
-		'TermDelivery.MainContainer'
+		'TermDelivery.Panel'
 	],
 	
 	zoneTypesStore: null,
@@ -33,7 +33,7 @@ Ext.define('app.controller.TermDelivery', {
 	init: function() {
 		var controller = this;
 		
-		controller.mainContainer = Ext.create('app.view.TermDelivery.Container');
+		controller.mainContainer = Ext.create('app.view.TermDelivery.Panel');
 		
 		controller.control({
 			
