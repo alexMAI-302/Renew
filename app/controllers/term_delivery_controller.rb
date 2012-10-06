@@ -88,6 +88,43 @@ class TermDeliveryController < ApplicationPageErrorController
     
     render :text => terminals_list.to_json
   end
+  
+  def get_config
+    config = ActiveRecord::Base.connection.select_value("
+  		SELECT
+			ISNULL((SELECT
+				1
+			FROM
+				renew_web.renew_users_groups rusgs
+			WHERE
+				rusgs.renew_user_id=ru.id AND rusgs.renew_user_group_id=18), 0) show_save_is,
+			ISNULL((SELECT
+				1
+			FROM
+				renew_web.renew_users_groups rusgs
+			WHERE
+				rusgs.renew_user_id=ru.id AND rusgs.renew_user_group_id=21), 0) show_make_delivery
+  		FROM
+			renew_web.renew_users ru
+  		WHERE
+			ru.name='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}' ");
+  
+  	render :text => config.to_json
+  end
+  
+  def get_breaks
+    breaks = ActiveRecord::Base.connection.select_all("
+	SELECT
+		id,
+		break_name name,
+		break_penalty
+	FROM
+		terminal_break
+	ORDER BY
+		name")
+	
+	render :text => breaks.to_json
+  end
 
   def index
   	@longitude = 30
@@ -163,7 +200,6 @@ class TermDeliveryController < ApplicationPageErrorController
   	s = "select * from spp.Terminal_Delivery(@renew_user='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}', @subdealerID= #{@subdealer}, @zone_type=#{@spv_id},@ddate='#{@ddate}',@err_only=#{@err_only}, @show_inroute= #{@show_inroute}, @zone=#{zone})"
   	logger.info s
   	@rst_term = ActiveRecord::Base.connection.select_all( s)														   
-  	
   	
   	render :layout => false
   end
