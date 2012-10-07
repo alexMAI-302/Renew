@@ -36,11 +36,11 @@ Ext.define('app.view.TermDelivery.Grid', {
 					width: 25,
 					header: 'П',
 					align: 'center',
-					id: 'p',
-					items: [
-					{
-						icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png'
-					}]
+					id: 'printRoute',
+					icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png',
+					handler: function(view, rowIndex, colIndex, item, e){
+						
+					}
 				},
 				{
 					xtype: 'actioncolumn',
@@ -48,19 +48,19 @@ Ext.define('app.view.TermDelivery.Grid', {
 					header: 'ИЗ',
 					align: 'center',
 					id: 'is',
-					items: [
-					{
-						icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png'
-					}]
+					icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png',
+					handler: function(view, rowIndex, colIndex, item, e){
+						
+					}
 				},
 				{
 					xtype: 'actioncolumn',
 					width: 25,
 					align: 'center',
-					items: [
-					{
-						icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png'
-					}]
+					icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png',
+					handler: function(view, rowIndex, colIndex, item, e){
+						
+					}
 				}
 			],
 			tbar: [
