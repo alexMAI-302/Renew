@@ -28,7 +28,22 @@ Ext.define('app.controller.TermDelivery', {
 	routesStore: null,
 	terminalsStore: null,
 	
+	loadStatus: {
+		subdealersStore: false,
+		zoneTypes: false,
+		config: false
+	},
+	
 	mainContainer: null,
+	
+	checkLoadStatus: function(){
+		var controller=this;
+		if(controller.loadStatus.subdealersStore &&
+			controller.loadStatus.zoneTypes &&
+			controller.loadStatus.config){
+			controller.mainContainer.setLoading(false);
+		}
+	},
 	
 	filterRoutes: function(button, e, eOpts){
 		var controller=this,
@@ -94,6 +109,8 @@ Ext.define('app.controller.TermDelivery', {
 		
 		controller.mainContainer = Ext.create('app.view.TermDelivery.Container');
 		
+		controller.mainContainer.setLoading(true);
+		
 		controller.control({
 			'#filterRoutes': {
 				click: controller.filterRoutes
@@ -128,6 +145,36 @@ Ext.define('app.controller.TermDelivery', {
 		controller.routesStore = controller.getTermDeliveryRoutesStore();
 		controller.terminalsStore = controller.getTermDeliveryTerminalsStore();
 		controller.branchesStore = controller.getBranchesStore();
+		
+		controller.zoneTypesStore.addListener({
+			'load': function(){
+				controller.loadStatus.zoneTypes = true;
+				controller.checkLoadStatus();
+				}
+		});
+		
+		controller.subdealersStore.addListener({
+			'load': function(){
+				controller.loadStatus.subdealersStore = true;
+				controller.checkLoadStatus();
+			}
+		});
+		
+		Ext.Ajax.request({
+			url: '/term_delivery/get_config',
+			method: 'GET',
+			success: function(options, success, response){
+				if(success){
+					var config=Ext.JSON.decode(response.responseText, true);
+					Ext.getCmp('saveIS').setEnabled(config.show_save_is);
+					Ext.getCmp('makeDelivery').setEnabled(config.show_make_delivery);
+				} else {
+					Ext.Msg.alert('Ошибка', "Ошибка при получении конфигурации: "+response.responseText);
+				}
+				controller.loadStatus.config=true;
+				controller.checkLoadStatus();
+			}
+		});
 		
 		Ext.getCmp('zoneTypeCombo').bindStore(controller.zoneTypesStore);
 		Ext.getCmp('subdealerCombo').bindStore(controller.subdealersStore);

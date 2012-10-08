@@ -36,31 +36,35 @@ Ext.define('app.view.TermDelivery.Grid', {
 					width: 25,
 					header: 'П',
 					align: 'center',
-					id: 'p',
-					items: [
-					{
-						icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png'
-					}]
+					id: 'printRoute',
+					icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png',
+					handler: function(view, rowIndex, colIndex, item, e){
+						var currentRecord=view.store.getAt(rowIndex);
+						
+						window.open("/route_print?zone="+currentRecord.get('zone')+"&ddate="+currentRecord.get('ddate')+"&rel=external", "", "");
+					}
 				},
 				{
-					xtype: 'actioncolumn',
+					xtype: 'checkcolumn',
 					width: 25,
 					header: 'ИЗ',
 					align: 'center',
 					id: 'is',
-					items: [
-					{
-						icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png'
-					}]
+					icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png',
+					handler: function(view, rowIndex, colIndex, item, e){
+						
+					}
 				},
 				{
 					xtype: 'actioncolumn',
 					width: 25,
 					align: 'center',
-					items: [
-					{
-						icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png'
-					}]
+					icon: '/images/excel.jpg',
+					handler: function(view, rowIndex, colIndex, item, e){
+						var currentRecord=view.store.getAt(rowIndex);
+						
+						window.open("/route_export?zone="+currentRecord.get('zone')+"&ddate="+currentRecord.get('ddate')+"&rel=external", "", "");
+					}
 				}
 			],
 			tbar: [
@@ -72,7 +76,7 @@ Ext.define('app.view.TermDelivery.Grid', {
 			selModel: {
 				selType: 'rowmodel'
 			},
-			width: 290,
+			width: 300,
 			viewConfig: {
 				enableTextSelection: true
 			}
