@@ -4,6 +4,7 @@
 	<%= javascript_include_tag "geo" %>
     <script type="text/javascript">	
 	var main_city = [{"city": "Москва"}],
+		current_id=0,
 		placemark,
 		placemarks,
 		rr = <%= @route_json %>,
@@ -18,7 +19,8 @@
 				strokeColor: "ffff0088",
 				// - цвет и прозрачность заливки
 				fillColor: "ff000055"
-			};
+			},
+			dragCoords;
 		unact = new Unact();
 		<%= (flash[:notice] and flash[:notice]["Ошибка"]) ? "" : "document.getElementById('form1').reset();" %>
 	    
@@ -70,7 +72,13 @@
 			polygons[i].events.add("click", function (mEvent) {
 				onMapClick(mEvent);
 			});
-        };		
+			polygons[i].events.add("mousedown", function (mEvent) {
+				dragCoords = mEvent.get('coordPosition');
+			});
+			polygons[i].events.add("mouseup", function (mEvent) {
+				map.panTo([2*dragCoords[0] - mEvent.get('coordPosition')[0], 2*dragCoords[1] - mEvent.get('coordPosition')[1]], {delay: 10});
+			});
+        };
 		<% if @placeunload_id > 0 %>
 			placemark.geometry.setCoordinates([<%= @latitude %>, <%= @longitude %>]);
 		<% else %>
@@ -88,8 +96,10 @@
 	};
 	
 	function setCoords(coords){
-		$('a_' + current_id + '_latitude').value  = coords[0];
-		$('a_' + current_id + '_longitude').value = coords[1];
+		if($('a_' + current_id + '_latitude')!=null){
+			$('a_' + current_id + '_latitude').value  = coords[0];
+			$('a_' + current_id + '_longitude').value = coords[1];
+		}
 		unact.placeunload.geocode_addr($('a_longitude').value + ' ' + $('a_latitude').value, false);
 	}
     
