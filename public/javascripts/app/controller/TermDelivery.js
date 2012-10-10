@@ -36,8 +36,6 @@ Ext.define('app.controller.TermDelivery', {
 		config: false
 	},
 	
-	currentZoneId: null,
-	
 	mainContainer: null,
 	userConfig: null,
 	
@@ -65,105 +63,54 @@ Ext.define('app.controller.TermDelivery', {
 			onlyInRoute = Ext.getCmp('onlyInRoute').getValue();
 			
 		controller.mainContainer.setLoading(true);
-		Ext.Ajax.request({
-			url: '/term_delivery/get_terminal_info',
-			params: {
+		controller.routesStore.proxy.extraParams = {
+			ddate: ddate,
+			subdealer_id: subdealerId,
+			zone_type_id: zoneTypeId,
+			only_with_errors: onlyWithErrors,
+			only_in_route: onlyInRoute
+		};
+		controller.routesStore.load(function(records, operation, success){
+			if(success){
+			} else {
+				Ext.Msg.alert('Ошибка', 'Ошибка при загрузке информации о маршрутах.');
+			}
+			controller.terminalsStore.removeAll();
+			controller.mainContainer.setLoading(false);
+		});
+	},
+	
+	filterTerminals: function(sm, selected, eOpts){
+		var r=selected[0];
+		
+		if(r!=null){
+			var controller=this,
+				ddate = new Date(Ext.getCmp('ddate').getValue()),
+				subdealerId = Ext.getCmp('subdealerCombo').getValue(),
+				zoneTypeId = Ext.getCmp('zoneTypeCombo').getValue(),
+				onlyWithErrors = Ext.getCmp('onlyWithErrors').getValue(),
+				onlyInRoute = Ext.getCmp('onlyInRoute').getValue(),
+				zoneId = r.get('id');
+			
+			controller.mainContainer.setLoading(true);
+			controller.terminalsStore.proxy.extraParams = {
 				ddate: ddate,
 				subdealer_id: subdealerId,
 				zone_type_id: zoneTypeId,
 				only_with_errors: onlyWithErrors,
-				only_in_route: onlyInRoute
-			},
-			extraParams: {},
-			method: 'GET',
-			timeout: 300000,
-			success: function(response){
-				try
-				{
-					var data = eval('('+response.responseText+')'), zoneId;
-					controller.terminalsStore.suspendEvents();
-					controller.terminalsStore.loadData(data);
-					controller.routesStore.removeAll();
-					
-					controller.terminalsStore.each(function(record){
-						if(record.get('zone_id')!=zoneId){
-							zoneId=record.get('zone_id');
-							
-							var r = Ext.ModelManager.create({
-								id				: zoneId,
-								name			: record.get('zone_name'),
-								points			: record.get('points'),
-								points_inroute	: record.get('points_inroute'),
-								delivery		: record.get('delivery'),
-								delivery_status4: record.get('delivery_status4')
-							}, 'app.model.TermDelivery.RouteModel');
-							
-							controller.routesStore.add(r);
-						}
-						
-						return true;
-					});
-					
-					controller.terminalsStore.resumeEvents();
-					controller.terminalsStore.filter("zone_id", controller.currentZoneId);
-				} catch(e) {
-					Ext.Msg.alert('Ошибка', 'При загрузке данных произошла ошибка. Попробуйте еще раз.');
+				only_in_route: onlyInRoute,
+				zone_id: zoneId
+			};
+			controller.terminalsStore.load(function(records, operation, success){
+				if(success){
+				} else {
+					Ext.Msg.alert('Ошибка', 'Ошибка при загрузке информации о терминалах в маршруте '+r.get('name'));
 				}
 				controller.mainContainer.setLoading(false);
-			},
-			failure: function(response){
-				controller.showServerError(response);
-			}
-		});
+			});
+		}
+		return true;
 	},
-	
-	// filterRoutes: function(button, e, eOpts){
-		// var controller=this,
-			// ddate = new Date(Ext.getCmp('ddate').getValue()),
-			// subdealerId = Ext.getCmp('subdealerCombo').getValue(),
-			// zoneTypeId = Ext.getCmp('zoneTypeCombo').getValue(),
-			// onlyWithErrors = Ext.getCmp('onlyWithErrors').getValue(),
-			// onlyInRoute = Ext.getCmp('onlyInRoute').getValue();
-// 			
-		// controller.mainContainer.setLoading(true);
-		// controller.terminalsStore.suspendEvents();
-		// controller.terminalsStore.proxy.extraParams = {
-			// ddate: ddate,
-			// subdealer_id: subdealerId,
-			// zone_type_id: zoneTypeId,
-			// only_with_errors: onlyWithErrors,
-			// only_in_route: onlyInRoute
-		// };
-		// controller.terminalsStore.load(function(records, operation, success){
-			// if(success){
-				// var zoneId;
-				// controller.terminalsStore.each(function(record){
-						// if(record.get('zone_id')!=zoneId){
-							// zoneId=record.get('zone_id');
-// 							
-							// var r = Ext.ModelManager.create({
-								// id				: zoneId,
-								// name			: record.get('zone_name'),
-								// points			: record.get('points'),
-								// points_inroute	: record.get('points_inroute'),
-								// delivery		: record.get('delivery'),
-								// delivery_status4: record.get('delivery_status4')
-							// }, 'app.model.TermDelivery.RouteModel');
-// 							
-							// controller.routesStore.add(r);
-						// }
-// 						
-						// return true;
-					// });
-// 					
-					// controller.terminalsStore.resumeEvents();
-					// controller.terminalsStore.filter("zone_id", controller.currentZoneId);
-			// } else {
-				// Ext.Msg.alert('Ошибка', 'Ошибка при загрузке информации о терминалах и маршрутах.');
-			// }
-			// controller.mainContainer.setLoading(false);
-		// });
-	// },
 	
 	makeDelivery: function(){
 		var controller=this, terminals=[];
@@ -243,19 +190,7 @@ Ext.define('app.controller.TermDelivery', {
 				click: controller.filterRoutes
 			},
 			'#routesTable': {
-				selectionchange: function(sm, selected, eOpts){
-					var r=selected[0];
-					
-					if(r!=null){
-						controller.mainContainer.setLoading(true);
-						controller.terminalsStore.clearFilter();
-						controller.currentZoneId = r.get('id');
-						controller.terminalsStore.filter("zone_id", controller.currentZoneId);
-						controller.mainContainer.setLoading(false);
-					}
-					
-					return true;
-				}
+				selectionchange: controller.filterTerminals
 			},
 			'#makeDelivery': {
 				click: controller.makeDelivery
@@ -320,6 +255,15 @@ Ext.define('app.controller.TermDelivery', {
 		var controller=this;
 		
 		//здесь используется хардкод номеров колонок!!!!
+		
+		//колонка включения терминала в маршрут
+		Ext.getCmp('terminalsTable').columns[1].addListener({
+			checkchange: function(checkColumn, rowIndex, checked, eOpts){
+				var r=Ext.getCmp('routesTable').getSelectionModel().getSelection()[0];
+				r.set('points_inroute', r.get('points_inroute')+(checked? 1 : -1));
+				return true;
+			}
+		});
 		
 		//колонка поломок терминала
 		Ext.getCmp('terminalsTable').columns[13].setDisabled(!controller.userConfig.change_terminals);

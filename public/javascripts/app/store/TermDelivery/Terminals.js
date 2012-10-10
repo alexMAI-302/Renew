@@ -4,7 +4,7 @@ Ext.define('app.store.TermDelivery.Terminals', {
 	model: 'app.model.TermDelivery.TerminalModel',
 	proxy: {
 		type: 'rest',
-		url : '/term_delivery/terminals',
+		url : '/term_delivery/get_terminals',
 		reader: {
 			type: 'json'
 		}

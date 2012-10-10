@@ -7,10 +7,31 @@ class TermDeliveryController < ApplicationSimpleErrorController
     render :text => zone_types.to_json
   end
   
-  def get_terminal_info
+  def get_routes
     session[:ddate]=params[:ddate]
+    routes_list = ActiveRecord::Base.connection.select_all("
+    SELECT DISTINCT
+      zone id,
+      zone_name name,
+      points,
+      points_inroute,
+      delivery,
+      delivery_status4
+    FROM
+      spp.Terminal_Delivery(
+        '#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',
+        #{params[:subdealer_id].to_i},
+        #{params[:zone_type_id].to_i},
+        '#{Time.parse(params[:ddate]).strftime('%F')}',
+        #{params[:only_with_errors].to_i},
+        #{params[:only_in_route].to_i})")
+    
+    render :text => routes_list.to_json
+  end
+  
+  def get_terminals
     terminals_list = ActiveRecord::Base.connection.select_all("
-    SELECT TOP 500
+    SELECT
       terminalid,
       real_terminalid id,
       name,
@@ -28,7 +49,7 @@ class TermDeliveryController < ApplicationSimpleErrorController
       SignalLevel signal_level,
       summ,
       cnt,
-      inroute,
+      inroute include_in_route,
       ErrorText error_text,
       IncassReason incass_reason,
       terminal_break terminal_break_id,
@@ -37,11 +58,7 @@ class TermDeliveryController < ApplicationSimpleErrorController
       servstatus serv_status,
       penaltystatus penalty_status,
       modified,
-      row_class,
-      points,
-      points_inroute,
-      delivery,
-      delivery_status4
+      row_class
     FROM
       spp.Terminal_Delivery(
         '#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',
@@ -49,7 +66,10 @@ class TermDeliveryController < ApplicationSimpleErrorController
         #{params[:zone_type_id].to_i},
         '#{Time.parse(params[:ddate]).strftime('%F')}',
         #{params[:only_with_errors].to_i},
-        #{params[:only_in_route].to_i})")
+        #{params[:only_in_route].to_i},
+        40000,
+        350,
+        #{params[:zone_id].to_i})")
     
     render :text => terminals_list.to_json
   end
@@ -156,7 +176,7 @@ class TermDeliveryController < ApplicationSimpleErrorController
   end
 
   def index
-  	
+  	render :layout => "application_ocean"
   end
   
   def save_terminal
