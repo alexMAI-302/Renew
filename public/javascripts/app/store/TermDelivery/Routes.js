@@ -3,10 +3,6 @@ Ext.define('app.store.TermDelivery.Routes', {
 	extend: 'Ext.data.Store',
 	model: 'app.model.TermDelivery.RouteModel',
 	proxy: {
-		type: 'rest',
-		url : '/term_delivery/routes',
-		reader: {
-			type: 'json'
-		}
+        type: 'memory'
 	}
 });

@@ -4,7 +4,7 @@ Ext.define('app.store.TermDelivery.ZoneTypes', {
 	model: 'app.model.valueModel',
 	proxy: {
 		type: 'ajax',
-		url : '/pps_zone/get_zone_types',
+		url : '/term_delivery/get_zone_types',
 		reader: {
 			type: 'json'
 		}

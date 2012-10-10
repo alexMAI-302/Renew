@@ -10,88 +10,115 @@ Ext.define('app.view.TermDelivery.ItemsGrid', {
 			id: 'terminalsTable',
 			columns: [
 				{
-					align: 'center',
-					xtype: 'checkcolumn',
-					width: 25
-				},
-				{
 					xtype: 'rownumberer'
 				},
 				{
-					width: 150,
-					header: 'Зона',
-					dataIndex: 'name'
+					align: 'center',
+					xtype: 'checkcolumn',
+					dataIndex: 'include_in_route',
+					width: 25
 				},
 				{
-					width: 50,
+					width: 75,
 					header: 'Term. Id',
-					dataIndex: 'price'
+					dataIndex: 'terminalid'
 				},
 				{
-					width: 100,
+					width: 250,
 					header: 'Имя терминала',
-					dataIndex: 'price'
+					dataIndex: 'name',
+					tdCls: 'x-wrap_cells'
 				},
 				{
 					width: 70,
 					header: 'Последний<br/>сигнал',
-					dataIndex: 'price',
+					dataIndex: 'last_connect_time',
 					renderer: function(value, metaData, record){
-						return (value)?Ext.Date.format(new Date(value), 'd.m.Y H:i'):'';
+						metaData.tdCls += record.get('last_connect_time_class');
+						return (value)?Ext.Date.format(value, 'd.m.Y H:i'):'';
 					}
 				},
 				{
 					width: 70,
 					header: 'Последний<br/>платеж',
-					dataIndex: 'price',
+					dataIndex: 'last_payment_time',
 					renderer: function(value, metaData, record){
-						return (value)?Ext.Date.format(new Date(value), 'd.m.Y H:i'):'';
+						metaData.tdCls += record.get('last_payment_time_class');
+						return (value)?Ext.Date.format(value, 'd.m.Y H:i'):'';
 					}
 				},
 				{
 					width: 70,
 					header: 'Кол-во<br/>денег<br/>в терминале',
-					dataIndex: 'price'
+					dataIndex: 'summ'
 				},
 				{
 					width: 70,
 					header: 'Кол-во<br/>купюр<br/>в терминале',
-					dataIndex: 'price'
+					dataIndex: 'cnt'
 				},
 				{
 					width: 55,
 					header: 'Уровень<br/>сигнала',
-					dataIndex: 'price'
+					dataIndex: 'signal_level'
 				},
 				{
-					width: 65,
+					width: 180,
 					header: 'Состояние',
-					dataIndex: 'price'
+					dataIndex: 'error_text',
+					tdCls: 'x-wrap_cells'
 				},
 				{
 					width: 70,
 					header: 'Причина<br/>включения<br/>в маршрут',
-					dataIndex: 'price'
+					dataIndex: 'incass_reason',
+					tdCls: 'x-wrap_cells'
 				},
 				{
-					width: 55,
+					width: 70,
 					header: 'Система',
-					dataIndex: 'price'
+					dataIndex: 'src_system_name'
 				},
 				{
-					width: 50,
+					width: 90,
+					header: 'Субгент',
+					dataIndex: 'subdealer_name'
+				},
+				{
+					width: 130,
 					header: 'Вид<br/>поломки',
-					dataIndex: 'price'
+					dataIndex: 'terminal_break_id',
+					field: Ext.create('Ext.form.ComboBox', {
+						displayField: 'name',
+						valueField: 'id'
+					})
 				},
 				{
 					width: 65,
 					header: 'Отделение<br/>банка',
-					dataIndex: 'price'
+					dataIndex: 'branch_name'
 				},
 				{
 					width: 80,
 					header: 'Комментарий<br/>ОШ',
-					dataIndex: 'price'
+					dataIndex: 'techinfo',
+					field: {
+						xtype: 'textfield'
+					}
+				},
+				{
+					align: 'center',
+					xtype: 'checkcolumn',
+					dataIndex: 'serv_status',
+					header: 'Сделано',
+					width: 50
+				},
+				{
+					align: 'center',
+					xtype: 'checkcolumn',
+					dataIndex: 'penalty_status',
+					header: 'ОШ',
+					width: 30
 				}
 			],
 			tbar: [
@@ -102,8 +129,15 @@ Ext.define('app.view.TermDelivery.ItemsGrid', {
 			],
 			height: 400,
 			viewConfig: {
-				enableTextSelection: true
-			}
+				enableTextSelection: true,
+				getRowClass: function(record, rowIndex, rowParams, store){
+					return record.get('row_class');
+				}
+			},
+			plugins: [Ext.create('Ext.grid.plugin.CellEditing', {
+				clicksToEdit: 1,
+				pluginId: 'cellEditingTerminal'
+			})]
 		});
         
         this.callParent(arguments);

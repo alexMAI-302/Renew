@@ -3,8 +3,9 @@ Ext.define('app.model.TermDelivery.RouteModel', {
 	fields: [
 	{name: 'id'					, type:'int'},
 	{name: 'name'				, type:'string'},
-	{name: 'terminals_quantity'	, type:'int'},
-	{name: 'terminals_in_route'	, type:'int'},
-	{name: 'is'					, type:'boolean'},
+	{name: 'points'				, type:'int'},
+	{name: 'points_inroute'		, type:'int'},
+	{name: 'delivery'			, type:'int'},
+	{name: 'delivery_status4'	, type:'boolean'},
 	{name: 'selected'			, type:'boolean'}]
 });

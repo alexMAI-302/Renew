@@ -1,4 +1,4 @@
-//хранилище отделений банка
+//хранилище терминалов
 Ext.define('app.store.TermDelivery.Terminals', {
 	extend: 'Ext.data.Store',
 	model: 'app.model.TermDelivery.TerminalModel',
