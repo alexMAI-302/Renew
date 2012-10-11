@@ -118,7 +118,7 @@ Ext.define('app.controller.TermDelivery', {
 	makeDelivery: function(){
 		var controller=this,
 			terminals=[],
-			selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection();
+			selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection()[0];
 		
 		controller.mainContainer.setLoading(true);
 		
@@ -155,7 +155,7 @@ Ext.define('app.controller.TermDelivery', {
 	saveIS: function(){
 		var controller=this,
 			routes=[],
-			selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection();
+			selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection()[0];
 		
 		controller.mainContainer.setLoading(true);
 		
@@ -192,7 +192,7 @@ Ext.define('app.controller.TermDelivery', {
 			zoneTypeId = Ext.getCmp('zoneTypeCombo').getValue(),
 			onlyWithErrors = Ext.getCmp('onlyWithErrors').getValue(),
 			onlyInRoute = Ext.getCmp('onlyInRoute').getValue(),
-			selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection();
+			selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection()[0];
 		
 		controller.mainContainer.setLoading(true);
 		
@@ -227,7 +227,7 @@ Ext.define('app.controller.TermDelivery', {
 		controller.control({
 			'#filterRoutes': {
 				click: function(){
-					var selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection();
+					var selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection()[0];
 					controller.filterRoutes(selectedZone)
 				}
 			},
