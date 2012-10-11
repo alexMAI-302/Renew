@@ -10,15 +10,16 @@ class TermDeliveryController < ApplicationSimpleErrorController
   def get_routes
     session[:ddate]=params[:ddate]
     routes_list = ActiveRecord::Base.connection.select_all("
-    SELECT DISTINCT
-      zone id,
-      zone_name name,
+    SELECT
+      id,
+      name,
       points,
       points_inroute,
       delivery,
-      delivery_status4
+      delivery_status4,
+      IF points_inroute>0 THEN 1 ELSE 0 END IF save_zone
     FROM
-      spp.Terminal_Delivery(
+      spp.Terminal_Delivery_get_zones(
         '#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',
         #{params[:subdealer_id].to_i},
         #{params[:zone_type_id].to_i},
@@ -57,7 +58,7 @@ class TermDeliveryController < ApplicationSimpleErrorController
       branch_name,
       servstatus serv_status,
       penaltystatus penalty_status,
-      modified,
+      modified should_include_in_route,
       row_class
     FROM
       spp.Terminal_Delivery(
@@ -166,9 +167,9 @@ class TermDeliveryController < ApplicationSimpleErrorController
         '#{Time.parse(params[:ddate]).strftime('%F')}',
         #{params[:only_with_errors].to_i},
         #{params[:only_in_route].to_i},
-        #{params[:zone].to_i})
-    WHERE
-        zone=#{params[:zone].to_i}"
+        40000,
+        350,
+        #{params[:zone].to_i})"
     
     @rst_term = ActiveRecord::Base.connection.select_all(s)                               
     
@@ -179,25 +180,50 @@ class TermDeliveryController < ApplicationSimpleErrorController
   	render :layout => "application_ocean"
   end
   
+  def make_delivery_auto
+    s = "call spp.Terminal_Delivery_make_delivery_auto(
+        '#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',
+        #{params[:subdealer_id].to_i},
+        #{params[:zone_type_id].to_i},
+        '#{Time.parse(params[:ddate]).strftime('%F')}',
+        #{params[:only_with_errors].to_i},
+        #{params[:only_in_route].to_i})"
+    r = ActiveRecord::Base.connection.execute(s)
+    
+    render :text => 'ok'
+  end
+  
   def save_terminal
 		terminals_to_save=ActiveSupport::JSON.decode(request.body.gets)
     items=terminals_to_save.to_xml(:root => "terminals")
 		s = "call spp.Terminal_DeliverySave('#{items}','#{Time.parse(session[:ddate]).strftime('%F')}')"
-		logger.info s
 		r = ActiveRecord::Base.connection.execute(s)
 		
 		render :text => 'ok'
   end
   
   def status4_save
-    routes_to_save=ActiveSupport::JSON.decode(request.body.gets)
-		routes_to_save.each do |route|
-			id=route["id"].to_i;
-			if id!=-666
-				r = Delivery.find(id)
-				r.status4 = route["delivery_status4"]
-				r.save	
-			end
+    access=ActiveRecord::Base.connection.select_value("
+      SELECT
+        ISNULL((SELECT
+          1
+        FROM
+          renew_web.renew_users_groups rusgs
+        WHERE
+          rusgs.renew_user_id=ru.id AND rusgs.renew_user_group_id=18), 0) change_is
+      FROM
+        renew_web.renew_users ru
+      WHERE
+        ru.name='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}'").to_i
+    if access==1
+      routes_to_save=ActiveSupport::JSON.decode(request.body.gets)
+  		routes_to_save.each do |route|
+  			id=route["id"].to_i;
+  			
+  			r = Delivery.find(id)
+  			r.status4 = route["delivery_status4"]
+  			r.save
+  		end
 		end
 			
 		render :text => "ok"

@@ -6,9 +6,27 @@ Ext.define('app.model.TermDelivery.TerminalModel', {
 	{name: 'row_class'					, type:'string'},
 	{name: 'include_in_route'			, type:'boolean'},
 	{name: 'name'						, type:'string'},
-	{name: 'last_connect_time'			, type:'datetime'},
+	{
+		name: 'last_connect_time',
+		type: 'datetime',
+		dateFormat: 'Y-m-d H:i:s',
+		convert: function(v, record){
+			var val=Ext.Date.parse(v, 'Y-m-d H:i:s');
+			val = (val==null || val==undefined) ? Ext.Date.parse(v, "Y-m-d\\TH:i:s") : val;
+			return val;
+		}
+	},
 	{name: 'last_connect_time_class'	, type:'string'},
-	{name: 'last_payment_time'			, type:'datetime'},
+	{
+		name: 'last_payment_time',
+		type: 'datetime',
+		dateFormat: 'Y-m-d H:i:s',
+		convert: function(v, record){
+			var val=Ext.Date.parse(v, 'Y-m-d H:i:s');
+			val = (val==null || val==undefined) ? Ext.Date.parse(v, "Y-m-d\\TH:i:s") : val;
+			return val;
+		}
+	},
 	{name: 'last_payment_time_class'	, type:'string'},
 	{name: 'summ'						, type:'int'},
 	{name: 'cnt'						, type:'int'},
@@ -23,6 +41,7 @@ Ext.define('app.model.TermDelivery.TerminalModel', {
 	{name: 'serv_status'				, type:'boolean'},
 	{name: 'penalty_status'				, type:'boolean'},
 	{name: 'techinfo'					, type:'string'},
+	{name: 'should_include_in_route'	, type:'boolean'},
 	//информация по зоне
 	{name: 'zone_id'					, type:'int'},
 	{name: 'zone_name'					, type:'string'},

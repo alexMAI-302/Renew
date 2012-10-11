@@ -7,5 +7,5 @@ Ext.define('app.model.TermDelivery.RouteModel', {
 	{name: 'points_inroute'		, type:'int'},
 	{name: 'delivery'			, type:'int'},
 	{name: 'delivery_status4'	, type:'boolean'},
-	{name: 'selected'			, type:'boolean'}]
+	{name: 'save_zone'			, type:'boolean'}]
 });

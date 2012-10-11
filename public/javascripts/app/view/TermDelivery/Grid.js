@@ -86,12 +86,16 @@ Ext.define('app.view.TermDelivery.Grid', {
 				{
 					text: 'Сохранить ИЗ',
 					id: 'saveIS'
+				},
+				{
+					text: 'Сформировать доставки автоматически',
+					id: 'makeDeliveryAuto'
 				}
 			],
 			selModel: {
 				selType: 'rowmodel'
 			},
-			width: 300,
+			width: 305,
 			viewConfig: {
 				enableTextSelection: true
 			}

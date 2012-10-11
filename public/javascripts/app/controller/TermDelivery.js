@@ -54,7 +54,7 @@ Ext.define('app.controller.TermDelivery', {
 		controller.mainContainer.setLoading(false);
 	},
 	
-	filterRoutes: function(button, e, eOpts){
+	filterRoutes: function(selectedZone){
 		var controller=this,
 			ddate = new Date(Ext.getCmp('ddate').getValue()),
 			subdealerId = Ext.getCmp('subdealerCombo').getValue(),
@@ -72,6 +72,9 @@ Ext.define('app.controller.TermDelivery', {
 		};
 		controller.routesStore.load(function(records, operation, success){
 			if(success){
+				if(selectedZone!=null){
+					Ext.getCmp('routesTable').getSelectionModel().select(selectedZone);
+				}
 			} else {
 				Ext.Msg.alert('Ошибка', 'Ошибка при загрузке информации о маршрутах.');
 			}
@@ -113,12 +116,14 @@ Ext.define('app.controller.TermDelivery', {
 	},
 	
 	makeDelivery: function(){
-		var controller=this, terminals=[];
+		var controller=this,
+			terminals=[],
+			selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection();
 		
 		controller.mainContainer.setLoading(true);
 		
 		controller.terminalsStore.each(function(r){
-			if(r.dirty){
+			if(r.dirty || r.get('should_include_in_route')){
 				terminals.push({
 					terminalid: r.get('terminalid'),
 					zone_id: r.get('zone_id'),
@@ -134,12 +139,12 @@ Ext.define('app.controller.TermDelivery', {
 		
 		Ext.Ajax.request({
 			url: '/term_delivery/save_terminal',
-			params: {},
+			params: {authenticity_token: window._token},
 			jsonData: terminals,
 			method: 'POST',
 			timeout: 300000,
 			success: function(response){
-				controller.filterRoutes();
+				controller.filterRoutes(selectedZone);
 			},
 			failure: function(response){
 				controller.showServerError(response);
@@ -148,7 +153,9 @@ Ext.define('app.controller.TermDelivery', {
 	},
 	
 	saveIS: function(){
-		var controller=this, routes=[];
+		var controller=this,
+			routes=[],
+			selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection();
 		
 		controller.mainContainer.setLoading(true);
 		
@@ -165,12 +172,44 @@ Ext.define('app.controller.TermDelivery', {
 		
 		Ext.Ajax.request({
 			url: '/term_delivery/status4_save',
-			params: {},
+			params: {authenticity_token: window._token},
 			jsonData: routes,
 			method: 'POST',
 			timeout: 300000,
 			success: function(response){
-				controller.filterRoutes();
+				controller.filterRoutes(selectedZone);
+			},
+			failure: function(response){
+				controller.showServerError(response);
+			}
+		});
+	},
+	
+	makeDeliveryAuto: function(){
+		var controller=this,
+			ddate = new Date(Ext.getCmp('ddate').getValue()),
+			subdealerId = Ext.getCmp('subdealerCombo').getValue(),
+			zoneTypeId = Ext.getCmp('zoneTypeCombo').getValue(),
+			onlyWithErrors = Ext.getCmp('onlyWithErrors').getValue(),
+			onlyInRoute = Ext.getCmp('onlyInRoute').getValue(),
+			selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection();
+		
+		controller.mainContainer.setLoading(true);
+		
+		Ext.Ajax.request({
+			url: '/term_delivery/make_delivery_auto',
+			params: {
+				ddate: ddate,
+				subdealer_id: subdealerId,
+				zone_type_id: zoneTypeId,
+				only_with_errors: onlyWithErrors,
+				only_in_route: onlyInRoute,
+				authenticity_token: window._token
+			},
+			method: 'POST',
+			timeout: 300000,
+			success: function(response){
+				controller.filterRoutes(selectedZone);
 			},
 			failure: function(response){
 				controller.showServerError(response);
@@ -187,13 +226,24 @@ Ext.define('app.controller.TermDelivery', {
 		
 		controller.control({
 			'#filterRoutes': {
-				click: controller.filterRoutes
+				click: function(){
+					var selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection();
+					controller.filterRoutes(selectedZone)
+				}
 			},
 			'#routesTable': {
 				selectionchange: controller.filterTerminals
 			},
+			'#refreshTerminals': {
+				click: function(){
+					controller.filterTerminals(null, Ext.getCmp('routesTable').getSelectionModel().getSelection());
+				}
+			},
 			'#makeDelivery': {
 				click: controller.makeDelivery
+			},
+			'#makeDeliveryAuto': {
+				click: controller.makeDeliveryAuto
 			},
 			'#saveIS': {
 				click: controller.saveIS
@@ -261,6 +311,17 @@ Ext.define('app.controller.TermDelivery', {
 			checkchange: function(checkColumn, rowIndex, checked, eOpts){
 				var r=Ext.getCmp('routesTable').getSelectionModel().getSelection()[0];
 				r.set('points_inroute', r.get('points_inroute')+(checked? 1 : -1));
+				return true;
+			},
+			headerclick: function(headerContainer, column,e, t, eOpts){
+				controller.terminalsStore.each(function(r){
+					if(!r.get('include_in_route')){
+						var zoneRecord=Ext.getCmp('routesTable').getSelectionModel().getSelection()[0];
+						zoneRecord.set('points_inroute', zoneRecord.get('points_inroute')+1);
+						r.set('include_in_route', true);
+					}
+					return true;
+				});
 				return true;
 			}
 		});

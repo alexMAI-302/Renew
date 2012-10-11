@@ -16,7 +16,12 @@ Ext.define('app.view.TermDelivery.ItemsGrid', {
 					align: 'center',
 					xtype: 'checkcolumn',
 					dataIndex: 'include_in_route',
-					width: 25
+					id: 'includeInRoute',
+					width: 25,
+					sortable: false,
+					hideable: false,
+					menuDisabled: true,
+					draggable: false
 				},
 				{
 					width: 75,
@@ -36,7 +41,8 @@ Ext.define('app.view.TermDelivery.ItemsGrid', {
 					renderer: function(value, metaData, record){
 						metaData.tdCls += record.get('last_connect_time_class');
 						return (value)?Ext.Date.format(value, 'd.m.Y H:i'):'';
-					}
+					},
+					tdCls: 'x-wrap_cells'
 				},
 				{
 					width: 70,
@@ -45,7 +51,8 @@ Ext.define('app.view.TermDelivery.ItemsGrid', {
 					renderer: function(value, metaData, record){
 						metaData.tdCls += record.get('last_payment_time_class');
 						return (value)?Ext.Date.format(value, 'd.m.Y H:i'):'';
-					}
+					},
+					tdCls: 'x-wrap_cells'
 				},
 				{
 					width: 70,
@@ -125,6 +132,11 @@ Ext.define('app.view.TermDelivery.ItemsGrid', {
 				{
 					text: 'Сформировать доставки',
 					id: 'makeDelivery'
+				},
+				{
+					id: 'refreshTerminals',
+					icon: '/ext/examples/shared/icons/fam/table_refresh.png',
+					text: 'Обновить информацию о терминалах'
 				}
 			],
 			height: 400,
