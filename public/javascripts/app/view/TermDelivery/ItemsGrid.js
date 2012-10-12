@@ -149,7 +149,8 @@ Ext.define('app.view.TermDelivery.ItemsGrid', {
 			plugins: [Ext.create('Ext.grid.plugin.CellEditing', {
 				clicksToEdit: 1,
 				pluginId: 'cellEditingTerminal'
-			})]
+			})],
+			checkIncludeInRoute: true
 		});
         
         this.callParent(arguments);

@@ -17,7 +17,7 @@ class TermDeliveryController < ApplicationSimpleErrorController
       points_inroute,
       delivery,
       delivery_status4,
-      IF points_inroute>0 THEN 1 ELSE 0 END IF save_zone
+      IF points_inroute>0 THEN 1 ELSE 0 END IF include_in_auto_route
     FROM
       spp.Terminal_Delivery_get_zones(
         '#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',
@@ -36,7 +36,6 @@ class TermDeliveryController < ApplicationSimpleErrorController
       terminalid,
       real_terminalid id,
       name,
-      address,
       subdealer_name,
       subdealer subdealer_id,
       zone zone_id,
@@ -181,13 +180,18 @@ class TermDeliveryController < ApplicationSimpleErrorController
   end
   
   def make_delivery_auto
+    zones_to_include=ActiveSupport::JSON.decode(request.body.gets)
+    items=zones_to_include.to_xml(:root => "zones")
     s = "call spp.Terminal_Delivery_make_delivery_auto(
         '#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',
         #{params[:subdealer_id].to_i},
         #{params[:zone_type_id].to_i},
         '#{Time.parse(params[:ddate]).strftime('%F')}',
         #{params[:only_with_errors].to_i},
-        #{params[:only_in_route].to_i})"
+        #{params[:only_in_route].to_i},
+        40000,
+        350,
+        #{ActiveRecord::Base.connection.quote(items)})"
     r = ActiveRecord::Base.connection.execute(s)
     
     render :text => 'ok'
@@ -196,7 +200,7 @@ class TermDeliveryController < ApplicationSimpleErrorController
   def save_terminal
 		terminals_to_save=ActiveSupport::JSON.decode(request.body.gets)
     items=terminals_to_save.to_xml(:root => "terminals")
-		s = "call spp.Terminal_DeliverySave('#{items}','#{Time.parse(session[:ddate]).strftime('%F')}')"
+		s = "call spp.Terminal_DeliverySave(#{ActiveRecord::Base.connection.quote(items)},'#{Time.parse(session[:ddate]).strftime('%F')}')"
 		r = ActiveRecord::Base.connection.execute(s)
 		
 		render :text => 'ok'

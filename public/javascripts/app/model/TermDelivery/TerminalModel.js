@@ -14,7 +14,11 @@ Ext.define('app.model.TermDelivery.TerminalModel', {
 			var val=Ext.Date.parse(v, 'Y-m-d H:i:s');
 			val = (val==null || val==undefined) ? Ext.Date.parse(v, "Y-m-d\\TH:i:s") : val;
 			return val;
-		}
+		},
+		sortType: function(value){
+			return value?value:new Date(0, 0, 0);
+		},
+		useNull: true
 	},
 	{name: 'last_connect_time_class'	, type:'string'},
 	{
@@ -25,7 +29,11 @@ Ext.define('app.model.TermDelivery.TerminalModel', {
 			var val=Ext.Date.parse(v, 'Y-m-d H:i:s');
 			val = (val==null || val==undefined) ? Ext.Date.parse(v, "Y-m-d\\TH:i:s") : val;
 			return val;
-		}
+		},
+		sortType: function(value){
+			return value?value:new Date(0, 0, 0);
+		},
+		useNull: true
 	},
 	{name: 'last_payment_time_class'	, type:'string'},
 	{name: 'summ'						, type:'int'},
@@ -36,18 +44,10 @@ Ext.define('app.model.TermDelivery.TerminalModel', {
 	{name: 'src_system_name'			, type:'string'},
 	{name: 'subdealer_id'				, type:'int'},
 	{name: 'subdealer_name'				, type:'string'},
-	{name: 'terminal_break_id'			, type:'auto'},
+	{name: 'terminal_break_id'			, type:'int',		useNull: true},
 	{name: 'branch_name'				, type:'string'},
 	{name: 'serv_status'				, type:'boolean'},
 	{name: 'penalty_status'				, type:'boolean'},
 	{name: 'techinfo'					, type:'string'},
-	{name: 'should_include_in_route'	, type:'boolean'},
-	//информация по зоне
-	{name: 'zone_id'					, type:'int'},
-	{name: 'zone_name'					, type:'string'},
-	{name: 'points'						, type:'int'},
-	{name: 'points_inroute'				, type:'int'},
-	{name: 'delivery'					, type:'int'},
-	{name: 'delivery_status4'			, type:'boolean'},
-	{name: 'selected'					, type:'boolean'}]
+	{name: 'should_include_in_route'	, type:'boolean'}]
 });

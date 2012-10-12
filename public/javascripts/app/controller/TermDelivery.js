@@ -72,6 +72,7 @@ Ext.define('app.controller.TermDelivery', {
 		};
 		controller.routesStore.load(function(records, operation, success){
 			if(success){
+				Ext.getCmp('routesTable').checkIncludeInAutoRoute=true;
 				if(selectedZone!=null){
 					Ext.getCmp('routesTable').getSelectionModel().select(selectedZone);
 				}
@@ -106,6 +107,7 @@ Ext.define('app.controller.TermDelivery', {
 			};
 			controller.terminalsStore.load(function(records, operation, success){
 				if(success){
+					Ext.getCmp('terminalsTable').checkIncludeInRoute=true;
 				} else {
 					Ext.Msg.alert('Ошибка', 'Ошибка при загрузке информации о терминалах в маршруте '+r.get('name'));
 				}
@@ -192,9 +194,17 @@ Ext.define('app.controller.TermDelivery', {
 			zoneTypeId = Ext.getCmp('zoneTypeCombo').getValue(),
 			onlyWithErrors = Ext.getCmp('onlyWithErrors').getValue(),
 			onlyInRoute = Ext.getCmp('onlyInRoute').getValue(),
-			selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection()[0];
+			selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection()[0]
+			zonesToIncludeInAutoRoute=[];
 		
 		controller.mainContainer.setLoading(true);
+		
+		controller.routesStore.each(function(r){
+			if(r.get('include_in_auto_route')){
+				zonesToIncludeInAutoRoute.push({id: r.get('id')});
+			}
+			return true;
+		})
 		
 		Ext.Ajax.request({
 			url: '/term_delivery/make_delivery_auto',
@@ -206,6 +216,7 @@ Ext.define('app.controller.TermDelivery', {
 				only_in_route: onlyInRoute,
 				authenticity_token: window._token
 			},
+			jsonData: zonesToIncludeInAutoRoute,
 			method: 'POST',
 			timeout: 300000,
 			success: function(response){
@@ -302,38 +313,45 @@ Ext.define('app.controller.TermDelivery', {
 	},
 	
 	initTables: function(){
-		var controller=this;
+		var controller=this,
+			terminalsTable=Ext.getCmp('terminalsTable'),
+			routesTable=Ext.getCmp('routesTable');
 		
 		//здесь используется хардкод номеров колонок!!!!
 		
 		//колонка включения терминала в маршрут
-		Ext.getCmp('terminalsTable').columns[1].addListener({
+		terminalsTable.columns[1].addListener({
 			checkchange: function(checkColumn, rowIndex, checked, eOpts){
-				var r=Ext.getCmp('routesTable').getSelectionModel().getSelection()[0];
+				var r=routesTable.getSelectionModel().getSelection()[0];
 				r.set('points_inroute', r.get('points_inroute')+(checked? 1 : -1));
 				return true;
 			},
 			headerclick: function(headerContainer, column,e, t, eOpts){
+				var zoneRecord=routesTable.getSelectionModel().getSelection()[0];
+				
 				controller.terminalsStore.each(function(r){
-					if(!r.get('include_in_route')){
-						var zoneRecord=Ext.getCmp('routesTable').getSelectionModel().getSelection()[0];
-						zoneRecord.set('points_inroute', zoneRecord.get('points_inroute')+1);
-						r.set('include_in_route', true);
+					if(r.get('include_in_route') == !terminalsTable.checkIncludeInRoute){
+						zoneRecord.set(
+							'points_inroute',
+							zoneRecord.get('points_inroute') +
+							(terminalsTable.checkIncludeInRoute? 1 : -1));
+						r.set('include_in_route', terminalsTable.checkIncludeInRoute);
 					}
 					return true;
 				});
+				terminalsTable.checkIncludeInRoute=!terminalsTable.checkIncludeInRoute;
 				return true;
 			}
 		});
 		
 		//колонка поломок терминала
-		Ext.getCmp('terminalsTable').columns[13].setDisabled(!controller.userConfig.change_terminals);
-		Ext.getCmp('terminalsTable').columns[13].field = Ext.create('Ext.form.ComboBox', {
+		terminalsTable.columns[13].setDisabled(!controller.userConfig.change_terminals);
+		terminalsTable.columns[13].field = Ext.create('Ext.form.ComboBox', {
 			store: controller.terminalBreaksStore,
 			displayField: 'name',
 			valueField: 'id'
 		});
-		Ext.getCmp('terminalsTable').columns[13].renderer = function(value){
+		terminalsTable.columns[13].renderer = function(value){
 			var matching = controller.terminalBreaksStore.queryBy(
 				function(record, id){
 					return record.get('id') == value;
@@ -342,27 +360,41 @@ Ext.define('app.controller.TermDelivery', {
 		};
 		
 		//колонка "комментарий ОШ"
-		Ext.getCmp('terminalsTable').columns[15].setDisabled(!controller.userConfig.change_techinfo);
+		terminalsTable.columns[15].setDisabled(!controller.userConfig.change_techinfo);
 		
 		//колонка статуса обслуживания
-		Ext.getCmp('terminalsTable').columns[16].setDisabled(!controller.userConfig.change_terminals);
-		Ext.getCmp('terminalsTable').columns[16].addListener({
+		terminalsTable.columns[16].setDisabled(!controller.userConfig.change_terminals);
+		terminalsTable.columns[16].addListener({
 			beforecheckchange: function(checkColumn, rowIndex, checked, eOpts){
 				return controller.userConfig.change_terminals;
 			}
 		});
 		
 		//колонка ОШ
-		Ext.getCmp('terminalsTable').columns[17].setDisabled(!controller.userConfig.change_techinfo);
-		Ext.getCmp('terminalsTable').columns[17].addListener({
+		terminalsTable.columns[17].setDisabled(!controller.userConfig.change_techinfo);
+		terminalsTable.columns[17].addListener({
 			beforecheckchange: function(checkColumn, rowIndex, checked, eOpts){
 				return controller.userConfig.change_techinfo;
 			}
 		});
 		
+		//колонка включения зоны в автоматическое формирование маршрутов
+		routesTable.columns[0].addListener({
+			headerclick: function(headerContainer, column,e, t, eOpts){
+				controller.routesStore.each(function(r){
+					if(r.get('include_in_auto_route') == !routesTable.checkIncludeInAutoRoute){
+						r.set('include_in_auto_route', routesTable.checkIncludeInAutoRoute);
+					}
+					return true;
+				});
+				routesTable.checkIncludeInAutoRoute=!routesTable.checkIncludeInAutoRoute;
+				return true;
+			}
+		});
+		
 		//колонка ИЗ
-		Ext.getCmp('routesTable').columns[2].setDisabled(!controller.userConfig.change_is);
-		Ext.getCmp('routesTable').columns[2].addListener({
+		routesTable.columns[3].setDisabled(!controller.userConfig.change_is);
+		routesTable.columns[3].addListener({
 			beforecheckchange: function(checkColumn, rowIndex, checked, eOpts){
 				return controller.userConfig.change_is;
 			}

@@ -10,6 +10,16 @@ Ext.define('app.view.TermDelivery.Grid', {
 			id: 'routesTable',
 			columns: [
 				{
+					xtype: 'checkcolumn',
+					width: 25,
+					id: 'includeInAutoRoute',
+					dataIndex: 'include_in_auto_route',
+					sortable: false,
+					hideable: false,
+					menuDisabled: true,
+					draggable: false
+				},
+				{
 					width: 100,
 					header: 'Маршрут',
 					dataIndex: 'name'
@@ -95,10 +105,11 @@ Ext.define('app.view.TermDelivery.Grid', {
 			selModel: {
 				selType: 'rowmodel'
 			},
-			width: 305,
+			width: 330,
 			viewConfig: {
 				enableTextSelection: true
-			}
+			},
+			checkIncludeInAutoRoute: true
 		});
         
         this.callParent(arguments);
