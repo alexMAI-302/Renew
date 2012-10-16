@@ -127,7 +127,7 @@ Ext.define('app.controller.TermDelivery', {
 		controller.terminalsStore.each(function(r){
 			if(r.dirty || r.get('should_include_in_route')){
 				terminals.push({
-					terminalid: r.get('terminalid'),
+					terminalid: r.get('id'),
 					zone_id: r.get('zone_id'),
 					terminal_break_id: r.get('terminal_break_id'),
 					techinfo: r.get('techinfo'),

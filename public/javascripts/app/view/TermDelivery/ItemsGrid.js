@@ -26,7 +26,7 @@ Ext.define('app.view.TermDelivery.ItemsGrid', {
 				{
 					width: 75,
 					header: 'Term. Id',
-					dataIndex: 'terminalid'
+					dataIndex: 'info_terminal_id'
 				},
 				{
 					width: 250,
