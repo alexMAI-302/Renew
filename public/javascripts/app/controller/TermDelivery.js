@@ -128,7 +128,7 @@ Ext.define('app.controller.TermDelivery', {
 			if(r.dirty || r.get('should_include_in_route')){
 				terminals.push({
 					terminalid: r.get('id'),
-					zone_id: r.get('zone_id'),
+					zone_id: selectedZone.get('id'),
 					terminal_break_id: r.get('terminal_break_id'),
 					techinfo: r.get('techinfo'),
 					include_in_route: r.get('include_in_route')?1:0,
