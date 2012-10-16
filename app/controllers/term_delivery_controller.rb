@@ -33,8 +33,8 @@ class TermDeliveryController < ApplicationSimpleErrorController
   def get_terminals
     terminals_list = ActiveRecord::Base.connection.select_all("
     SELECT
-      terminalid,
-      real_terminalid id,
+      terminalid id,
+      real_terminalid info_terminal_id,
       name,
       subdealer_name,
       subdealer subdealer_id,

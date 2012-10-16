@@ -2,7 +2,7 @@ Ext.define('app.model.TermDelivery.TerminalModel', {
 	extend: 'Ext.data.Model',
 	fields: [
 	{name: 'id'							, type:'int'},
-	{name: 'terminalid'					, type:'int'},
+	{name: 'info_terminal_id'			, type:'int'},
 	{name: 'row_class'					, type:'string'},
 	{name: 'include_in_route'			, type:'boolean'},
 	{name: 'name'						, type:'string'},
