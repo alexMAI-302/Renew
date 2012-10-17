@@ -277,10 +277,13 @@ Ext.define('app.controller.mag', {
 	},
 	
 	filterPalmSales: function(button, e, eOpts){
-		controller = this;
+		var controller = this,
+			palmSaleOrdersTable = Ext.getCmp('palmSaleOrdersTable'),
+			palmSaleOrderItemsTable = Ext.getCmp('palmSaleOrderItemsTable');
 		
-		Ext.getCmp('palmSaleOrdersTable').setLoading(true);
-		Ext.getCmp('palmSaleOrderItemsTable').setLoading(true);
+		
+		palmSaleOrdersTable.setLoading(true);
+		palmSaleOrderItemsTable.setLoading(true);
 		
 		controller.palmSalesStore.removeAll();
 		
@@ -305,11 +308,12 @@ Ext.define('app.controller.mag', {
 				if(success===true){
 					var data = eval('('+response.responseText+')');
 					controller.palmSalesStore.add(data);
+					palmSaleOrdersTable.view.refresh();
 				} else {
 					controller.showServerError(response.responseText);
 				}
-				Ext.getCmp('palmSaleOrdersTable').setLoading(false);
-				Ext.getCmp('palmSaleOrderItemsTable').setLoading(false);
+				palmSaleOrdersTable.setLoading(false);
+				palmSaleOrderItemsTable.setLoading(false);
 			}
 		});
 		
