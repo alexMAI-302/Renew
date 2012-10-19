@@ -5,11 +5,16 @@ Ext.require([
 Ext.define('app.controller.ppsZone', {
     extend: 'Ext.app.Controller',
 	models: [
-		'app.model.valueModel',
-		'app.model.ppsZone.zoneModel',
-		'app.model.ppsZone.terminalModel'],
+		'valueModel',
+		'ppsZone.zoneModel',
+		'ppsZone.terminalModel'],
+	stores: [
+		'Branches',
+		'ppsZone.ZoneTypes'
+	],
     init: function() {
-		var map,
+		var controller=this,
+			map,
 			polygons,
 			pointsGroup,
 			center=[55.76, 37.64],
@@ -36,37 +41,8 @@ Ext.define('app.controller.ppsZone', {
 					}
 				}
 			}),
-			subdealersStore = Ext.create('Ext.data.Store', {
-				model: 'app.model.valueModel',
-				proxy: {
-					type: 'ajax',
-					url : '/util_data/get_subdealers',
-					reader: {
-						type: 'json'
-					}
-				}
-			}),
-			zoneTypesStore = Ext.create('Ext.data.Store', {
-				model: 'app.model.valueModel',
-				proxy: {
-					type: 'ajax',
-					url : '/pps_zone/get_zone_types',
-					reader: {
-						type: 'json'
-					}
-				}
-			}),
-			branchesStore = Ext.create('Ext.data.Store', {
-				model: 'app.model.valueModel',
-				autoLoad: true,
-				proxy: {
-					type: 'ajax',
-					url : '/util_data/get_branches',
-					reader: {
-						type: 'json'
-					}
-				}
-			}),
+			zoneTypesStore = controller.getPpsZoneZoneTypesStore(),
+			branchesStore = controller.getBranchesStore(),
 			zoneTypesCombo=Ext.create('Ext.form.ComboBox', {
 				fieldLabel: 'Тип зоны',
 				store: zoneTypesStore,
@@ -74,15 +50,8 @@ Ext.define('app.controller.ppsZone', {
 				valueField: 'id',
 				allowBlank: false
 			}),
-			subdealersCombo=Ext.create('Ext.form.ComboBox', {
-				fieldLabel: 'Субдилер',
-				store: subdealersStore,
-				displayField: 'name',
-				valueField: 'id',
-				allowBlank: false
-			}),
 			zonesStore = Ext.create('Ext.data.Store', {
-				model: 'app.model.ppsZone.zoneModel',
+				model: controller.getPpsZoneZoneModelModel(),
 				proxy: {
 					type: 'rest',
 					url: '/pps_zone/zones',
@@ -95,7 +64,7 @@ Ext.define('app.controller.ppsZone', {
 				}
 			}),
 			terminalsStore = Ext.create('Ext.data.Store', {
-				model: 'app.model.ppsZone.terminalModel',
+				model: controller.getPpsZoneTerminalModelModel(),
 				proxy: {
 					type: 'rest',
 					url : '/pps_zone/terminals',
@@ -128,7 +97,7 @@ Ext.define('app.controller.ppsZone', {
 						
 						var r = Ext.ModelManager.create({
 							name: 'Введите наименование зоны'
-						}, 'app.model.ppsZone.zoneModel');
+						}, controller.getPpsZoneZoneModelModel());
 	
 						zonesStore.insert(0, r);
 						cellEditingZones.startEdit();
@@ -153,8 +122,8 @@ Ext.define('app.controller.ppsZone', {
 						var r=zonesPanel.getSelectionModel().getSelection()[0],
 							selected=r.data.id;
 						
-						if(!r.get('subdealerid')>0 || !r.get('spv_id')>0){
-							Ext.Msg.alert('Ошибка', 'Поля "Тип зоны" и "Субдилер" должны быть заполнены!');
+						if(!r.get('spv_id')>0){
+							Ext.Msg.alert('Ошибка', 'Поле "Тип зоны" должно быть заполнено!');
 						} else {
 							zonesStore.sync();
 							zonesStore.load(function(records, operation, success){
@@ -204,23 +173,6 @@ Ext.define('app.controller.ppsZone', {
 						field: {
 							xtype: 'numberfield'
 						}
-					},
-					{
-						header: 'Субдилер',
-						dataIndex: 'subdealerid',
-						renderer: function(value){
-							var matching = subdealersStore.queryBy(
-								function(record, id){
-									return record.get('id') == value;
-								});
-							return (matching.items[0]) ? matching.items[0].data.name : '';
-						},
-						field: Ext.create('Ext.form.ComboBox', {
-							store: subdealersStore,
-							displayField: 'name',
-							valueField: 'id',
-							allowBlank: false
-						})
 					},
 					{
 						header: 'Тип зоны (техники или инкассаторы)',
@@ -512,7 +464,7 @@ Ext.define('app.controller.ppsZone', {
 		
 		function createZoneTerminalStore(){
 			return Ext.create('Ext.data.Store', {
-			model: 'app.model.ppsZone.terminalModel',
+			model: controller.getPpsZoneTerminalModelModel(),
 			autoDestroy: false});
 		};
 		
@@ -578,19 +530,6 @@ Ext.define('app.controller.ppsZone', {
 			}
 		};
 		
-		function changeZones(zoneTypeId, subdealerId){
-			zonesPanel.setDisabled(true);
-			zonesStore.proxy.extraParams = {
-				zoneType: zoneTypeId,
-				subdealer: subdealerId};
-			zonesStore.load(function(records, operation, success){
-				if(success){
-					changeZoneMap(null, null);
-					zonesPanel.setDisabled(false);
-				}
-			});
-		};
-		
 		function drawZones(excludeZoneId){
 			var currentRow, polygon;
 			
@@ -613,7 +552,6 @@ Ext.define('app.controller.ppsZone', {
 		
 		function refreshTerminals(points, zoneId){
 			terminalsStore.proxy.extraParams={
-				subdealer: subdealersCombo.value,
 				zone_id: zoneId,
 				visit_freq: zonesStore.getById(zoneId).get("visit_freq")
 			};
@@ -640,21 +578,21 @@ Ext.define('app.controller.ppsZone', {
 				}
 			});
 		};
-		
-		subdealersCombo.addListener(
-			'change',
-			function(field, newValue, oldValue, options){
-				changeZones(zoneTypesCombo.value, newValue);
-			});
 			
 		zoneTypesCombo.addListener(
 			'change',
 			function(field, newValue, oldValue, options){
-				changeZones(newValue, subdealersCombo.value);
+				zonesPanel.setDisabled(true);
+				zonesStore.proxy.extraParams = {zone_type_id: newValue};
+				zonesStore.load(function(records, operation, success){
+					if(success){
+						changeZoneMap(null, null);
+						zonesPanel.setDisabled(false);
+					}
+				});
 			});
 			
 		filterContainer.add(zoneTypesCombo);
-		filterContainer.add(subdealersCombo);
 		
 		var mainContainer=Ext.create('Ext.panel.Panel', {
 			height: 1000,
