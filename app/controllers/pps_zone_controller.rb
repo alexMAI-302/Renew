@@ -6,25 +6,11 @@ class PpsZoneController < ApplicationSimpleErrorController
 
   end
   
-  def get_subdealers
-    subdealers=PpsSubdealer.find(:all,
-	:select => "subdealerid id, name",
-	:conditions => 'subdealerid in (select main_subdealerid from pps_terminal where isdeleted=0)',
-	:order => :name)
-
-    render :text => subdealers.to_json
-  end
-  
   def get_zone_types
     zone_types=SpValue.find(:all,
 	:select => "id, name",
 	:conditions => 'id IN (SELECT DISTINCT spv_id FROM pps_zone)',
 	:order => :name)
-    render :text => zone_types.to_json
-  end
-  
-  def get_branches
-    zone_types=ActiveRecord::Base.connection.select_all("SELECT id, name FROM branch")
     render :text => zone_types.to_json
   end
   

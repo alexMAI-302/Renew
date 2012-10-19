@@ -5,7 +5,7 @@ Ext.define('app.store.Branches', {
 	autoLoad: true,
 	proxy: {
 		type: 'ajax',
-		url : '/pps_zone/get_branches',
+		url : '/util_data/get_branches',
 		reader: {
 			type: 'json'
 		}
