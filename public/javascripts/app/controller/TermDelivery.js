@@ -327,13 +327,13 @@ Ext.define('app.controller.TermDelivery', {
 		});
 		
 		//колонка поломок терминала
-		terminalsTable.columns[13].setDisabled(!controller.userConfig.change_terminals);
-		terminalsTable.columns[13].field = Ext.create('Ext.form.ComboBox', {
+		terminalsTable.columns[12].setDisabled(!controller.userConfig.change_terminals);
+		terminalsTable.columns[12].field = Ext.create('Ext.form.ComboBox', {
 			store: controller.terminalBreaksStore,
 			displayField: 'name',
 			valueField: 'id'
 		});
-		terminalsTable.columns[13].renderer = function(value){
+		terminalsTable.columns[12].renderer = function(value){
 			var matching = controller.terminalBreaksStore.queryBy(
 				function(record, id){
 					return record.get('id') == value;
@@ -342,19 +342,19 @@ Ext.define('app.controller.TermDelivery', {
 		};
 		
 		//колонка "комментарий ОШ"
-		terminalsTable.columns[15].setDisabled(!controller.userConfig.change_techinfo);
+		terminalsTable.columns[13].setDisabled(!controller.userConfig.change_techinfo);
 		
 		//колонка статуса обслуживания
-		terminalsTable.columns[16].setDisabled(!controller.userConfig.change_terminals);
-		terminalsTable.columns[16].addListener({
+		terminalsTable.columns[14].setDisabled(!controller.userConfig.change_terminals);
+		terminalsTable.columns[14].addListener({
 			beforecheckchange: function(checkColumn, rowIndex, checked, eOpts){
 				return controller.userConfig.change_terminals;
 			}
 		});
 		
 		//колонка ОШ
-		terminalsTable.columns[17].setDisabled(!controller.userConfig.change_techinfo);
-		terminalsTable.columns[17].addListener({
+		terminalsTable.columns[15].setDisabled(!controller.userConfig.change_techinfo);
+		terminalsTable.columns[15].addListener({
 			beforecheckchange: function(checkColumn, rowIndex, checked, eOpts){
 				return controller.userConfig.change_techinfo;
 			}
