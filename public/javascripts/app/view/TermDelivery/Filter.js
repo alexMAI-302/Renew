@@ -17,17 +17,6 @@ Ext.define('app.view.TermDelivery.Filter', {
 	},
 	items: [
 		{
-			id: 'subdealerCombo',
-			xtype: 'combobox',
-			fieldLabel: 'Субдилер',
-			displayField: 'name',
-			valueField: 'id',
-			queryMode: 'local',
-			allowBlank: false,
-			width: 250,
-			labelWidth: 100
-		},
-		{
 			id: 'zoneTypeCombo',
 			xtype: 'combobox',
 			fieldLabel: 'Тип зоны',

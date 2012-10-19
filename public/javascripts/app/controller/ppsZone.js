@@ -40,7 +40,7 @@ Ext.define('app.controller.ppsZone', {
 				model: 'app.model.valueModel',
 				proxy: {
 					type: 'ajax',
-					url : '/pps_zone/get_subdealers',
+					url : '/util_data/get_subdealers',
 					reader: {
 						type: 'json'
 					}
@@ -61,7 +61,7 @@ Ext.define('app.controller.ppsZone', {
 				autoLoad: true,
 				proxy: {
 					type: 'ajax',
-					url : '/pps_zone/get_branches',
+					url : '/util_data/get_branches',
 					reader: {
 						type: 'json'
 					}

@@ -104,7 +104,11 @@ Ext.define('app.controller.ppsZoneUsers', {
 				displayField: 'name',
 				valueField: 'id',
 				allowBlank: false,
-				queryMode: 'local'
+				queryMode: 'local',
+				"beforequery": function(){
+					zonesStore.clearFilter(true);
+					return true;
+				}
 			}),
 			filterDataButton=Ext.create('Ext.Button', {
 				text    : 'Фильтр',
@@ -126,7 +130,13 @@ Ext.define('app.controller.ppsZoneUsers', {
 				displayField: 'name',
 				valueField: 'id',
 				allowBlank: false,
-				queryMode: 'local'
+				queryMode: 'local',
+				listeners: {
+					beforequery: function(){
+						usersStore.clearFilter(true);
+						return true;
+					}
+				}
 			}),
 			cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
 				clicksToEdit: 1,
@@ -165,6 +175,10 @@ Ext.define('app.controller.ppsZoneUsers', {
 							listeners:{
 								"focus": function (obj, options){
 									obj.expand();
+								},
+								"beforequery": function(){
+									usersStore.clearFilter(true);
+									return true;
 								}
 							}
 						}) 
@@ -188,6 +202,10 @@ Ext.define('app.controller.ppsZoneUsers', {
 							listeners:{
 								"focus": function (obj, options){
 									obj.expand();
+								},
+								"beforequery": function(){
+									zonesStore.clearFilter(true);
+									return true;
 								}
 							}
 						}) 

@@ -6,7 +6,6 @@ Ext.define('app.controller.TermDelivery', {
     extend: 'Ext.app.Controller',
 	stores: [
 		'TermDelivery.ZoneTypes',
-		'Subdealers',
 		'Branches',
 		'TermDelivery.Routes',
 		'TermDelivery.Terminals',
@@ -24,14 +23,12 @@ Ext.define('app.controller.TermDelivery', {
 	],
 	
 	zoneTypesStore: null,
-	subdealersStore: null,
 	branchesStore: null,
 	routesStore: null,
 	terminalsStore: null,
 	terminalBreaksStore: null,
 	
 	loadStatus: {
-		subdealersStore: false,
 		zoneTypes: false,
 		config: false
 	},
@@ -41,8 +38,7 @@ Ext.define('app.controller.TermDelivery', {
 	
 	checkLoadStatus: function(){
 		var controller=this;
-		if(controller.loadStatus.subdealersStore &&
-			controller.loadStatus.zoneTypes &&
+		if(controller.loadStatus.zoneTypes &&
 			controller.loadStatus.config){
 			controller.mainContainer.setLoading(false);
 		}
@@ -57,7 +53,6 @@ Ext.define('app.controller.TermDelivery', {
 	filterRoutes: function(selectedZone){
 		var controller=this,
 			ddate = new Date(Ext.getCmp('ddate').getValue()),
-			subdealerId = Ext.getCmp('subdealerCombo').getValue(),
 			zoneTypeId = Ext.getCmp('zoneTypeCombo').getValue(),
 			onlyWithErrors = Ext.getCmp('onlyWithErrors').getValue(),
 			onlyInRoute = Ext.getCmp('onlyInRoute').getValue();
@@ -65,7 +60,6 @@ Ext.define('app.controller.TermDelivery', {
 		controller.mainContainer.setLoading(true);
 		controller.routesStore.proxy.extraParams = {
 			ddate: ddate,
-			subdealer_id: subdealerId,
 			zone_type_id: zoneTypeId,
 			only_with_errors: onlyWithErrors,
 			only_in_route: onlyInRoute
@@ -90,7 +84,6 @@ Ext.define('app.controller.TermDelivery', {
 		if(r!=null){
 			var controller=this,
 				ddate = new Date(Ext.getCmp('ddate').getValue()),
-				subdealerId = Ext.getCmp('subdealerCombo').getValue(),
 				zoneTypeId = Ext.getCmp('zoneTypeCombo').getValue(),
 				onlyWithErrors = Ext.getCmp('onlyWithErrors').getValue(),
 				onlyInRoute = Ext.getCmp('onlyInRoute').getValue(),
@@ -99,7 +92,6 @@ Ext.define('app.controller.TermDelivery', {
 			controller.mainContainer.setLoading(true);
 			controller.terminalsStore.proxy.extraParams = {
 				ddate: ddate,
-				subdealer_id: subdealerId,
 				zone_type_id: zoneTypeId,
 				only_with_errors: onlyWithErrors,
 				only_in_route: onlyInRoute,
@@ -190,7 +182,6 @@ Ext.define('app.controller.TermDelivery', {
 	makeDeliveryAuto: function(){
 		var controller=this,
 			ddate = new Date(Ext.getCmp('ddate').getValue()),
-			subdealerId = Ext.getCmp('subdealerCombo').getValue(),
 			zoneTypeId = Ext.getCmp('zoneTypeCombo').getValue(),
 			onlyWithErrors = Ext.getCmp('onlyWithErrors').getValue(),
 			onlyInRoute = Ext.getCmp('onlyInRoute').getValue(),
@@ -210,7 +201,6 @@ Ext.define('app.controller.TermDelivery', {
 			url: '/term_delivery/make_delivery_auto',
 			params: {
 				ddate: ddate,
-				subdealer_id: subdealerId,
 				zone_type_id: zoneTypeId,
 				only_with_errors: onlyWithErrors,
 				only_in_route: onlyInRoute,
@@ -269,7 +259,6 @@ Ext.define('app.controller.TermDelivery', {
 		var controller=this;
 		
 		controller.zoneTypesStore = controller.getTermDeliveryZoneTypesStore();
-		controller.subdealersStore = controller.getSubdealersStore();
 		controller.routesStore = controller.getTermDeliveryRoutesStore();
 		controller.terminalsStore = controller.getTermDeliveryTerminalsStore();
 		controller.branchesStore = controller.getBranchesStore();
@@ -282,13 +271,6 @@ Ext.define('app.controller.TermDelivery', {
 		controller.zoneTypesStore.addListener({
 			'load': function(){
 				controller.loadStatus.zoneTypes = true;
-				controller.checkLoadStatus();
-			}
-		});
-		
-		controller.subdealersStore.addListener({
-			'load': function(){
-				controller.loadStatus.subdealersStore = true;
 				controller.checkLoadStatus();
 			}
 		});
@@ -405,7 +387,6 @@ Ext.define('app.controller.TermDelivery', {
 		var controller=this;
 		
 		Ext.getCmp('zoneTypeCombo').bindStore(controller.zoneTypesStore);
-		Ext.getCmp('subdealerCombo').bindStore(controller.subdealersStore);
 		Ext.getCmp('routesTable').reconfigure(controller.routesStore);
 		Ext.getCmp('terminalsTable').bindStore(controller.terminalsStore);
 	},

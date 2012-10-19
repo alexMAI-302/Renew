@@ -21,7 +21,7 @@ class TermDeliveryController < ApplicationSimpleErrorController
     FROM
       spp.Terminal_Delivery_get_zones(
         '#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',
-        #{params[:subdealer_id].to_i},
+        7,
         #{params[:zone_type_id].to_i},
         '#{Time.parse(params[:ddate]).strftime('%F')}',
         #{params[:only_with_errors].to_i},
@@ -62,7 +62,7 @@ class TermDeliveryController < ApplicationSimpleErrorController
     FROM
       spp.Terminal_Delivery(
         '#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',
-        #{params[:subdealer_id].to_i},
+        7,
         #{params[:zone_type_id].to_i},
         '#{Time.parse(params[:ddate]).strftime('%F')}',
         #{params[:only_with_errors].to_i},
@@ -161,7 +161,7 @@ class TermDeliveryController < ApplicationSimpleErrorController
     FROM
       spp.Terminal_Delivery(
         '#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',
-        #{params[:subdealer_id].to_i},
+        7,
         #{params[:zone_type_id].to_i},
         '#{Time.parse(params[:ddate]).strftime('%F')}',
         #{params[:only_with_errors].to_i},
@@ -184,7 +184,7 @@ class TermDeliveryController < ApplicationSimpleErrorController
     items=zones_to_include.to_xml(:root => "zones")
     s = "call spp.Terminal_Delivery_make_delivery_auto(
         '#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',
-        #{params[:subdealer_id].to_i},
+        7,
         #{params[:zone_type_id].to_i},
         '#{Time.parse(params[:ddate]).strftime('%F')}',
         #{params[:only_with_errors].to_i},
@@ -233,61 +233,6 @@ class TermDeliveryController < ApplicationSimpleErrorController
 		render :text => "ok"
   end
   
-  def zone
-		set_conditions	
-		ActiveRecord::Base.include_root_in_json = false
-		@rst_site = ActiveRecord::Base.connection.select_all( "
-		select
-			ps.subdealerid id,
-			ps.name name
-		from
-			pps_subdealers ps
-			join subdealer_geoaddress sg on sg.subdealerid = ps.subdealerid 
-			join geoaddress g on g.id = sg.geoaddressid 
-		where
-			ps.subdealerid  in (select main_subdealerid from pps_terminal)" )
-		@site_list = @rst_site.collect {|p| [ p["name"], p["id"] ] }
-
-		@rst_spv = ActiveRecord::Base.connection.select_all( " select id, name from sp_values where sp_tp = 1626 " )
-		@spv_list = @rst_spv.collect {|p| [ p["name"], p["id"] ] }
-
-		@rst_route = ActiveRecord::Base.connection.select_all( " select id, name, points from pps_zone 
-																 where subdealerid = #{@subdealer} and spv_id = #{@spv_id} order by name " )
-		@route_list = []
-		@route_index = 0
-		@route_id = session[:route_id].to_i 
-		@route_id = 0 if not @route_id
-		@rst_route.each_with_index do |p,i| 
-			@route_list << [ p["name"], i ]
-			@route_index = i if @route_id == p["id"]
-		end
-		if @rst_route.size > 0
-			@route_id = @rst_route[@route_index]["id"]
-			@route_points = @rst_route[@route_index]["points"]
-		else
-			@route_id = 0
-			@route_points = ""
-		end 
-		@route_json = @rst_route.to_json( :only => [ "id", "points", "name" ] )
-		@rst_buyers = ActiveRecord::Base.connection.select_all( " select latitude, longitude
-																from geoaddress_v  
-																where  main_subdealerid = #{@subdealer} ") 																
-		@rst_new = @rst_buyers.to_json( :only => [ "longitude", "latitude" ] ) 
-		
-	    @rst_zt  = ActiveRecord::Base.connection.select_all( "
-		select
-			t.zoneid zid,
-			latitude,
-			longitude,
-			pname
-		from
-			pps_zone z join pps_zone_terminal t on t.zoneid = z.id
-			join geoaddress_v g on g.ptid = t.pps_terminal
-		where z.subdealerid = #{@subdealer} and z.spv_id = #{@spv_id} " )
-																 
-		@jzt = @rst_zt.to_json( ) 
-	end
-  
 	def save_zone
 		if params[:a]
 			@route_id = params[:a][:routeid]
@@ -298,17 +243,4 @@ class TermDeliveryController < ApplicationSimpleErrorController
 		end
 		redirect_to :action => "zone"
 	end
- 
-	def refresh_terminal
-		zone=","
-		subdealer=params[:post][:subdealer];
-		params[:a].each_pair do |id, value|
-			if value[:needsave] == "1"
-				zone=zone+id.to_s+","
-			end
-		end
-		@rst_term = ActiveRecord::Base.connection.select_all( "select* from spp.Terminal_Delivery(#{subdealer},'#{zone}')")
-		render :partial => 'upd_terminal'
-
-  end
 end

@@ -4,7 +4,7 @@ Ext.define('app.store.Subdealers', {
 	model: 'app.model.valueModel',
 	proxy: {
 		type: 'ajax',
-		url : '/pps_zone/get_subdealers',
+		url : '/util_data/get_subdealers',
 		reader: {
 			type: 'json'
 		}
