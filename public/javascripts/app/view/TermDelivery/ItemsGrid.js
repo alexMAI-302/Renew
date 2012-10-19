@@ -87,11 +87,6 @@ Ext.define('app.view.TermDelivery.ItemsGrid', {
 					dataIndex: 'src_system_name'
 				},
 				{
-					width: 90,
-					header: 'Субгент',
-					dataIndex: 'subdealer_name'
-				},
-				{
 					width: 130,
 					header: 'Вид<br/>поломки',
 					dataIndex: 'terminal_break_id',
@@ -99,11 +94,6 @@ Ext.define('app.view.TermDelivery.ItemsGrid', {
 						displayField: 'name',
 						valueField: 'id'
 					})
-				},
-				{
-					width: 65,
-					header: 'Отделение<br/>банка',
-					dataIndex: 'branch_name'
 				},
 				{
 					width: 80,
