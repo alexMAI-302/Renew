@@ -24,7 +24,7 @@ class PpsZoneController < ApplicationSimpleErrorController
 			  :name => params[:name],
 			  :spv_id => params[:spv_id],
 			  :visit_freq => params[:visit_freq],
-			  :subdealerid => params[:subdealerid],
+			  :subdealerid => 7,
 			  :bound_summ => params[:bound_summ],
 			  :branch => params[:branch])
 			pps_zone.id = ActiveRecord::Base.connection.select_value("SELECT idgenerator('pps_zone')")
@@ -39,7 +39,6 @@ class PpsZoneController < ApplicationSimpleErrorController
 			  :name => params[:name],
 			  :spv_id => params[:spv_id],
 			  :visit_freq => params[:visit_freq],
-			  :subdealerid => params[:subdealerid],
 			  :bound_summ => params[:bound_summ],
 			  :branch => params[:branch]})
 		end
@@ -50,10 +49,9 @@ class PpsZoneController < ApplicationSimpleErrorController
 		end
 		when "get"
 		begin
-			zone_type_id=params[:zoneType]
-			subdealer_id=params[:subdealer]
+			zone_type_id=params[:zone_type_id]
 			pps_zones=PpsZone.find(:all,
-				:conditions => {:spv_id=>zone_type_id, :subdealerid => subdealer_id},
+				:conditions => {:spv_id=>zone_type_id},
 				:include => :zone_type)
 			render :text => pps_zones.to_json
 		end
@@ -181,7 +179,7 @@ class PpsZoneController < ApplicationSimpleErrorController
 					LEFT JOIN pps_terminal_stat pts ON pts.terminalID=pps_terminal.terminalID AND pts.visit_freq=#{params[:visit_freq]}
 					LEFT JOIN (SELECT id FROM ask_terminals_in_zone(#{params[:zone_id]})) geo_bind ON geo_bind.id=pps_terminal.id",
 				:conditions => [
-					"main_subdealerid = :main_subdealerid AND
+					"main_subdealerid = 7 AND
 					(
 						(geo_bind.id IS NOT NULL
 						AND
@@ -191,7 +189,7 @@ class PpsZoneController < ApplicationSimpleErrorController
 						OR
 						EXISTS(SELECT 1 FROM pps_zone_terminal pzt WHERE pzt.zoneid = :zone_id AND pzt.pps_terminal=pps_terminal.id)
 					)",
-					{:main_subdealerid=>params[:subdealer], :zone_id => params[:zone_id],
+					{:zone_id => params[:zone_id],
 					:left_longitude => params[:left_longitude], :right_longitude=> params[:right_longitude],
 					:top_latitude => params[:top_latitude], :bottom_latitude => params[:bottom_latitude]}],
 				:order => "pps_terminal.name")
