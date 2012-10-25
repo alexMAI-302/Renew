@@ -1,3 +1,4 @@
+# encoding: utf-8
 #====================================================
 #
 #    Copyright 2008-2009 iAnywhere Solutions, Inc.
@@ -108,7 +109,7 @@ module ActiveRecord
 
     class SQLAnywhereAdapter < AbstractAdapter
 	
-               ENC_EXEC = Iconv.new("utf-8//IGNORE", "utf-8")
+               #ENC_EXEC = Iconv.new("utf-8//IGNORE", "utf-8")
                ENC_SELECT = Iconv.new("utf-8//IGNORE", "utf-8")
 
       def initialize( connection, logger = nil, connection_string = "") #:nodoc:
@@ -244,13 +245,10 @@ module ActiveRecord
 		raw_sql=sql
         sql = modify_limit_offset(sql)
 		
-		#добавляем правильного пользователя для записи логов
+		#Р·Р°РїРёСЃСЊ РІ Р±Р°Р·Сѓ РїСЂР°РІРёР»СЊРЅРѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
 		sql = "SET @@username='#{$username}'; #{sql}"
 
-#File.open('/var/www/renew/log/sa.log', 'a+') {|f| f.write("  sqlanywhere_adapter.rb: #{sql}") }#puts "sqlanywhere_adapter.rb: #{sql}"
-
-		#преобразуем utf8 в cp1251
-		sql = ENC_EXEC.iconv(sql)
+		sql = sql.force_encoding(Encoding::UTF_8)
 
 #File.open('/var/www/renew/log/sa.log', 'a+') {|f| f.write("  sqlanywhere_adapter.rb: #{sql}") }#puts "sqlanywhere_adapter.rb: #{sql}"
 
@@ -261,12 +259,12 @@ module ActiveRecord
         rs = SA.instance.api.sqlany_execute_direct(@connection, sql)
         if rs.nil?
           error = SA.instance.api.sqlany_error(@connection)
-		  error_str = ENC_SELECT.iconv(error.to_s)
+          error_str = error[1].to_s.force_encoding(Encoding::UTF_8)
           case error[0].to_i
           when -143
             if sql =~ /^SELECT/i then
               raise ActiveRecord::StatementInvalid.new("#{error_str}:#{raw_sql}")
-            else
+            else\
               raise ActiveRecord::ActiveRecordError.new("#{error_str}:#{raw_sql}")
             end
           else
@@ -284,7 +282,7 @@ module ActiveRecord
 				if SA.instance.api.sqlany_get_column_info(rs, cols)[3] == 2 && (value.is_a? String) && !sql.nil?
 
 #File.open('/var/www/renew/log/sa.log', 'a+') {|f| f.write("    Rsqlanywhere_adapter.rb: #{value}") }
-					value = ENC_SELECT.iconv(value)
+					value=value.force_encoding(Encoding::UTF_8)
 #File.open('/var/www/renew/log/sa.log', 'a+') {|f| f.write("    Rsqlanywhere_adapter.rb: #{value}") }
 				end
               result[SA.instance.api.sqlany_get_column_info(rs, cols)[2]] = value
@@ -589,7 +587,7 @@ SQL
           SA.instance.api.sqlany_execute_immediate(@connection, "SET TEMPORARY OPTION timestamp_format = 'YYYY-MM-DD HH:NN:SS'") rescue nil
           # The liveness variable is used a low-cost "no-op" to test liveness
           SA.instance.api.sqlany_execute_immediate(@connection, "CREATE VARIABLE liveness INT") rescue nil
-		  #добавляем глобальную переменную соединения для хранения имени пользователя.
+		  #пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 		  SA.instance.api.sqlany_execute_immediate(@connection, "CREATE VARIABLE @@username VARCHAR(30)") rescue nil
         end
     end
