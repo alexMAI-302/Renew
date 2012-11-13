@@ -6,7 +6,6 @@ Ext.define('app.controller.sellPrice', {
 		'app.model.sellPrice.sellPriceModel',
 		'app.model.sellPrice.goodsPriceModel'],
     init: function() {
-		var currentGoodsPricesData=[];
 	
 		function showServerError(response, options) {
 			Ext.Msg.alert('Ошибка', response.responseText);
@@ -116,6 +115,70 @@ Ext.define('app.controller.sellPrice', {
 			return matching;
 		};
 		
+		function loadGoodsStore(lgGrp){
+			var currentGoodsPricesData=[],
+				yetSelectedGoods={};
+				
+			if(lgGrp!=null){
+				goodsPricesStore.each(
+					function(record){
+						if(record.get('lggroup_id') == lgGrp && yetSelectedGoods[""+record.get('goods_id')]==null) {
+							currentGoodsPricesData.push({
+								goods_id: record.get('goods_id'),
+								goods_name: record.get('goods_name'),
+								price: record.get('price')
+							});
+							yetSelectedGoods[""+record.get('goods_id')]=true;
+						}
+						return true;
+					});
+			}
+			
+			currentGoodsPricesStore.loadData(currentGoodsPricesData, false);
+		};
+		
+		function getLggroupName(lggroupId){
+			var name=null;
+			
+			lggroupsStore.each(function(record){
+				if(record.get("id")==lggroupId){
+					name=record.get("name");
+				}
+				return name==null;
+			});
+			
+			return name;
+		}
+		
+		function sortLggroups(r1, r2){
+			var name1=getLggroupName(r1.get("lggroup_id")),
+				name2=getLggroupName(r2.get("lggroup_id"));
+			name1=(name1!=null)?name1.toLowerCase():'';
+			name2=(name2!=null)?name2.toLowerCase():'';
+			return (name1>name2)? 1 : ((name1<name2)? -1 : 0);
+		}
+		
+		function getGoodsName(goodsId){
+			var name=null;
+			
+			goodsPricesStore.each(function(record){
+				if(record.get("goods_id")==goodsId){
+					name=record.get("goods_name");
+				}
+				return name==null;
+			});
+			
+			return name;
+		}
+		
+		function sortGoods(r1, r2){
+			var name1=getGoodsName(r1.get("goods_id")),
+				name2=getGoodsName(r2.get("goods_id"));
+			name1=(name1!=null)?name1.toLowerCase():'';
+			name2=(name2!=null)?name2.toLowerCase():'';
+			return (name1>name2)? 1 : ((name1<name2)? -1 : 0);
+		}
+		
 		var partnersStore = Ext.create('Ext.data.Store', {
 			model: 'app.model.valueStrModel',
 			proxy: {
@@ -152,136 +215,129 @@ Ext.define('app.controller.sellPrice', {
 		});
 		
 		var goodsPricesStore = Ext.create('Ext.data.Store', {
-			model: 'app.model.sellPrice.goodsPriceModel',
-			proxy: {
-				type: 'rest',
-				url : '/sell_price/get_goods_prices',
-				reader: {
-					type: 'json'
+				model: 'app.model.sellPrice.goodsPriceModel',
+				proxy: {
+					type: 'rest',
+					url : '/sell_price/get_goods_prices',
+					reader: {
+						type: 'json'
+					}
 				}
-			}
-		});
-		
-		var currentGoodsPricesStore = Ext.create('Ext.data.ArrayStore', {
-			model: 'app.model.sellPrice.goodsPriceModel',
-			data: currentGoodsPricesData
-		});
-		
-		var lggroupsStore = Ext.create('Ext.data.Store', {
-			model: 'app.model.valueModel',
-			proxy: {
-				type: 'rest',
-				url : '/sell_price/get_lggroups',
-				reader: {
-					type: 'json'
+			}),
+			currentGoodsPricesStore = Ext.create('Ext.data.Store', {
+				model: 'app.model.sellPrice.goodsPriceModel',
+				proxy: {
+			        type: 'memory'
 				}
-			}
-		});
-		
-		var discountReasonsStore = Ext.create('Ext.data.Store', {
-			model: 'app.model.valueModel',
-			autoLoad: true,
-			proxy: {
-				type: 'rest',
-				url : '/sell_price/get_discount_reasons',
-				reader: {
-					type: 'json'
+			}),
+			lggroupsStore = Ext.create('Ext.data.Store', {
+				model: 'app.model.valueModel',
+				proxy: {
+					type: 'rest',
+					url : '/sell_price/get_lggroups',
+					reader: {
+						type: 'json'
+					}
 				}
-			}
-		});
-		
-		var mainContainer=Ext.create('Ext.container.Container', {
-			width: 1100,
-			layout: {
-				type: 'anchor'
-			},
-			renderTo: Ext.get('sell_price_js'),
-			defaults: {
-				style: {
-					margin: '10px'
+			}),
+			discountReasonsStore = Ext.create('Ext.data.Store', {
+				model: 'app.model.valueModel',
+				autoLoad: true,
+				proxy: {
+					type: 'rest',
+					url : '/sell_price/get_discount_reasons',
+					reader: {
+						type: 'json'
+					}
 				}
-			}
-		});
-		
-		var filterPanel=Ext.create('Ext.form.Panel',{
-			layout: {
-				type: 'hbox'
-			},
-			defaults: {
-				style: {
-					margin: '5px'
-				}
-			},
-			items: [{
-				id: 'startDate',
-				xtype: 'datefield',
-				name: 'startDate',
-				fieldLabel: 'Начало периода',
-				format: 'd.m.Y',
-				altFormat: 'd/m/Y|d m Y',
-				startDay: 1,
-				value: Ext.Date.add(new Date(Ext.Date.now()), Ext.Date.DAY, -3)
-			},{
-				id: 'endDate',
-				xtype: 'datefield',
-				name: 'endDate',
-				fieldLabel: 'Конец периода',
-				format: 'd.m.Y',
-				altFormat: 'd/m/Y|d m Y',
-				startDay: 1,
-				value: new Date(Ext.Date.now())
-			}]
-		});
-		
-		var partnersCombo=Ext.create('Ext.form.ComboBox', {
-			fieldLabel: 'Партнер',
-			store: partnersStore,
-			displayField: 'name',
-			valueField: 'id',
-			allowBlank: false,
-			labelWidth: 50,
-			width: 400,
-			listeners: {
-				"select": function(field, value, options ) {
-					filterSellPrices.setDisabled(value[0].id==null);
-					return true;
+			}),
+			mainContainer=Ext.create('Ext.container.Container', {
+				width: 1100,
+				layout: {
+					type: 'anchor'
 				},
-				"change": function(field, newValue, oldValue, options) {
-					filterSellPrices.setDisabled(partnersCombo.value==null);
-					return true;
+				renderTo: Ext.get('sell_price_js'),
+				defaults: {
+					style: {
+						margin: '10px'
+					}
 				}
-			}
-		});
-		
-		var filterSellPrices=Ext.create('Ext.Button', {
-			text    : 'Фильтр',
-			handler : loadSellPrices,
-			disabled: true
-		});
+			}),
+			filterPanel=Ext.create('Ext.form.Panel',{
+				layout: {
+					type: 'hbox'
+				},
+				defaults: {
+					style: {
+						margin: '5px'
+					}
+				},
+				items: [{
+					id: 'startDate',
+					xtype: 'datefield',
+					name: 'startDate',
+					fieldLabel: 'Начало периода',
+					format: 'd.m.Y',
+					altFormat: 'd/m/Y|d m Y',
+					startDay: 1,
+					value: Ext.Date.add(new Date(Ext.Date.now()), Ext.Date.DAY, -3)
+				},{
+					id: 'endDate',
+					xtype: 'datefield',
+					name: 'endDate',
+					fieldLabel: 'Конец периода',
+					format: 'd.m.Y',
+					altFormat: 'd/m/Y|d m Y',
+					startDay: 1,
+					value: new Date(Ext.Date.now())
+				}]
+			}),
+			partnersCombo=Ext.create('Ext.form.ComboBox', {
+				fieldLabel: 'Партнер',
+				store: partnersStore,
+				displayField: 'name',
+				valueField: 'id',
+				allowBlank: false,
+				labelWidth: 50,
+				width: 400,
+				listeners: {
+					"select": function(field, value, options ) {
+						filterSellPrices.setDisabled(value[0].id==null);
+						return true;
+					},
+					"change": function(field, newValue, oldValue, options) {
+						filterSellPrices.setDisabled(partnersCombo.value==null);
+						return true;
+					}
+				}
+			}),
+			filterSellPrices=Ext.create('Ext.Button', {
+				text    : 'Фильтр',
+				handler : loadSellPrices,
+				disabled: true
+			});
 		
 		filterPanel.add(partnersCombo);
 		filterPanel.add(filterSellPrices);
 		mainContainer.add(filterPanel);
 	
 		var cellEditingSellPrices = Ext.create('Ext.grid.plugin.CellEditing', {
-			clicksToEdit: 1
-		});
-		
-		var sellPricesContainer = Ext.create('Ext.container.Container', {
-			width: 1100,
-			layout: {
-				type: 'anchor'
-			},
-			defaults: {
-				style: {
-					margin: '10px'
-				}
-			},
-			margin: '-0px',
-			disabled: true
-		});
-	
-		var spId='sellPricesTable';
+				clicksToEdit: 1
+			}),
+			sellPricesContainer = Ext.create('Ext.container.Container', {
+				width: 1100,
+				layout: {
+					type: 'anchor'
+				},
+				defaults: {
+					style: {
+						margin: '10px'
+					}
+				},
+				margin: '-0px',
+				disabled: true
+			}),
+			spId='sellPricesTable';
 		
 		var sellPricesPanel=Ext.create('Ext.grid.Panel', {
 			id: spId,
@@ -327,6 +383,13 @@ Ext.define('app.controller.sellPrice', {
 					header: 'Группа планирования',
 					gridId: spId,
 					dataIndex: 'lggroup_id',
+					doSort: function(state){
+						sellPricesStore.sort({
+							sorterFn: sortLggroups,
+							direction: state
+						});
+						return true;
+					},
 					renderer: function(value, metaData, record){
 						var lggroupId=null, matching=null;
 						//ищем группу планирования для товара
@@ -352,24 +415,6 @@ Ext.define('app.controller.sellPrice', {
 							"select": function(field, value, options){
 								var selection=sellPricesPanel.getSelectionModel().getSelection()[0];
 								
-								var lgGrp=value[0].data.id;
-								var currentGoodsPricesData=[];
-								if(lgGrp!=null){
-									goodsPricesStore.each(
-										function(record){
-											if(record.get('lggroup_id') == lgGrp) {
-												currentGoodsPricesData.push({
-													goods_id: record.get('goods_id'),
-													goods_name: record.get('goods_name'),
-													price: record.get('price')
-												});
-											}
-											return true;
-										});
-								}
-								
-								currentGoodsPricesStore.loadData(currentGoodsPricesData, false);
-								
 								selection.set('goods_id', null);
 								selection.set('goods_name', null);
 								
@@ -383,6 +428,13 @@ Ext.define('app.controller.sellPrice', {
 					header: 'Товар',
 					dataIndex: 'goods_id',
 					gridId: spId,
+					doSort: function(state){
+						sellPricesStore.sort({
+							sorterFn: sortGoods,
+							direction: state
+						});
+						return true;
+					},
 					renderer: function(value, metaData, record){
 						var matching=null;
 						if(value!=null){
@@ -414,25 +466,9 @@ Ext.define('app.controller.sellPrice', {
 								
 								return true;
 							},
-							"change": function(t, n, o, eOpts ) {
-								var r = sellPricesPanel.getSelectionModel().getSelection()[0];
-								var lgGrp=(r!=null)?(r.get('lggroup_id')):(null);
-								var currentGoodsPricesData=[];
-								if(lgGrp!=null){
-									goodsPricesStore.each(
-										function(record){
-											if(record.get('lggroup_id') == lgGrp) {
-												currentGoodsPricesData.push({
-													goods_id: record.get('goods_id'),
-													goods_name: record.get('goods_name'),
-													price: record.get('price')
-												});
-											}
-											return true;
-										});
-								}
-								
-								currentGoodsPricesStore.loadData(currentGoodsPricesData, false);
+							"expand": function(field, eOpts){
+								var lgGrp=sellPricesPanel.getSelectionModel().getSelection()[0].get("lggroup_id");
+								loadGoodsStore(lgGrp);
 								return true;
 							}
 						}
