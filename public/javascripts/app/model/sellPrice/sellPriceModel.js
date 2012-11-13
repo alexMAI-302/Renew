@@ -2,7 +2,7 @@ Ext.define('app.model.sellPrice.sellPriceModel', {
 	extend: 'Ext.data.Model',
 	fields: [
 	{name: 'id'						, type: 'int'},
-	{name: 'goods_id'				, type: 'auto'},
+	{name: 'goods_id'				, type: 'int',		useNull: true},
 	{name: 'goods_name'				, type: 'string',	persist: false},
 	{name: 'lggroup_id'				, type: 'auto',		persist: false},
 	{name: 'price'					, type: 'float',	persist: false},
