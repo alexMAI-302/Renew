@@ -103,6 +103,8 @@ class CertificateController < ApplicationPageErrorController
       
       headers['Content-Type'] = "application/pdf"
       send_data doc.render, :filename => "#{goods_name}.#{certificate_number}.pdf"
+    else
+      render :text => "Сертификат #{certificate_number} для товара #{goods_name} не найден."
     end
   end
 end
