@@ -303,6 +303,16 @@ Ext.define('app.controller.TermDelivery', {
 		
 		//колонка включения терминала в маршрут
 		terminalsTable.columns[1].addListener({
+			beforecheckchange: function(checkColumn, rowIndex, checked, eOpts){
+				var terminal=terminalsTable.store.getAt(rowIndex);
+				if(terminal.get("included_in_route")){
+					return false;
+				} else {
+					var r=routesTable.getSelectionModel().getSelection()[0];
+					r.set('points_inroute', r.get('points_inroute')+(checked? 1 : -1));
+					return true;					
+				}
+			},
 			checkchange: function(checkColumn, rowIndex, checked, eOpts){
 				var r=routesTable.getSelectionModel().getSelection()[0];
 				r.set('points_inroute', r.get('points_inroute')+(checked? 1 : -1));
@@ -312,7 +322,9 @@ Ext.define('app.controller.TermDelivery', {
 				var zoneRecord=routesTable.getSelectionModel().getSelection()[0];
 				
 				controller.terminalsStore.each(function(r){
-					if(r.get('include_in_route') == !terminalsTable.checkIncludeInRoute){
+					if(
+						(r.get('include_in_route') == !terminalsTable.checkIncludeInRoute) &&
+						(!r.get('included_in_route'))){
 						zoneRecord.set(
 							'points_inroute',
 							zoneRecord.get('points_inroute') +

@@ -49,5 +49,12 @@ Ext.define('app.model.TermDelivery.TerminalModel', {
 	{name: 'serv_status'				, type:'boolean'},
 	{name: 'penalty_status'				, type:'boolean'},
 	{name: 'techinfo'					, type:'string'},
-	{name: 'should_include_in_route'	, type:'boolean'}]
+	{name: 'should_include_in_route'	, type:'boolean'},
+	{
+		name: 'included_in_route',
+		type:'boolean',
+		convert: function(v, record){
+			return record.get("include_in_route");
+		}
+	}]
 });
