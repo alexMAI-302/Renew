@@ -6,16 +6,20 @@ Ext.define('app.controller.UnactInfoAdmin', {
 		function showServerError(response, options) {
 			Ext.Msg.alert('Ошибка', response.responseText);
 			mainContainer.setLoading(false);
-		}
+		};
 		
 		Ext.Ajax.request.failure = showServerError;
 	
 		var actionsStore = Ext.create('Ext.data.Store', {
 				model: 'app.model.UnactInfoAdmin.ActionModel',
 				proxy: {
-					type: 'ajax',
+					type: 'rest',
 					url : '/unact_info/admin/actions',
+					appendId: false,
 					reader: {
+						type: 'json'
+					},
+					writer: {
 						type: 'json'
 					}
 				},
@@ -39,6 +43,7 @@ Ext.define('app.controller.UnactInfoAdmin', {
 					[
 						{
 							xtype: 'form',
+							enctype: 'utf-8',
 							items: [
 								{
 									xtype: 'filefield',
@@ -48,7 +53,14 @@ Ext.define('app.controller.UnactInfoAdmin', {
 									msgTarget: 'side',
 									allowBlank: false,
 									width: 900,
-									buttonText: 'Выберите файл'
+									buttonText: 'Выберите файл',
+									validator: function(value){
+										return (value!=null &&
+											value.substring(value.length-4, value.length)!=null &&
+											value.substring(value.length-4, value.length).toLowerCase()=='.pdf')?
+											true:
+											'Файл должен быть в формате pdf';
+									}
 								}
 							],
 							buttons: [
@@ -58,7 +70,8 @@ Ext.define('app.controller.UnactInfoAdmin', {
 									handler: function() {
 										var form = this.up('form').getForm();
 										if(form.isValid()){
-											var actionName = (selectedAction!=null)?selectedAction.get("id"):(fileWindow.down('filefield').getValue());
+											var selectedAction = actionsPanel.getSelectionModel().getSelection()[0];
+												actionName = (selectedAction!=null)?selectedAction.get("id"):(fileWindow.down('filefield').getValue());
 											form.submit({
 												url: '/unact_info/admin/upload_file',
 												params: {
@@ -71,8 +84,8 @@ Ext.define('app.controller.UnactInfoAdmin', {
 													fileWindow.hide();
 												},
 												errors: function(fp, o){
-													Ext.Msg.alert("Ошибка обработки файла", o.result.errors);
 													fileWindow.hide();
+													Ext.Msg.alert("Ошибка обработки файла", o.result.errors);
 												}
 											});
 										}
