@@ -1,6 +1,51 @@
+<% content_for :stylesheets_links do %>
+	<![if !IE]>
+	<style type="text/css" media="all">
+		@media print {
+			orientation: landscape;
+		}
+		
+		img {
+			max-width: 280mm;
+			max-height: 190mm;
+		}
+	</style>
+	
+	<style type="text/css" media="print">
+		@media print {
+			orientation: landscape;
+		}
+		
+		@page {
+			size: landscape;
+			margin: 0;
+		}
+		
+		img {
+			max-width: 280mm;
+			max-height: 190mm;
+		}
+	</style>
+	<![endif]>
+	
+	<![if IE]>
+	<style type="text/css" media="print">
+		@page {
+			size: landscape;
+			margin: 0;
+		}
+		
+		img {
+			max-width: 280mm;
+			max-height: 170mm;
+		}
+	</style>
+	<![endif]>
+<% end %>
+
 <% content_for :title do %>
 Сертификат <%= "#{@certificate_number}. #{@goods_name}." %>
-<%	end -%>
+<% end %>
 
 <% content_for :content do %>
 	<% if !@pictures.nil? %>
@@ -10,6 +55,6 @@
 	<% else %>
 		По вашему запрсу ничего не найдено
 	<% end %>
-<% end -%>
+<% end %>
 
 <% render :file => 'layouts/application_empty' %>

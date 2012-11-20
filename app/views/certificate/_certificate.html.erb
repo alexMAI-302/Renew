@@ -13,6 +13,12 @@
 			<th>
 				Сертификат
 			</th>
+			<th>
+				В виде картинок
+			</th>
+			<th>
+				В виде pdf-документа
+			</th>
 		</tr>
 		<% @certificates.each do |key, cert| %>
 			<tr>
@@ -26,8 +32,16 @@
 					<%= cert['goods_name'] %> </a>
 				</td>
 				<td>
+					<%= cert['certificate_number'] %>
+				</td>
+				<td>
 					<a target="blank" href="<%= "/certificate/certificate_pages?pictures=#{cert['picture_ids'].join(',')}&certificate_number=#{cert['certificate_number']}&goods_name=#{cert['goods_name']}" %>">
-						<%= cert['certificate_number'] %>
+						jpg
+					</a>
+				</td>
+				<td>
+					<a target="blank" href="<%= "/certificate/certificate_pdf?pictures=#{cert['picture_ids'].join(',')}&certificate_number=#{cert['certificate_number']}&goods_name=#{cert['goods_name']}" %>">
+						pdf
 					</a>
 				</td>
 			</tr>
