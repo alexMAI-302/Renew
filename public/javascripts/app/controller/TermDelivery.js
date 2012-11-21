@@ -303,21 +303,6 @@ Ext.define('app.controller.TermDelivery', {
 		
 		//колонка включения терминала в маршрут
 		terminalsTable.columns[1].addListener({
-			beforecheckchange: function(checkColumn, rowIndex, checked, eOpts){
-				var terminal=terminalsTable.store.getAt(rowIndex);
-				if(terminal.get("included_in_route")){
-					return false;
-				} else {
-					var r=routesTable.getSelectionModel().getSelection()[0];
-					r.set('points_inroute', r.get('points_inroute')+(checked? 1 : -1));
-					return true;					
-				}
-			},
-			checkchange: function(checkColumn, rowIndex, checked, eOpts){
-				var r=routesTable.getSelectionModel().getSelection()[0];
-				r.set('points_inroute', r.get('points_inroute')+(checked? 1 : -1));
-				return true;
-			},
 			headerclick: function(headerContainer, column,e, t, eOpts){
 				var zoneRecord=routesTable.getSelectionModel().getSelection()[0];
 				
