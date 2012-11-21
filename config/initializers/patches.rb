@@ -56,7 +56,7 @@ if Gem::Version.new(''+RUBY_VERSION) >= Gem::Version.new("1.9.0")
             if value.has_key?(:tempfile)
               upload = value[:tempfile]
               upload.extend(UploadedFile)
-              upload.original_path = value[:filename]
+              upload.original_path = value[:filename].force_encoding(Encoding::UTF_8)
               upload.content_type = value[:type]
               upload
             else

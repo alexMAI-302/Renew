@@ -1,0 +1,17 @@
+<% content_for :title do %>
+Информационные материалы
+<% end %>
+
+<% content_for :content do %>
+	<% if !@actions.nil? %>
+		<% @actions.each do |action| %>
+			<a target="blank" href="<%= "/unact_info/pdf/#{action}" %>">
+				<%= action %>
+			</a>
+		<% end %>
+	<% else %>
+		Информация отсутствует
+	<% end %>
+<% end %>
+
+<% render :file => 'layouts/application' %>
