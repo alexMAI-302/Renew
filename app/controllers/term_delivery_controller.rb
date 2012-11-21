@@ -9,6 +9,10 @@ class TermDeliveryController < ApplicationSimpleErrorController
   
   def get_routes
     session[:ddate]=params[:ddate]
+	only_with_errors=( params[:only_with_errors]=="true")?(1):(0)
+	only_in_route=( params[:only_in_route]=="true")?(1):(0)
+	
+	
     routes_list = ActiveRecord::Base.connection.select_all("
     SELECT
       id,
@@ -24,9 +28,10 @@ class TermDeliveryController < ApplicationSimpleErrorController
         7,
         #{params[:zone_type_id].to_i},
         '#{Time.parse(params[:ddate]).strftime('%F')}',
-        #{params[:only_with_errors].to_i},
-        #{params[:only_in_route].to_i})")
+        #{only_with_errors},
+        #{only_in_route})")
     
+	logger.info(params[:only_with_errors].to_i)
     render :text => routes_list.to_json
   end
   
