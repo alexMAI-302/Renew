@@ -1,6 +1,8 @@
 # encoding: utf-8
 
 class UnactInfo::AdminController < ApplicationSimpleErrorController
+  
+  UNACT_INFO_DIR="#{RAILS_ROOT}/public/unact_info/pdf"
 	
 	def index
 		
@@ -9,18 +11,18 @@ class UnactInfo::AdminController < ApplicationSimpleErrorController
 	def actions
 	  case request.method.to_s
 	    when "get"
-    	  file_names=Dir.entries("#{RAILS_ROOT}/public/unact_info/pdf").delete_if {|name| !name.end_with?(".pdf")}
+    	  file_names=Dir.entries(UNACT_INFO_DIR).delete_if {|name| !name.end_with?(".pdf")}
     	  actions=[]
     	  file_names.each do |name|
-    	    actions << {"id" => name, "name" => name, "size" => File.size("#{RAILS_ROOT}/public/unact_info/pdf/#{name}")}
+    	    actions << {"id" => name, "name" => name, "size" => File.size("#{UNACT_INFO_DIR}/#{name}")}
     	  end
     	  render :text => actions.to_json
     	when "put"
-        File.rename("#{RAILS_ROOT}/public/unact_info/pdf/#{params[:id]}", "#{RAILS_ROOT}/public/unact_info/pdf/#{params[:name]}")
+        File.rename("#{UNACT_INFO_DIR}/#{params[:id]}", "#{UNACT_INFO_DIR}/#{params[:name]}")
         render :text => {:id => params[:name], :name => params[:name], :size => params[:size]}.to_json
       when "delete"
         #так надо делать, потому что Rails или сервер автоматически выделяет расширение из поля id 
-        File.delete("#{RAILS_ROOT}/public/unact_info/pdf/#{params[:id]}")
+        File.delete("#{UNACT_INFO_DIR}/#{params[:id]}")
         render :text => "[]"
     end
 	end
@@ -30,7 +32,7 @@ class UnactInfo::AdminController < ApplicationSimpleErrorController
 	    file_name=params[:action_name]
 	    
 	    if(file_name.ends_with?".pdf")
-  	    File.copy_stream(params[:action_data], "#{RAILS_ROOT}/public/unact_info/pdf/#{file_name}")
+  	    File.copy_stream(params[:action_data], "#{UNACT_INFO_DIR}/#{file_name}")
   	    
   			render :text => {"success" => true}.to_json
   		else
