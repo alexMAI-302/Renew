@@ -28,11 +28,12 @@ class TermDeliveryController < ApplicationSimpleErrorController
         '#{Time.parse(params[:ddate]).strftime('%F')}',
         #{only_with_errors},
         #{only_in_route})")
-
     render :text => routes_list.to_json
   end
 
   def get_terminals
+	only_with_errors=( params[:only_with_errors]=="true")?(1):(0)
+	only_in_route=( params[:only_in_route]=="true")?(1):(0)
     terminals_list = ActiveRecord::Base.connection.select_all("
     SELECT
       terminalid id,
@@ -67,8 +68,8 @@ class TermDeliveryController < ApplicationSimpleErrorController
         7,
         #{params[:zone_type_id].to_i},
         '#{Time.parse(params[:ddate]).strftime('%F')}',
-        #{params[:only_with_errors].to_i},
-        #{params[:only_in_route].to_i},
+        #{only_with_errors},
+        #{only_in_route},
         40000,
         350,
         #{params[:zone_id].to_i})")
