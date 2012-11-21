@@ -1,18 +1,16 @@
 # encoding: utf-8
 class TermDeliveryController < ApplicationSimpleErrorController
-
   def get_zone_types
     zone_types = ActiveRecord::Base.connection.select_all( "select id, name from sp_values where sp_tp=1626" )
-    
+
     render :text => zone_types.to_json
   end
-  
+
   def get_routes
     session[:ddate]=params[:ddate]
-	only_with_errors=( params[:only_with_errors]=="true")?(1):(0)
-	only_in_route=( params[:only_in_route]=="true")?(1):(0)
-	
-	
+    only_with_errors=( params[:only_with_errors]=="true")?(1):(0)
+    only_in_route=( params[:only_in_route]=="true")?(1):(0)
+
     routes_list = ActiveRecord::Base.connection.select_all("
     SELECT
       id,
@@ -30,11 +28,10 @@ class TermDeliveryController < ApplicationSimpleErrorController
         '#{Time.parse(params[:ddate]).strftime('%F')}',
         #{only_with_errors},
         #{only_in_route})")
-    
-	logger.info(params[:only_with_errors].to_i)
+
     render :text => routes_list.to_json
   end
-  
+
   def get_terminals
     terminals_list = ActiveRecord::Base.connection.select_all("
     SELECT
@@ -54,7 +51,7 @@ class TermDeliveryController < ApplicationSimpleErrorController
       SignalLevel signal_level,
       summ,
       cnt,
-      inroute include_in_route,
+      inroute in_route,
       ErrorText error_text,
       IncassReason incass_reason,
       terminal_break terminal_break_id,
@@ -62,7 +59,7 @@ class TermDeliveryController < ApplicationSimpleErrorController
       branch_name,
       servstatus serv_status,
       penaltystatus penalty_status,
-      modified should_include_in_route,
+      should_include_in_route,
       row_class
     FROM
       spp.Terminal_Delivery(
@@ -75,10 +72,10 @@ class TermDeliveryController < ApplicationSimpleErrorController
         40000,
         350,
         #{params[:zone_id].to_i})")
-    
+
     render :text => terminals_list.to_json
   end
-  
+
   def get_config
     config = ActiveRecord::Base.connection.select_one("
   		SELECT
@@ -104,10 +101,10 @@ class TermDeliveryController < ApplicationSimpleErrorController
 		  	renew_web.renew_users ru
   		WHERE
 	   		ru.name='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}'");
-  
-  	render :text => config.to_json
+
+    render :text => config.to_json
   end
-  
+
   def get_terminal_breaks
     breaks = ActiveRecord::Base.connection.select_all("
   	SELECT
@@ -117,16 +114,16 @@ class TermDeliveryController < ApplicationSimpleErrorController
   		terminal_break
   	ORDER BY
   		name")
-  	
-  	render :text => breaks.to_json
+
+    render :text => breaks.to_json
   end
-  
+
   def route_print
-    if params[:zone] 
+    if params[:zone]
       zone=params[:zone].to_i
       @date=params[:ddate]
       @zone_name=ActiveRecord::Base.connection.select_value(" SELECT name from pps_zone where id = #{zone} ")
-      @rep =ActiveRecord::Base.connection.select_all("    
+      @rep =ActiveRecord::Base.connection.select_all("
       SELECT
         pps_zone.name pps_zone_name,
         osmp_terminal.code          terminal_code,
@@ -156,10 +153,10 @@ class TermDeliveryController < ApplicationSimpleErrorController
     end
     render :layout => false
   end
-  
+
   def route_export
     headers['Content-Type'] = "application/vnd.ms-excel"
-    
+
     s = "
     SELECT
       *
@@ -174,16 +171,16 @@ class TermDeliveryController < ApplicationSimpleErrorController
         40000,
         350,
         #{params[:zone].to_i})"
-    
-    @rst_term = ActiveRecord::Base.connection.select_all(s)                               
-    
+
+    @rst_term = ActiveRecord::Base.connection.select_all(s)
+
     render :layout => false
   end
 
   def index
-  	render :layout => "application_ocean"
+    render :layout => "application_ocean"
   end
-  
+
   def make_delivery_auto
     zones_to_include=ActiveSupport::JSON.decode(request.body.gets)
     items=zones_to_include.to_xml(:root => "zones")
@@ -198,19 +195,19 @@ class TermDeliveryController < ApplicationSimpleErrorController
         350,
         #{ActiveRecord::Base.connection.quote(items)})"
     r = ActiveRecord::Base.connection.execute(s)
-    
+
     render :text => 'ok'
   end
-  
+
   def save_terminal
-		terminals_to_save=ActiveSupport::JSON.decode(request.body.gets)
+    terminals_to_save=ActiveSupport::JSON.decode(request.body.gets)
     items=terminals_to_save.to_xml(:root => "terminals")
-		s = "call spp.Terminal_DeliverySave(#{ActiveRecord::Base.connection.quote(items)},'#{Time.parse(session[:ddate]).strftime('%F')}')"
-		r = ActiveRecord::Base.connection.execute(s)
-		
-		render :text => 'ok'
+    s = "call spp.Terminal_DeliverySave(#{ActiveRecord::Base.connection.quote(items)},'#{Time.parse(session[:ddate]).strftime('%F')}')"
+    r = ActiveRecord::Base.connection.execute(s)
+
+    render :text => 'ok'
   end
-  
+
   def status4_save
     access=ActiveRecord::Base.connection.select_value("
       SELECT
@@ -226,26 +223,26 @@ class TermDeliveryController < ApplicationSimpleErrorController
         ru.name='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}'").to_i
     if access==1
       routes_to_save=ActiveSupport::JSON.decode(request.body.gets)
-  		routes_to_save.each do |route|
-  			id=route["id"].to_i;
-  			
-  			r = Delivery.find(id)
-  			r.status4 = route["delivery_status4"]
-  			r.save
-  		end
-		end
-			
-		render :text => "ok"
+      routes_to_save.each do |route|
+        id=route["id"].to_i;
+
+        r = Delivery.find(id)
+        r.status4 = route["delivery_status4"]
+        r.save
+      end
+    end
+
+    render :text => "ok"
   end
-  
-	def save_zone
-		if params[:a]
-			@route_id = params[:a][:routeid]
-			session[:route_id] = @route_id 
-			r = PpsZone.find( @route_id )
-			r.points = params[:a][:points]
-			r.save				
-		end
-		redirect_to :action => "zone"
-	end
+
+  def save_zone
+    if params[:a]
+      @route_id = params[:a][:routeid]
+      session[:route_id] = @route_id
+      r = PpsZone.find( @route_id )
+      r.points = params[:a][:points]
+    r.save
+    end
+    redirect_to :action => "zone"
+  end
 end

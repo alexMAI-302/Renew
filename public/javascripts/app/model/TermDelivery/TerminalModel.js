@@ -4,7 +4,7 @@ Ext.define('app.model.TermDelivery.TerminalModel', {
 	{name: 'id'							, type:'int'},
 	{name: 'info_terminal_id'			, type:'int'},
 	{name: 'row_class'					, type:'string'},
-	{name: 'include_in_route'			, type:'boolean'},
+	{name: 'in_route'					, type:'boolean'},
 	{name: 'name'						, type:'string'},
 	{
 		name: 'last_connect_time',
@@ -49,12 +49,5 @@ Ext.define('app.model.TermDelivery.TerminalModel', {
 	{name: 'serv_status'				, type:'boolean'},
 	{name: 'penalty_status'				, type:'boolean'},
 	{name: 'techinfo'					, type:'string'},
-	{name: 'should_include_in_route'	, type:'boolean'},
-	{
-		name: 'included_in_route',
-		type:'boolean',
-		convert: function(v, record){
-			return record.get("include_in_route");
-		}
-	}]
+	{name: 'should_include_in_route'	, type:'boolean'}]
 });

@@ -15,7 +15,7 @@ Ext.define('app.view.TermDelivery.ItemsGrid', {
 				{
 					align: 'center',
 					xtype: 'checkcolumn',
-					dataIndex: 'include_in_route',
+					dataIndex: 'should_include_in_route',
 					id: 'includeInRoute',
 					width: 25,
 					sortable: false,
