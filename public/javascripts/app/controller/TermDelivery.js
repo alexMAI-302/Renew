@@ -123,7 +123,7 @@ Ext.define('app.controller.TermDelivery', {
 					zone_id: selectedZone.get('id'),
 					terminal_break_id: r.get('terminal_break_id'),
 					techinfo: r.get('techinfo'),
-					include_in_route: r.get('include_in_route')?1:0,
+					include_in_route: r.get('should_include_in_route')?1:0,
 					serv_status: r.get('serv_status')?1:0
 				});
 			}		
@@ -305,31 +305,20 @@ Ext.define('app.controller.TermDelivery', {
 		terminalsTable.columns[1].addListener({
 			beforecheckchange: function(checkColumn, rowIndex, checked, eOpts){
 				var terminal=terminalsTable.store.getAt(rowIndex);
-				if(terminal.get("included_in_route")){
+				if(terminal.get("in_route")){
 					return false;
 				} else {
-					var r=routesTable.getSelectionModel().getSelection()[0];
-					r.set('points_inroute', r.get('points_inroute')+(checked? 1 : -1));
 					return true;					
 				}
-			},
-			checkchange: function(checkColumn, rowIndex, checked, eOpts){
-				var r=routesTable.getSelectionModel().getSelection()[0];
-				r.set('points_inroute', r.get('points_inroute')+(checked? 1 : -1));
-				return true;
 			},
 			headerclick: function(headerContainer, column,e, t, eOpts){
 				var zoneRecord=routesTable.getSelectionModel().getSelection()[0];
 				
 				controller.terminalsStore.each(function(r){
 					if(
-						(r.get('include_in_route') == !terminalsTable.checkIncludeInRoute) &&
-						(!r.get('included_in_route'))){
-						zoneRecord.set(
-							'points_inroute',
-							zoneRecord.get('points_inroute') +
-							(terminalsTable.checkIncludeInRoute? 1 : -1));
-						r.set('include_in_route', terminalsTable.checkIncludeInRoute);
+						(r.get('should_include_in_route') == !terminalsTable.checkIncludeInRoute) &&
+						(!r.get('in_route'))){
+						r.set('should_include_in_route', terminalsTable.checkIncludeInRoute);
 					}
 					return true;
 				});
