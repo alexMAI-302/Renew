@@ -111,7 +111,6 @@ Ext.define('app.controller.palmRouteDeviation', {
 				format: 'd.m.Y',
 				altFormat: 'd/m/Y|d m Y',
 				startDay: 1,
-				value: Ext.Date.add(new Date(Ext.Date.now()), Ext.Date.DAY, -3),
 				width: 200,
 				listeners: {
 					"change": function(field, newValue, oldValue, options){
