@@ -1,4 +1,4 @@
-<% if !@res.nil? %>
+<% if @in_get_info==true %>
 	<table width="100%" border="0">
 		<tr>
 			<th>
@@ -48,5 +48,5 @@
 		<% end %>
 	</table>
 <% else %>
-	По вашему запрсу ничего не найдено
+	<%= "По вашему запросу ничего не найдено" if @in_get_info==true && @res.nil? && @res.length==0%>
 <% end %>

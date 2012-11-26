@@ -14,6 +14,7 @@ class CertificateController < ApplicationPageErrorController
     @ndoc=params[:info_ndoc]
     @goods_code=params[:info_goods_code]
     @certificates={}
+    @in_get_info=true
     
     session[:certificate_inn]=@inn
     
