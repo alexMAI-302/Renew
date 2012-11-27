@@ -49,7 +49,7 @@ class ApplicationController < ActionController::Base
 	
 	unless check_status
 		if session[:user_id].nil? then
-			redirect_to :controller => "login", :action => "login"
+			redirect_to "/login/login"
 		else
 			@error_text="#{request.request_uri}"
 			render :template => "/errors/403.html.erb", :status => 403
