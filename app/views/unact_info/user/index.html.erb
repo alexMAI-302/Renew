@@ -5,9 +5,10 @@
 <% content_for :content do %>
 	<% if !@actions.nil? %>
 		<% @actions.each do |action| %>
-			<a target="blank" href="<%= "/unact_info/pdf/#{action}" %>">
-				<%= action %>
+			<a target="blank" href="<%= "/unact_info/pdf/#{action["path"]}" %>">
+				<%= action["name"] %>
 			</a>
+			<br/>
 		<% end %>
 	<% else %>
 		Информация отсутствует

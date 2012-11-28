@@ -3,6 +3,6 @@
 class UnactInfo::UserController < ApplicationSimpleErrorController
   
   def index
-    @actions = Dir.entries("#{RAILS_ROOT}/public/unact_info/pdf").delete_if {|name| !name.end_with?(".pdf")}
+    @actions = ActiveRecord::Base.connection.select_all("SELECT id, name, path FROM renew_web.unact_info")
   end
 end
