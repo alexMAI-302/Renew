@@ -49,7 +49,7 @@ Ext.define('app.controller.UnactInfoAdmin', {
 					controller.actionsStore.sync({
 						callback: function(batch){
 							if(batch.exceptions.length>0){
-								Ext.Msg.alert("Ошибка");
+								Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
 							}
 							controller.actionsStore.load();
 						}
