@@ -16,14 +16,11 @@ Ext.define('app.view.AutoTransport.Nomenclature.Grid', {
 				}
 			],
 			title: 'Группы',
+			header: false,
 			columns: [
 				{
-					xtype:'actioncolumn',
-					width:20,
-					icon: 'ext/examples/shared/icons/fam/cross.gif'
-				},
-				{
-					width: 160,
+					width: 200,
+					name: 'Наименование',
 					dataIndex: 'name',
 					field: {
 						xtype: 'textfield'
@@ -31,10 +28,12 @@ Ext.define('app.view.AutoTransport.Nomenclature.Grid', {
 				},
 				{
 					width: 90,
-					dataIndex: 'at_ggtype'
+					name: 'Тип',
+					dataIndex: 'at_ggtype',
+					hidden: true
 				}
 			],
-			width: 280,
+			width: 210,
 			viewConfig: {
 				enableTextSelection: true
 			},
@@ -48,12 +47,17 @@ Ext.define('app.view.AutoTransport.Nomenclature.Grid', {
 					icon: '/images/save.png'
 				},
 				{
+					id: 'refreshNomenclatureGroup',
+					icon: '/ext/examples/shared/icons/fam/table_refresh.png'
+				},
+				{
 					id: 'addNomenclatureGroup',
 					icon: '/ext/examples/shared/icons/fam/add.gif'
 				},
 				{
-					id: 'refreshNomenclatureGroup',
-					icon: '/ext/examples/shared/icons/fam/table_refresh.png'
+					id: 'deleteNomenclatureGroup',
+					icon: '/ext/examples/shared/icons/fam/delete.gif',
+					disabled: true
 				}
 			]
 		});

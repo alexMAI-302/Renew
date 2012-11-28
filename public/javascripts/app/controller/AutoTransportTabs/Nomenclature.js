@@ -58,26 +58,44 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 		controller.control({
 			'#nomenclatureGroupsTable': {
 				selectionchange: function(sm, selected, eOpts){
-					controller.nomenclatureStore.proxy.extraParams={
-						group_id: selected[0].get('id')
-					};
-					controller.nomenclatureStore.load();
+					if(selected!=null && selected.length>0){
+						controller.nomenclatureStore.proxy.extraParams={
+							group_id: selected[0].get('id')
+						};
+						controller.nomenclatureStore.load();
+						Ext.getCmp('deleteNomenclatureGroup').setDisabled(false);
+						Ext.getCmp('nomenclatureTable').setDisabled(false);
+					} else {
+						Ext.getCmp('deleteNomenclatureGroup').setDisabled(true);
+						Ext.getCmp('nomenclatureTable').setDisabled(true);
+					}
+					return true;
+				}
+			},
+			'#nomenclatureTable': {
+				selectionchange: function(sm, selected, eOpts){
+					Ext.getCmp('deleteNomenclature').setDisabled(selected==null || selected.length==0);
 					return true;
 				}
 			},
 			'#addNomenclature':{
 				click: function(){
-					var selected=Ext.getCmp('nomenclatureGroupsTable').getSelectionModel().getSelection()[0],
+					var sm=Ext.getCmp('nomenclatureTable').getSelectionModel(),
+						selected=sm.getSelection()[0],
 						at_ggroup=(selected!=null)?selected.get('id'):null,
 						r = Ext.ModelManager.create({at_ggroup: at_ggroup}, 'app.model.AutoTransport.NomenclatureModel');
 					controller.nomenclatureStore.add(r);
+					sm.select(r);
 				}
 			},
 			'#saveNomenclature': {
 				click: function(){
 					controller.nomenclatureContainer.setLoading(true);
 					controller.nomenclatureStore.sync({
-						callback: function(){
+						callback: function(batch){
+							if(batch.exceptions.length>0){
+								Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+							}
 							controller.nomenclatureContainer.setLoading(false);
 						}
 					});
@@ -87,17 +105,22 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 			'#addNomenclatureGroup':{
 				click: function(){
 					var groupsTable = Ext.getCmp('nomenclatureGroupsTable'),
-						selected=groupsTable.getSelectionModel().getSelection()[0],
+						sm=groupsTable.getSelectionModel(),
+						selected=sm.getSelection()[0],
 						at_ggtype=(selected!=null)?selected.get('at_ggtype'):null,
 						r = Ext.ModelManager.create({at_ggtype: at_ggtype}, 'app.model.AutoTransport.NomenclatureGroupModel');
 					controller.nomenclatureGroupStore.add(r);
+					sm.select(r);
 				}
 			},
 			'#saveNomenclatureGroup': {
 				click: function(){
 					controller.nomenclatureContainer.setLoading(true);
 					controller.nomenclatureGroupStore.sync({
-						callback: function(){
+						callback: function(batch){
+							if(batch.exceptions.length>0){
+								Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+							}
 							controller.nomenclatureContainer.setLoading(false);
 						}
 					});
@@ -106,6 +129,26 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 			},
 			'#refreshNomenclatureGroup': {
 				click: controller.refreshNomenclatureGroup
+			},
+			'#deleteNomenclatureGroup': {
+				click: function(button){
+					var sm = Ext.getCmp('nomenclatureGroupsTable').getSelectionModel();
+					
+					controller.nomenclatureGroupStore.remove(sm.getSelection());
+					if (controller.nomenclatureGroupStore.getCount() > 0) {
+						sm.select(0);
+					}
+				}
+			},
+			'#deleteNomenclature': {
+				click: function(button){
+					var sm = Ext.getCmp('nomenclatureTable').getSelectionModel();
+					
+					controller.nomenclatureStore.remove(sm.getSelection()[0]);
+					if (controller.nomenclatureGroupStore.getCount() > 0) {
+						sm.select(0);
+					}
+				}
 			}
 		});
 	},
@@ -164,27 +207,13 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 		var controller=this,
 			groupsTable = Ext.getCmp('nomenclatureGroupsTable'),
 			nomenclatureTable = Ext.getCmp('nomenclatureTable'),
-			columnGroupDelete = groupsTable.columns[0],
-			columnGroupType = groupsTable.columns[2],
+			columnGroupType = groupsTable.columns[1],
 			measureColumn = nomenclatureTable.columns[1],
-			groupColumn = nomenclatureTable.columns[2],
-			columnDelete = nomenclatureTable.columns[3];
+			groupColumn = nomenclatureTable.columns[2];
 		
 		controller.makeComboColumn(columnGroupType, controller.nomenclatureGroupTypeStore, controller.nomenclatureGroupStore, 'at_ggtype');
 		controller.makeComboColumn(groupColumn, controller.nomenclatureGroupStore, controller.nomenclatureStore, 'at_ggroup');
 		controller.makeComboColumn(measureColumn, controller.measureStore, controller.nomenclatureStore, 'measure');
-		
-		columnGroupDelete.handler = function(grid, rowIndex, colIndex) {
-			var currentRecord=grid.store.getAt(rowIndex);
-			
-			controller.nomenclatureGroupStore.remove(currentRecord);
-		};
-		
-		columnDelete.handler = function(grid, rowIndex, colIndex) {
-			var currentRecord=grid.store.getAt(rowIndex);
-			
-			controller.nomenclatureStore.remove(currentRecord);
-		};
 	},
 	
 	onLaunch: function(){

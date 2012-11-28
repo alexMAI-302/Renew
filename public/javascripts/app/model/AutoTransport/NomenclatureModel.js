@@ -4,5 +4,6 @@ Ext.define('app.model.AutoTransport.NomenclatureModel', {
 	{name: 'id'			, type:'int'},
 	{name: 'name'		, type:'string'},
 	{name: 'at_ggroup'	, type:'int'},
-	{name: 'measure'	, type:'int'}]
+	{name: 'measure'	, type:'int'},
+	{name: 'cnt'		, type:'int'}]
 });
