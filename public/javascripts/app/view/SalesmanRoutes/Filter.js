@@ -37,6 +37,11 @@ Ext.define('app.view.SalesmanRoutes.Filter', {
 			value: Ext.Date.parse(Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'),
 			width: 125,
 			labelWidth: 25
+		},
+		{
+			xtype: 'button',
+			id: 'refreshInfo',
+			icon: '/ext/examples/shared/icons/fam/table_refresh.png'
 		}
 	]
 });

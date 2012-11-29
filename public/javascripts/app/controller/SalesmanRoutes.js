@@ -19,15 +19,12 @@ Ext.define('app.controller.SalesmanRoutes', {
 	geoPointArrays : [],
 
 	pointBalloonPattern : null,
-	autoLoad: false,
 
 	showServerError : function(responseText) {
 		Ext.Msg.alert('Ошибка', responseText);
 	},
-	loadGeoData : function(palmUnitId, ddate, autoLoad) {
+	loadGeoData : function(palmUnitId, ddate) {
 		var controller = this;
-		
-		controller.autoLoad=autoLoad;
 
 		controller.geoDataStore.proxy.extraParams = {
 			palm_unit_id : palmUnitId,
@@ -46,6 +43,11 @@ Ext.define('app.controller.SalesmanRoutes', {
 		controller.mainContainer = Ext.create('app.view.SalesmanRoutes.Container');
 
 		this.control({
+			'#refreshInfo': {
+				click: function(){
+					controller.loadGeoData(Ext.getCmp('palmUnitCombo').getValue(), Ext.getCmp('ddate').getValue());
+				}
+			},
 			'#palmUnitCombo' : {
 				change : function(field, newValue, oldValue, options) {
 					controller.loadGeoData(newValue, Ext.getCmp('ddate').getValue());
@@ -61,6 +63,10 @@ Ext.define('app.controller.SalesmanRoutes', {
 			'#dataTable' : {
 				checkchange : function(node, checked, eOpts) {
 					if(node.get("level") != 2) {
+						if(node.get("level")==1) {
+							node.showRoute = checked;
+							controller.geoArraySalesman.get(node.get("row_num")).options.set("visible", node.showRoute);
+						}
 						node.eachChild(function(child) {
 							child.set("checked", checked);
 							if(child.get("level") == 2) {
@@ -75,7 +81,7 @@ Ext.define('app.controller.SalesmanRoutes', {
 				},
 				cellclick: function(table, td, cellIndex, record, tr, rowIndex, e, eOpts){
 					//ХАРКОД НОМЕРА КОЛОНКИ!!! надо что-то делать только при клике на колонку с информацией
-					if(cellIndex==1){
+					if(cellIndex==0){
 						if(record.get("level")==2){
 							var point=controller.geoPointArrays[record.parentNode.get("row_num")].get(record.point.row_num);
 							controller.map.panTo(point.geometry.getCoordinates());
@@ -157,27 +163,12 @@ Ext.define('app.controller.SalesmanRoutes', {
 					});
 					controller.map.geoObjects.add(controller.geoArraySalesman);
 					
-					if(controller.map.geoObjects.getBounds()!=null && !controller.autoLoad){
+					if(controller.map.geoObjects.getBounds()!=null){
 						controller.map.setBounds(controller.map.geoObjects.getBounds());
 					}
 				}
 			}
 		});
-
-		//ХАРДКОД НОМЕРА КОЛОНКИ!!! колонка управления видимостью маршрута
-		table.columns[0].items[0].getClass = controller.getRouteColumnClass;
-		table.columns[0].items[0].handler = function(view, cell, recordIndex, cellIndex, e, record, row) {
-			var val = record.showRoute;
-			if(val === true || val === false) {
-				var img = Ext.fly(Ext.fly(view.getNode(record)).down(table.columns[0].getCellSelector())).down('img');
-
-				img.removeCls(controller.getRouteColumnClass(null, null, record));
-				record.showRoute = !val;
-				img.addCls(controller.getRouteColumnClass(null, null, record));
-
-				controller.geoArraySalesman.get(record.get("row_num")).options.set("visible", record.showRoute);
-			}
-		};
 
 		Ext.getCmp('palmUnitCombo').bindStore(controller.palmUnitsStore);
 
@@ -204,13 +195,6 @@ Ext.define('app.controller.SalesmanRoutes', {
 			controller.pointBalloonTemplate = ymaps.templateLayoutFactory.createClass('<h3 style="color: $[properties.color];">$[properties.name]</h3>' + '<p>$[properties.address]</p>' + '<p>Заказов: $[properties.order_cnt]</p>' + '<p>Сумма: $[properties.order_summ]</p>');
 
 			controller.geoArrayTemplate = ymaps.templateLayoutFactory.createClass('<h3 style="color: $[properties.color];">$[properties.name]</h3>' + '<p>Начало: $[properties.start_ts], конец: $[properties.end_ts]</p>');
-			
-			Ext.TaskManager.start({
-				run: function(){
-					controller.loadGeoData(Ext.getCmp('palmUnitCombo').getValue(), Ext.getCmp('ddate').getValue(), true);
-				},
-				interval: 60000
-			});
 		});
 	}
 });
