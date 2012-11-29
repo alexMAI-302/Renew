@@ -224,8 +224,14 @@ Ext.define('app.controller.placeunloadSchedule', {
 						scheduleStore.proxy.extraParams={
 							ddate: Ext.getCmp('ddate').getValue(),
 						};
-						scheduleStore.sync(function(){
-							loadSchedule();
+						scheduleStore.sync({
+							callback: function(batch){
+								if(batch.exceptions.length>0){
+									Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+								} else {
+									loadSchedule();
+								}
+							}
 						});
 					}
 				},

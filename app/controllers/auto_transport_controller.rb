@@ -38,7 +38,17 @@ class AutoTransportController < ApplicationSimpleErrorController
   def nomenclature
     case request.method.to_s
       when "get"
-        res=ActiveRecord::Base.connection.select_all("SELECT id, name, at_ggroup, measure FROM renew_web.at_goods WHERE at_ggroup=#{params[:group_id].to_i}")
+        res=ActiveRecord::Base.connection.select_all("
+        SELECT
+          id,
+          name,
+          at_ggroup,
+          measure,
+          (select cnt from at_remains where at_goods = renew_web.at_goods.id) cnt
+        FROM
+          renew_web.at_goods
+        WHERE
+          at_ggroup=#{params[:group_id].to_i}")
         render :text => res.to_json
       when "post"
         id=ActiveRecord::Base.connection.select_value("
@@ -70,7 +80,9 @@ class AutoTransportController < ApplicationSimpleErrorController
   
   def get_measures
     measures=Measure.find(:all,
-    :select => "id, name")
+    :select => "id, name",
+    :conditions => "name IN ('литр', 'килограмм', 'грамм', 'штука', 'комплект')",
+    :order => "name")
     render :text => measures.to_json
   end
   

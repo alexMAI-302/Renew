@@ -8,9 +8,10 @@ Ext.define('app.view.AutoTransport.Nomenclature.ItemsGrid', {
     initComponent: function() {
         Ext.apply(this, {
 			id: 'nomenclatureTable',
+			disabled: true,
 			columns: [
 				{
-					width: 250,
+					width: 400,
 					header: 'Наименование',
 					dataIndex: 'name',
 					field: {
@@ -18,19 +19,19 @@ Ext.define('app.view.AutoTransport.Nomenclature.ItemsGrid', {
 					}
 				},
 				{
-					width: 250,
+					width: 110,
 					header: 'Единица измерения',
 					dataIndex: 'measure'
 				},
 				{
-					width: 250,
+					width: 200,
 					header: 'Группа',
 					dataIndex: 'at_ggroup'
 				},
 				{
-					xtype:'actioncolumn',
-					width:20,
-					icon: 'ext/examples/shared/icons/fam/cross.gif'
+					width: 60,
+					header: 'Остаток',
+					dataIndex: 'cnt'
 				}
 			],
 			viewConfig: {
@@ -46,12 +47,17 @@ Ext.define('app.view.AutoTransport.Nomenclature.ItemsGrid', {
 					icon: '/images/save.png'
 				},
 				{
+					id: 'refreshNomenclature',
+					icon: '/ext/examples/shared/icons/fam/table_refresh.png'
+				},
+				{
 					id: 'addNomenclature',
 					icon: '/ext/examples/shared/icons/fam/add.gif'
 				},
 				{
-					id: 'refreshNomenclature',
-					icon: '/ext/examples/shared/icons/fam/table_refresh.png'
+					id: 'deleteNomenclature',
+					icon: '/ext/examples/shared/icons/fam/delete.gif',
+					disabled: true
 				}
 			]
 		});
