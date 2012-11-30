@@ -1,5 +1,5 @@
 //хранилище отделений банка
-Ext.define('app.store.AutoTransport.NomenclatureGroupType', {
+Ext.define('app.store.AutoTransport.Nomenclature.NomenclatureGroupType', {
 	extend: 'Ext.data.Store',
 	model: 'app.model.valueModel',
 	proxy: {
