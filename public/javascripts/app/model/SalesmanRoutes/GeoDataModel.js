@@ -85,8 +85,6 @@ Ext.define('app.model.SalesmanRoutes.GeoDataModel', {
 		convert: function(value, record){
 			if(value!=null && value!=''){
 				record.point=eval('('+value+')');
-				record.colorStr=colors[record.get("row_num")].str;
-				record.colorHex=colors[record.get("row_num")].hex;
 			}
 			return value;
 		}

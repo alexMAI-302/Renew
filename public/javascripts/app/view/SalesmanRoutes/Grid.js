@@ -23,17 +23,6 @@ Ext.define('app.view.SalesmanRoutes.Grid', {
 			}),
 			columns: [
 				{
-					xtype: 'actioncolumn',
-					items: [{
-						icon: '/images/empty.png'
-					}],
-					width: 27,
-					sortable: false,
-					hideable: false,
-					menuDisabled: true,
-					draggable: false
-				},
-				{
 					xtype: 'treecolumn',
 					width: 700,
 					dataIndex: 'name',
