@@ -1,5 +1,5 @@
 //хранилище отделений банка
-Ext.define('app.store.AutoTransport.Income.Goods', {
+Ext.define('app.store.AutoTransport.Goods', {
 	extend: 'Ext.data.Store',
 	model: 'app.model.AutoTransport.NomenclatureModel',
 

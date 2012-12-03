@@ -1,4 +1,4 @@
-Ext.define('app.model.AutoTransport.IncGoodsModel', {
+Ext.define('app.model.AutoTransport.GoodsModel', {
 	extend: 'Ext.data.Model',
 	fields: [
 	{name: 'id'			, type:'int'},

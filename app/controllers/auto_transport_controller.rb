@@ -171,6 +171,98 @@ class AutoTransportController < ApplicationSimpleErrorController
     end
   end
   
+  def recept
+    case request.method.to_s
+      when "get"
+        res=ActiveRecord::Base.connection.select_all("
+        SELECT
+          r.id,
+          r.ddate,
+          r.truck truck_id,
+          t.name truck_name
+        FROM
+          renew_web.at_recept r
+          LEFT JOIN truck t ON t.id=r.truck
+        WHERE
+          r.ddate >= '#{Time.parse(params[:ddateb]).strftime('%F %T')}'
+          AND
+          r.ddate < DATEADD(day, 1, '#{Time.parse(params[:ddatee]).strftime('%F %T')}')")
+        render :text => res.to_json
+      when "post"
+        id=ActiveRecord::Base.connection.select_value("
+        BEGIN
+          DECLARE @id INT;
+          SET @id=idgenerator('renew_web.at_recept');
+          INSERT INTO renew_web.at_recept(id, ddate, truck)
+          VALUES(@id, '#{Time.parse(params[:ddate]).strftime('%F %T')}', #{params[:truck].to_i});
+          
+          SELECT @id;
+        END")
+        
+        render :text => {"success" => true, "id" => id}.to_json
+      when "put"
+        ActiveRecord::Base.connection.update("
+        UPDATE renew_web.at_recept SET
+          ddate='#{Time.parse(params[:ddate]).strftime('%F %T')}',
+          truck=#{params[:type].to_i}
+        WHERE id=#{params[:id].to_i}")
+        
+        render :text => {"success" => true, "id" => params[:id]}.to_json
+      when "delete"
+        ActiveRecord::Base.connection.delete("DELETE FROM renew_web.at_reecept WHERE id=#{params[:id].to_i}")
+        
+        render :text => {"success" => true}.to_json
+    end
+  end
+  
+  def rec_goods
+    case request.method.to_s
+      when "get"
+        res=ActiveRecord::Base.connection.select_all("
+        SELECT
+          id,
+          (SELECT id FROM renew_web.at_ggroup gg WHERE gg.id=rg.at_goods) at_ggroup, 
+          at_goods,
+          (SELECT id FROM renew_web.at_goods g WHERE g.id=rg.at_goods) measure,
+          vol
+        FROM
+          renew_web.at_recgoods rg
+        WHERE
+          at_recept=#{params[:at_income].to_i}")
+        render :text => res.to_json
+      when "post"
+        id=ActiveRecord::Base.connection.select_value("
+        BEGIN
+          DECLARE @id INT;
+          SET @id=idgenerator('renew_web.at_rencgoods');
+          INSERT INTO renew_web.at_incgoods(id, at_recept, at_goods, vol, price)
+          VALUES(
+            @id,
+            #{params[:at_recept].to_i},
+            #{params[:at_goods].to_i},
+            #{params[:vol].to_i},
+            #{params[:price].to_f});
+          
+          SELECT @id;
+        END")
+        
+        render :text => {"success" => true, "id" => id}.to_json
+      when "put"
+        ActiveRecord::Base.connection.update("
+        UPDATE renew_web.at_recgoods SET
+          at_goods= #{params[:at_goods].to_i},
+          vol= #{params[:vol].to_i},
+          price= #{params[:price].to_i}
+        WHERE id=#{params[:id].to_i}")
+        
+        render :text => {"success" => true, "id" => params[:id]}.to_json
+      when "delete"
+        ActiveRecord::Base.connection.delete("DELETE FROM renew_web.at_recgoods WHERE id=#{params[:id].to_i}")
+        
+        render :text => {"success" => true}.to_json
+    end
+  end
+  
   def get_measures
     measures=Measure.find(:all,
     :select => "id, name",
@@ -181,6 +273,12 @@ class AutoTransportController < ApplicationSimpleErrorController
   
   def get_nomenclature_group_types
     res=ActiveRecord::Base.connection.select_all("SELECT id, name FROM renew_web.at_ggtype")
+    render :text => res.to_json
+  end
+  
+  def get_trucks
+    res=ActiveRecord::Base.connection.select_all("
+    SELECT id, name FROM dbo.truck WHERE name LIKE '%'+#{ActiveRecord::Base.connection.quote(params[:query])}+'%'")
     render :text => res.to_json
   end
 

@@ -1,10 +1,10 @@
 //хранилище отделений банка
-Ext.define('app.store.AutoTransport.Income.IncGoods', {
+Ext.define('app.store.AutoTransport.Recept.Recept', {
 	extend: 'Ext.data.Store',
-	model: 'app.model.AutoTransport.GoodsModel',
+	model: 'app.model.AutoTransport.ReceptModel',
 	proxy: {
 		type: 'rest',
-		url : '/auto_transport/inc_goods',
+		url : '/auto_transport/recept',
 		reader: {
 			type: 'json'
 		},

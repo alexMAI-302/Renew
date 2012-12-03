@@ -1,34 +1,34 @@
-Ext.define('app.controller.AutoTransportTabs.Income', {
+Ext.define('app.controller.AutoTransportTabs.Recept', {
     extend: 'Ext.app.Controller',
 	
 	stores: [
-		'AutoTransport.Income.Income',
-		'AutoTransport.Income.IncGoods',
+		'AutoTransport.Recept.Recept',
+		'AutoTransport.Recept.RecGoods',
 		'AutoTransport.Ggroup',
 		'AutoTransport.Goods',
-		'AutoTransport.Income.IncType',
+		'AutoTransport.Recept.Truck',
 		'AutoTransport.Measure'
 	],
 	
 	models: [
 		'valueModel',
-		'AutoTransport.IncomeModel',
+		'AutoTransport.ReceptModel',
 		'AutoTransport.GoodsModel',
 		'AutoTransport.NomenclatureGroupModel'
 	],
 	
 	views: [
 		'AutoTransport.Container',
-		'AutoTransport.Income.Container'
+		'AutoTransport.Recept.Container'
 	],
 	
-	incomeContainer: null,
+	receptContainer: null,
 	
-	incGoodsStore: null,
-	incomeStore: null,
+	recGoodsStore: null,
+	receptStore: null,
 	ggroupStore: null,
 	goodsStore: null,
-	incTypeStore: null,
+	truckStore: null,
 	measureStore: null,
 	
 	syncMaster: function(masterStore, detailStore, container, selectedMasterId){
@@ -84,64 +84,64 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 	init: function() {
 		var controller = this;
 		
-		controller.incomeContainer=Ext.create('app.view.AutoTransport.Income.Container');
+		controller.receptContainer=Ext.create('app.view.AutoTransport.Recept.Container');
 		
-		Ext.getCmp('AutoTransportMain').add(controller.incomeContainer);
+		Ext.getCmp('AutoTransportMain').add(controller.receptContainer);
 		
 		controller.control({
-			'#filterIncome': {
+			'#filterRecept': {
 				click: function(button){
-					controller.incomeStore.proxy.extraParams={
-						ddateb: Ext.getCmp('ddatebIncome').getValue(),
-						ddatee: Ext.getCmp('ddateeIncome').getValue()
+					controller.receptStore.proxy.extraParams={
+						ddateb: Ext.getCmp('ddatebRecept').getValue(),
+						ddatee: Ext.getCmp('ddateeRecept').getValue()
 					};
-					controller.incomeStore.load(
+					controller.receptStore.load(
 						function(records, operation, success){
 							if(!success){
-								Ext.Msg.alert("Ошибка", "Ошибка при обновлении приходов");
+								Ext.Msg.alert("Ошибка", "Ошибка при обновлении расходов");
 							}
 							return true;
 						}
 					);
 				}
 			},
-			'#incomeTable': {
+			'#receptTable': {
 				selectionchange: function(sm, selected, eOpts){
 					if(selected!=null && selected.length>0){
-						controller.incGoodsStore.proxy.extraParams={
+						controller.recGoodsStore.proxy.extraParams={
 							group_id: selected[0].get('id')
 						};
-						controller.incGoodsStore.load();
-						Ext.getCmp('incGoodsTable').setDisabled(false);
+						controller.recGoodsStore.load();
+						Ext.getCmp('recGoodsTable').setDisabled(false);
 					} else {
-						Ext.getCmp('incGoodsTable').setDisabled(true);
+						Ext.getCmp('recGoodsTable').setDisabled(true);
 					}
 					return true;
 				}
 			},
-			'#addIncGoods':{
+			'#addRecGoods':{
 				click: function(){
-					var sm=Ext.getCmp('incomeTable').getSelectionModel(),
+					var sm=Ext.getCmp('receptTable').getSelectionModel(),
 						r = Ext.ModelManager.create({at_income: sm.getSelection()[0].get('id')}, 'app.model.AutoTransport.GoodsModel');
-					controller.incGoodsStore.add(r);
+					controller.recGoodsStore.add(r);
 				}
 			},
-			'#saveIncome': {
+			'#saveRecept': {
 				click: function(){
-					var selected=Ext.getCmp('incomeTable').getSelectionModel().getSelection()[0];
+					var selected=Ext.getCmp('receptTable').getSelectionModel().getSelection()[0];
 					controller.syncMaster(
-						controller.incomeStore,
-						controller.incGoodsStore,
-						controller.incomeContainer,
+						controller.receptStore,
+						controller.recGoodsStore,
+						controller.receptContainer,
 						(selected!=null)?selected.get('id'):null);
 					return true;
 				}
 			},
-			'#addIncome':{
+			'#addRecept':{
 				click: function(){
-					var sm=Ext.getCmp('incomeTable').getSelectionModel(),
-						r = Ext.ModelManager.create({ddate: new Date()}, 'app.model.AutoTransport.IncomeModel');
-					controller.incomeStore.add(r);
+					var sm=Ext.getCmp('receptTable').getSelectionModel(),
+						r = Ext.ModelManager.create({ddate: new Date()}, 'app.model.AutoTransport.ReceptModel');
+					controller.receptStore.add(r);
 					sm.select(r);
 				}
 			}
@@ -151,11 +151,11 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.incGoodsStore=controller.getAutoTransportIncomeIncGoodsStore();
-		controller.incomeStore=controller.getAutoTransportIncomeIncomeStore();
+		controller.recGoodsStore=controller.getAutoTransportReceptRecGoodsStore();
+		controller.receptStore=controller.getAutoTransportReceptReceptStore();
 		controller.ggroupStore=controller.getAutoTransportGgroupStore();
 		controller.goodsStore=controller.getAutoTransportGoodsStore();
-		controller.incTypeStore=controller.getAutoTransportIncomeIncTypeStore();
+		controller.truckStore=controller.getAutoTransportReceptTruckStore();
 		controller.measureStore=controller.getAutoTransportMeasureStore();
 		
 		controller.ggroupStore.load();
@@ -165,10 +165,10 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 	
 	bindStores: function(){
 		var controller=this,
-			incomeTable=Ext.getCmp('incomeTable');
+			receptTable=Ext.getCmp('receptTable');
 		
-		Ext.getCmp('incGoodsTable').reconfigure(controller.incGoodsStore);
-		incomeTable.reconfigure(controller.incomeStore);
+		Ext.getCmp('recGoodsTable').reconfigure(controller.recGoodsStore);
+		receptTable.reconfigure(controller.receptStore);
 	},
 	
 	makeComboColumn: function(column, storeCombo, tableStore, property, onlyRenderer){
@@ -206,25 +206,48 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 	
 	initTables: function(){
 		var controller=this,
-			incomeTable = Ext.getCmp('incomeTable'),
-			incGoodsTable = Ext.getCmp('incGoodsTable'),
-			typeColumn = incomeTable.columns[1],
-			groupColumn = incGoodsTable.columns[0],
-			goodsColumn = incGoodsTable.columns[1],
-			measureColumn = incGoodsTable.columns[3];
+			receptTable = Ext.getCmp('receptTable'),
+			recGoodsTable = Ext.getCmp('recGoodsTable'),
+			truckColumn = receptTable.columns[1],
+			groupColumn = recGoodsTable.columns[0],
+			goodsColumn = recGoodsTable.columns[1],
+			measureColumn = recGoodsTable.columns[3];
 		
-		controller.makeComboColumn(typeColumn, controller.incTypeStore, controller.incomeStore, 'type');
-		controller.makeComboColumn(groupColumn, controller.ggroupStore, controller.incGoodsStore, 'at_ggroup');
-		controller.makeComboColumn(goodsColumn, controller.goodsStore, controller.incGoodsStore, 'at_goods');
-		controller.makeComboColumn(measureColumn, controller.measureStore, controller.incGoodsStore, 'measure', true);
+		controller.makeComboColumn(groupColumn, controller.ggroupStore, controller.recGoodsStore, 'at_ggroup');
+		controller.makeComboColumn(goodsColumn, controller.goodsStore, controller.recGoodsStore, 'at_goods');
+		controller.makeComboColumn(measureColumn, controller.measureStore, controller.recGoodsStore, 'measure', true);
+		
+		truckColumn.field = Ext.create('Ext.form.ComboBox', {
+			store: controller.truckStore,
+			queryMode: 'remote',
+			displayField: 'name',
+			valueField: 'id',
+			value: "",
+			listeners: {
+				select: function(combo, selected, eOpts){
+					var r=receptTable.getSelectionModel().getSelection()[0];
+					r.set('truck_name', (selected[0]!=null)?selected[0].get('name'):null);
+					return true;
+				}
+			}
+		});
+		truckColumn.renderer = function(value, metaData, record){
+			return record.get('truck_name');
+		};
+		truckColumn.doSort = function(state){
+			controller.receptStore.sort({
+				property: 'truck_name',
+				direction: state
+			});
+			return true;
+		};
 		
 		goodsColumn.field.addListener(
 			"select",
 			function(combo, selected, eOpts){
-				var r=incGoodsTable.getSelectionModel().getSelection()[0],
-					s=selected[0];
-				r.set('at_ggroup', (s!=null)?s.get('at_ggroup'):null);
-				r.set('measure', (s!=null)?s.get('measure'):null);
+				var r=recGoodsTable.getSelectionModel().getSelection()[0];
+				r.set('measure', (selected[0]!=null)?selected[0].get('measure'):null);
+				r.set('at_ggroup', (selected[0]!=null)?selected[0].get('at_ggroup'):null);
 				return true;
 			}
 		);
