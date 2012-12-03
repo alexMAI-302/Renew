@@ -2,9 +2,9 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
     extend: 'Ext.app.Controller',
 	
 	stores: [
-		'AutoTransport.Nomenclature',
-		'AutoTransport.NomenclatureGroup',
-		'AutoTransport.NomenclatureGroupType',
+		'AutoTransport.Nomenclature.Nomenclature',
+		'AutoTransport.Nomenclature.NomenclatureGroup',
+		'AutoTransport.Nomenclature.NomenclatureGroupType',
 		'AutoTransport.Measure'
 	],
 	
@@ -38,6 +38,22 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 						function(records1, operation1, success1){
 							if(!success1){
 								Ext.Msg.alert("Ошибка", "Ошибка при загрузке групп номенклатуры");
+							} else {
+								var r=Ext.getCmp('nomenclatureGroupsTable').getSelectionModel().getSelection()[0];
+								if(r!=null) {
+									controller.nomenclatureStore.extraParams={
+										group_id: r.get('id')
+									};
+									controller.nomenclatureStore.load(
+										function(records2, operation2, success2){
+											if(!success2){
+												Ext.Msg.alert("Ошибка", "Ошибка при загрузке номенклатуры");
+											} else {
+												controller.nomenclatureContainer.setLoading(false);
+											}
+										}
+									);
+								}
 							}
 						}
 					);
@@ -46,10 +62,58 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 		);
 	},
 	
+	syncMaster: function(masterStore, detailStore, container, selectedMasterId){
+		function syncDetail(detailStore, container){
+			if (
+				(detailStore.getNewRecords().length > 0) ||
+				(detailStore.getUpdatedRecords().length > 0) ||
+				(detailStore.getRemovedRecords().length > 0)){
+				
+				if(selectedMasterId!=null){
+					detailStore.exrtaParams = {
+						at_ggroup: selectedMasterId
+					};
+					
+					detailStore.sync({
+						callback: function(batch){
+							if(batch.exceptions.length>0){
+								Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+							}
+							container.setLoading(false);
+						}
+					});
+				} else {
+					Ext.Msg.alert("Внимание", "Ваши данные в таблице с детализацией были утеряны. Сначала сохраняйте данные в основной таблице, затем вводите детализацию.");
+					container.setLoading(false);
+				}
+			} else {
+				container.setLoading(false);
+			}
+		};
+		
+		if (
+			(masterStore.getNewRecords().length > 0) ||
+			(masterStore.getUpdatedRecords().length > 0) ||
+			(masterStore.getRemovedRecords().length > 0)){
+				
+			container.setLoading(true);
+			masterStore.sync({
+				callback: function(batch){
+					if(batch.exceptions.length>0){
+						Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+						container.setLoading(false);
+					} else {
+						syncDetail(detailStore, container);
+					}
+				}
+			});
+		} else {
+			syncDetail(detailStore, container);
+		}
+	},
+	
 	init: function() {
-		var controller = this,
-			nomenclatureFolder = '/ext/resources/themes/images/default/tree/folder-open.gif',
-			nomenclatureList = '/ext/resources/themes/images/default/tree/leaf.gif';
+		var controller = this;
 		
 		controller.nomenclatureContainer=Ext.create('app.view.AutoTransport.Nomenclature.Container');
 		
@@ -88,17 +152,14 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 					sm.select(r);
 				}
 			},
-			'#saveNomenclature': {
+			'#saveNomenclatureGroup': {
 				click: function(){
-					controller.nomenclatureContainer.setLoading(true);
-					controller.nomenclatureStore.sync({
-						callback: function(batch){
-							if(batch.exceptions.length>0){
-								Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
-							}
-							controller.nomenclatureContainer.setLoading(false);
-						}
-					});
+					var selected=Ext.getCmp('nomenclatureGroupsTable').getSelectionModel().getSelection()[0];
+					controller.syncMaster(
+						controller.nomenclatureGroupStore,
+						controller.nomenclatureStore,
+						controller.nomenclatureContainer,
+						(selected!=null)?selected.get('id'):null);
 					return true;
 				}
 			},
@@ -111,20 +172,6 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 						r = Ext.ModelManager.create({at_ggtype: at_ggtype}, 'app.model.AutoTransport.NomenclatureGroupModel');
 					controller.nomenclatureGroupStore.add(r);
 					sm.select(r);
-				}
-			},
-			'#saveNomenclatureGroup': {
-				click: function(){
-					controller.nomenclatureContainer.setLoading(true);
-					controller.nomenclatureGroupStore.sync({
-						callback: function(batch){
-							if(batch.exceptions.length>0){
-								Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
-							}
-							controller.nomenclatureContainer.setLoading(false);
-						}
-					});
-					return true;
 				}
 			},
 			'#refreshNomenclatureGroup': {
@@ -156,9 +203,9 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.nomenclatureStore=controller.getAutoTransportNomenclatureStore();
-		controller.nomenclatureGroupStore=controller.getAutoTransportNomenclatureGroupStore();
-		controller.nomenclatureGroupTypeStore=controller.getAutoTransportNomenclatureGroupTypeStore();
+		controller.nomenclatureStore=controller.getAutoTransportNomenclatureNomenclatureStore();
+		controller.nomenclatureGroupStore=controller.getAutoTransportNomenclatureNomenclatureGroupStore();
+		controller.nomenclatureGroupTypeStore=controller.getAutoTransportNomenclatureNomenclatureGroupTypeStore();
 		controller.measureStore=controller.getAutoTransportMeasureStore();
 		
 		controller.measureStore.load();

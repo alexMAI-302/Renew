@@ -47,8 +47,8 @@ class CertificateController < ApplicationPageErrorController
         end
 
         if !actual then
-          bin_picture=ActiveRecord::Base.connection.select_value("SELECT picture FROM picture WHERE id=#{picture['picture_id']}")
-          file=File.new(file_name, 'wb')
+          bin_picture=RuzaPicture.connection.select_value("SELECT picture FROM picture WHERE id=#{picture['picture_id']}")
+          file=File.new(file_name, 'wb', 664)
         file.write(bin_picture)
         file.close
         end

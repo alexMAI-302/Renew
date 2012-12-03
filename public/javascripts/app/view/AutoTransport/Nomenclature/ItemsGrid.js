@@ -2,8 +2,6 @@
 Ext.define('app.view.AutoTransport.Nomenclature.ItemsGrid', {
 	extend: 'Ext.grid.Panel',
 	alias: 'widget.nomenclatureGrid',
-	
-	cls: 'terminals-grid',
     
     initComponent: function() {
         Ext.apply(this, {
@@ -42,14 +40,6 @@ Ext.define('app.view.AutoTransport.Nomenclature.ItemsGrid', {
 				pluginId: 'cellEditingNomenclature'
 			})],
 			tbar: [
-				{
-					id: 'saveNomenclature',
-					icon: '/images/save.png'
-				},
-				{
-					id: 'refreshNomenclature',
-					icon: '/ext/examples/shared/icons/fam/table_refresh.png'
-				},
 				{
 					id: 'addNomenclature',
 					icon: '/ext/examples/shared/icons/fam/add.gif'
