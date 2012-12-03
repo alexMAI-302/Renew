@@ -144,12 +144,11 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 			},
 			'#addNomenclature':{
 				click: function(){
-					var sm=Ext.getCmp('nomenclatureTable').getSelectionModel(),
+					var sm=Ext.getCmp('nomenclatureGroupsTable').getSelectionModel(),
 						selected=sm.getSelection()[0],
 						at_ggroup=(selected!=null)?selected.get('id'):null,
 						r = Ext.ModelManager.create({at_ggroup: at_ggroup}, 'app.model.AutoTransport.NomenclatureModel');
 					controller.nomenclatureStore.add(r);
-					sm.select(r);
 				}
 			},
 			'#saveNomenclatureGroup': {

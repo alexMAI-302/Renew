@@ -11,6 +11,8 @@ Ext.define('app.view.AutoTransport.Nomenclature.Container', {
 		type: 'border'
 	},
 	
+	title: 'Номенклатура',
+	
 	items: [
 		{
 			xtype: 'toolbar',

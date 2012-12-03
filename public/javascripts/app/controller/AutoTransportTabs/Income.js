@@ -87,9 +87,24 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 		controller.incomeContainer=Ext.create('app.view.AutoTransport.Income.Container');
 		
 		Ext.getCmp('AutoTransportMain').add(controller.incomeContainer);
-		Ext.getCmp('AutoTransportMain').setActiveTab(1);
 		
 		controller.control({
+			'#filterIncome': {
+				click: function(button){
+					controller.incomeStore.proxy.extraParams={
+						ddateb: Ext.getCmp('ddatebIncome').getValue(),
+						ddatee: Ext.getCmp('ddateeIncome').getValue()
+					};
+					controller.incomeStore.load(
+						function(records, operation, success){
+							if(!success){
+								Ext.Msg.alert("Ошибка", "Ошибка при обновлении остатков");
+							}
+							return true;
+						}
+					);
+				}
+			},
 			'#incomeTable': {
 				selectionchange: function(sm, selected, eOpts){
 					if(selected!=null && selected.length>0){
@@ -216,7 +231,7 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 		groupColumn.field.addListener(
 			"select",
 			function(combo, selected, eOpts){
-				controller.goodsStore.filters.removeAll();
+				controller.goodsStore.clearFilter(true);
 				if(selected[0]!=null){
 					controller.goodsStore.filter("at_ggroup", selected[0].get("id"));
 				}

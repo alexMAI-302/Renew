@@ -12,6 +12,8 @@ Ext.define('app.view.AutoTransport.Income.Container', {
 		type: 'border'
 	},
 	
+	title: 'Приход',
+	
 	items: [
 		{
 			xtype: 'incomeFilter',

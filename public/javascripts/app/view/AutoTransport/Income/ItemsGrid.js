@@ -35,7 +35,11 @@ Ext.define('app.view.AutoTransport.Income.ItemsGrid', {
 				{
 					width: 200,
 					header: 'Цена',
-					dataIndex: 'price'
+					dataIndex: 'price',
+					field: {
+						xtype: 'numberfield',
+						minValue: 0
+					}
 				},
 				{
 					width: 60,
@@ -63,10 +67,6 @@ Ext.define('app.view.AutoTransport.Income.ItemsGrid', {
 				ftype: 'summary'
 			}],
 			tbar: [
-				{
-					id: 'saveIncGoods',
-					icon: '/images/save.png'
-				},
 				{
 					id: 'refreshIncGoods',
 					icon: '/ext/examples/shared/icons/fam/table_refresh.png'

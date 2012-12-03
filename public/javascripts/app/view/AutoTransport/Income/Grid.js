@@ -16,7 +16,8 @@ Ext.define('app.view.AutoTransport.Income.Grid', {
 					format: 'd.m.Y H:i',
 					field: {
 						xtype: 'datefield',
-						format: 'd.m.Y H:i'
+						format: 'd.m.Y H:i',
+						value: Ext.Date.parse(Ext.Date.format(new Date(), 'd.m.Y H:i'), 'd.m.Y H:i')
 					}
 				},
 				{

@@ -13,7 +13,7 @@ Ext.define('app.view.AutoTransport.Income.Filter', {
 	},
 	items: [
 		{
-			id: 'ddateb',
+			id: 'ddatebIncome',
 			xtype: 'datefield',
 			fieldLabel: 'С',
 			format: 'd.m.Y',
@@ -24,7 +24,7 @@ Ext.define('app.view.AutoTransport.Income.Filter', {
 			labelWidth: 25
 		},
 		{
-			id: 'ddatee',
+			id: 'ddateeIncome',
 			xtype: 'datefield',
 			fieldLabel: 'По',
 			format: 'd.m.Y',
