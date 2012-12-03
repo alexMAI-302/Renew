@@ -372,28 +372,9 @@ Ext.define('app.controller.renewPlan', {
 				},
 				failure: showServerError
 			});
-		}
-		
-		var refreshRemains=Ext.create('Ext.Button', {
-			text    : 'Обновить остатки',
-			scale	: 'small',
-			margins : '20 0 0 0',
-			handler : function() {
-				mainContainer.setLoading(true);
-				Ext.Ajax.request({
-					url: '/renew_plan/do_renew_eremsite',
-					timeout: 600000,
-					success: function(response){
-						refreshDdate();
-						mainContainer.setLoading(false);
-					},
-					failure: showServerError
-				});
-			}
-		});
+		};
 		
 		refreshContainer.add(refreshDdateLabel);
-		refreshContainer.add(refreshRemains);
 		
 		mainContainer.add(renewPlansPanel);
 		mainContainer.add(refreshContainer);
