@@ -48,9 +48,10 @@ class CertificateController < ApplicationPageErrorController
 
         if !actual then
           bin_picture=RuzaPicture.connection.select_value("SELECT picture FROM picture WHERE id=#{picture['picture_id']}")
-          file=File.new(file_name, 'wb', 664)
-        file.write(bin_picture)
-        file.close
+          file=File.new(file_name, 'wb')
+          file.write(bin_picture)
+          file.close
+          File.chmod(0644, file_name)
         end
 
         if @certificates.has_key?(picture['certificate_id']) then

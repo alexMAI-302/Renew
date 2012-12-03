@@ -34,19 +34,24 @@ class UnactInfo::AdminController < ApplicationSimpleErrorController
         
         render :text => id
       when "put"
-        old_path=ActiveRecord::Base.connection.select_value("
-        BEGIN
-          DECLARE @old_path varchar(8000);
-          SET @old_path=(SELECT path FROM renew_web.unact_info WHERE id=#{params[:id].to_i});
-          UPDATE renew_web.unact_info SET
-            name=#{ActiveRecord::Base.connection.quote(params[:name])},
-            path=#{ActiveRecord::Base.connection.quote(params[:path])}
-          WHERE id=#{params[:id].to_i};
-          SELECT @old_path;
-        END")
-        File.rename("#{UNACT_INFO_DIR}/#{old_path}", "#{UNACT_INFO_DIR}/#{params[:path]}")
-        
-        render :text => params[:id]
+        if params[:path].to_s.contains("/") || params[:path]=="." || params[:path]==".."
+          render :text => ({"success" => false, "errors" => "Недопустимое имя файла"}).to_json, :status => 500
+        else
+          old_path=ActiveRecord::Base.connection.select_value("
+          BEGIN
+            DECLARE @old_path varchar(8000);
+            SET @old_path=(SELECT path FROM renew_web.unact_info WHERE id=#{params[:id].to_i});
+            UPDATE renew_web.unact_info SET
+              name=#{ActiveRecord::Base.connection.quote(params[:name])},
+              path=#{ActiveRecord::Base.connection.quote(params[:path])}
+            WHERE id=#{params[:id].to_i};
+            SELECT @old_path;
+          END")
+          File.rename("#{UNACT_INFO_DIR}/#{old_path}", "#{UNACT_INFO_DIR}/#{params[:path]}")
+          
+          File.chmod(0644, file_name)
+          render :text => params[:id]
+        end
       when "delete"
         ActiveRecord::Base.connection.delete("DELETE FROM renew_web.unact_info WHERE id=#{params[:id].to_i}")
         File.delete("#{UNACT_INFO_DIR}/#{params[:path]}")
@@ -58,7 +63,10 @@ class UnactInfo::AdminController < ApplicationSimpleErrorController
 	def upload_file
 	  begin
 	    path=ActiveRecord::Base.connection.select_value("SELECT path FROM renew_web.unact_info WHERE id=#{params[:action_id].to_i}")
-  	  File.copy_stream(params[:action_data], "#{UNACT_INFO_DIR}/#{path}")
+	    file_name="#{UNACT_INFO_DIR}/#{path}"
+  	  File.copy_stream(params[:action_data], file_name)
+  	  
+      File.chmod(0644, file_name)
   	  
   		render :text => {"success" => true}.to_json
 		rescue => t
