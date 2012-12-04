@@ -2,3 +2,4 @@
 database.yml
 *.log
 public/images/certificates/*.*
+public/unact_info/pdf/*.*
