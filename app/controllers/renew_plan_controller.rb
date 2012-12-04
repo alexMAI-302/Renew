@@ -19,11 +19,6 @@ class RenewPlanController < ApplicationSimpleErrorController
   def index
   end
   
-  def do_renew_eremsite
-	rst = Proxycat.connection.select_all('exec prc_eremsite')
-	render :text => 'ok'
-  end
-  
   def get_refreshddate
 	refreshddate = ActiveRecord::Base.connection.select_value('select max(ts) from dbo.eremsite')
 	render :text => {:refresh_ddate => refreshddate}.to_json

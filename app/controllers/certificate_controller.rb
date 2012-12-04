@@ -47,10 +47,11 @@ class CertificateController < ApplicationPageErrorController
         end
 
         if !actual then
-          bin_picture=ActiveRecord::Base.connection.select_value("SELECT picture FROM picture WHERE id=#{picture['picture_id']}")
+          bin_picture=RuzaPicture.connection.select_value("SELECT picture FROM picture WHERE id=#{picture['picture_id']}")
           file=File.new(file_name, 'wb')
-        file.write(bin_picture)
-        file.close
+          file.write(bin_picture)
+          file.close
+          File.chmod(0644, file_name)
         end
 
         if @certificates.has_key?(picture['certificate_id']) then

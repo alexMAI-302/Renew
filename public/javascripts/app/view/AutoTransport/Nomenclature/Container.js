@@ -11,7 +11,23 @@ Ext.define('app.view.AutoTransport.Nomenclature.Container', {
 		type: 'border'
 	},
 	
+	title: 'Номенклатура',
+	
 	items: [
+		{
+			xtype: 'toolbar',
+			region: 'north',
+			items:[
+				{
+					id: 'saveNomenclatureGroup',
+					icon: '/images/save.png'
+				},
+				{
+					id: 'refreshNomenclatureGroup',
+					icon: '/ext/examples/shared/icons/fam/table_refresh.png'
+				}
+			]
+		},
 		{
 			xtype: 'nomenclatureGroupGrid',
 			region: 'west',
