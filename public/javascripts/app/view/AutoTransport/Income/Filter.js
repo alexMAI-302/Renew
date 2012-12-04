@@ -19,7 +19,7 @@ Ext.define('app.view.AutoTransport.Income.Filter', {
 			format: 'd.m.Y',
 			altFormat: 'd/m/Y|d m Y',
 			startDay: 1,
-			value: Ext.Date.parse(Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'),
+			value: Ext.Date.add(Ext.Date.parse(Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'), Ext.Date.MONTH, -1),
 			width: 125,
 			labelWidth: 25
 		},
