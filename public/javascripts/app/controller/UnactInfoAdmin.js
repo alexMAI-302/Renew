@@ -70,10 +70,10 @@ Ext.define('app.controller.UnactInfoAdmin', {
 							waitMsg: 'Загрузка данных...',
 							success: function(fp, o) {
 								controller.actionsStore.load();
-								fileWindow.hide();
+								controller.fileWindow.hide();
 							},
 							errors: function(fp, o){
-								fileWindow.hide();
+								controller.fileWindow.hide();
 								Ext.Msg.alert("Ошибка обработки файла", o.result.errors);
 							}
 						});
