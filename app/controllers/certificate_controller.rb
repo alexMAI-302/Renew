@@ -99,7 +99,7 @@ class CertificateController < ApplicationPageErrorController
           if i>0
             doc.start_new_page
           end
-          doc.image "#{RAILS_ROOT}/public/images/certificates/#{picture}.jpg", :fit => [page_size[1]-2*margin-2, page_size[0]-2*margin-2],
+          doc.image "#{RAILS_ROOT}/public/images/certificates/#{picture}.jpg", :fit => [page_size[1]-2*margin-2, page_size[0]-2*margin-2]
         end
       end
       
