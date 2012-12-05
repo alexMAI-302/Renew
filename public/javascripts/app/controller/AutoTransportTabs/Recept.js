@@ -96,6 +96,12 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 		var controller = this;
 		
 		controller.receptContainer=Ext.create('app.view.AutoTransport.Recept.Container');
+		controller.receptContainer.addListener(
+			"show",
+			function(){
+				controller.loadDictionaries();
+			}
+		);
 		
 		Ext.getCmp('AutoTransportMain').add(controller.receptContainer);
 		
