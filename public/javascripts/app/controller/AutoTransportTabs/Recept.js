@@ -40,7 +40,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 				
 				if(selectedMasterId!=null){
 					detailStore.exrtaParams = {
-						at_ggroup: selectedMasterId
+						master_id: selectedMasterId
 					};
 					
 					detailStore.sync({
@@ -81,6 +81,17 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 		}
 	},
 	
+	loadDetail: function(masterId, detailStore, detailTable){
+		detailStore.proxy.extraParams={
+			master_id: masterId
+		};
+		detailStore.load(
+			function(){
+				detailTable.setDisabled(false);
+			}
+		);
+	},
+	
 	init: function() {
 		var controller = this;
 		
@@ -108,11 +119,11 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 			'#receptTable': {
 				selectionchange: function(sm, selected, eOpts){
 					if(selected!=null && selected.length>0){
-						controller.recGoodsStore.proxy.extraParams={
-							group_id: selected[0].get('id')
-						};
-						controller.recGoodsStore.load();
-						Ext.getCmp('recGoodsTable').setDisabled(false);
+						controller.loadDetail(
+							selected[0].get('id'),
+							controller.recGoodsStore,
+							Ext.getCmp('recGoodsTable')
+						);
 					} else {
 						Ext.getCmp('recGoodsTable').setDisabled(true);
 					}
@@ -122,7 +133,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 			'#addRecGoods':{
 				click: function(){
 					var sm=Ext.getCmp('receptTable').getSelectionModel(),
-						r = Ext.ModelManager.create({at_income: sm.getSelection()[0].get('id')}, 'app.model.AutoTransport.GoodsModel');
+						r = Ext.ModelManager.create({master_id: sm.getSelection()[0].get('id')}, 'app.model.AutoTransport.GoodsModel');
 					controller.recGoodsStore.add(r);
 				}
 			},
@@ -144,8 +155,28 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 					controller.receptStore.add(r);
 					sm.select(r);
 				}
+			},
+			'#refreshRecGoods': {
+				click: function(){
+					var selected=Ext.getCmp('receptTable').getSelectionModel().getSelection();
+					if(selected!=null && selected.length>0){
+						controller.loadDetail(
+							selected[0].get('id'),
+							controller.recGoodsStore,
+							Ext.getCmp('recGoodsTable')
+						);
+					}
+				}
 			}
 		});
+	},
+	
+	loadDictionaries: function(){
+		var controller=this;
+		
+		controller.ggroupStore.load();
+		controller.goodsStore.load();
+		controller.measureStore.load();
 	},
 	
 	initStores: function(){
@@ -158,9 +189,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 		controller.truckStore=controller.getAutoTransportReceptTruckStore();
 		controller.measureStore=controller.getAutoTransportMeasureStore();
 		
-		controller.ggroupStore.load();
-		controller.goodsStore.load();
-		controller.measureStore.load();
+		controller.loadDictionaries();
 	},
 	
 	bindStores: function(){
@@ -226,6 +255,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 			listeners: {
 				select: function(combo, selected, eOpts){
 					var r=receptTable.getSelectionModel().getSelection()[0];
+					r.set('truck_id', (selected[0]!=null)?selected[0].get('id'):null);
 					r.set('truck_name', (selected[0]!=null)?selected[0].get('name'):null);
 					return true;
 				}

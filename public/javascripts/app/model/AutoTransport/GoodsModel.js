@@ -2,7 +2,7 @@ Ext.define('app.model.AutoTransport.GoodsModel', {
 	extend: 'Ext.data.Model',
 	fields: [
 	{name: 'id'			, type:'int'},
-	{name: 'at_income'	, type:'string'},
+	{name: 'master_id'	, type:'int'},
 	{name: 'at_ggroup'	, type:'int'},
 	{name: 'at_goods'	, type:'int'},
 	{name: 'measure'	, type:'int'},

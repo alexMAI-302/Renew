@@ -26,13 +26,6 @@ Ext.define('app.view.AutoTransport.Recept.Grid', {
 					dataIndex: 'truck'
 				},
 				{
-					width: 70,
-					xtype: 'numbercolumn',
-					format: '0,00',
-					header: 'Сумма',
-					dataIndex: 'sum'
-				},
-				{
 					xtype:'actioncolumn',
 					width:20,
 					icon: 'ext/examples/shared/icons/fam/cross.gif',
