@@ -40,7 +40,7 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 				
 				if(selectedMasterId!=null){
 					detailStore.exrtaParams = {
-						at_ggroup: selectedMasterId
+						master_id: selectedMasterId
 					};
 					
 					detailStore.sync({
@@ -81,10 +81,27 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 		}
 	},
 	
+	loadDetail: function(masterId, detailStore, detailTable){
+		detailStore.proxy.extraParams={
+			master_id: masterId
+		};
+		detailStore.load(
+			function(){
+				detailTable.setDisabled(false);
+			}
+		);
+	},
+	
 	init: function() {
 		var controller = this;
 		
 		controller.incomeContainer=Ext.create('app.view.AutoTransport.Income.Container');
+		controller.incomeContainer.addListener(
+			"show",
+			function(){
+				controller.loadDictionaries();
+			}
+		);
 		
 		Ext.getCmp('AutoTransportMain').add(controller.incomeContainer);
 		
@@ -108,11 +125,11 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 			'#incomeTable': {
 				selectionchange: function(sm, selected, eOpts){
 					if(selected!=null && selected.length>0){
-						controller.incGoodsStore.proxy.extraParams={
-							group_id: selected[0].get('id')
-						};
-						controller.incGoodsStore.load();
-						Ext.getCmp('incGoodsTable').setDisabled(false);
+						controller.loadDetail(
+							selected[0].get('id'),
+							controller.incGoodsStore,
+							Ext.getCmp('incGoodsTable')
+						);
 					} else {
 						Ext.getCmp('incGoodsTable').setDisabled(true);
 					}
@@ -122,13 +139,14 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 			'#addIncGoods':{
 				click: function(){
 					var sm=Ext.getCmp('incomeTable').getSelectionModel(),
-						r = Ext.ModelManager.create({at_income: sm.getSelection()[0].get('id')}, 'app.model.AutoTransport.GoodsModel');
+						r = Ext.ModelManager.create({master_id: sm.getSelection()[0].get('id')}, 'app.model.AutoTransport.GoodsModel');
 					controller.incGoodsStore.add(r);
 				}
 			},
 			'#saveIncome': {
 				click: function(){
 					var selected=Ext.getCmp('incomeTable').getSelectionModel().getSelection()[0];
+					selected.set('sum', controller.incGoodsStore.sum('sum'));
 					controller.syncMaster(
 						controller.incomeStore,
 						controller.incGoodsStore,
@@ -144,8 +162,28 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 					controller.incomeStore.add(r);
 					sm.select(r);
 				}
+			},
+			'#refreshIncGoods': {
+				click: function(){
+					var selected=Ext.getCmp('incomeTable').getSelectionModel().getSelection();
+					if(selected!=null && selected.length>0){
+						controller.loadDetail(
+							selected[0].get('id'),
+							controller.incGoodsStore,
+							Ext.getCmp('incGoodsTable')
+						);
+					}
+				}
 			}
 		});
+	},
+	
+	loadDictionaries: function(){
+		var controller=this;
+		
+		controller.ggroupStore.load();
+		controller.goodsStore.load();
+		controller.measureStore.load();
 	},
 	
 	initStores: function(){
@@ -158,9 +196,7 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 		controller.incTypeStore=controller.getAutoTransportIncomeIncTypeStore();
 		controller.measureStore=controller.getAutoTransportMeasureStore();
 		
-		controller.ggroupStore.load();
-		controller.goodsStore.load();
-		controller.measureStore.load();
+		controller.loadDictionaries();
 	},
 	
 	bindStores: function(){

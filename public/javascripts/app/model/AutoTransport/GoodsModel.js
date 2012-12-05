@@ -1,11 +1,11 @@
 Ext.define('app.model.AutoTransport.GoodsModel', {
 	extend: 'Ext.data.Model',
 	fields: [
-	{name: 'id'			, type:'int'},
-	{name: 'at_income'	, type:'string'},
-	{name: 'at_ggroup'	, type:'int'},
-	{name: 'at_goods'	, type:'int'},
-	{name: 'measure'	, type:'int'},
+	{name: 'id'			, type:'int', useNull: true},
+	{name: 'master_id'	, type:'int', useNull: true},
+	{name: 'at_ggroup'	, type:'int', useNull: true},
+	{name: 'at_goods'	, type:'int', useNull: true},
+	{name: 'measure'	, type:'int', useNull: true},
 	{name: 'vol'		, type:'int'},
 	{name: 'price'		, type:'float'},
 	{

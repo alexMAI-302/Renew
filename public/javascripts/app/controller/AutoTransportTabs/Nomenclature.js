@@ -71,7 +71,7 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 				
 				if(selectedMasterId!=null){
 					detailStore.exrtaParams = {
-						at_ggroup: selectedMasterId
+						master_id: selectedMasterId
 					};
 					
 					detailStore.sync({
@@ -124,7 +124,7 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 				selectionchange: function(sm, selected, eOpts){
 					if(selected!=null && selected.length>0){
 						controller.nomenclatureStore.proxy.extraParams={
-							group_id: selected[0].get('id')
+							master_id: selected[0].get('id')
 						};
 						controller.nomenclatureStore.load();
 						Ext.getCmp('deleteNomenclatureGroup').setDisabled(false);

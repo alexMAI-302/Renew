@@ -3,5 +3,5 @@ Ext.define('app.model.AutoTransport.NomenclatureGroupModel', {
 	fields: [
 	{name: 'id'			, type:'int'},
 	{name: 'name'		, type:'string'},
-	{name: 'at_ggtype'	, type:'int'}]
+	{name: 'at_ggtype'	, type:'int', useNull: true}]
 });

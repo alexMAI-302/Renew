@@ -17,5 +17,6 @@ Ext.define('app.model.AutoTransport.IncomeModel', {
 			}
 		}
 	},
-	{name: 'type'	, type:'int'}]
+	{name: 'type'	, type:'int', useNull: true},
+	{name: 'sum'	, type:'float'}]
 });
