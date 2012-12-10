@@ -14,6 +14,14 @@ Ext.define('app.controller.GoogleLikes', {
 	fileWindow: null,
 	actionId: null,
 	
+	filterActions: function(){
+		var controller=this;
+		controller.actionsStore.proxy.extraParams = {
+			ddate: Ext.getCmp('ddate').getValue()
+		};
+		controller.actionsStore.load();
+	},
+	
     init: function() {
     	var controller=this;
 		function showServerError(response, options) {
@@ -35,10 +43,7 @@ Ext.define('app.controller.GoogleLikes', {
 			'#filterGoogleLikes': {
 				click: function(button, e){
 					controller.mainContainer.setLoading(true);
-					controller.actionsStore.proxy.extraParams = {
-						ddate: Ext.getCmp('ddate').getValue()
-					};
-					controller.actionsStore.load();
+					controller.filterActions();
 					return true;
 				}
 			},
@@ -54,7 +59,7 @@ Ext.define('app.controller.GoogleLikes', {
 							},
 							waitMsg: 'Загрузка данных...',
 							success: function(fp, o) {
-								controller.actionsStore.load();
+								controller.filterActions();
 								controller.fileWindow.hide();
 							},
 							errors: function(fp, o){

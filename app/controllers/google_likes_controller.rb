@@ -52,7 +52,7 @@ class GoogleLikesController < ApplicationSimpleErrorController
       title_txt=node.css('div.qf div.ii div.ci.gv div.eE.Fp div.wm.VC.Dq2JMd')[0].text
       
       likes = ((like_txt.nil?) ? ('+0') : like_txt.text)
-      likes = likes[/\d/].to_i
+      likes = likes[/[[:digit:]]+/].to_i
       
       ddate=Time.parse(ddate_txt).strftime('%F %T')
       
@@ -62,9 +62,6 @@ class GoogleLikesController < ApplicationSimpleErrorController
     end
     
     items=res.to_xml(:root => "actions")
-    
-    logger.info "
-    exec renew_web.google_likes_add(#{ActiveRecord::Base.connection.quote(items)})"
     
     ActiveRecord::Base.connection.execute("
     exec renew_web.google_likes_add(#{ActiveRecord::Base.connection.quote(items)})")

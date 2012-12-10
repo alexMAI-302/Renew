@@ -10,17 +10,20 @@ Ext.define('app.view.GoogleLikes.Grid', {
 			columns: [
 				{
 					width: 700,
-					dataIndex: 'title'
+					dataIndex: 'title',
+					text: 'Краткое содержание'
 				},
 				{
 					width: 100,
 					dataIndex: 'ddate',
 					xtype: 'datecolumn',
-					format: 'd.m.Y H:i'
+					format: 'd.m.Y H:i',
+					text: 'Дата записи'
 				},
 				{
 					width: 90,
-					dataIndex: 'likes'
+					dataIndex: 'likes',
+					text: 'Плюсы'
 				}
 			],
 			width: 900,
