@@ -1,0 +1,11 @@
+<% content_for :js_controller do %>
+,'GoogleLikes'
+<% end -%>
+<% content_for :title do %>
+Статистика по Google+
+<%	end -%>
+<% content_for :content do %>
+	<div id="google_likes_js">
+	</div>
+<% end -%>
+<% render :file => 'layouts/application' %>

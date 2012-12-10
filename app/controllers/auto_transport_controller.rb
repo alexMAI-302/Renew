@@ -6,7 +6,17 @@ class AutoTransportController < ApplicationSimpleErrorController
   def nomenclature_groups
     case request.method.to_s
       when "get"
-        res=ActiveRecord::Base.connection.select_all("SELECT id, name, at_ggtype FROM renew_web.at_ggroup")
+        res=ActiveRecord::Base.connection.select_all("
+        SELECT
+          gg.id,
+          gg.name,
+          gg.at_ggtype
+        FROM
+          renew_web.at_ggroup gg
+          JOIN renew_web.at_ggtype ggt ON gg.at_ggtype=ggt.id
+        ORDER BY
+          ggt.name,
+          gg.name")
         
         render :text => res.to_json
       when "post"
@@ -48,7 +58,9 @@ class AutoTransportController < ApplicationSimpleErrorController
         FROM
           renew_web.at_goods
         WHERE
-          at_ggroup=#{params[:master_id].to_i} OR 0=#{params[:master_id].to_i}")
+          at_ggroup=#{params[:master_id].to_i} OR 0=#{params[:master_id].to_i}
+        ORDER BY
+          name")
         render :text => res.to_json
       when "post"
         id=ActiveRecord::Base.connection.select_value("
