@@ -188,7 +188,6 @@ Ext.define('app.controller.renewPlan', {
 									timeout: 1200000,
 									params: {
 										id: rec.get("id"),
-										site_to_storage: rec.get("site_to_storage"),
 										authenticity_token: window._token
 									},
 									success: function(response){
