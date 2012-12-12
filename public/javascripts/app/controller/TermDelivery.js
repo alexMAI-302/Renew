@@ -112,7 +112,8 @@ Ext.define('app.controller.TermDelivery', {
 	makeDelivery: function(){
 		var controller=this,
 			terminals=[],
-			selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection()[0];
+			sm = Ext.getCmp('routesTable').getSelectionModel(),
+			selectedZone = sm.getSelection()[0];
 		
 		controller.mainContainer.setLoading(true);
 		
@@ -138,6 +139,7 @@ Ext.define('app.controller.TermDelivery', {
 			method: 'POST',
 			timeout: 300000,
 			success: function(response){
+				sm.select(selectedZone);
 				controller.filterRoutes(selectedZone);
 			},
 			failure: function(response){
@@ -149,7 +151,8 @@ Ext.define('app.controller.TermDelivery', {
 	saveIS: function(){
 		var controller=this,
 			routes=[],
-			selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection()[0];
+			sm = Ext.getCmp('routesTable').getSelectionModel(),
+			selectedZone=sm.getSelection()[0];
 		
 		controller.mainContainer.setLoading(true);
 		
@@ -171,6 +174,7 @@ Ext.define('app.controller.TermDelivery', {
 			method: 'POST',
 			timeout: 300000,
 			success: function(response){
+				sm.select(selectedZone);
 				controller.filterRoutes(selectedZone);
 			},
 			failure: function(response){
@@ -185,7 +189,8 @@ Ext.define('app.controller.TermDelivery', {
 			zoneTypeId = Ext.getCmp('zoneTypeCombo').getValue(),
 			onlyWithErrors = Ext.getCmp('onlyWithErrors').getValue(),
 			onlyInRoute = Ext.getCmp('onlyInRoute').getValue(),
-			selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection()[0]
+			sm = Ext.getCmp('routesTable').getSelectionModel(),
+			selectedZone=sm.getSelection()[0]
 			zonesToIncludeInAutoRoute=[];
 		
 		controller.mainContainer.setLoading(true);
@@ -210,6 +215,7 @@ Ext.define('app.controller.TermDelivery', {
 			method: 'POST',
 			timeout: 300000,
 			success: function(response){
+				sm.select(selectedZone);
 				controller.filterRoutes(selectedZone);
 			},
 			failure: function(response){
@@ -229,7 +235,7 @@ Ext.define('app.controller.TermDelivery', {
 			'#filterRoutes': {
 				click: function(){
 					var selectedZone=Ext.getCmp('routesTable').getSelectionModel().getSelection()[0];
-					controller.filterRoutes(selectedZone)
+					controller.filterRoutes(selectedZone);
 				}
 			},
 			'#routesTable': {
