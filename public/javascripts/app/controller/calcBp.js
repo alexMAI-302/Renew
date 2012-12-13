@@ -27,13 +27,7 @@ Ext.define('app.controller.calcBp', {
 				
 				success: function(response){
 					var response_json=Ext.JSON.decode(response.responseText, true);
-					var msg = "Результаты <i>запуска</i> пересчета:<br/>"
-										
-					for(i=0; i<response_json.length; i++) {
-						msg += "- в филиале " + response_json[i].fname + " пересчет " + (response_json[i].error == 0 ? '<span style="color:green">запущен</span>' : '<span style="color:red">не запущен</span>');
-						msg += i == response_json.length - 1 ? '.' : ',';
-						msg += "<br/>"
-					}
+					var msg = "Результаты <i>запуска</i> пересчета:<br/>" + response_json.result;
 					
 					msg += "Результаты <i>пересчета</i> бонусных программ придут на почту группы bprog@unact.ru."
 					Ext.MessageBox.alert("Сообщение", msg)
