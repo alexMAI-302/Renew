@@ -9,23 +9,33 @@
 			style1 = 
 			{
 				// - цвет и прозрачность линии
-				strokeColor: "ffff0088",
-				// - цвет и прозрачность заливки
-				fillColor: "ff000055"
-			},
-			style2 = 
-			{
+				strokeColor: "ff000055",
 				// - цвет и прозрачность заливки
 				fillColor: "ffff0055"
 			},
+			style2 = 
+			{
+				// - цвет и прозрачность линии
+				strokeColor: "ffff0055",
+				// - цвет и прозрачность заливки
+				fillColor: "ff000055"
+			},
 			map,
-			center=[55.76, 37.64];
+			center=[
+				[55.76, 37.64],
+				[55.76, 37.64],
+				[],
+				[55.080421, 38.797698],
+				[55.791015, 38.441875],
+				[55.701516, 36.191694]
+			],
+			site = <%= @site %> - 1;
 		ymaps.ready(function(){
             // Создание экземпляра карты и его привязка к созданному контейнеру
             map = new ymaps.Map("YMapsID",
             	{
 			        // Центр карты
-			        center: center,
+			        center: center[site],
 			        zoom: 10,
 			        // Тип карты
 			        type: "yandex#map",
@@ -44,11 +54,20 @@
 					polygons[i] = new ymaps.Polygon(
 						ymaps.geometry.Polygon.fromEncodedCoordinates(rr[i].points),
 						null,
-						style1);
+						{
+							strokeColor: style1.strokeColor.toString(),
+							fillColor: style1.fillColor.toString()
+						});
 				}
 				else
 				{
-					polygons[i] = new ymaps.Polygon([[center]], null, style1);
+					polygons[i] = new ymaps.Polygon(
+						[[center[site]]],
+						null,
+						{
+							strokeColor: style1.strokeColor.toString(),
+							fillColor: style1.fillColor.toString()
+						});
 				};
 				map.geoObjects.add(polygons[i]);
 				polygons[i].events.add("geometrychange", function () {
@@ -87,16 +106,17 @@
 		function slavesel( v ){
 			$('a_routeid').value = rr[v].id;
 			polygons[current_route].editor.stopEditing();
-			polygons[current_route].options.set("fillColor", style1.fillColor);
+			console.log(polygons[current_route].options.get("fillColor"));
+			polygons[current_route].options.set("fillColor", style1.fillColor.toString());
 			rr[current_route].points = ymaps.geometry.Polygon.toEncodedCoordinates(polygons[current_route].geometry);
 			current_route = v;
 			polygons[current_route].editor.startEditing();
-			polygons[current_route].options.set("fillColor", style2.fillColor);
+			polygons[current_route].options.set("fillColor", style2.fillColor.toString());
 			if(!isEmptyGeometry(polygons[current_route].geometry)){
 				map.setBounds(polygons[current_route].geometry.getBounds());
 			} else {
 				var points=(polygons[current_route].geometry!=null)?polygons[current_route].geometry.getCoordinates()[0]:[];
-				map.setCenter((points.length>=1? points[0] : center), 10);
+				map.setCenter((points.length>=1? points[0] : center[site]), 10);
 			}
 			set_points();
 		};
