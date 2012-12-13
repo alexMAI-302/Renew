@@ -9,17 +9,17 @@ Ext.define('app.view.AutoTransport.Income.ItemsGrid', {
 			disabled: true,
 			columns: [
 				{
-					width: 400,
+					width: 170,
 					header: 'Группа',
 					dataIndex: 'at_ggroup'
 				},
 				{
-					width: 110,
+					width: 400,
 					header: 'Наименование',
 					dataIndex: 'at_goods'
 				},
 				{
-					width: 200,
+					width: 80,
 					header: 'Количество',
 					dataIndex: 'vol',
 					field: {
@@ -28,12 +28,12 @@ Ext.define('app.view.AutoTransport.Income.ItemsGrid', {
 					}
 				},
 				{
-					width: 200,
+					width: 120,
 					header: 'Единица измерения',
 					dataIndex: 'measure'
 				},
 				{
-					width: 200,
+					width: 80,
 					header: 'Цена',
 					dataIndex: 'price',
 					field: {
@@ -42,7 +42,7 @@ Ext.define('app.view.AutoTransport.Income.ItemsGrid', {
 					}
 				},
 				{
-					width: 60,
+					width: 80,
 					header: 'Сумма',
 					dataIndex: 'sum',
 					summaryType: 'sum'

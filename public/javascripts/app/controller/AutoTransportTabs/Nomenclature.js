@@ -191,7 +191,7 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 					var sm = Ext.getCmp('nomenclatureTable').getSelectionModel();
 					
 					controller.nomenclatureStore.remove(sm.getSelection()[0]);
-					if (controller.nomenclatureGroupStore.getCount() > 0) {
+					if (controller.nomenclatureStore.getCount() > 0) {
 						sm.select(0);
 					}
 				}
@@ -212,7 +212,7 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 	},
 	
 	bindStores: function(){
-		var controller=this
+		var controller=this,
 			groupsTable=Ext.getCmp('nomenclatureGroupsTable');
 		
 		Ext.getCmp('nomenclatureTable').reconfigure(controller.nomenclatureStore);

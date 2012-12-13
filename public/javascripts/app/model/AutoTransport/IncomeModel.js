@@ -1,7 +1,7 @@
 Ext.define('app.model.AutoTransport.IncomeModel', {
 	extend: 'Ext.data.Model',
 	fields: [
-	{name: 'id'		, type:'int'},
+	{name: 'id'			, type:'int'},
 	{
 		name: 'ddate',
 		type: 'date',
@@ -17,6 +17,7 @@ Ext.define('app.model.AutoTransport.IncomeModel', {
 			}
 		}
 	},
-	{name: 'type'	, type:'int', useNull: true},
-	{name: 'sum'	, type:'float'}]
+	{name: 'type'		, type:'int', useNull: true},
+	{name: 'at_seller'	, type:'int', useNull: true},
+	{name: 'sum'		, type:'float'}]
 });

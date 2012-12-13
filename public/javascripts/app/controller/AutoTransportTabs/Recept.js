@@ -181,6 +181,9 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 		var controller=this;
 		
 		controller.ggroupStore.load();
+		controller.goodsStore.proxy.extraParams={
+			master_id: -1
+		};
 		controller.goodsStore.load();
 		controller.measureStore.load();
 	},
@@ -287,18 +290,13 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 				return true;
 			}
 		);
-		goodsColumn.field.addListener(
-			"beforeQuery",
-			function(queryEvent, eOpts){
-				queryEvent.combo.store.clearFilter(true);
-				return true;
-			}
-		);
 		
 		groupColumn.field.allowBlank=false;
 		groupColumn.field.addListener(
 			"select",
 			function(combo, selected, eOpts){
+				var r = recGoodsTable.getSelectionModel().getSelection()[0];
+				r.set('at_goods', null);
 				controller.goodsStore.clearFilter(true);
 				if(selected[0]!=null){
 					controller.goodsStore.filter("at_ggroup", selected[0].get("id"));

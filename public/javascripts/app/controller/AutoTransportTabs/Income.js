@@ -7,7 +7,8 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 		'AutoTransport.Ggroup',
 		'AutoTransport.Goods',
 		'AutoTransport.Income.IncType',
-		'AutoTransport.Measure'
+		'AutoTransport.Measure',
+		'AutoTransport.Sellers'
 	],
 	
 	models: [
@@ -182,8 +183,12 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 		var controller=this;
 		
 		controller.ggroupStore.load();
+		controller.goodsStore.proxy.extraParams={
+			master_id: -1
+		};
 		controller.goodsStore.load();
 		controller.measureStore.load();
+		controller.sellersStore.load();
 	},
 	
 	initStores: function(){
@@ -195,6 +200,7 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 		controller.goodsStore=controller.getAutoTransportGoodsStore();
 		controller.incTypeStore=controller.getAutoTransportIncomeIncTypeStore();
 		controller.measureStore=controller.getAutoTransportMeasureStore();
+		controller.sellersStore=controller.getAutoTransportSellersStore();
 		
 		controller.loadDictionaries();
 	},
@@ -245,11 +251,13 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 			incomeTable = Ext.getCmp('incomeTable'),
 			incGoodsTable = Ext.getCmp('incGoodsTable'),
 			typeColumn = incomeTable.columns[1],
+			sellerColumn = incomeTable.columns[2],
 			groupColumn = incGoodsTable.columns[0],
 			goodsColumn = incGoodsTable.columns[1],
 			measureColumn = incGoodsTable.columns[3];
 		
 		controller.makeComboColumn(typeColumn, controller.incTypeStore, controller.incomeStore, 'type');
+		controller.makeComboColumn(sellerColumn, controller.sellersStore, controller.incomeStore, 'at_seller');
 		controller.makeComboColumn(groupColumn, controller.ggroupStore, controller.incGoodsStore, 'at_ggroup');
 		controller.makeComboColumn(goodsColumn, controller.goodsStore, controller.incGoodsStore, 'at_goods');
 		controller.makeComboColumn(measureColumn, controller.measureStore, controller.incGoodsStore, 'measure', true);
@@ -264,18 +272,13 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 				return true;
 			}
 		);
-		goodsColumn.field.addListener(
-			"beforeQuery",
-			function(queryEvent, eOpts){
-				queryEvent.combo.store.clearFilter(true);
-				return true;
-			}
-		);
 		
 		groupColumn.field.allowBlank=false;
 		groupColumn.field.addListener(
 			"select",
 			function(combo, selected, eOpts){
+				var r = incGoodsTable.getSelectionModel().getSelection()[0];
+				r.set('at_goods', null);
 				controller.goodsStore.clearFilter(true);
 				if(selected[0]!=null){
 					controller.goodsStore.filter("at_ggroup", selected[0].get("id"));

@@ -12,8 +12,8 @@ class AutoTransportController < ApplicationSimpleErrorController
           gg.name,
           gg.at_ggtype
         FROM
-          renew_web.at_ggroup gg
-          JOIN renew_web.at_ggtype ggt ON gg.at_ggtype=ggt.id
+          dbo.at_ggroup gg
+          JOIN dbo.at_ggtype ggt ON gg.at_ggtype=ggt.id
         ORDER BY
           ggt.name,
           gg.name")
@@ -23,8 +23,8 @@ class AutoTransportController < ApplicationSimpleErrorController
         id=ActiveRecord::Base.connection.select_value("
         BEGIN
           DECLARE @id INT;
-          SET @id=idgenerator('renew_web.at_ggroup');
-          INSERT INTO renew_web.at_ggroup(id, name, at_ggtype)
+          SET @id=idgenerator('at_ggroup');
+          INSERT INTO dbo.at_ggroup(id, name, at_ggtype)
           VALUES(@id, #{ActiveRecord::Base.connection.quote(params[:name])}, #{params[:at_ggtype].to_i});
           
           SELECT @id;
@@ -33,14 +33,14 @@ class AutoTransportController < ApplicationSimpleErrorController
         render :text => {"success" => true, "id" => id}.to_json
       when "put"
         ActiveRecord::Base.connection.update("
-        UPDATE renew_web.at_ggroup SET
+        UPDATE dbo.at_ggroup SET
           name=#{ActiveRecord::Base.connection.quote(params[:name])},
           at_ggtype=#{params[:at_ggtype].to_i}
         WHERE id=#{params[:id].to_i}")
         
         render :text => {"success" => true, "id" => params[:id]}.to_json
       when "delete"
-        ActiveRecord::Base.connection.delete("DELETE FROM renew_web.at_ggroup WHERE id=#{params[:id].to_i}")
+        ActiveRecord::Base.connection.delete("DELETE FROM dbo.at_ggroup WHERE id=#{params[:id].to_i}")
         render :text => {"success" => true}.to_json
     end
   end
@@ -54,11 +54,11 @@ class AutoTransportController < ApplicationSimpleErrorController
           name,
           at_ggroup,
           measure,
-          (select cnt from at_remains where at_goods = renew_web.at_goods.id) cnt
+          (select cnt from at_remains where at_goods = dbo.at_goods.id) cnt
         FROM
-          renew_web.at_goods
+          dbo.at_goods
         WHERE
-          at_ggroup=#{params[:master_id].to_i} OR 0=#{params[:master_id].to_i}
+          at_ggroup=#{params[:master_id].to_i} OR -1=#{params[:master_id].to_i}
         ORDER BY
           name")
         render :text => res.to_json
@@ -66,8 +66,8 @@ class AutoTransportController < ApplicationSimpleErrorController
         id=ActiveRecord::Base.connection.select_value("
         BEGIN
           DECLARE @id INT;
-          SET @id=idgenerator('renew_web.at_goods');
-          INSERT INTO renew_web.at_goods(id, name, at_ggroup, measure)
+          SET @id=idgenerator('at_goods');
+          INSERT INTO dbo.at_goods(id, name, at_ggroup, measure)
           VALUES(@id, #{ActiveRecord::Base.connection.quote(params[:name])}, #{params[:at_ggroup].to_i}, #{params[:measure].to_i});
           
           SELECT @id;
@@ -76,7 +76,7 @@ class AutoTransportController < ApplicationSimpleErrorController
         render :text => {"success" => true, "id" => id}.to_json
       when "put"
         ActiveRecord::Base.connection.update("
-        UPDATE renew_web.at_goods SET
+        UPDATE dbo.at_goods SET
           name=#{ActiveRecord::Base.connection.quote(params[:name])},
           at_ggroup=#{params[:at_ggroup].to_i},
           measure=#{params[:measure].to_i}
@@ -84,7 +84,7 @@ class AutoTransportController < ApplicationSimpleErrorController
         
         render :text => {"success" => true, "id" => params[:id]}.to_json
       when "delete"
-        ActiveRecord::Base.connection.delete("DELETE FROM renew_web.at_goods WHERE id=#{params[:id].to_i}")
+        ActiveRecord::Base.connection.delete("DELETE FROM dbo.at_goods WHERE id=#{params[:id].to_i}")
         
         render :text => {"success" => true}.to_json
     end
@@ -98,10 +98,11 @@ class AutoTransportController < ApplicationSimpleErrorController
           i.id,
           i.ddate,
           i.type,
-          ig.vol*ig.price sum
+          ig.vol*ig.price sum,
+          i.at_seller
         FROM
-          renew_web.at_income i
-          LEFT JOIN renew_web.at_incgoods ig ON ig.at_income=i.id
+          dbo.at_income i
+          LEFT JOIN dbo.at_incgoods ig ON ig.at_income=i.id
         WHERE
           i.ddate >= '#{Time.parse(params[:ddateb]).strftime('%F %T')}'
           AND
@@ -111,9 +112,9 @@ class AutoTransportController < ApplicationSimpleErrorController
         id=ActiveRecord::Base.connection.select_value("
         BEGIN
           DECLARE @id INT;
-          SET @id=idgenerator('renew_web.at_income');
-          INSERT INTO renew_web.at_income(id, ddate, type)
-          VALUES(@id, '#{Time.parse(params[:ddate]).strftime('%F %T')}', #{params[:type].to_i});
+          SET @id=idgenerator('at_income');
+          INSERT INTO dbo.at_income(id, ddate, type, at_seller)
+          VALUES(@id, '#{Time.parse(params[:ddate]).strftime('%F %T')}', #{params[:type].to_i}, #{params[:at_seller].to_i});
           
           SELECT @id;
         END")
@@ -121,14 +122,15 @@ class AutoTransportController < ApplicationSimpleErrorController
         render :text => {"success" => true, "id" => id}.to_json
       when "put"
         ActiveRecord::Base.connection.update("
-        UPDATE renew_web.at_income SET
+        UPDATE dbo.at_income SET
           ddate='#{Time.parse(params[:ddate]).strftime('%F %T')}',
-          type=#{params[:type].to_i}
+          type=#{params[:type].to_i},
+          at_seller = #{params[:at_seller].to_i}
         WHERE id=#{params[:id].to_i}")
         
         render :text => {"success" => true, "id" => params[:id]}.to_json
       when "delete"
-        ActiveRecord::Base.connection.delete("DELETE FROM renew_web.at_income WHERE id=#{params[:id].to_i}")
+        ActiveRecord::Base.connection.delete("DELETE FROM dbo.at_income WHERE id=#{params[:id].to_i}")
         
         render :text => {"success" => true}.to_json
     end
@@ -146,8 +148,8 @@ class AutoTransportController < ApplicationSimpleErrorController
           ig.vol,
           ig.price
         FROM
-          renew_web.at_incgoods ig
-          LEFT JOIN renew_web.at_goods g ON g.id=ig.at_goods
+          dbo.at_incgoods ig
+          LEFT JOIN dbo.at_goods g ON g.id=ig.at_goods
         WHERE
           ig.at_income=#{params[:master_id].to_i}")
         render :text => res.to_json
@@ -155,8 +157,8 @@ class AutoTransportController < ApplicationSimpleErrorController
         id=ActiveRecord::Base.connection.select_value("
         BEGIN
           DECLARE @id INT;
-          SET @id=idgenerator('renew_web.at_incgoods');
-          INSERT INTO renew_web.at_incgoods(id, at_income, at_goods, vol, price)
+          SET @id=idgenerator('at_incgoods');
+          INSERT INTO dbo.at_incgoods(id, at_income, at_goods, vol, price)
           VALUES(
             @id,
             #{params[:master_id].to_i},
@@ -170,7 +172,7 @@ class AutoTransportController < ApplicationSimpleErrorController
         render :text => {"success" => true, "id" => id}.to_json
       when "put"
         ActiveRecord::Base.connection.update("
-        UPDATE renew_web.at_incgoods SET
+        UPDATE dbo.at_incgoods SET
           at_goods= #{params[:at_goods].to_i},
           vol= #{params[:vol].to_i},
           price= #{params[:price].to_i}
@@ -178,7 +180,7 @@ class AutoTransportController < ApplicationSimpleErrorController
         
         render :text => {"success" => true, "id" => params[:id]}.to_json
       when "delete"
-        ActiveRecord::Base.connection.delete("DELETE FROM renew_web.at_incgoods WHERE id=#{params[:id].to_i}")
+        ActiveRecord::Base.connection.delete("DELETE FROM dbo.at_incgoods WHERE id=#{params[:id].to_i}")
         
         render :text => {"success" => true}.to_json
     end
@@ -194,7 +196,7 @@ class AutoTransportController < ApplicationSimpleErrorController
           r.truck truck_id,
           t.name truck_name
         FROM
-          renew_web.at_recept r
+          dbo.at_recept r
           LEFT JOIN truck t ON t.id=r.truck
         WHERE
           r.ddate >= '#{Time.parse(params[:ddateb]).strftime('%F %T')}'
@@ -205,8 +207,8 @@ class AutoTransportController < ApplicationSimpleErrorController
         id=ActiveRecord::Base.connection.select_value("
         BEGIN
           DECLARE @id INT;
-          SET @id=idgenerator('renew_web.at_recept');
-          INSERT INTO renew_web.at_recept(id, ddate, truck)
+          SET @id=idgenerator('at_recept');
+          INSERT INTO dbo.at_recept(id, ddate, truck)
           VALUES(@id, '#{Time.parse(params[:ddate]).strftime('%F %T')}', #{params[:truck_id].to_i});
           
           SELECT @id;
@@ -215,14 +217,14 @@ class AutoTransportController < ApplicationSimpleErrorController
         render :text => {"success" => true, "id" => id}.to_json
       when "put"
         ActiveRecord::Base.connection.update("
-        UPDATE renew_web.at_recept SET
+        UPDATE dbo.at_recept SET
           ddate='#{Time.parse(params[:ddate]).strftime('%F %T')}',
           truck=#{params[:truck_id].to_i}
         WHERE id=#{params[:id].to_i}")
         
         render :text => {"success" => true, "id" => params[:id]}.to_json
       when "delete"
-        ActiveRecord::Base.connection.delete("DELETE FROM renew_web.at_reecept WHERE id=#{params[:id].to_i}")
+        ActiveRecord::Base.connection.delete("DELETE FROM dbo.at_reecept WHERE id=#{params[:id].to_i}")
         
         render :text => {"success" => true}.to_json
     end
@@ -239,8 +241,8 @@ class AutoTransportController < ApplicationSimpleErrorController
           g.measure,
           rg.vol
         FROM
-          renew_web.at_recgoods rg
-          LEFT JOIN renew_web.at_goods g ON g.id=rg.at_goods
+          dbo.at_recgoods rg
+          LEFT JOIN dbo.at_goods g ON g.id=rg.at_goods
         WHERE
           at_recept=#{params[:master_id].to_i}")
         render :text => res.to_json
@@ -248,8 +250,8 @@ class AutoTransportController < ApplicationSimpleErrorController
         id=ActiveRecord::Base.connection.select_value("
         BEGIN
           DECLARE @id INT;
-          SET @id=idgenerator('renew_web.at_recgoods');
-          INSERT INTO renew_web.at_recgoods(id, at_recept, at_goods, vol)
+          SET @id=idgenerator('at_recgoods');
+          INSERT INTO dbo.at_recgoods(id, at_recept, at_goods, vol)
           VALUES(
             @id,
             #{params[:master_id].to_i},
@@ -262,14 +264,52 @@ class AutoTransportController < ApplicationSimpleErrorController
         render :text => {"success" => true, "id" => id}.to_json
       when "put"
         ActiveRecord::Base.connection.update("
-        UPDATE renew_web.at_recgoods SET
+        UPDATE dbo.at_recgoods SET
           at_goods= #{params[:at_goods].to_i},
           vol= #{params[:vol].to_i}
         WHERE id=#{params[:id].to_i}")
         
         render :text => {"success" => true, "id" => params[:id]}.to_json
       when "delete"
-        ActiveRecord::Base.connection.delete("DELETE FROM renew_web.at_recgoods WHERE id=#{params[:id].to_i}")
+        ActiveRecord::Base.connection.delete("DELETE FROM dbo.at_recgoods WHERE id=#{params[:id].to_i}")
+        
+        render :text => {"success" => true}.to_json
+    end
+  end
+  
+  def sellers
+    case request.method.to_s
+      when "get"
+        res=ActiveRecord::Base.connection.select_all("
+        SELECT
+          id,
+          name
+        FROM
+          dbo.at_seller
+        ORDER BY
+          name")
+        render :text => res.to_json
+      when "post"
+        id=ActiveRecord::Base.connection.select_value("
+        BEGIN
+          DECLARE @id INT;
+          SET @id=idgenerator('at_seller');
+          INSERT INTO dbo.at_seller(id, name)
+          VALUES(@id, #{ActiveRecord::Base.connection.quote(params[:name])});
+          
+          SELECT @id;
+        END")
+        
+        render :text => {"success" => true, "id" => id}.to_json
+      when "put"
+        ActiveRecord::Base.connection.update("
+        UPDATE dbo.at_seller SET
+          name=#{ActiveRecord::Base.connection.quote(params[:name])}
+        WHERE id=#{params[:id].to_i}")
+        
+        render :text => {"success" => true, "id" => params[:id]}.to_json
+      when "delete"
+        ActiveRecord::Base.connection.delete("DELETE FROM dbo.at_seller WHERE id=#{params[:id].to_i}")
         
         render :text => {"success" => true}.to_json
     end
@@ -284,7 +324,7 @@ class AutoTransportController < ApplicationSimpleErrorController
   end
   
   def get_nomenclature_group_types
-    res=ActiveRecord::Base.connection.select_all("SELECT id, name FROM renew_web.at_ggtype")
+    res=ActiveRecord::Base.connection.select_all("SELECT id, name FROM dbo.at_ggtype")
     render :text => res.to_json
   end
   

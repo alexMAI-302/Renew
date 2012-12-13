@@ -1,24 +1,17 @@
 # encoding: utf-8
 class BprogController < ApplicationSimpleErrorController
 
-	def index
-	end
-
 	def calc
 	end
 
 	def test
 		if params[:filial_id] and params[:partner_groups_id]
-			result = Proxycat.connection.select_all("execute hqsrv12.proxycat.dbo.trigger_calc_bp #{params[:filial_id]}, #{params[:partner_groups_id]}")
+			result = ActiveRecord::Base.connection.select_all("trigger event evt_calc_bp ("partner_group" = #{params[:partner_groups_id]})")
 
 			render :text => result.to_json	
 		else
 			render :text => "Пересчет на запущен. Проверьте, правильно ли заданы параметры.", :status => 500
 		end
-	end
-
-	def do_bprog
-		@rst = Proxycat.connection.select_all('execute hqsrv12.proxycat.dbo.prc_bprog select 1 a')
 	end
 
 	def get_filial
@@ -43,33 +36,6 @@ class BprogController < ApplicationSimpleErrorController
 
 		if params[:filial_id] and params[:filial_id] != "0"
 			partner_groups = Proxycat.connection.select_all ("exec prc_podr #{params[:filial_id]}")
-=begin
-			partner_groups = Proxycat.connection.select_all (
-				"EXEC get_data_filial 
-					'SELECT 
-							partners_groups.id   id,
-							partners_groups.name name
-					FROM 
-							pref_concept 
-								JOIN prefs ON pref_concept.id = prefs.concept AND pref_concept.type = prefs.type
-								JOIN partners_groups ON prefs.id = partners_groups.id
-					WHERE 
-							pref_concept.type = 1 AND 
-							pref_concept.name = ''Хр: Партнеры - Подразделение'' AND
-							EXISTS
-							(
-								SELECT 1 
-								FROM 
-									palm_salesman 
-										JOIN partners_groups_tree ON partners_groups_tree.id = palm_salesman.srv_pgroup 
-								WHERE 
-									partners_groups_tree.parent = partners_groups.id
-							)
-					ORDER BY
-							partners_groups.name',
-					#{params[:filial_id]}"
-			)
-=end
 		end
 
 		partner_groups.unshift({:id => 0, :name => "<Все подразделения>"})

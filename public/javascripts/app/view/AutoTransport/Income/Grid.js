@@ -31,6 +31,11 @@ Ext.define('app.view.AutoTransport.Income.Grid', {
 					}
 				},
 				{
+					width: 170,
+					header: 'Поставщик',
+					dataIndex: 'at_seller'
+				},
+				{
 					width: 70,
 					xtype: 'numbercolumn',
 					format: '0,00',

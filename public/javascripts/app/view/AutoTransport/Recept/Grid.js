@@ -6,7 +6,7 @@ Ext.define('app.view.AutoTransport.Recept.Grid', {
     initComponent: function() {
         Ext.apply(this, {
 			id: 'receptTable',
-			title: 'Приход',
+			title: 'Расход',
 			columns: [
 				{
 					width: 120,
