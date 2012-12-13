@@ -67,7 +67,7 @@ Ext.define('app.view.mag.currentPalmSaleOrder.Grid', {
 					width:20,
 					items: [
 					{
-						icon: 'ext/examples/shared/icons/fam/cross.gif'
+						icon: '/ext/examples/shared/icons/fam/cross.gif'
 					}]
 				}
 			],

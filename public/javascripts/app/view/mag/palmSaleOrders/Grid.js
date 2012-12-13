@@ -44,7 +44,7 @@ Ext.define('app.view.mag.palmSaleOrders.Grid', {
 					id: 'printPalmSale',
 					items: [
 					{
-						icon: 'ext/examples/ux/grid/gridPrinterCss/printer.png'
+						icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png'
 					}]
 				},
 				{
