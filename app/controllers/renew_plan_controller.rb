@@ -50,7 +50,7 @@ class RenewPlanController < ApplicationSimpleErrorController
 
   def do_sorder_status1
     begin
-      ActiveRecord::Base.connection.exec('call renew_plan_update_status1(#{params[:id].to_i})')
+      ActiveRecord::Base.connection.exec("call renew_plan_update_status1(#{params[:id].to_i})")
 
       render :text => {"success" => true}.to_json
     rescue => t
