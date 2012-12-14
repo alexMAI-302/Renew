@@ -14,7 +14,7 @@ class PlaceunloadController < ApplicationPageErrorController
     if pname == '*' 
       pname = ''
     else
-      pname = "where name like '%'+#{ActiveRecord::Base.connection.quote_string(pname)}+'%'"
+      pname = "where name like '%#{ActiveRecord::Base.connection.quote_string(pname)}%'"
     end
 
     @pg = ActiveRecord::Base.connection.select_all("

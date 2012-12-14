@@ -39,7 +39,7 @@ class GoodsRemainsController < ApplicationPageErrorController
     if @selected_goods.nil? then
       flash[:notice]="Не выбран товар!"
     else
-      @goods_remains=Proxycat.connection.select_all(
+      @goods_remains=ActiveRecord::Base.connection.select_all(
       "select
   	     t.name,
          sum(remvolume) remvolume,
@@ -54,7 +54,7 @@ class GoodsRemainsController < ApplicationPageErrorController
           FROM
             site_to_storages sts
           JOIN site s ON s.id=sts.site_to) t
-          cross apply ask_d_just_remains_rem_w(t.storage, null, #{@selected_goods['id'].to_i}, 1)
+          cross apply dbo.ask_d_just_remains_rem_w(t.storage, null, #{@selected_goods['id'].to_i}, 1)
         GROUP BY
           t.name")
     end
