@@ -16,9 +16,6 @@ Ext.define('app.controller.AutoTransportTabs.Sellers', {
 	
 	sellersContainer: null,
 	
-	nomenclatureStore: null,
-	nomenclatureGroupStore: null,
-	
 	refreshSellers: function(){
 		var controller=this;
 		
