@@ -15,6 +15,8 @@ class TermDeliveryMakeAutoSetupController < ApplicationSimpleErrorController
         FROM
           pps_zone pz
           LEFT JOIN spp.terminal_delivery_make_auto_zones az ON pz.id=az.id
+        WHERE
+          z.spv_id=6626
         ORDER BY
           pz.name")
         
