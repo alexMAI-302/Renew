@@ -75,7 +75,7 @@
 					</td>
 					<% @goods_remains.each do |r| %>
 						<td>
-							<b><%= if r['info'].nil? then sprintf("%.2f", r['remvolume'] + r['supvolume'] - r['zakvolume'] - r['resvolume']) else r['info'] end %></b>
+							<b><%= if r['info'].nil? then sprintf("%.2f", r['vol']) else r['info'] end %></b>
 						</td>
 					<% end %>
 				</tr>							

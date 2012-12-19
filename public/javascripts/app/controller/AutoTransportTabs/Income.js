@@ -127,7 +127,7 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 				selectionchange: function(sm, selected, eOpts){
 					if(selected!=null && selected.length>0){
 						controller.loadDetail(
-							selected[0].get('id'),
+							selected[0].getId(),
 							controller.incGoodsStore,
 							Ext.getCmp('incGoodsTable')
 						);
@@ -140,19 +140,21 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 			'#addIncGoods':{
 				click: function(){
 					var sm=Ext.getCmp('incomeTable').getSelectionModel(),
-						r = Ext.ModelManager.create({master_id: sm.getSelection()[0].get('id')}, 'app.model.AutoTransport.GoodsModel');
+						r = Ext.ModelManager.create({master_id: sm.getSelection()[0].getId()}, 'app.model.AutoTransport.GoodsModel');
 					controller.incGoodsStore.add(r);
 				}
 			},
 			'#saveIncome': {
 				click: function(){
 					var selected=Ext.getCmp('incomeTable').getSelectionModel().getSelection()[0];
-					selected.set('sum', controller.incGoodsStore.sum('sum'));
+					if(selected != null){
+						selected.set('sum', controller.incGoodsStore.sum('sum'));
+					}
 					controller.syncMaster(
 						controller.incomeStore,
 						controller.incGoodsStore,
 						controller.incomeContainer,
-						(selected!=null)?selected.get('id'):null);
+						(selected!=null)?selected.getId():null);
 					return true;
 				}
 			},
@@ -169,7 +171,7 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 					var selected=Ext.getCmp('incomeTable').getSelectionModel().getSelection();
 					if(selected!=null && selected.length>0){
 						controller.loadDetail(
-							selected[0].get('id'),
+							selected[0].getId(),
 							controller.incGoodsStore,
 							Ext.getCmp('incGoodsTable')
 						);
@@ -281,7 +283,7 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 				r.set('at_goods', null);
 				controller.goodsStore.clearFilter(true);
 				if(selected[0]!=null){
-					controller.goodsStore.filter("at_ggroup", selected[0].get("id"));
+					controller.goodsStore.filter("at_ggroup", selected[0].get('id'));
 				}
 				return true;
 			}

@@ -45,7 +45,8 @@ class GoodsRemainsController < ApplicationPageErrorController
          sum(remvolume) remvolume,
          sum(resvolume) resvolume,
          sum(supvolume) supvolume,
-         sum(zakvolume) zakvolume
+         sum(zakvolume) zakvolume,
+         remvolume + supvolume - zakvolume - resvolume vol
       from
           (SELECT DISTINCT
             -sts.client_id storage,
