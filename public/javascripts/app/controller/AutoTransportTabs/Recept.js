@@ -126,7 +126,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 				selectionchange: function(sm, selected, eOpts){
 					if(selected!=null && selected.length>0){
 						controller.loadDetail(
-							selected[0].get('id'),
+							selected[0].getId(),
 							controller.recGoodsStore,
 							Ext.getCmp('recGoodsTable')
 						);
@@ -139,7 +139,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 			'#addRecGoods':{
 				click: function(){
 					var sm=Ext.getCmp('receptTable').getSelectionModel(),
-						r = Ext.ModelManager.create({master_id: sm.getSelection()[0].get('id')}, 'app.model.AutoTransport.GoodsModel');
+						r = Ext.ModelManager.create({master_id: sm.getSelection()[0].getId()}, 'app.model.AutoTransport.GoodsModel');
 					controller.recGoodsStore.add(r);
 				}
 			},
@@ -150,7 +150,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 						controller.receptStore,
 						controller.recGoodsStore,
 						controller.receptContainer,
-						(selected!=null)?selected.get('id'):null);
+						(selected!=null)?(selected.getId()):null);
 					return true;
 				}
 			},
@@ -167,7 +167,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 					var selected=Ext.getCmp('receptTable').getSelectionModel().getSelection();
 					if(selected!=null && selected.length>0){
 						controller.loadDetail(
-							selected[0].get('id'),
+							selected[0].getId(),
 							controller.recGoodsStore,
 							Ext.getCmp('recGoodsTable')
 						);
@@ -264,7 +264,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 			listeners: {
 				select: function(combo, selected, eOpts){
 					var r=receptTable.getSelectionModel().getSelection()[0];
-					r.set('truck_id', (selected[0]!=null)?selected[0].get('id'):null);
+					r.set('truck_id', (selected[0]!=null)?selected[0].getId():null);
 					r.set('truck_name', (selected[0]!=null)?selected[0].get('name'):null);
 					return true;
 				}
@@ -299,7 +299,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 				r.set('at_goods', null);
 				controller.goodsStore.clearFilter(true);
 				if(selected[0]!=null){
-					controller.goodsStore.filter("at_ggroup", selected[0].get("id"));
+					controller.goodsStore.filter("at_ggroup", selected[0].getId());
 				}
 				return true;
 			}

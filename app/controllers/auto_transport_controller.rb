@@ -114,7 +114,11 @@ class AutoTransportController < ApplicationSimpleErrorController
           DECLARE @id INT;
           SET @id=idgenerator('at_income');
           INSERT INTO dbo.at_income(id, ddate, type, at_seller)
-          VALUES(@id, '#{Time.parse(params[:ddate]).strftime('%F %T')}', #{params[:type].to_i}, #{params[:at_seller].to_i});
+          VALUES(
+            @id,
+            '#{Time.parse(params[:ddate]).strftime('%F %T')}',
+            #{params[:type].to_i},
+            #{(!params[:at_seller].nil? && params[:at_seller]!='null') ? params[:at_seller].to_i: 'null'});
           
           SELECT @id;
         END")
@@ -224,7 +228,7 @@ class AutoTransportController < ApplicationSimpleErrorController
         
         render :text => {"success" => true, "id" => params[:id]}.to_json
       when "delete"
-        ActiveRecord::Base.connection.delete("DELETE FROM dbo.at_reecept WHERE id=#{params[:id].to_i}")
+        ActiveRecord::Base.connection.delete("DELETE FROM dbo.at_recept WHERE id=#{params[:id].to_i}")
         
         render :text => {"success" => true}.to_json
     end
@@ -330,7 +334,15 @@ class AutoTransportController < ApplicationSimpleErrorController
   
   def get_trucks
     res=ActiveRecord::Base.connection.select_all("
-    SELECT id, name FROM dbo.truck WHERE name LIKE '%'+#{ActiveRecord::Base.connection.quote(params[:query])}+'%'")
+    SELECT
+      id,
+      name + ' ' + ISNULL(model, '') name
+    FROM
+      dbo.at_truck
+    WHERE
+      name LIKE '%'+#{ActiveRecord::Base.connection.quote(params[:query])}+'%'
+    ORDER BY
+      name, model")
     render :text => res.to_json
   end
 
