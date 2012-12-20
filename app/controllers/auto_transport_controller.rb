@@ -129,7 +129,7 @@ class AutoTransportController < ApplicationSimpleErrorController
         UPDATE dbo.at_income SET
           ddate='#{Time.parse(params[:ddate]).strftime('%F %T')}',
           type=#{params[:type].to_i},
-          at_seller = #{params[:at_seller].to_i}
+          at_seller = #{(!params[:at_seller].nil? && params[:at_seller]!='null') ? params[:at_seller].to_i: 'null'}
         WHERE id=#{params[:id].to_i}")
         
         render :text => {"success" => true, "id" => params[:id]}.to_json
