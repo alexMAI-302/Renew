@@ -215,7 +215,7 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 		incomeTable.reconfigure(controller.incomeStore);
 	},
 	
-	makeComboColumn: function(column, storeCombo, tableStore, property, onlyRenderer){
+	makeComboColumn: function(column, storeCombo, tableStore, property, allowNull, onlyRenderer){
 		function renderer(value){
 			var matching = null;
 			storeCombo.each(function(record){
@@ -233,7 +233,8 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 				queryMode: 'local',
 				displayField: 'name',
 				valueField: 'id',
-				value: ""
+				value: "",
+				autoSelect: (allowNull!==true)
 			});
 		}
 		column.renderer=renderer;
@@ -259,10 +260,10 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 			measureColumn = incGoodsTable.columns[3];
 		
 		controller.makeComboColumn(typeColumn, controller.incTypeStore, controller.incomeStore, 'type');
-		controller.makeComboColumn(sellerColumn, controller.sellersStore, controller.incomeStore, 'at_seller');
+		controller.makeComboColumn(sellerColumn, controller.sellersStore, controller.incomeStore, 'at_seller', true);
 		controller.makeComboColumn(groupColumn, controller.ggroupStore, controller.incGoodsStore, 'at_ggroup');
 		controller.makeComboColumn(goodsColumn, controller.goodsStore, controller.incGoodsStore, 'at_goods');
-		controller.makeComboColumn(measureColumn, controller.measureStore, controller.incGoodsStore, 'measure', true);
+		controller.makeComboColumn(measureColumn, controller.measureStore, controller.incGoodsStore, 'measure', false, true);
 		
 		goodsColumn.field.addListener(
 			"select",

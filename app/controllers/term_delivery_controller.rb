@@ -70,8 +70,6 @@ class TermDeliveryController < ApplicationSimpleErrorController
         '#{Time.parse(params[:ddate]).strftime('%F')}',
         #{only_with_errors},
         #{only_in_route},
-        40000,
-        350,
         #{params[:zone_id].to_i})")
 
     render :text => terminals_list.to_json
@@ -169,8 +167,6 @@ class TermDeliveryController < ApplicationSimpleErrorController
         '#{Time.parse(params[:ddate]).strftime('%F')}',
         #{params[:only_with_errors].to_i},
         #{params[:only_in_route].to_i},
-        40000,
-        350,
         #{params[:zone].to_i})"
 
     @rst_term = ActiveRecord::Base.connection.select_all(s)
@@ -192,8 +188,6 @@ class TermDeliveryController < ApplicationSimpleErrorController
         '#{Time.parse(params[:ddate]).strftime('%F')}',
         #{params[:only_with_errors].to_i},
         #{params[:only_in_route].to_i},
-        40000,
-        350,
         #{ActiveRecord::Base.connection.quote(items)})"
     r = ActiveRecord::Base.connection.execute(s)
 
