@@ -24,26 +24,27 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 	
 	receptContainer: null,
 	
-	recGoodsStore: null,
-	receptStore: null,
+	detailStore: null,
+	masterStore: null,
 	ggroupStore: null,
 	goodsStore: null,
 	truckStore: null,
 	measureStore: null,
 	
-	syncMaster: function(masterStore, detailStore, container, selectedMasterId){
-		function syncDetail(detailStore, container){
+	syncMaster: function(container, selectedMasterId){
+		var controller=this;
+		function syncDetail(container, masterId){
 			if (
-				(detailStore.getNewRecords().length > 0) ||
-				(detailStore.getUpdatedRecords().length > 0) ||
-				(detailStore.getRemovedRecords().length > 0)){
+				(controller.detailStore.getNewRecords().length > 0) ||
+				(controller.detailStore.getUpdatedRecords().length > 0) ||
+				(controller.detailStore.getRemovedRecords().length > 0)){
 				
-				if(selectedMasterId!=null){
-					detailStore.exrtaParams = {
-						master_id: selectedMasterId
+				if(masterId!=null){
+					controller.detailStore.proxy.extraParams={
+						master_id: masterId
 					};
 					
-					detailStore.sync({
+					controller.detailStore.sync({
 						callback: function(batch){
 							if(batch.exceptions.length>0){
 								Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
@@ -61,31 +62,33 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 		};
 		
 		if (
-			(masterStore.getNewRecords().length > 0) ||
-			(masterStore.getUpdatedRecords().length > 0) ||
-			(masterStore.getRemovedRecords().length > 0)){
+			(controller.masterStore.getNewRecords().length > 0) ||
+			(controller.masterStore.getUpdatedRecords().length > 0) ||
+			(controller.masterStore.getRemovedRecords().length > 0)){
 				
 			container.setLoading(true);
-			masterStore.sync({
+			controller.masterStore.sync({
 				callback: function(batch){
 					if(batch.exceptions.length>0){
 						Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
 						container.setLoading(false);
 					} else {
-						syncDetail(detailStore, container);
+						syncDetail(container, selectedMasterId);
 					}
 				}
 			});
 		} else {
-			syncDetail(detailStore, container);
+			syncDetail(container, selectedMasterId);
 		}
 	},
 	
-	loadDetail: function(masterId, detailStore, detailTable){
-		detailStore.proxy.extraParams={
+	loadDetail: function(masterId, detailTable){
+		var controller=this;
+		
+		controller.detailStore.proxy.extraParams={
 			master_id: masterId
 		};
-		detailStore.load(
+		controller.detailStore.load(
 			function(){
 				detailTable.setDisabled(false);
 			}
@@ -108,11 +111,11 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 		controller.control({
 			'#filterRecept': {
 				click: function(button){
-					controller.receptStore.proxy.extraParams={
+					controller.masterStore.proxy.extraParams={
 						ddateb: Ext.getCmp('ddatebRecept').getValue(),
 						ddatee: Ext.getCmp('ddateeRecept').getValue()
 					};
-					controller.receptStore.load(
+					controller.masterStore.load(
 						function(records, operation, success){
 							if(!success){
 								Ext.Msg.alert("Ошибка", "Ошибка при обновлении расходов");
@@ -127,7 +130,6 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 					if(selected!=null && selected.length>0){
 						controller.loadDetail(
 							selected[0].getId(),
-							controller.recGoodsStore,
 							Ext.getCmp('recGoodsTable')
 						);
 					} else {
@@ -140,15 +142,13 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 				click: function(){
 					var sm=Ext.getCmp('receptTable').getSelectionModel(),
 						r = Ext.ModelManager.create({master_id: sm.getSelection()[0].getId()}, 'app.model.AutoTransport.GoodsModel');
-					controller.recGoodsStore.add(r);
+					controller.detailStore.add(r);
 				}
 			},
 			'#saveRecept': {
 				click: function(){
 					var selected=Ext.getCmp('receptTable').getSelectionModel().getSelection()[0];
 					controller.syncMaster(
-						controller.receptStore,
-						controller.recGoodsStore,
 						controller.receptContainer,
 						(selected!=null)?
 							((selected.getId()!=null)?
@@ -163,7 +163,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 				click: function(){
 					var sm=Ext.getCmp('receptTable').getSelectionModel(),
 						r = Ext.ModelManager.create({ddate: new Date()}, 'app.model.AutoTransport.ReceptModel');
-					controller.receptStore.add(r);
+					controller.masterStore.add(r);
 					sm.select(r);
 				}
 			},
@@ -173,7 +173,6 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 					if(selected!=null && selected.length>0){
 						controller.loadDetail(
 							selected[0].getId(),
-							controller.recGoodsStore,
 							Ext.getCmp('recGoodsTable')
 						);
 					}
@@ -196,8 +195,8 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.recGoodsStore=controller.getAutoTransportReceptRecGoodsStore();
-		controller.receptStore=controller.getAutoTransportReceptReceptStore();
+		controller.detailStore=controller.getAutoTransportReceptRecGoodsStore();
+		controller.masterStore=controller.getAutoTransportReceptReceptStore();
 		controller.ggroupStore=controller.getAutoTransportGgroupStore();
 		controller.goodsStore=controller.getAutoTransportGoodsStore();
 		controller.truckStore=controller.getAutoTransportReceptTruckStore();
@@ -210,8 +209,8 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 		var controller=this,
 			receptTable=Ext.getCmp('receptTable');
 		
-		Ext.getCmp('recGoodsTable').reconfigure(controller.recGoodsStore);
-		receptTable.reconfigure(controller.receptStore);
+		Ext.getCmp('recGoodsTable').reconfigure(controller.detailStore);
+		receptTable.reconfigure(controller.masterStore);
 	},
 	
 	makeComboColumn: function(column, storeCombo, tableStore, property, onlyRenderer){
@@ -256,9 +255,9 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 			goodsColumn = recGoodsTable.columns[1],
 			measureColumn = recGoodsTable.columns[3];
 		
-		controller.makeComboColumn(groupColumn, controller.ggroupStore, controller.recGoodsStore, 'at_ggroup');
-		controller.makeComboColumn(goodsColumn, controller.goodsStore, controller.recGoodsStore, 'at_goods');
-		controller.makeComboColumn(measureColumn, controller.measureStore, controller.recGoodsStore, 'measure', true);
+		controller.makeComboColumn(groupColumn, controller.ggroupStore, controller.detailStore, 'at_ggroup');
+		controller.makeComboColumn(goodsColumn, controller.goodsStore, controller.detailStore, 'at_goods');
+		controller.makeComboColumn(measureColumn, controller.measureStore, controller.detailStore, 'measure', true);
 		
 		truckColumn.field = Ext.create('Ext.form.ComboBox', {
 			store: controller.truckStore,
@@ -279,7 +278,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 			return record.get('truck_name');
 		};
 		truckColumn.doSort = function(state){
-			controller.receptStore.sort({
+			controller.masterStore.sort({
 				property: 'truck_name',
 				direction: state
 			});
