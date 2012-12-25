@@ -61,7 +61,8 @@ class TermDeliveryController < ApplicationSimpleErrorController
       servstatus serv_status,
       penaltystatus penalty_status,
       should_include_in_route,
-      row_class
+      row_class,
+      must_visit
     FROM
       spp.Terminal_Delivery(
         '#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}',

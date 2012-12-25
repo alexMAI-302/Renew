@@ -49,5 +49,6 @@ Ext.define('app.model.TermDelivery.TerminalModel', {
 	{name: 'serv_status'				, type:'boolean'},
 	{name: 'penalty_status'				, type:'boolean'},
 	{name: 'techinfo'					, type:'string'},
-	{name: 'should_include_in_route'	, type:'boolean'}]
+	{name: 'should_include_in_route'	, type:'boolean'},
+	{name: 'must_visit'					, type:'boolean'}]
 });
