@@ -158,7 +158,12 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 						controller.nomenclatureGroupStore,
 						controller.nomenclatureStore,
 						controller.nomenclatureContainer,
-						(selected!=null)?selected.get('id'):null);
+						((selected!=null)?
+							((selected.getId()!=null)?
+								selected.getId():
+								selected.get('id')
+							):
+							null));
 					return true;
 				}
 			},
