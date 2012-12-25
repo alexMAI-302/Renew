@@ -12,23 +12,21 @@ class Component < ActiveRecord::Base
 	def rst_operations
 		rst = connection.select_all( "
 		select
-			o.id id,
-			convert(varchar(10), o.ddate, 103) +  ' ' + convert(varchar(5), o.ddate,114) ddate, 
-		    isnull(s.name,'&nbsp') sname,
-			isnull(d.name,'&nbsp') dname,
-			isnull(t.code,'&nbsp') tcode,
-			isnull(p.shortened,'&nbsp') shortened,
-			o.destination destination,
-			o.terminal terminal,
-			isnull(o.descr, '&nbsp') descr
+			id,
+			ddate, 
+		  source,
+			destination,
+			terminal,
+			person,
+			descr,
+			IF ddate=(SELECT MAX(t1.ddate) FROM comp_operation t1 WHERE t1.component=#{id}) THEN 1 ELSE 0 END IF can_delete
 		from
 			comp_operation o
-			left outer join comp_location s on o.source = s.id
-			left outer join comp_location d on o.destination = d.id
-			left outer join person p on o.person = p.person_id 
-			left outer join osmp_terminal t on o.terminal = t.id
-		where o.component = #{id}
-		order by o.ddate desc, o.id desc ")
+		where
+		  o.component = #{id}
+		order by
+		  o.ddate desc,
+		  o.id desc ")
 		return rst
 	end
 	
