@@ -150,7 +150,12 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 						controller.receptStore,
 						controller.recGoodsStore,
 						controller.receptContainer,
-						(selected!=null)?(selected.getId()):null);
+						(selected!=null)?
+							((selected.getId()!=null)?
+								selected.getId():
+								selected.get('id')
+							):
+							null);
 					return true;
 				}
 			},

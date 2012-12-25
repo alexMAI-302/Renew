@@ -154,7 +154,12 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 						controller.incomeStore,
 						controller.incGoodsStore,
 						controller.incomeContainer,
-						(selected!=null)?selected.getId():null);
+						(selected!=null)?
+							((selected.getId()!=null)?
+								selected.getId():
+								selected.get('id')
+							):
+							null);
 					return true;
 				}
 			},
