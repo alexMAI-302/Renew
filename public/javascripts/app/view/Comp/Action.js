@@ -24,7 +24,13 @@ Ext.define('app.view.Comp.Action', {
 			fieldLabel: 'Куда',
 			valueField: 'id',
 			displayField: 'name',
-			queryMode: 'local'
+			queryMode: 'local',
+			listeners: {
+				select: function(field){
+					field.getStore().clearFilter(true);
+					return true;
+				}
+			}
 		},
 		{
 			id: 'actionPersonComp',
@@ -32,7 +38,13 @@ Ext.define('app.view.Comp.Action', {
 			fieldLabel: 'Кто',
 			valueField: 'id',
 			displayField: 'name',
-			queryMode: 'local'
+			queryMode: 'local',
+			listeners: {
+				select: function(field){
+					field.getStore().clearFilter(true);
+					return true;
+				}
+			}
 		},
 		{
 			id: 'actionTerminalComp',
@@ -41,7 +53,13 @@ Ext.define('app.view.Comp.Action', {
 			valueField: 'id',
 			displayField: 'name',
 			queryMode: 'local',
-			allowNull: true
+			allowNull: true,
+			listeners: {
+				select: function(field){
+					field.getStore().clearFilter(true);
+					return true;
+				}
+			}
 		},
 		{
 			id: 'actionDescrComp',

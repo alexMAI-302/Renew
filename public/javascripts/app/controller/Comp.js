@@ -38,6 +38,25 @@ Ext.define('app.controller.Comp', {
 		);
 	},
 	
+	filterComp: function(){
+		var controller=this;
+		
+		controller.compStore.proxy.extraParams={
+			type: Ext.getCmp('filterTypeComp').getValue(),
+			comp_location: Ext.getCmp('filterCompLocationComp').getValue(),
+			terminal: Ext.getCmp('filterTerminalComp').getValue(),
+			serial: Ext.getCmp('filterSerialComp').getValue()
+		};
+		controller.compStore.load(
+			function(records, operation, success){
+				if(!success){
+					Ext.Msg.alert("Ошибка", "Ошибка при получении комплектующих");
+				}
+				return true;
+			}
+		);
+	},
+	
 	init: function() {
 		var controller = this;
 		
@@ -45,22 +64,7 @@ Ext.define('app.controller.Comp', {
 		
 		controller.control({
 			'#filterComp': {
-				click: function(button){
-					controller.compStore.proxy.extraParams={
-						type: Ext.getCmp('filterTypeComp').getValue(),
-						comp_location: Ext.getCmp('filterCompLocationComp').getValue(),
-						terminal: Ext.getCmp('filterTerminalComp').getValue(),
-						serial: Ext.getCmp('filterSerialComp').getValue()
-					};
-					controller.compStore.load(
-						function(records, operation, success){
-							if(!success){
-								Ext.Msg.alert("Ошибка", "Ошибка при получении комплектующих");
-							}
-							return true;
-						}
-					);
-				}
+				click: controller.filterComp
 			},
 			'#compTable': {
 				selectionchange: function(sm, selected, eOpts){
@@ -125,12 +129,23 @@ Ext.define('app.controller.Comp', {
 		Ext.getCmp('compTable').getPlugin('rowEditingComp').addListener(
 			"edit",
 			function(editor, e, eOpts){
-				controller.compStore.proxy.extraParams={};
+				if(e.record.phantom){
+					controller.compStore.proxy.extraParams={
+						destination: Ext.getCmp('actionDestinationComp').getValue(),
+						person: Ext.getCmp('actionPersonComp').getValue(),
+						terminal: Ext.getCmp('actionTerminalComp').getValue(),
+						descr: Ext.getCmp('actionDescrComp').getValue()
+					};
+				} else {
+					controller.compStore.proxy.extraParams={};
+				}
+				
 				controller.compStore.sync({
 					callback: function(batch){
 						if(batch.exceptions.length>0){
 							Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
 						}
+						controller.filterComp();
 					}
 				});
 				Ext.getCmp('addComp').setDisabled(false);
@@ -231,7 +246,13 @@ Ext.define('app.controller.Comp', {
 				queryMode: 'local',
 				displayField: 'name',
 				valueField: 'id',
-				value: ""
+				value: "",
+				listeners: {
+					select: function(field){
+						field.getStore().clearFilter(true);
+						return true;
+					}
+				}
 			});
 		}
 		column.renderer=renderer;

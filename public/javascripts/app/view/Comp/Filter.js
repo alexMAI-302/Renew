@@ -21,7 +21,13 @@ Ext.define('app.view.Comp.Filter', {
 			queryMode: 'local',
 			allowNull: true,
 			width: 400,
-			labelWidth: 25
+			labelWidth: 25,
+			listeners: {
+				select: function(field){
+					field.getStore().clearFilter(true);
+					return true;
+				}
+			}
 		},
 		{
 			id: 'filterSerialComp',
@@ -39,7 +45,13 @@ Ext.define('app.view.Comp.Filter', {
 			queryMode: 'local',
 			allowNull: true,
 			width: 250,
-			labelWidth: 110
+			labelWidth: 110,
+			listeners: {
+				select: function(field){
+					field.getStore().clearFilter(true);
+					return true;
+				}
+			}
 		},
 		{
 			id: 'filterTerminalComp',
@@ -50,7 +62,13 @@ Ext.define('app.view.Comp.Filter', {
 			queryMode: 'local',
 			allowNull: true,
 			width: 160,
-			labelWidth: 60
+			labelWidth: 60,
+			listeners: {
+				select: function(field){
+					field.getStore().clearFilter(true);
+					return true;
+				}
+			}
 		},
 		{
 			id: 'filterComp',
