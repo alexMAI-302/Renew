@@ -15,7 +15,7 @@ class CompController < ApplicationSimpleErrorController
           conditions << "c.goods = #{goods}"
         end
         if params[:serial] and params[:serial].strip.size > 0
-          conditions << "c.serial like '%" + ActiveRecord::Base.connection.quote(params[:serial]) + "%'"
+          conditions << "c.serial like '%'+" + ActiveRecord::Base.connection.quote(params[:serial]) + "+'%'"
         end
         if terminal > 0
           conditions << "terminal = #{terminal}"
