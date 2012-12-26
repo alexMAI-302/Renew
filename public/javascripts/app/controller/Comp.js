@@ -27,56 +27,6 @@ Ext.define('app.controller.Comp', {
 	terminalsStore:null,
 	operationsStore:null,
 	
-	syncMaster: function(masterStore, detailStore, container, selectedMasterId){
-		function syncDetail(detailStore, container){
-			if (
-				(detailStore.getNewRecords().length > 0) ||
-				(detailStore.getUpdatedRecords().length > 0) ||
-				(detailStore.getRemovedRecords().length > 0)){
-				
-				if(selectedMasterId!=null){
-					detailStore.exrtaParams = {
-						master_id: selectedMasterId
-					};
-					
-					detailStore.sync({
-						callback: function(batch){
-							if(batch.exceptions.length>0){
-								Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
-							}
-							container.setLoading(false);
-						}
-					});
-				} else {
-					Ext.Msg.alert("Внимание", "Ваши данные в таблице с детализацией были утеряны. Сначала сохраняйте данные в основной таблице, затем вводите детализацию.");
-					container.setLoading(false);
-				}
-			} else {
-				container.setLoading(false);
-			}
-		};
-		
-		if (
-			(masterStore.getNewRecords().length > 0) ||
-			(masterStore.getUpdatedRecords().length > 0) ||
-			(masterStore.getRemovedRecords().length > 0)){
-				
-			container.setLoading(true);
-			masterStore.sync({
-				callback: function(batch){
-					if(batch.exceptions.length>0){
-						Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
-						container.setLoading(false);
-					} else {
-						syncDetail(detailStore, container);
-					}
-				}
-			});
-		} else {
-			syncDetail(detailStore, container);
-		}
-	},
-	
 	loadDetail: function(masterId, detailStore, detailTable){
 		detailStore.proxy.extraParams={
 			master_id: masterId
@@ -105,7 +55,7 @@ Ext.define('app.controller.Comp', {
 					controller.compStore.load(
 						function(records, operation, success){
 							if(!success){
-								Ext.Msg.alert("Ошибка", "Ошибка при обновлении приходов");
+								Ext.Msg.alert("Ошибка", "Ошибка при получении комплектующих");
 							}
 							return true;
 						}
@@ -127,16 +77,12 @@ Ext.define('app.controller.Comp', {
 					return true;
 				}
 			},
-			'#refreshIncGoods': {
+			'#addComp':{
 				click: function(){
-					var selected=Ext.getCmp('compTable').getSelectionModel().getSelection();
-					if(selected!=null && selected.length>0){
-						controller.loadDetail(
-							selected[0].get('id'),
-							controller.compLocationsStore,
-							Ext.getCmp('operationsTable')
-						);
-					}
+					var r = Ext.ModelManager.create({serial:'бн'}, 'app.model.Comp.ComponentModel');
+					controller.compStore.add(r);
+					Ext.getCmp('compTable').getPlugin('rowEditingComp').startEdit(r, 0);
+					Ext.getCmp('addComp').setDisabled(true);
 				}
 			},
 			'#actionMoveComp': {
@@ -187,8 +133,18 @@ Ext.define('app.controller.Comp', {
 						}
 					}
 				});
+				Ext.getCmp('addComp').setDisabled(false);
 			}
-		)
+		);
+		Ext.getCmp('compTable').getPlugin('rowEditingComp').addListener(
+			"canceledit",
+			function(editor, e, eOpts){
+				if(e.record.phantom){
+					controller.compStore.remove(e.record);
+					Ext.getCmp('addComp').setDisabled(false);
+				}
+			}
+		);
 	},
 	
 	loadDictionaries: function(){
