@@ -98,12 +98,20 @@ class CompController < ApplicationSimpleErrorController
           return
         end
         
-        Component.create(
+        c=Component.create(
           :goods => params[:type],
           :serial => serial
         )
         
-        render :text => {"success" => true, "id" => params[:id]}.to_json
+        ActiveRecord::Base.connection.execute("
+        call renew_web.comp_create_operations(
+        #{(!params[:destination].nil? && params[:destination]!='')? params[:destination].to_i : 'null'},
+        #{(!params[:person].nil? && params[:person]!='')? params[:person].to_i : 'null'},
+        #{(!params[:terminal].nil? && params[:terminal]!='')? params[:terminal].to_i : 'null'},
+        #{ActiveRecord::Base.connection.quote(params[:descr])},
+        '<comp-ids><comp-id><id>#{c.id}</id></comp-id></comp-ids>')")
+        
+        render :text => {"success" => true, "id" => c.id}.to_json
       when "delete"
         Component.find(params[:id]).destroy if params[:id]
         render :text => {"success" => true}.to_json
