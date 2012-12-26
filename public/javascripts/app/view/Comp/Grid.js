@@ -42,7 +42,13 @@ Ext.define('app.view.Comp.Grid', {
 			plugins: [Ext.create('Ext.grid.plugin.RowEditing', {
 				clicksToEdit: 2,
 				pluginId: 'rowEditingComp'
-			})]
+			})],
+			tbar: [
+				{
+					id: 'addComp',
+					icon: '/ext/examples/shared/icons/fam/add.gif'
+				}
+			]
 		});
         
         this.callParent(arguments);

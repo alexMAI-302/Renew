@@ -80,15 +80,25 @@ class CompController < ApplicationSimpleErrorController
         render :text => res.to_json
       when "put"
         serial = params[:serial]
-        unless serial == "бн" #бн
-          sql = "select COUNT(*) from component where serial=#{ActiveRecord::Base.connection.quote(serial)} and id <> #{params[:id].to_i}"
-          c = ActiveRecord::Base.connection.select_value( sql )
-          if c > 0
-            render :text => " Серийный номер #{serial} уже используется! ", :status => 500
-            return
-          end
+        if !check_serial(serial)
+          render :text => " Серийный номер #{serial} уже используется! ", :status => 500
+          return
         end
+      
         Component.find(params[:id]).update_attributes!(
+          :goods => params[:type],
+          :serial => serial
+        )
+       
+        render :text => {"success" => true, "id" => params[:id]}.to_json
+      when "post"
+        serial = params[:serial]
+        if !check_serial(serial)
+          render :text => " Серийный номер #{serial} уже используется! ", :status => 500
+          return
+        end
+        
+        Component.create(
           :goods => params[:type],
           :serial => serial
         )
@@ -101,15 +111,19 @@ class CompController < ApplicationSimpleErrorController
   end
   
   def operations
-    case request.method.to_s
-      when "get"
-        component = Component.find(params[:master_id])
-        res = component.rst_operations
-        
-        render :text => res.to_json
-      when "delete"
-        CompOperation.find(params[:id]).destroy if params[:id]
-        render :text => {"success" => true}.to_json
+    if !params[:master_id].nil? && params[:master_id].to_i!=0
+      case request.method.to_s
+        when "get"
+          component = Component.find(params[:master_id])
+          res = component.rst_operations
+          
+          render :text => res.to_json
+        when "delete"
+          CompOperation.find(params[:id]).destroy if params[:id]
+          render :text => {"success" => true}.to_json
+      end
+    else
+      render :text => "[]"
     end
   end
   
@@ -189,5 +203,16 @@ class CompController < ApplicationSimpleErrorController
   						join goods g on g.id = c.goods
   					  where o.id = #{params[:id].to_i}")
   	end
+  end
+  
+  private
+  def check_serial(serial)
+    if serial != "бн" #бн
+      sql = "select COUNT(*) from component where serial=#{ActiveRecord::Base.connection.quote(serial)} and id <> #{params[:id].to_i}"
+      c = ActiveRecord::Base.connection.select_value( sql )
+      return (c>0)
+    else
+      return true
+    end
   end
 end
