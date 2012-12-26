@@ -125,7 +125,8 @@ Ext.define('app.controller.TermDelivery', {
 					terminal_break_id: r.get('terminal_break_id'),
 					techinfo: r.get('techinfo'),
 					include_in_route: r.get('should_include_in_route')?1:0,
-					serv_status: r.get('serv_status')?1:0
+					serv_status: r.get('serv_status')?1:0,
+					must_visit: r.get('must_visit')?1:0,
 				});
 			}		
 			
