@@ -41,22 +41,26 @@ Ext.define('app.controller.Certificate', {
 							goods_code: goodsCode
 						};
 						
+						controller.mainContainer.setLoading(true);
 						controller.certificatesStore.load(
 							function(records, operation, success){
-								var e=Ext.getCmp('errorCertificates');
+								var e=Ext.getCmp('errorCertificates'),
+									t=Ext.getCmp('certificatesTable');
 								if(success!==true){
 									e.setText('Ошибка сервера. Попробуйте еще раз.');
 									e.show();
+									t.hide();
 								} else {
 									if(records.length==0){
 										e.setText('Ничего не найдено. Измените условия поиска.');
 										e.show();
+										t.hide();
 									} else {
 										e.hide();
-										Ext.getCmp('certificatesTable').show();
+										t.show();
 									}
 								}
-								
+								controller.mainContainer.setLoading(false);
 								return true;
 							}
 						);

@@ -18,9 +18,11 @@ class CertificateController < ApplicationPageErrorController
     ndoc=params[:ndoc]
     goods_code=params[:goods_code]
     
-    session[:certificate][:inn]=inn
-    session[:certificate][:ndoc]=ndoc
-    session[:certificate][:goods_code]=goods_code
+    session[:certificate]={
+      :inn=>inn,
+      :ndoc=>ndoc,
+      :goods_code=>goods_code
+    }
     
     certificates={}
     to_render=[]
