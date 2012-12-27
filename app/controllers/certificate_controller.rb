@@ -5,39 +5,42 @@ require "prawn/measurement_extensions"
 
 class CertificateController < ApplicationPageErrorController
   def index
-    @inn=session[:certificate_inn]
+    if !session[:certificate].nil?
+      @inn=session[:certificate][:inn]
+      @ndoc=session[:certificate][:ndoc]
+      @goods_code=session[:certificate][:goods_code]
+    end
   end
 
   #получение информации о сертификатах
-  def certificate_info
-    @inn=params[:info_inn]
-    @ndoc=params[:info_ndoc]
-    @goods_code=params[:info_goods_code]
-    @certificates={}
-    @in_get_info=true
+  def get_certificates
+    inn=params[:inn]
+    ndoc=params[:ndoc]
+    goods_code=params[:goods_code]
     
-    session[:certificate_inn]=@inn
+    session[:certificate][:inn]=inn
+    session[:certificate][:ndoc]=ndoc
+    session[:certificate][:goods_code]=goods_code
     
-    begin
-      @res=ActiveRecord::Base.connection.select_all("
-  		SELECT
-  			certificate_id,
-  			certificate_number,
-  			picture_id,
-  			ts,
-  			ndoc,
-  			goods_code,
-  			goods_name
-  		FROM
-  			renew_web.certificates_get(#{ActiveRecord::Base.connection.quote(@inn)},
-  			#{ActiveRecord::Base.connection.quote(@ndoc)},
-  			#{ActiveRecord::Base.connection.quote(@goods_code)})")
-    rescue => t
-      logger.info t
-    end
+    certificates={}
+    to_render=[]
+    
+    res=ActiveRecord::Base.connection.select_all("
+		SELECT
+			certificate_id,
+			certificate_number,
+			picture_id,
+			ts,
+			ndoc,
+			goods_code,
+			goods_name
+		FROM
+			renew_web.certificates_get(#{ActiveRecord::Base.connection.quote(inn)},
+			#{ActiveRecord::Base.connection.quote(ndoc)},
+			#{ActiveRecord::Base.connection.quote(goods_code)})")
 
-    if !@res.nil? then
-      @res.each do |picture|
+    if !res.nil? then
+      res.each do |picture|
         actual=false
         file_name = "#{RAILS_ROOT}/public/images/certificates/#{picture['picture_id']}.jpg"
         if File.exist?(file_name) then
@@ -54,12 +57,12 @@ class CertificateController < ApplicationPageErrorController
           File.chmod(0644, file_name)
         end
 
-        if @certificates.has_key?(picture['certificate_id']) then
-          if !@certificates[picture['certificate_id']]['picture_ids'].include?(picture['picture_id']) then
-            @certificates[picture['certificate_id']]['picture_ids'] << picture['picture_id']
+        if certificates.has_key?(picture['certificate_id']) then
+          if !certificates[picture['certificate_id']]['picture_ids'].include?(picture['picture_id']) then
+            certificates[picture['certificate_id']]['picture_ids'] << picture['picture_id']
           end
         else
-          @certificates[picture['certificate_id']] = {
+          certificates[picture['certificate_id']] = {
             'picture_ids' => [picture['picture_id']],
             'certificate_number' => picture['certificate_number'],
             'ndoc' => picture['ndoc'],
@@ -68,8 +71,20 @@ class CertificateController < ApplicationPageErrorController
         end
       end
     end
+    
+    certificates.each do |id, cert|
+      to_render << {
+        'id' => id,
+        'ndoc' => cert['ndoc'],
+        'goods_code' => cert['goods_code'],
+        'goods_name' => cert['goods_name'],
+        'certificate_number' => cert['certificate_number'],
+        'jpg_url' => "/certificate/certificate_pages?pictures=#{cert['picture_ids'].join(',')}&certificate_number=#{cert['certificate_number']}&goods_name=#{cert['goods_name']}",
+        'pdf_url' => "/certificate/certificate_pdf?pictures=#{cert['picture_ids'].join(',')}&certificate_number=#{cert['certificate_number']}&goods_name=#{cert['goods_name']}"
+      }
+    end
 
-    render :partial => 'certificate'
+    render :text => to_render.to_json
   end
 
   def certificate_pages
