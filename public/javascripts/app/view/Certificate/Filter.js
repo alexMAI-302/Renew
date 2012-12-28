@@ -17,10 +17,7 @@ Ext.define('app.view.Certificate.Filter', {
 			id: 'innCertificate',
 			xtype: 'textfield',
 			fieldLabel: 'ИНН',
-			msgTarget: 'side',
-			validator: function(value){
-				return (value!=null && value.replace(' ', '')!='') ? true : 'Введите ИНН';
-			}
+			msgTarget: 'side'
 		},
 		{
 			id: 'ndocCertificate',
