@@ -73,7 +73,7 @@ Ext.define('app.controller.Comp', {
 					if(selected!=null && selected.length==1){
 						var selectedId=selected[0].get('id');
 						
-						if(selectedId!=controller.selectedComp){
+						if(selectedId!=controller.selectedComp && !selected[0].phantom){
 							controller.selectedComp=selectedId;
 							controller.loadDetail(
 								selectedId,
@@ -86,7 +86,7 @@ Ext.define('app.controller.Comp', {
 					} else {
 						Ext.getCmp('operationsTable').setDisabled(true);
 					}
-					Ext.getCmp('actionPanel').setDisabled(selected==null || selected.length==0 || selected[0].isPhantom);
+					Ext.getCmp('actionPanel').setDisabled(selected==null || selected.length==0 || selected[0].phantom);
 					return true;
 				}
 			},
@@ -139,7 +139,7 @@ Ext.define('app.controller.Comp', {
 			"edit",
 			function(editor, e, eOpts){
 				controller.compStore.proxy.extraParams={};
-				if(!e.record.isPhantom){
+				if(!e.record.phantom){
 					e.record.set('state', e.originalValues.state);
 				}
 				controller.compStore.sync({
