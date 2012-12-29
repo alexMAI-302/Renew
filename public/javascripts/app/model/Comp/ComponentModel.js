@@ -4,6 +4,6 @@ Ext.define('app.model.Comp.ComponentModel', {
 	{name: 'id'			, type:'int'},
 	{name: 'serial'		, type:'string'},
 	{name: 'type'		, type:'int',	useNull: true},
-	{name: 'state'		, type:'string', persist: false},
+	{name: 'state'		, type:'string'},
 	{name: 'descr'		, type:'string', persist: false}]
 });

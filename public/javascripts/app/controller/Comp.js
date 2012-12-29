@@ -27,6 +27,8 @@ Ext.define('app.controller.Comp', {
 	terminalsStore:null,
 	operationsStore:null,
 	
+	selectedComp: null,
+	
 	loadDetail: function(masterId, detailStore, detailTable){
 		detailStore.proxy.extraParams={
 			master_id: masterId
@@ -69,11 +71,18 @@ Ext.define('app.controller.Comp', {
 			'#compTable': {
 				selectionchange: function(sm, selected, eOpts){
 					if(selected!=null && selected.length==1){
-						controller.loadDetail(
-							selected[0].get('id'),
-							controller.operationsStore,
-							Ext.getCmp('operationsTable')
-						);
+						var selectedId=selected[0].get('id');
+						
+						if(selectedId!=controller.selectedComp){
+							controller.selectedComp=selectedId;
+							controller.loadDetail(
+								selectedId,
+								controller.operationsStore,
+								Ext.getCmp('operationsTable')
+							);
+						} else {
+							Ext.getCmp('operationsTable').setDisabled(false);
+						}
 					} else {
 						Ext.getCmp('operationsTable').setDisabled(true);
 					}
@@ -129,17 +138,10 @@ Ext.define('app.controller.Comp', {
 		Ext.getCmp('compTable').getPlugin('rowEditingComp').addListener(
 			"edit",
 			function(editor, e, eOpts){
-				if(e.record.phantom){
-					controller.compStore.proxy.extraParams={
-						destination: Ext.getCmp('actionDestinationComp').getValue(),
-						person: Ext.getCmp('actionPersonComp').getValue(),
-						terminal: Ext.getCmp('actionTerminalComp').getValue(),
-						descr: Ext.getCmp('actionDescrComp').getValue()
-					};
-				} else {
-					controller.compStore.proxy.extraParams={};
+				controller.compStore.proxy.extraParams={};
+				if(!e.record.isPhantom){
+					e.record.set('state', e.originalValues.state);
 				}
-				
 				controller.compStore.sync({
 					callback: function(batch){
 						if(batch.exceptions.length>0){
@@ -272,12 +274,14 @@ Ext.define('app.controller.Comp', {
 			compTable = Ext.getCmp('compTable'),
 			operationsTable = Ext.getCmp('operationsTable'),
 			typeColumn = compTable.columns[0],
+			stateColumn = compTable.columns[2],
 			sourceColumn = operationsTable.columns[2],
 			destinationColumn = operationsTable.columns[3],
 			terminalColumn = operationsTable.columns[4],
 			personColumn = operationsTable.columns[5];
 		
 		controller.makeComboColumn(typeColumn, controller.typesStore, controller.compStore, 'type');
+		controller.makeComboColumn(stateColumn, controller.compLocationsStore, controller.compStore, 'state');
 		controller.makeComboColumn(sourceColumn, controller.compLocationsStore, controller.operationsStore, 'source');
 		controller.makeComboColumn(destinationColumn, controller.compLocationsStore, controller.operationsStore, 'destination');
 		controller.makeComboColumn(terminalColumn, controller.terminalsStore, controller.operationsStore, 'terminal');
