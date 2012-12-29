@@ -10,12 +10,20 @@ Ext.define('app.view.Certificate.Container', {
 	layout: {
 		type: 'anchor'
 	},
+	border: false,
+	defaults: {
+		border: false
+	},
 	
 	renderTo: 'certificate_js',
 	
 	items: [
 		{
-			xtype: 'certificateFilter',
+			items:[
+				{
+					xtype: 'certificateFilter'
+				}
+			],
 			region: 'north'
 		},
 		{
