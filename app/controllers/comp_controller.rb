@@ -123,7 +123,7 @@ class CompController < ApplicationSimpleErrorController
       
       ActiveRecord::Base.connection.execute("
       call renew_web.comp_create_operations(
-      #{(!params[:destination].nil? && params[:destination]!='')? params[:destination].to_i : 'null'},
+      #{params[:destination].to_i},
       #{(!params[:person].nil? && params[:person]!='')? params[:person].to_i : 'null'},
       #{(!params[:terminal].nil? && params[:terminal]!='')? params[:terminal].to_i : 'null'},
       #{ActiveRecord::Base.connection.quote(params[:descr])},

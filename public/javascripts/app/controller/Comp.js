@@ -100,8 +100,8 @@ Ext.define('app.controller.Comp', {
 			},
 			'#actionMoveComp': {
 				click: function(){
-					var selection = Ext.getCmp('compTable').getSelectionModel().getSelection();
-					var ids=[];
+					var selection = Ext.getCmp('compTable').getSelectionModel().getSelection(),
+						ids=[];
 					
 					for(var i=0; i<selection.length; i++){
 						ids.push({id: selection[i].get('id')});
@@ -124,13 +124,29 @@ Ext.define('app.controller.Comp', {
 						method: "POST",
 						callback: function(options, success, response){
 							if(success===true){
-								controller.compStore.load();
+								if(selection.length==1){
+									controller.loadDetail(
+										selection[0].get('id'),
+										controller.operationsStore,
+										Ext.getCmp('operationsTable')
+									);
+								}
 							} else {
 								Ext.Msg.alert("Ошибка", response.responseText);
 							}
 							controller.mainContainer.setDisabled(false);
 						}
 					});
+				}
+			},
+			'#refreshCompOperations': {
+				click: function(){
+					var selection = Ext.getCmp('compTable').getSelectionModel().getSelection();
+					controller.loadDetail(
+						selection[0].get('id'),
+						controller.operationsStore,
+						Ext.getCmp('operationsTable')
+					);
 				}
 			}
 		});
