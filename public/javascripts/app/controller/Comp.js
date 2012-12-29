@@ -86,7 +86,7 @@ Ext.define('app.controller.Comp', {
 					} else {
 						Ext.getCmp('operationsTable').setDisabled(true);
 					}
-					Ext.getCmp('actionPanel').setDisabled(selected==null || selected.length==0);
+					Ext.getCmp('actionPanel').setDisabled(selected==null || selected.length==0 || selected[0].isPhantom);
 					return true;
 				}
 			},
