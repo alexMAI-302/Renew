@@ -101,10 +101,12 @@ Ext.define('app.controller.Comp', {
 			'#actionMoveComp': {
 				click: function(){
 					var selection = Ext.getCmp('compTable').getSelectionModel().getSelection(),
-						ids=[];
+						ids=[],
+						destination = Ext.getCmp('actionDestinationComp').getValue();
 					
 					for(var i=0; i<selection.length; i++){
 						ids.push({id: selection[i].get('id')});
+						selection[i].set('state', destination);
 					}
 					
 					controller.mainContainer.setDisabled(true);
@@ -113,7 +115,7 @@ Ext.define('app.controller.Comp', {
 						url: '/comp/create_operations',
 						timeout: 300000,
 						params: {
-							destination: Ext.getCmp('actionDestinationComp').getValue(),
+							destination: destination,
 							person: Ext.getCmp('actionPersonComp').getValue(),
 							terminal: Ext.getCmp('actionTerminalComp').getValue(),
 							descr: Ext.getCmp('actionDescrComp').getValue()
@@ -163,10 +165,10 @@ Ext.define('app.controller.Comp', {
 						if(batch.exceptions.length>0){
 							Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
 						}
-						controller.filterComp();
 					}
 				});
 				Ext.getCmp('addComp').setDisabled(false);
+				return true;
 			}
 		);
 		Ext.getCmp('compTable').getPlugin('rowEditingComp').addListener(
@@ -176,6 +178,7 @@ Ext.define('app.controller.Comp', {
 					controller.compStore.remove(e.record);
 					Ext.getCmp('addComp').setDisabled(false);
 				}
+				return true;
 			}
 		);
 	},
