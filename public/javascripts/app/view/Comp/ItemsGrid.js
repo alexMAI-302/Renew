@@ -74,7 +74,13 @@ Ext.define('app.view.Comp.ItemsGrid', {
 			],
 			viewConfig: {
 				enableTextSelection: true
-			}
+			},
+			tbar: [
+				{
+					id: 'refreshCompOperations',
+					icon: '/ext/examples/shared/icons/fam/table_refresh.png'
+				}
+			]
 		});
         
         this.callParent(arguments);

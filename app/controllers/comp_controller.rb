@@ -35,26 +35,7 @@ class CompController < ApplicationSimpleErrorController
           c.id id,
           c.goods type,
           c.serial serial,
-          if t.id is null then
-            convert(varchar(255),'н/у')
-          else
-            (select
-              d.name +
-              if d.id = 3 then
-                ' ' +isnull(ot.code,'')
-              else
-                ''
-              endif +
-              if d.id = 8 then
-                ' '+isnull(p.shortened,'')
-              else
-                ''
-              endif
-            from
-              comp_location d
-            where
-              d.id = loc_id) 
-          endif state,
+          isnull(t.loc_id, -1) state,
           t.descr
         from
           component c
@@ -105,9 +86,9 @@ class CompController < ApplicationSimpleErrorController
         
         ActiveRecord::Base.connection.execute("
         call renew_web.comp_create_operations(
-        #{(!params[:destination].nil? && params[:destination]!='')? params[:destination].to_i : 'null'},
-        #{(!params[:person].nil? && params[:person]!='')? params[:person].to_i : 'null'},
-        #{(!params[:terminal].nil? && params[:terminal]!='')? params[:terminal].to_i : 'null'},
+        #{params[:state].to_i},
+        null,
+        null,
         #{ActiveRecord::Base.connection.quote(params[:descr])},
         '<comp-ids><comp-id><id>#{c.id}</id></comp-id></comp-ids>')")
         
@@ -142,7 +123,7 @@ class CompController < ApplicationSimpleErrorController
       
       ActiveRecord::Base.connection.execute("
       call renew_web.comp_create_operations(
-      #{(!params[:destination].nil? && params[:destination]!='')? params[:destination].to_i : 'null'},
+      #{params[:destination].to_i},
       #{(!params[:person].nil? && params[:person]!='')? params[:person].to_i : 'null'},
       #{(!params[:terminal].nil? && params[:terminal]!='')? params[:terminal].to_i : 'null'},
       #{ActiveRecord::Base.connection.quote(params[:descr])},
@@ -218,7 +199,7 @@ class CompController < ApplicationSimpleErrorController
     if serial != "бн" #бн
       sql = "select COUNT(*) from component where serial=#{ActiveRecord::Base.connection.quote(serial)} and id <> #{params[:id].to_i}"
       c = ActiveRecord::Base.connection.select_value( sql )
-      return (c>0)
+      return (c.to_i<=0)
     else
       return true
     end
