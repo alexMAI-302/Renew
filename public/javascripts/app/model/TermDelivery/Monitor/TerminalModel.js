@@ -1,4 +1,4 @@
-Ext.define('app.model.TermDelivery.TerminalModel', {
+Ext.define('app.model.TermDelivery.Monitor.TerminalModel', {
 	extend: 'Ext.data.Model',
 	fields: [
 	{name: 'id'							, type:'int'},

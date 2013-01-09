@@ -1,4 +1,4 @@
-Ext.define('app.model.TermDelivery.RouteModel', {
+Ext.define('app.model.TermDelivery.Monitor.RouteModel', {
 	extend: 'Ext.data.Model',
 	fields: [
 	{name: 'id'						, type:'int'},

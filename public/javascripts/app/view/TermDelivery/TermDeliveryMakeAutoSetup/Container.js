@@ -1,17 +1,17 @@
-Ext.define('app.view.TermDeliveryMakeAutoSetup.Container', {
+Ext.define('app.view.TermDelivery.MakeAutoTechSetup.Container', {
     extend: 'Ext.panel.Panel',
 	alias: 'widget.sellersTab',
 	
 	requires: [
-		'app.view.TermDeliveryMakeAutoSetup.Grid',
-		'app.view.TermDeliveryMakeAutoSetup.Settings'
+		'app.view.TermDelivery.MakeAutoTechSetup.Grid',
+		'app.view.TermDelivery.MakeAutoTechSetup.Settings'
 	],
 	
 	layout: {
 		type: 'border'
 	},
 	
-	renderTo: 'term_delivery_auto_js',
+	renderTo: 'term_delivery_auto_tech_js',
 	
 	height: 600,
 	

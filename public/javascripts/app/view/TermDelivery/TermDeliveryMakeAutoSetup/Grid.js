@@ -1,5 +1,4 @@
-//проба
-Ext.define('app.view.TermDeliveryMakeAutoSetup.Grid', {
+Ext.define('app.view.TermDelivery.MakeAutoTechSetup.Grid', {
 	extend: 'Ext.grid.Panel',
 	alias: 'widget.zonesGrid',
     

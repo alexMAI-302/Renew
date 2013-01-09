@@ -1,5 +1,5 @@
 //таблица
-Ext.define('app.view.TermDelivery.Grid', {
+Ext.define('app.view.TermDelivery.Monitor.Grid', {
 	extend: 'Ext.grid.Panel',
 	alias: 'widget.routesGrid',
 	

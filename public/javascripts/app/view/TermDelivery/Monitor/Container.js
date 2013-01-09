@@ -1,10 +1,10 @@
-Ext.define('app.view.TermDelivery.Container', {
+Ext.define('app.view.TermDelivery.Monitor.Container', {
     extend: 'Ext.container.Container',
 	
 	requires: [
-		'app.view.TermDelivery.Filter',
-		'app.view.TermDelivery.ItemsGrid',
-		'app.view.TermDelivery.Grid'
+		'app.view.TermDelivery.Monitor.Filter',
+		'app.view.TermDelivery.Monitor.ItemsGrid',
+		'app.view.TermDelivery.Monitor.Grid'
 	],
 
     layout: {
@@ -13,7 +13,7 @@ Ext.define('app.view.TermDelivery.Container', {
 	
 	height: 600,
 	id: 'mainContainer',
-	renderTo: Ext.get('term_delivery_js'),
+	renderTo: Ext.get('term_delivery_monitor_js'),
 	
 	items: [
 		{

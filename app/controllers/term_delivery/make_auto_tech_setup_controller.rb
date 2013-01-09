@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class TermDeliveryMakeAutoSetupController < ApplicationSimpleErrorController
+class TermDelivery::MakeAutoTechSetupController < ApplicationSimpleErrorController
   def index
   end
   

@@ -2,24 +2,24 @@ Ext.Loader.setPath('Ext.ux', '/ext/examples/ux');
 Ext.require([
     'Ext.ux.CheckColumn'
 ]);
-Ext.define('app.controller.TermDelivery', {
+Ext.define('app.controller.TermDelivery.Monitor', {
     extend: 'Ext.app.Controller',
 	stores: [
-		'TermDelivery.ZoneTypes',
+		'TermDelivery.Monitor.ZoneTypes',
 		'Branches',
-		'TermDelivery.Routes',
-		'TermDelivery.Terminals',
-		'TermDelivery.TerminalBreaks'
+		'TermDelivery.Monitor.Routes',
+		'TermDelivery.Monitor.Terminals',
+		'TermDelivery.Monitor.TerminalBreaks'
 	],
 	
 	models: [
 		'valueModel',
-		'TermDelivery.TerminalModel',
-		'TermDelivery.RouteModel'
+		'TermDelivery.Monitor.TerminalModel',
+		'TermDelivery.Monitor.RouteModel'
 	],
 	
 	views: [
-		'TermDelivery.Container'
+		'TermDelivery.Monitor.Container'
 	],
 	
 	zoneTypesStore: null,
@@ -134,7 +134,7 @@ Ext.define('app.controller.TermDelivery', {
 		});
 		
 		Ext.Ajax.request({
-			url: '/term_delivery/save_terminal',
+			url: '/term_delivery/monitor/save_terminal',
 			params: {authenticity_token: window._token},
 			jsonData: terminals,
 			method: 'POST',
@@ -169,7 +169,7 @@ Ext.define('app.controller.TermDelivery', {
 		});
 		
 		Ext.Ajax.request({
-			url: '/term_delivery/status4_save',
+			url: '/term_delivery/monitor/status4_save',
 			params: {authenticity_token: window._token},
 			jsonData: routes,
 			method: 'POST',
@@ -204,7 +204,7 @@ Ext.define('app.controller.TermDelivery', {
 		})
 		
 		Ext.Ajax.request({
-			url: '/term_delivery/make_delivery_auto',
+			url: '/term_delivery/monitor/make_delivery_auto',
 			params: {
 				ddate: ddate,
 				zone_type_id: zoneTypeId,
@@ -228,7 +228,7 @@ Ext.define('app.controller.TermDelivery', {
 	init: function() {
 		var controller = this;
 		
-		controller.mainContainer = Ext.create('app.view.TermDelivery.Container');
+		controller.mainContainer = Ext.create('app.view.TermDelivery.Monitor.Container');
 		
 		controller.mainContainer.setLoading(true);
 		
@@ -265,11 +265,11 @@ Ext.define('app.controller.TermDelivery', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.zoneTypesStore = controller.getTermDeliveryZoneTypesStore();
-		controller.routesStore = controller.getTermDeliveryRoutesStore();
-		controller.terminalsStore = controller.getTermDeliveryTerminalsStore();
+		controller.zoneTypesStore = controller.getTermDeliveryMonitorZoneTypesStore();
+		controller.routesStore = controller.getTermDeliveryMonitorRoutesStore();
+		controller.terminalsStore = controller.getTermDeliveryMonitorTerminalsStore();
 		controller.branchesStore = controller.getBranchesStore();
-		controller.terminalBreaksStore = controller.getTermDeliveryTerminalBreaksStore();
+		controller.terminalBreaksStore = controller.getTermDeliveryMonitorTerminalBreaksStore();
 	},
 	
 	initLoadings: function(){
@@ -283,7 +283,7 @@ Ext.define('app.controller.TermDelivery', {
 		});
 		
 		Ext.Ajax.request({
-			url: '/term_delivery/get_config',
+			url: '/term_delivery/monitor/get_config',
 			method: 'GET',
 			callback: function(options, success, response){
 				if(success){

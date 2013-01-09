@@ -1,4 +1,4 @@
-Ext.define('app.model.TermDeliveryMakeAutoSetup.ZoneModel', {
+Ext.define('app.model.TermDelivery.MakeAutoTechSetup.ZoneModel', {
 	extend: 'Ext.data.Model',
 	fields: [
 	{name: 'id'			, type:'int'},

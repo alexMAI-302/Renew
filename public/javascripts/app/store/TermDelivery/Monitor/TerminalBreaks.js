@@ -1,10 +1,10 @@
 //хранилище поломок терминала
-Ext.define('app.store.TermDelivery.TerminalBreaks', {
+Ext.define('app.store.TermDelivery.Monitor.TerminalBreaks', {
 	extend: 'Ext.data.Store',
 	model: 'app.model.valueModel',
 	proxy: {
 		type: 'rest',
-		url : '/term_delivery/get_terminal_breaks',
+		url : '/term_delivery/monitor/get_terminal_breaks',
 		reader: {
 			type: 'json'
 		}

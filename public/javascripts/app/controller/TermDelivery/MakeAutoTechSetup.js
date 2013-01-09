@@ -2,19 +2,19 @@ Ext.Loader.setPath('Ext.ux', '/ext/examples/ux');
 Ext.require([
     'Ext.ux.CheckColumn'
 ]);
-Ext.define('app.controller.TermDeliveryMakeAutoSetup', {
+Ext.define('app.controller.TermDelivery.MakeAutoTechSetup', {
     extend: 'Ext.app.Controller',
 	
 	stores: [
-		'TermDeliveryMakeAutoSetup.Zones'
+		'TermDelivery.MakeAutoTechSetup.Zones'
 	],
 	
 	models: [
-		'TermDeliveryMakeAutoSetup.ZoneModel'
+		'TermDelivery.MakeAutoTechSetup.ZoneModel'
 	],
 	
 	views: [
-		'TermDeliveryMakeAutoSetup.Container'
+		'TermDelivery.MakeAutoTechSetup.Container'
 	],
 	
 	mainContainer: null,
@@ -34,7 +34,7 @@ Ext.define('app.controller.TermDeliveryMakeAutoSetup', {
 		);
 		
 		Ext.Ajax.request({
-			url: '/term_delivery_make_auto_setup/info',
+			url: '/term_delivery/make_auto_tech_setup/info',
 			method: 'GET',
 			success: function(response){
 				try
@@ -78,7 +78,7 @@ Ext.define('app.controller.TermDeliveryMakeAutoSetup', {
 	init: function() {
 		var controller = this;
 		
-		controller.mainContainer=Ext.create('app.view.TermDeliveryMakeAutoSetup.Container');
+		controller.mainContainer=Ext.create('app.view.TermDelivery.MakeAutoTechSetup.Container');
 		
 		controller.control({
 			'#saveZones': {
@@ -93,7 +93,7 @@ Ext.define('app.controller.TermDeliveryMakeAutoSetup', {
 			'#saveSettings':{
 				click: function(){
 					Ext.Ajax.request({
-						url: '/term_delivery_make_auto_setup/info',
+						url: '/term_delivery/make_auto_tech_setup/info',
 						method: 'POST',
 						params: {
 							start_time: Ext.getCmp('startTime').getValue(),
@@ -115,7 +115,7 @@ Ext.define('app.controller.TermDeliveryMakeAutoSetup', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.zonesStore=controller.getTermDeliveryMakeAutoSetupZonesStore();
+		controller.zonesStore=controller.getTermDeliveryMakeAutoTechSetupZonesStore();
 		
 		controller.refresh();
 	},

@@ -1,5 +1,5 @@
 # encoding: utf-8
-class TermDeliveryController < ApplicationSimpleErrorController
+class TermDelivery::MonitorController < ApplicationSimpleErrorController
   def get_zone_types
     zone_types = ActiveRecord::Base.connection.select_all( "select id, name from sp_values where sp_tp=1626" )
 

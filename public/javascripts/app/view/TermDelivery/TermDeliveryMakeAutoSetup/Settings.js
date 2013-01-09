@@ -1,5 +1,5 @@
 //фильтр
-Ext.define('app.view.TermDeliveryMakeAutoSetup.Settings', {
+Ext.define('app.view.TermDelivery.MakeAutoTechSetup.Settings', {
 	extend: 'Ext.panel.Panel',
 	alias: 'widget.settingsPanel',
     

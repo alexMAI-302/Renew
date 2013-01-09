@@ -1,5 +1,4 @@
-//проба
-Ext.define('app.view.TermDelivery.ItemsGrid', {
+Ext.define('app.view.TermDelivery.Monitor.ItemsGrid', {
 	extend: 'Ext.grid.Panel',
 	alias: 'widget.terminalsGrid',
 	

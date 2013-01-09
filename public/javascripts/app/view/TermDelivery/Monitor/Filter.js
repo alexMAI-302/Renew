@@ -1,5 +1,5 @@
 //фильтр
-Ext.define('app.view.TermDelivery.Filter', {
+Ext.define('app.view.TermDelivery.Monitor.Filter', {
 	extend: 'Ext.container.Container',
 	alias: 'widget.Filter',
 	
