@@ -20,7 +20,13 @@ class CompController < ApplicationSimpleErrorController
         if terminal > 0
           conditions << "terminal = #{terminal}"
         end
-        conditions << (((!params[:comp_location].nil? && params[:comp_location]!='') || loc_id > 0)?( "loc_id = #{loc_id}") : ("loc_id is null"))
+        if loc_id > 0
+          conditions << "loc_id = #{loc_id}"
+        else
+          if loc_id.to_i==-1
+            conditions << "loc_id is null"
+          end
+        end
         
         top = ''
         swhere = ''
