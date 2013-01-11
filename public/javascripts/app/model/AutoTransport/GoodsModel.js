@@ -6,7 +6,7 @@ Ext.define('app.model.AutoTransport.GoodsModel', {
 	{name: 'at_ggroup'	, type:'int',	useNull: true},
 	{name: 'at_goods'	, type:'int',	useNull: true},
 	{name: 'measure'	, type:'int',	useNull: true},
-	{name: 'vol'		, type:'int',	useNull: true},
+	{name: 'vol'		, type:'float',	useNull: true},
 	{name: 'price'		, type:'float',	useNull: true},
 	{
 		name: 'sum',

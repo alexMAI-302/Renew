@@ -9,6 +9,7 @@ class CompController < ApplicationSimpleErrorController
         loc_id = params[:comp_location].to_i
         terminal = params[:terminal].to_i
         goods = params[:type].to_i
+        person_id = params[:person_id].to_i
         
         conditions = []
         if goods>0 
@@ -20,7 +21,16 @@ class CompController < ApplicationSimpleErrorController
         if terminal > 0
           conditions << "terminal = #{terminal}"
         end
-        conditions << (((!params[:comp_location].nil? && params[:comp_location]!='') || loc_id > 0)?( "loc_id = #{loc_id}") : ("loc_id is null"))
+        if person_id>0
+          conditions << "t.person = #{person_id}"
+        end
+        if loc_id > 0
+          conditions << "loc_id = #{loc_id}"
+        else
+          if loc_id.to_i==-1
+            conditions << "loc_id is null"
+          end
+        end
         
         top = ''
         swhere = ''
@@ -36,7 +46,8 @@ class CompController < ApplicationSimpleErrorController
           c.goods type,
           c.serial serial,
           isnull(t.loc_id, -1) state,
-          t.descr
+          t.descr,
+          t.person
         from
           component c
           left outer join
@@ -53,10 +64,10 @@ class CompController < ApplicationSimpleErrorController
             o.id = (select top 1 i.id from comp_operation i where i.component = o.component order by ddate desc, id desc)
           ) t on t.component = c.id
           left outer join  osmp_terminal  ot on ot.id = t.terminal
-          left outer join person p on p.person_id = t.person
         #{swhere}
         order by 2,3"
-        res = ActiveRecord::Base.connection.select_all(sql)  
+        logger.info sql
+        res = ActiveRecord::Base.connection.select_all(sql)
         
         render :text => res.to_json
       when "put"
@@ -87,7 +98,7 @@ class CompController < ApplicationSimpleErrorController
         ActiveRecord::Base.connection.execute("
         call renew_web.comp_create_operations(
         #{params[:state].to_i},
-        null,
+        #{params[:person].to_i},
         null,
         #{ActiveRecord::Base.connection.quote(params[:descr])},
         '<comp-ids><comp-id><id>#{c.id}</id></comp-id></comp-ids>')")
