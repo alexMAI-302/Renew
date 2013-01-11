@@ -9,7 +9,7 @@ class CompController < ApplicationSimpleErrorController
         loc_id = params[:comp_location].to_i
         terminal = params[:terminal].to_i
         goods = params[:type].to_i
-        person_id = params[:person].to_i
+        person_id = params[:person_id].to_i
         
         conditions = []
         if goods>0 
@@ -22,7 +22,7 @@ class CompController < ApplicationSimpleErrorController
           conditions << "terminal = #{terminal}"
         end
         if person_id>0
-          conditions << "p.person_id = #{person_id}"
+          conditions << "t.person = #{person_id}"
         end
         if loc_id > 0
           conditions << "loc_id = #{loc_id}"
@@ -66,6 +66,7 @@ class CompController < ApplicationSimpleErrorController
           left outer join  osmp_terminal  ot on ot.id = t.terminal
         #{swhere}
         order by 2,3"
+        logger.info sql
         res = ActiveRecord::Base.connection.select_all(sql)
         
         render :text => res.to_json

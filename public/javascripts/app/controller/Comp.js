@@ -47,7 +47,8 @@ Ext.define('app.controller.Comp', {
 			type: Ext.getCmp('filterTypeComp').getValue(),
 			comp_location: Ext.getCmp('filterCompLocationComp').getValue(),
 			terminal: Ext.getCmp('filterTerminalComp').getValue(),
-			serial: Ext.getCmp('filterSerialComp').getValue()
+			serial: Ext.getCmp('filterSerialComp').getValue(),
+			person_id: Ext.getCmp('filterPersonComp').getValue(),
 		};
 		controller.compStore.load(
 			function(records, operation, success){
