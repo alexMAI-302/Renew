@@ -1,6 +1,11 @@
 <% content_for :js_controller do %>
 ,'TermDelivery.MakeAutoSetup','TermDelivery.MakeAutoSetupTabs.Common'
 <% end -%>
+<% content_for :stylesheets do %>
+	.x-wrap_cells .x-grid-cell-inner {
+		white-space: normal;
+	}
+<% end %>
 
 <% content_for :title do %>
 	Настройка автоматического создания маршрутов

@@ -30,49 +30,53 @@ class TermDelivery::MakeAutoSetupController < ApplicationSimpleErrorController
         zone_id=(params[:zone_id].nil? || params[:zone_id]=='')? -1 : params[:zone_id].to_i
         str=ActiveRecord::Base.connection.quote(params[:str].to_s.strip)
         
-        res=ActiveRecord::Base.connection.select_one("
-        SELECT
-          pt.id,
-          pt.name,
-          pt.code,
-          pt.address,
-          sd.monday,
-          sd.tuesday,
-          sd.wednesday,
-          sd.thursday,
-          sd.friday,
-          sd.saturday,
-          sd.sunday
-        FROM
-          pps_terminal pt
-          LEFT JOIN pps_terminal_skip_days sd ON sd.terminal_id=pt.id
-        WHERE
-          (
-            #{str}=''
-            OR
-            pt.code like '%'+#{str}+'%'
-            OR
-            pt.address like '%'+#{str}+'%'
-            OR
-            pt.name like '%'+#{str}+'%'
-          )
-          AND
-          (
-            #{zone_id}=-1
-            OR
-            pt.id IN (SELECT pzt.pps_terminal FROM pps_zone_terminal pzt WHERE pzt.zoneid=#{zone_id})
-          )")
+        if zone_id!=-1 || str!="''"
+          res=ActiveRecord::Base.connection.select_all("
+          SELECT
+            pt.id,
+            pt.name,
+            pt.code,
+            pt.address,
+            sd.monday,
+            sd.tuesday,
+            sd.wednesday,
+            sd.thursday,
+            sd.friday,
+            sd.saturday,
+            sd.sunday
+          FROM
+            pps_terminal pt
+            LEFT JOIN pps_terminal_skip_days sd ON sd.terminal_id=pt.id
+          WHERE
+            (
+              #{str}=''
+              OR
+              pt.code like '%'+#{str}+'%'
+              OR
+              pt.address like '%'+#{str}+'%'
+              OR
+              pt.name like '%'+#{str}+'%'
+            )
+            AND
+            (
+              #{zone_id}=-1
+              OR
+              pt.id IN (SELECT pzt.pps_terminal FROM pps_zone_terminal pzt WHERE pzt.zoneid=#{zone_id})
+            )")
+        else
+          res=[]
+        end
         
         render :text => res.to_json
       when "put"
-        terminal_id=params[:terminal_id]
-        monday=params[:monday].to_i
-        tuesday=params[:tuesday].to_i
-        wednesday=params[:wednesday].to_i
-        thursday=params[:thursday].to_i
-        friday=params[:friday].to_i
-        saturday=params[:saturday].to_i
-        sunday=params[:sunday].to_i
+        id=params[:id].to_i
+        monday=params[:monday]? 1 : 0
+        tuesday=params[:tuesday]? 1 : 0
+        wednesday=params[:wednesday]? 1 : 0
+        thursday=params[:thursday]? 1 : 0
+        friday=params[:friday]? 1 : 0
+        saturday=params[:saturday]? 1 : 0
+        sunday=params[:sunday]? 1 : 0
         
         if (monday+tuesday+wednesday+thursday+friday+saturday+sunday>=1)
           ActiveRecord::Base.connection.execute("
@@ -88,7 +92,7 @@ class TermDelivery::MakeAutoSetupController < ApplicationSimpleErrorController
           )
           ON EXISTING UPDATE
           VALUES(
-            #{terminal_id},
+            #{id},
             #{monday},
             #{tuesday},
             #{wednesday},
@@ -99,7 +103,7 @@ class TermDelivery::MakeAutoSetupController < ApplicationSimpleErrorController
           )")
         else
           ActiveRecord::Base.connection.execute("
-          DELETE FROM pps_terminal_skip_days WHERE terminal_id=#{terminal_id}")
+          DELETE FROM pps_terminal_skip_days WHERE terminal_id=#{id}")
         end
         
         render :text => {"success" => true}.to_json

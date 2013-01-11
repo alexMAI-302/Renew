@@ -10,7 +10,8 @@ Ext.define('app.view.TermDelivery.MakeAutoSetup.Common.Grid', {
 				{
 					width: 250,
 					header: 'Наименование',
-					dataIndex: 'name'
+					dataIndex: 'name',
+					tdCls: 'x-wrap_cells'
 				},
 				{
 					width: 50,
@@ -20,7 +21,8 @@ Ext.define('app.view.TermDelivery.MakeAutoSetup.Common.Grid', {
 				{
 					width: 250,
 					header: 'Адрес',
-					dataIndex: 'address'
+					dataIndex: 'address',
+					tdCls: 'x-wrap_cells'
 				},
 				{
 					width: 80,

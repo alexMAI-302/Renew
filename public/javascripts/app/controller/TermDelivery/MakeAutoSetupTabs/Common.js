@@ -39,6 +39,10 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Common', {
 			},
 			'#filterTerminals': {
 				click: function(){
+					controller.terminalsStore.proxy.extraParams={
+						zone_id: Ext.getCmp('filterZoneCommon').getValue(),
+						str: Ext.getCmp('filterStrCommon').getValue()
+					};
 					controller.terminalsStore.load(
 						function(records, operation, success){
 							if(!success){
