@@ -4,10 +4,29 @@ class PlaceunloadScheduleController < ApplicationSimpleErrorController
   end
 
   def get
-    res=Proxycat.connection.select_all("
-    exec dbo.placeunload_schedule_get
-    #{params[:salesman_id].to_i},
-    '#{Time.parse(params[:ddate]).strftime('%F')}'")
+    res=ActiveRecord::Base.connection.select_all("
+    SELECT
+      pl.id,
+      ISNULL(pl.name, b.name) name,
+      pl.address,
+      (SELECT
+        ps.day_of_week
+      FROM
+        placeunload_schedule ps
+      WHERE
+        ps.placeunload_id=pl.id
+        AND
+       '#{Time.parse(params[:ddate]).strftime('%F')}' BETWEEN ps.ddateb AND ps.ddatee
+      ) day_of_week
+    FROM
+      placeunload pl
+      JOIN buyers b ON b.placeunload_id=pl.id
+      JOIN partners p ON p.id=b.partner
+      JOIN partners_groups_tree pgt ON pgt.id=p.parent
+    WHERE
+      pgt.parent = #{params[:salesman_id].to_i}
+    ORDER BY
+      2")
 
     render :text => res.to_json
   end
@@ -15,19 +34,30 @@ class PlaceunloadScheduleController < ApplicationSimpleErrorController
   def save
     day_of_week=params[:day_of_week].to_i
     if day_of_week>=1 && day_of_week<=5
-      Proxycat.connection.execute("
-      	exec dbo.placeunload_schedule_save
-      		#{params[:id].to_i},
-      		#{params[:day_of_week].to_i},
-      		'#{Time.parse(params[:ddate]).strftime('%F')}',
-      		#{params[:site_id].to_i}")
+      ActiveRecord::Base.connection.execute("
+      INSERT INTO placeunload_schedule (id, placeunload_id, day_of_week, ddateb)
+      VALUES(idgenerator('placeunload_schedule'), #{params[:id].to_i}, #{params[:day_of_week].to_i}, '#{Time.parse(params[:ddate]).strftime('%F')}');")
     end
 
-    render :text => "[]"
+    render :text => {"success" => true}.to_json
   end
 
   def get_salesman
-    res = Proxycat.connection.select_all("exec placeunload_schedule_get_salesman '#{Proxycat.connection.quote_string(params[:query])}'")
+    res = ActiveRecord::Base.connection.select_all("
+    SELECT TOP 50
+      partners_groups.id,
+      partners_groups.name
+    FROM 
+      pref_concept 
+      JOIN prefs ON pref_concept.id = prefs.concept AND pref_concept.type = prefs.type
+      JOIN partners_groups ON prefs.id = partners_groups.id
+    WHERE 
+      pref_concept.type = 1 AND 
+      pref_concept.name = 'Хр: Партнеры - Торг.предст.'
+      AND
+      partners_groups.name LIKE '%'+'#{Proxycat.connection.quote_string(params[:query])}'+'%'
+    ORDER BY
+      partners_groups.name")
 
     render :text => res.to_json
   end

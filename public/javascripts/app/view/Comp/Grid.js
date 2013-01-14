@@ -26,7 +26,11 @@ Ext.define('app.view.Comp.Grid', {
 					header: 'Местонахождение',
 					dataIndex: 'state'
 				},
-				
+				{
+					width: 130,
+					header: 'Сотрудник',
+					dataIndex: 'person'
+				},
 				{
 					width: 170,
 					header: 'Комментарий',

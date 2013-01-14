@@ -71,6 +71,23 @@ Ext.define('app.view.Comp.Filter', {
 			}
 		},
 		{
+			id: 'filterPersonComp',
+			xtype: 'combobox',
+			fieldLabel: 'Сотрудник',
+			valueField: 'id',
+			displayField: 'name',
+			queryMode: 'local',
+			allowNull: true,
+			width: 200,
+			labelWidth: 65,
+			listeners: {
+				select: function(field){
+					field.getStore().clearFilter(true);
+					return true;
+				}
+			}
+		},
+		{
 			id: 'filterComp',
 			xtype: 'button',
 			text: 'Фильтр'

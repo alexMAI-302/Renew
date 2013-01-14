@@ -46,7 +46,6 @@ Ext.define('app.model.placeunloadSchedule.scheduleModel', {
 			convert: function(value, record){
 				return record.get("day_of_week")==5;
 			}
-		},
-		{name: 'site_id'	, type:'int'}
+		}
 	]
 });
