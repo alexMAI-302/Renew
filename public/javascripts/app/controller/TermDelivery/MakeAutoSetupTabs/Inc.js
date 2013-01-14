@@ -2,40 +2,38 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
     extend: 'Ext.app.Controller',
 	
 	stores: [
-		'AutoTransport.Income.Income',
-		'AutoTransport.Income.IncGoods',
-		'AutoTransport.Ggroup',
-		'AutoTransport.Goods',
-		'AutoTransport.Income.IncType',
-		'AutoTransport.Measure',
-		'AutoTransport.Sellers'
+		'TermDelivery.MakeAutoSetup.Periods',
+		'TermDelivery.MakeAutoSetup.PpsZoneNormes',
+		'TermDelivery.MakeAutoSetup.PpsZoneWorkdays',
+		'TermDelivery.MakeAutoSetup.Zones',
+		'TermDelivery.MakeAutoSetup.DayTypes'
 	],
 	
 	models: [
 		'valueModel',
-		'AutoTransport.IncomeModel',
-		'AutoTransport.GoodsModel',
-		'AutoTransport.NomenclatureGroupModel'
+		'TermDelivery.MakeAutoSetup.PpsZoneNormModel',
+		'TermDelivery.MakeAutoSetup.PpsZoneWorkdayModel'
 	],
 	
 	views: [
-		'AutoTransport.Container',
-		'AutoTransport.Income.Container'
+		'TermDelivery.MakeAutoSetup.Container',
+		'TermDelivery.MakeAutoSetup.Inc.Container'
 	],
 	
 	incContainer: null,
 	
-	detailStore: null,
-	masterStore: null,
-	ggroupStore: null,
-	goodsStore: null,
-	incTypeStore: null,
-	measureStore: null,
+	ppsZoneNormesStore: null,
+	periodsStore: null,
+	zonesStore: null,
+	ppsZoneWorkdaysStore: null,
+	dayTypesStore: null,
+	
+	currentPeriod: null,
 	
 	init: function() {
 		var controller = this;
 		
-		controller.incContainer=Ext.create('app.view.AutoTransport.Income.Container');
+		controller.incContainer=Ext.create('app.view.TermDelivery.MakeAutoSetup.Inc.Container');
 		controller.incContainer.addListener(
 			"show",
 			function(){
@@ -43,83 +41,88 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
 			}
 		);
 		
-		Ext.getCmp('AutoTransportMain').add(controller.incContainer);
-		
-		function getId(r){
-			return (r!=null)?
-					((r.getId()!=null && r.getId()!=0)?
-						r.getId():
-						r.get('id')
-					):
-					null;
-		}
+		Ext.getCmp('MakeAutoSetupMain').add(controller.incContainer);
 		
 		controller.control({
-			'#filterIncome': {
+			'#filterNormes': {
 				click: function(button){
-					controller.masterStore.proxy.extraParams={
-						ddateb: Ext.getCmp('ddatebIncome').getValue(),
-						ddatee: Ext.getCmp('ddateeIncome').getValue()
+					controller.ppsZoneNormesStore.proxy.extraParams={
+						ddateb: Ext.getCmp('ddatebNormes').getValue(),
+						ddatee: Ext.getCmp('ddateeNormes').getValue()
 					};
-					controller.masterStore.load(
+					controller.ppsZoneNormesStore.load(
 						function(records, operation, success){
 							if(!success){
-								Ext.Msg.alert("Ошибка", "Ошибка при обновлении приходов");
+								Ext.Msg.alert("Ошибка", "Ошибка при обновлении норм");
 							}
 							return true;
 						}
 					);
 				}
 			},
-			'#incomeTable': {
-				selectionchange: function(sm, selected, eOpts){
-					if(selected!=null && selected.length>0){
-						controller.loadDetail(
-							getId(selected[0]),
-							Ext.getCmp('incGoodsTable')
-						);
-					} else {
-						Ext.getCmp('incGoodsTable').setDisabled(true);
-					}
+			'#saveNormes': {
+				click: function(){
+					controller.ppsZoneNormesStore.sync({
+						callback: function(batch){
+							if(batch.exceptions.length>0){
+								Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+							}
+							return true;
+						}
+					});
 					return true;
 				}
 			},
-			'#addIncGoods':{
+			'#addNorm':{
 				click: function(){
-					var sm=Ext.getCmp('incomeTable').getSelectionModel(),
-						r = Ext.ModelManager.create({master_id: sm.getSelection()[0].getId()}, 'app.model.AutoTransport.GoodsModel');
-					controller.detailStore.add(r);
-				}
-			},
-			'#saveIncome': {
-				click: function(){
-					var selected=Ext.getCmp('incomeTable').getSelectionModel().getSelection()[0];
-					if(selected != null){
-						selected.set('sum', controller.detailStore.sum('sum'));
-					}
-					controller.syncMaster(
-						controller.incContainer,
-						getId(selected));
-					return true;
-				}
-			},
-			'#addIncome':{
-				click: function(){
-					var sm=Ext.getCmp('incomeTable').getSelectionModel(),
-						r = Ext.ModelManager.create({ddate: new Date()}, 'app.model.AutoTransport.IncomeModel');
-					controller.masterStore.add(r);
+					var sm=Ext.getCmp('normesTable').getSelectionModel(),
+						r = Ext.ModelManager.create(
+							{period: controller.currentPeriod},
+							'app.model.TermDelivery.MakeAutoSetup.PpsZoneNormModel');
+					controller.ppsZoneNormesStore.add(r);
 					sm.select(r);
 				}
 			},
-			'#refreshIncGoods': {
+			'#filterWorkdays': {
+				click: function(button){
+					controller.ppsZoneWorkdaysStore.proxy.extraParams={
+						ddateb: Ext.getCmp('ddatebWorkdays').getValue(),
+						ddatee: Ext.getCmp('ddateeWorkdays').getValue()
+					};
+					controller.ppsZoneWorkdaysStore.load(
+						function(records, operation, success){
+							if(!success){
+								Ext.Msg.alert("Ошибка", "Ошибка при обновлении типов дней");
+							}
+							return true;
+						}
+					);
+				}
+			},
+			'#saveWorkdays': {
 				click: function(){
-					var selected=Ext.getCmp('incomeTable').getSelectionModel().getSelection();
-					if(selected!=null && selected.length>0){
-						controller.loadDetail(
-							getId(selected[0]),
-							Ext.getCmp('incGoodsTable')
-						);
-					}
+					controller.ppsZoneWorkdaysStore.sync({
+						callback: function(batch){
+							if(batch.exceptions.length>0){
+								Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+							}
+							return true;
+						}
+					});
+					return true;
+				}
+			},
+			'#addWorkday':{
+				click: function(){
+					var sm=Ext.getCmp('workdaysTable').getSelectionModel(),
+						r = Ext.ModelManager.create(
+							{
+								ddate: Ext.Date.parse(Ext.Date.format(new Date(), 'Y-m-d'), 'Y-m-d'),
+								type: null
+							},
+							'app.model.TermDelivery.MakeAutoSetup.PpsZoneWorkdayModel');
+					controller.ppsZoneWorkdaysStore.add(r);
+					sm.select(r);
 				}
 			}
 		});
@@ -128,35 +131,44 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
 	loadDictionaries: function(){
 		var controller=this;
 		
-		controller.ggroupStore.load();
-		controller.goodsStore.proxy.extraParams={
-			master_id: -1
-		};
-		controller.goodsStore.load();
-		controller.measureStore.load();
-		controller.sellersStore.load();
+		controller.periodsStore.load();
+		controller.zonesStore.load();
 	},
 	
 	initStores: function(){
 		var controller=this;
 		
-		controller.detailStore=controller.getAutoTransportIncomeIncGoodsStore();
-		controller.masterStore=controller.getAutoTransportIncomeIncomeStore();
-		controller.ggroupStore=controller.getAutoTransportGgroupStore();
-		controller.goodsStore=controller.getAutoTransportGoodsStore();
-		controller.incTypeStore=controller.getAutoTransportIncomeIncTypeStore();
-		controller.measureStore=controller.getAutoTransportMeasureStore();
-		controller.sellersStore=controller.getAutoTransportSellersStore();
+		controller.ppsZoneNormesStore = controller.getTermDeliveryMakeAutoSetupPpsZoneNormesStore();
+		controller.periodsStore = controller.getTermDeliveryMakeAutoSetupPeriodsStore();
+		controller.zonesStore = controller.getTermDeliveryMakeAutoSetupZonesStore();
+		controller.ppsZoneWorkdaysStore = controller.getTermDeliveryMakeAutoSetupPpsZoneWorkdaysStore();
+		controller.dayTypesStore = controller.getTermDeliveryMakeAutoSetupDayTypesStore();
+		
+		controller.periodsStore.addListener({
+			load: function(store, records, successful, eOpts){
+				if(successful!==true){
+					Ext.Msg.alert("Ошибка", "Ошибка при загрузке словаря периодов");
+				} else {
+					var currentDateStr=Ext.Date.format(new Date(), 'Y-m');
+					controller.currentPeriod=null;
+					for(var i=0; i<records.length; i++){
+						if(records[i].get('name')==currentDateStr){
+							controller.currentPeriod=records[i].get('id');
+							break;
+						}
+					}
+				}
+			}
+		});
 		
 		controller.loadDictionaries();
 	},
 	
 	bindStores: function(){
-		var controller=this,
-			incomeTable=Ext.getCmp('incomeTable');
+		var controller=this;
 		
-		Ext.getCmp('incGoodsTable').reconfigure(controller.detailStore);
-		incomeTable.reconfigure(controller.masterStore);
+		Ext.getCmp('normesTable').reconfigure(controller.ppsZoneNormesStore);
+		Ext.getCmp('workdaysTable').reconfigure(controller.ppsZoneWorkdaysStore);
 	},
 	
 	makeComboColumn: function(column, storeCombo, tableStore, property, allowNull, onlyRenderer){
@@ -195,44 +207,15 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
 	
 	initTables: function(){
 		var controller=this,
-			incomeTable = Ext.getCmp('incomeTable'),
-			incGoodsTable = Ext.getCmp('incGoodsTable'),
-			typeColumn = incomeTable.columns[1],
-			sellerColumn = incomeTable.columns[2],
-			groupColumn = incGoodsTable.columns[0],
-			goodsColumn = incGoodsTable.columns[1],
-			measureColumn = incGoodsTable.columns[3];
+			normesTable = Ext.getCmp('normesTable'),
+			workdaysTable = Ext.getCmp('workdaysTable'),
+			dayTypeColumn = workdaysTable.columns[1],
+			periodColumn = normesTable.columns[1],
+			zoneColumn = normesTable.columns[0];
 		
-		controller.makeComboColumn(typeColumn, controller.incTypeStore, controller.masterStore, 'type');
-		controller.makeComboColumn(sellerColumn, controller.sellersStore, controller.masterStore, 'at_seller', true);
-		controller.makeComboColumn(groupColumn, controller.ggroupStore, controller.detailStore, 'at_ggroup');
-		controller.makeComboColumn(goodsColumn, controller.goodsStore, controller.detailStore, 'at_goods');
-		controller.makeComboColumn(measureColumn, controller.measureStore, controller.detailStore, 'measure', false, true);
-		
-		goodsColumn.field.addListener(
-			"select",
-			function(combo, selected, eOpts){
-				var r=incGoodsTable.getSelectionModel().getSelection()[0],
-					s=selected[0];
-				r.set('at_ggroup', (s!=null)?s.get('at_ggroup'):null);
-				r.set('measure', (s!=null)?s.get('measure'):null);
-				return true;
-			}
-		);
-		
-		groupColumn.field.allowBlank=false;
-		groupColumn.field.addListener(
-			"select",
-			function(combo, selected, eOpts){
-				var r = incGoodsTable.getSelectionModel().getSelection()[0];
-				r.set('at_goods', null);
-				controller.goodsStore.clearFilter(true);
-				if(selected[0]!=null){
-					controller.goodsStore.filter("at_ggroup", selected[0].get('id'));
-				}
-				return true;
-			}
-		);
+		controller.makeComboColumn(dayTypeColumn, controller.dayTypesStore, controller.ppsZoneWorkdaysStore, 'type', true);
+		controller.makeComboColumn(periodColumn, controller.periodsStore, controller.ppsZoneNormesStore, 'period');
+		controller.makeComboColumn(zoneColumn, controller.zonesStore, controller.ppsZoneNormesStore, 'zone');
 	},
 	
 	onLaunch: function(){

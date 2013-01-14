@@ -7,6 +7,5 @@ Ext.define('app.store.TermDelivery.MakeAutoSetup.Zones', {
 		reader: {
 			type: 'json'
 		}
-	},
-	autoLoad: true
+	}
 });

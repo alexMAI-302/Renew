@@ -1,7 +1,7 @@
 //фильтр
-Ext.define('app.view.AutoTransport.Income.Filter', {
+Ext.define('app.view.TermDelivery.MakeAutoSetup.Inc.FilterNormes', {
 	extend: 'Ext.container.Container',
-	alias: 'widget.incomeFilter',
+	alias: 'widget.normesFilter',
     
     layout: {
 		type: 'hbox'
@@ -13,7 +13,7 @@ Ext.define('app.view.AutoTransport.Income.Filter', {
 	},
 	items: [
 		{
-			id: 'ddatebIncome',
+			id: 'ddatebNormes',
 			xtype: 'datefield',
 			fieldLabel: 'С',
 			format: 'd.m.Y',
@@ -24,7 +24,7 @@ Ext.define('app.view.AutoTransport.Income.Filter', {
 			labelWidth: 25
 		},
 		{
-			id: 'ddateeIncome',
+			id: 'ddateeNormes',
 			xtype: 'datefield',
 			fieldLabel: 'По',
 			format: 'd.m.Y',
@@ -35,14 +35,9 @@ Ext.define('app.view.AutoTransport.Income.Filter', {
 			labelWidth: 25
 		},
 		{
-			id: 'filterIncome',
+			id: 'filterNormes',
 			xtype: 'button',
 			text: 'Фильтр'
-		},
-		{
-			id: 'saveIncome',
-			icon: '/images/save.png',
-			xtype: 'button'
 		}
 	]
 });

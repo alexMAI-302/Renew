@@ -1,49 +1,20 @@
 Ext.define('app.view.TermDelivery.MakeAutoSetup.Inc.Container', {
     extend: 'Ext.panel.Panel',
-	alias: 'widget.incomeTab',
+	alias: 'widget.incTab',
 	
 	requires: [
-		'app.view.TermDelivery.MakeAutoSetup.Inc.Filter',
-		'app.view.TermDelivery.MakeAutoSetup.Inc.ItemsGrid',
-		'app.view.TermDelivery.MakeAutoSetup.Inc.Grid'
+		'app.view.TermDelivery.MakeAutoSetup.Inc.GridNormes',
+		'app.view.TermDelivery.MakeAutoSetup.Inc.GridWorkdays'
 	],
-	
-	layout: {
-		type: 'vbox'
-	},
 	
 	title: 'Настройка зон инкассаторов',
 	
 	items: [
 		{
-			layout: {
-				type: 'border'
-			},
-			items: [
-				{
-					xtype: 'Filter',
-					region: 'north'
-				},
-				{
-					xtype: 'Grid',
-					region: 'center'
-				}
-			]
+			xtype: 'normesGrid'
 		},
 		{
-			layout: {
-				type: 'border'
-			},
-			items: [
-				{
-					xtype: 'Filter',
-					region: 'north'
-				},
-				{
-					xtype: 'Grid',
-					region: 'center'
-				}
-			]
+			xtype: 'workdaysGrid'
 		}
 	]
 });

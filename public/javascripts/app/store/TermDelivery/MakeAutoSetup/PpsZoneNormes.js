@@ -1,6 +1,6 @@
 Ext.define('app.store.TermDelivery.MakeAutoSetup.PpsZoneNormes', {
 	extend: 'Ext.data.Store',
-	model: 'app.model.TermDelivery.MakeAutoSetup.PpsZoneNormeModel',
+	model: 'app.model.TermDelivery.MakeAutoSetup.PpsZoneNormModel',
 	proxy: {
 		type: 'rest',
 		url : '/term_delivery/make_auto_setup/pps_zone_normes',
