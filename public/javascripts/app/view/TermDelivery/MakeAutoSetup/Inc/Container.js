@@ -1,34 +1,49 @@
-Ext.define('app.view.AutoTransport.Income.Container', {
+Ext.define('app.view.TermDelivery.MakeAutoSetup.Inc.Container', {
     extend: 'Ext.panel.Panel',
 	alias: 'widget.incomeTab',
 	
 	requires: [
-		'app.view.AutoTransport.Income.Filter',
-		'app.view.AutoTransport.Income.ItemsGrid',
-		'app.view.AutoTransport.Income.Grid'
+		'app.view.TermDelivery.MakeAutoSetup.Inc.Filter',
+		'app.view.TermDelivery.MakeAutoSetup.Inc.ItemsGrid',
+		'app.view.TermDelivery.MakeAutoSetup.Inc.Grid'
 	],
 	
 	layout: {
-		type: 'border'
+		type: 'vbox'
 	},
 	
-	title: 'Приход',
+	title: 'Настройка зон инкассаторов',
 	
 	items: [
 		{
-			xtype: 'incomeFilter',
-			region: 'north'
+			layout: {
+				type: 'border'
+			},
+			items: [
+				{
+					xtype: 'Filter',
+					region: 'north'
+				},
+				{
+					xtype: 'Grid',
+					region: 'center'
+				}
+			]
 		},
 		{
-			xtype: 'incomeGrid',
-			region: 'center',
-			split: true,
-			flex: 1
-		},
-		{
-			xtype: 'incGoodsGrid',
-			region: 'south',
-			flex: 1
+			layout: {
+				type: 'border'
+			},
+			items: [
+				{
+					xtype: 'Filter',
+					region: 'north'
+				},
+				{
+					xtype: 'Grid',
+					region: 'center'
+				}
+			]
 		}
 	]
 });

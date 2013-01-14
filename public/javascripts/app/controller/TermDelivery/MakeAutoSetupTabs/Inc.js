@@ -23,7 +23,7 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
 		'AutoTransport.Income.Container'
 	],
 	
-	incomeContainer: null,
+	incContainer: null,
 	
 	detailStore: null,
 	masterStore: null,
@@ -32,82 +32,18 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
 	incTypeStore: null,
 	measureStore: null,
 	
-	syncMaster: function(container, selectedMasterId){
-		var controller=this;
-		function syncDetail(container, masterId){
-			if (
-				(controller.detailStore.getNewRecords().length > 0) ||
-				(controller.detailStore.getUpdatedRecords().length > 0) ||
-				(controller.detailStore.getRemovedRecords().length > 0)){
-				
-				if(masterId!=null){
-					controller.detailStore.proxy.extraParams={
-						master_id: masterId
-					};
-					
-					controller.detailStore.sync({
-						callback: function(batch){
-							if(batch.exceptions.length>0){
-								Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
-							}
-							container.setLoading(false);
-						}
-					});
-				} else {
-					Ext.Msg.alert("Внимание", "Ваши данные в таблице с детализацией были утеряны. Сначала сохраняйте данные в основной таблице, затем вводите детализацию.");
-					container.setLoading(false);
-				}
-			} else {
-				container.setLoading(false);
-			}
-		};
-		
-		if (
-			(controller.masterStore.getNewRecords().length > 0) ||
-			(controller.masterStore.getUpdatedRecords().length > 0) ||
-			(controller.masterStore.getRemovedRecords().length > 0)){
-				
-			container.setLoading(true);
-			controller.masterStore.sync({
-				callback: function(batch){
-					if(batch.exceptions.length>0){
-						Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
-						container.setLoading(false);
-					} else {
-						syncDetail(container, selectedMasterId);
-					}
-				}
-			});
-		} else {
-			syncDetail(container, selectedMasterId);
-		}
-	},
-	
-	loadDetail: function(masterId, detailTable){
-		var controller=this;
-		
-		controller.detailStore.proxy.extraParams={
-			master_id: masterId
-		};
-		controller.detailStore.load(
-			function(){
-				detailTable.setDisabled(false);
-			}
-		);
-	},
-	
 	init: function() {
 		var controller = this;
 		
-		controller.incomeContainer=Ext.create('app.view.AutoTransport.Income.Container');
-		controller.incomeContainer.addListener(
+		controller.incContainer=Ext.create('app.view.AutoTransport.Income.Container');
+		controller.incContainer.addListener(
 			"show",
 			function(){
 				controller.loadDictionaries();
 			}
 		);
 		
-		Ext.getCmp('AutoTransportMain').add(controller.incomeContainer);
+		Ext.getCmp('AutoTransportMain').add(controller.incContainer);
 		
 		function getId(r){
 			return (r!=null)?
@@ -162,7 +98,7 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
 						selected.set('sum', controller.detailStore.sum('sum'));
 					}
 					controller.syncMaster(
-						controller.incomeContainer,
+						controller.incContainer,
 						getId(selected));
 					return true;
 				}
