@@ -132,6 +132,9 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
 		var controller=this;
 		
 		controller.periodsStore.load();
+		controller.zonesStore.proxy.extraParams={
+			zone_type: 5626
+		};
 		controller.zonesStore.load();
 	},
 	

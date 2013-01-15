@@ -5,8 +5,20 @@ class TermDelivery::MakeAutoSetupController < ApplicationSimpleErrorController
   end
 
   def get_zones
+    zone_type=params[:zone_type].to_i
+
     res=ActiveRecord::Base.connection.select_all("
-    select id, name from pps_zone order by name")
+    SELECT
+      id,
+      name
+    FROM
+      pps_zone
+    WHERE
+      #{zone_type}=0
+      OR
+      #{zone_type}=spv_id
+    ORDER BY
+      name")
 
     render :text => res.to_json
   end
@@ -37,13 +49,13 @@ class TermDelivery::MakeAutoSetupController < ApplicationSimpleErrorController
             pt.name,
             pt.code,
             pt.address,
-            sd.monday,
-            sd.tuesday,
-            sd.wednesday,
-            sd.thursday,
-            sd.friday,
-            sd.saturday,
-            sd.sunday
+            GET_BIT(sd.week_days, 2) monday,
+            GET_BIT(sd.week_days, 3) tuesday,
+            GET_BIT(sd.week_days, 4) wednesday,
+            GET_BIT(sd.week_days, 5) thursday,
+            GET_BIT(sd.week_days, 6) friday,
+            GET_BIT(sd.week_days, 7) saturday,
+            GET_BIT(sd.week_days, 1) sunday
           FROM
             pps_terminal pt
             LEFT JOIN pps_terminal_skip_days sd ON sd.terminal_id=pt.id
@@ -62,7 +74,9 @@ class TermDelivery::MakeAutoSetupController < ApplicationSimpleErrorController
               #{zone_id}=-1
               OR
               pt.id IN (SELECT pzt.pps_terminal FROM pps_zone_terminal pzt WHERE pzt.zoneid=#{zone_id})
-            )")
+            )
+          ORDER BY
+            pt.name")
       else
       res=[]
       end
@@ -82,24 +96,12 @@ class TermDelivery::MakeAutoSetupController < ApplicationSimpleErrorController
         ActiveRecord::Base.connection.execute("
           INSERT INTO pps_terminal_skip_days(
             terminal_id,
-            monday,
-            tuesday,
-            wednesday,
-            thursday,
-            friday,
-            saturday,
-            sunday
+            week_days
           )
           ON EXISTING UPDATE
           VALUES(
             #{id},
-            #{monday},
-            #{tuesday},
-            #{wednesday},
-            #{thursday},
-            #{friday},
-            #{saturday},
-            #{sunday}
+            '#{sunday}#{monday}#{tuesday}#{wednesday}#{thursday}#{friday}#{saturday}'
           )")
       else
         ActiveRecord::Base.connection.execute("
@@ -141,7 +143,7 @@ class TermDelivery::MakeAutoSetupController < ApplicationSimpleErrorController
     when "post"
       zone=nullify_int params[:zone]
       period=nullify_int params[:period]
-      
+
       ActiveRecord::Base.connection.execute(
       "INSERT INTO pps_zone_norm(
         zone,
@@ -180,11 +182,11 @@ class TermDelivery::MakeAutoSetupController < ApplicationSimpleErrorController
       old_period=strs[1].to_i
       ActiveRecord::Base.connection.execute("
       DELETE FROM pps_zone_norm WHERE zone=#{old_zone} AND period=#{old_period}")
-      
+
       render :text => {"success" => true}.to_json
     end
   end
-  
+
   def pps_zone_workdays
 
     case request.method.to_s
@@ -209,7 +211,7 @@ class TermDelivery::MakeAutoSetupController < ApplicationSimpleErrorController
       end
     when "post"
       ddate=Time.parse(params[:ddate]).strftime('%F')
-      
+
       ActiveRecord::Base.connection.execute(
       "INSERT INTO pps_zone_workday(
         ddate,
@@ -234,7 +236,7 @@ class TermDelivery::MakeAutoSetupController < ApplicationSimpleErrorController
       ddate=Time.parse(params[:id]).strftime('%F')
       ActiveRecord::Base.connection.execute("
       DELETE FROM pps_zone_workday WHERE ddate='#{ddate}'")
-      
+
       render :text => {"success" => true}.to_json
     end
   end

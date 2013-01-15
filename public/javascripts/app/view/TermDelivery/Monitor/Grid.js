@@ -63,7 +63,7 @@ Ext.define('app.view.TermDelivery.Monitor.Grid', {
 							ddate = new Date(Ext.getCmp('ddate').getValue());
 						
 						window.open(
-							"/term_delivery/route_print?zone="+currentRecord.get('id')+
+							"/term_delivery/monitor/route_print?zone="+currentRecord.get('id')+
 							"&ddate="+Ext.Date.format(ddate, 'Y-m-d')+
 							"&rel=external", "", "");
 					}
@@ -82,7 +82,7 @@ Ext.define('app.view.TermDelivery.Monitor.Grid', {
 							onlyInRoute = Ext.getCmp('onlyInRoute').getValue();
 						
 						window.open(
-							"/term_delivery/route_export?zone="+currentRecord.get('id')+
+							"/term_delivery/monitor/route_export?zone="+currentRecord.get('id')+
 							"&ddate="+Ext.Date.format(ddate, 'Y-m-d')+
 							"&subdealer_id="+subdealerId+
 							"&zone_type_id="+zoneTypeId+
