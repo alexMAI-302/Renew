@@ -6,6 +6,7 @@ Ext.define('app.view.Comp.Filter', {
     layout: {
 		type: 'hbox'
 	},
+	
 	defaults: {
 		style: {
 			margin: '5px'
@@ -13,79 +14,100 @@ Ext.define('app.view.Comp.Filter', {
 	},
 	items: [
 		{
-			id: 'filterTypeComp',
-			xtype: 'combobox',
-			fieldLabel: 'Тип',
-			valueField: 'id',
-			displayField: 'name',
-			queryMode: 'local',
-			allowNull: true,
-			width: 400,
-			labelWidth: 25,
-			listeners: {
-				select: function(field){
-					field.getStore().clearFilter(true);
-					return true;
+			defaults: {
+				border: false,
+				style: {
+					margin: '5px'
 				}
-			}
-		},
-		{
-			id: 'filterSerialComp',
-			xtype: 'textfield',
-			fieldLabel: 'Номер',
-			width: 200,
-			labelWidth: 40
-		},
-		{
-			id: 'filterCompLocationComp',
-			xtype: 'combobox',
-			fieldLabel: 'Местонахождение',
-			valueField: 'id',
-			displayField: 'name',
-			queryMode: 'local',
-			allowNull: true,
-			width: 250,
-			labelWidth: 110,
-			listeners: {
-				select: function(field){
-					field.getStore().clearFilter(true);
-					return true;
+			},
+			layout: 'vbox',
+			items: [
+				{
+					layout: 'hbox',
+					items: [
+						{
+							id: 'filterTypeComp',
+							xtype: 'combobox',
+							fieldLabel: 'Тип',
+							valueField: 'id',
+							displayField: 'name',
+							queryMode: 'local',
+							allowNull: true,
+							width: 410,
+							labelWidth: 25,
+							listeners: {
+								select: function(field){
+									field.getStore().clearFilter(true);
+									return true;
+								}
+							}
+						},
+						{
+							id: 'filterSerialComp',
+							xtype: 'textfield',
+							fieldLabel: 'Номер',
+							width: 200,
+							labelWidth: 40
+						}
+					]
+				},
+				{
+					layout: 'hbox',
+					items: [
+						{
+							id: 'filterCompLocationComp',
+							xtype: 'combobox',
+							fieldLabel: 'Местонахождение',
+							valueField: 'id',
+							displayField: 'name',
+							queryMode: 'local',
+							allowNull: true,
+							width: 250,
+							labelWidth: 110,
+							listeners: {
+								select: function(field){
+									field.getStore().clearFilter(true);
+									return true;
+								}
+							}
+						},
+						{
+							id: 'filterTerminalComp',
+							xtype: 'combobox',
+							fieldLabel: 'Терминал',
+							valueField: 'id',
+							displayField: 'name',
+							queryMode: 'local',
+							allowNull: true,
+							width: 160,
+							labelWidth: 60,
+							listeners: {
+								select: function(field){
+									field.getStore().clearFilter(true);
+									return true;
+								}
+							}
+						},
+						{
+							id: 'filterPersonComp',
+							xtype: 'combobox',
+							fieldLabel: 'Сотрудник',
+							valueField: 'id',
+							displayField: 'name',
+							queryMode: 'local',
+							allowNull: true,
+							width: 200,
+							labelWidth: 65,
+							listeners: {
+								select: function(field){
+									field.getStore().clearFilter(true);
+									return true;
+								}
+							}
+						}
+					]
 				}
-			}
-		},
-		{
-			id: 'filterTerminalComp',
-			xtype: 'combobox',
-			fieldLabel: 'Терминал',
-			valueField: 'id',
-			displayField: 'name',
-			queryMode: 'local',
-			allowNull: true,
-			width: 160,
-			labelWidth: 60,
-			listeners: {
-				select: function(field){
-					field.getStore().clearFilter(true);
-					return true;
-				}
-			}
-		},
-		{
-			id: 'filterPersonComp',
-			xtype: 'combobox',
-			fieldLabel: 'Сотрудник',
-			valueField: 'id',
-			displayField: 'name',
-			queryMode: 'local',
-			allowNull: true,
-			width: 200,
-			labelWidth: 65,
-			listeners: {
-				select: function(field){
-					field.getStore().clearFilter(true);
-					return true;
-				}
-			}
+			]
 		},
 		{
 			id: 'filterComp',
