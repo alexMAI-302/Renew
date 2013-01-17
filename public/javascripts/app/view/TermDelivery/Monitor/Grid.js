@@ -76,7 +76,6 @@ Ext.define('app.view.TermDelivery.Monitor.Grid', {
 					handler: function(view, rowIndex, colIndex, item, e){
 						var currentRecord=view.store.getAt(rowIndex),
 							ddate = new Date(Ext.getCmp('ddate').getValue()),
-							subdealerId = Ext.getCmp('subdealerCombo').getValue(),
 							zoneTypeId = Ext.getCmp('zoneTypeCombo').getValue(),
 							onlyWithErrors = Ext.getCmp('onlyWithErrors').getValue(),
 							onlyInRoute = Ext.getCmp('onlyInRoute').getValue();
@@ -84,7 +83,6 @@ Ext.define('app.view.TermDelivery.Monitor.Grid', {
 						window.open(
 							"/term_delivery/monitor/route_export?zone="+currentRecord.get('id')+
 							"&ddate="+Ext.Date.format(ddate, 'Y-m-d')+
-							"&subdealer_id="+subdealerId+
 							"&zone_type_id="+zoneTypeId+
 							"&only_with_errors="+onlyWithErrors+
 							"&only_in_route="+onlyInRoute+

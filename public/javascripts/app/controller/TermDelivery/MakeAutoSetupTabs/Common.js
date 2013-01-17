@@ -61,6 +61,11 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Common', {
 		
 		controller.terminalsStore=controller.getTermDeliveryMakeAutoSetupTerminalsStore();
 		controller.zonesStore=controller.getTermDeliveryMakeAutoSetupZonesStore();
+		
+		controller.zonesStore.proxy.extraParams={
+			zone_type: 0
+		};
+		controller.zonesStore.load();
 	},
 	
 	bindStores: function(){
