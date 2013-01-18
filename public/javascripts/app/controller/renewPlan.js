@@ -9,7 +9,10 @@ Ext.define('app.controller.renewPlan', {
 		'app.model.renewPlan.siteStorageModel',
 		'app.model.valueModel'
 	],
+	requires: ['app.view.Lib.DateIntervalFilter'],
     init: function() {
+    	
+    	var name='RenewPlan';
 	
 		function showServerError(response, options) {
 			Ext.Msg.alert('Ошибка', response.responseText);
@@ -17,8 +20,8 @@ Ext.define('app.controller.renewPlan', {
 		}
 	
 		function loadRenewPlans(){
-			var ddateb = new Date(filterPanel.down('#startDate').getValue());
-			var ddatee = new Date(filterPanel.down('#endDate').getValue());
+			var ddateb = new Date(Ext.getCmp('ddateb'+name).getValue()),
+				ddatee = new Date(Ext.getCmp('ddatee'+name).getValue());
 			
 			siteStoragesStore.proxy.extraParams={};
 			
@@ -86,50 +89,18 @@ Ext.define('app.controller.renewPlan', {
 				type: 'anchor'
 			},
 			renderTo: Ext.get('renew_plan_js'),
-			defaults: {
-				style: {
-					margin: '10px'
+			items: [
+				{
+					xtype: 'dateIntervalFilter',
+					suffix: name,
+					shiftInterval: Ext.Date.DAY,
+					shiftBegin: 1,
+					shiftEnd: 3
 				}
-			}
+			]
 		});
 		
-		var filterPanel=Ext.create('Ext.form.Panel',{
-			layout: {
-				type: 'hbox'
-			},
-			defaults: {
-				style: {
-					margin: '5px'
-				}
-			},
-			items: [{
-				id: 'startDate',
-				xtype: 'datefield',
-				name: 'startDate',
-				fieldLabel: 'Начало периода',
-				format: 'd.m.Y',
-				altFormat: 'd/m/Y|d m Y',
-				startDay: 1,
-				value: Ext.Date.add(new Date(Ext.Date.now()), Ext.Date.DAY, 1)
-			},{
-				id: 'endDate',
-				xtype: 'datefield',
-				name: 'endDate',
-				fieldLabel: 'Конец периода',
-				format: 'd.m.Y',
-				altFormat: 'd/m/Y|d m Y',
-				startDay: 1,
-				value: Ext.Date.add(new Date(Ext.Date.now()), Ext.Date.DAY, 3)
-			}]
-		});
-		
-		var filterRenewPlans=Ext.create('Ext.Button', {
-			text    : 'Фильтр',
-			handler : loadRenewPlans
-		});
-		
-		filterPanel.add(filterRenewPlans);
-		mainContainer.add(filterPanel);
+		Ext.getCmp('filter'+name).handler=loadRenewPlans;
 		
 		var cellEditingRenewPlans = Ext.create('Ext.grid.plugin.CellEditing', {
 			clicksToEdit: 1,

@@ -41,10 +41,10 @@ Ext.define('app.controller.movementDiff', {
 	
 	loadMovementDiff: function(){
 		var controller=this,
-			ddateb = new Date(Ext.getCmp('startDate').getValue()),
-			ddatee = new Date(Ext.getCmp('endDate').getValue()),
-			siteFrom = Ext.getCmp('siteFrom').getValue(),
-			siteTo = Ext.getCmp('siteTo').getValue();
+			ddateb = new Date(Ext.getCmp('ddatebDiffs').getValue()),
+			ddatee = new Date(Ext.getCmp('ddatebDiffs').getValue()),
+			siteFrom = Ext.getCmp('siteFromDiffs').getValue(),
+			siteTo = Ext.getCmp('siteToDiffs').getValue();
 		
 		controller.mainContainer.setLoading(true);
 
@@ -230,7 +230,7 @@ Ext.define('app.controller.movementDiff', {
 					});
 				}
 			},
-			'#filterDiff': {
+			'#filterDiffs': {
 				'click': controller.loadMovementDiff
 			}
 		});
@@ -269,8 +269,8 @@ Ext.define('app.controller.movementDiff', {
 		Ext.getCmp('movementDiffTable').columns[0].renderer=sitesRenderer;
 		Ext.getCmp('movementDiffTable').columns[1].renderer=sitesRenderer;
 		
-		Ext.getCmp('siteFrom').bindStore(controller.sitesStore);
-		Ext.getCmp('siteTo').bindStore(controller.sitesStore);
+		Ext.getCmp('siteFromDiffs').bindStore(controller.sitesStore);
+		Ext.getCmp('siteToDiffs').bindStore(controller.sitesStore);
 		Ext.getCmp('movementDiffTable').reconfigure(controller.movementDiffStore);
 		Ext.getCmp('actionType').bindStore(controller.actionTypeStore);
 		Ext.getCmp('siteSrcAction').bindStore(controller.sitesSrcClearStore);
@@ -284,8 +284,8 @@ Ext.define('app.controller.movementDiff', {
 				if(successful==true){
 					var r=Ext.ModelManager.create({id: -1, name : 'ВСЕ'}, 'app.model.valueModel');
 					store.insert(0, r);
-					Ext.getCmp('siteFrom').select(r);
-					Ext.getCmp('siteTo').select(r);
+					Ext.getCmp('siteFromDiffs').select(r);
+					Ext.getCmp('siteToDiffs').select(r);
 				}
 			}
 		);

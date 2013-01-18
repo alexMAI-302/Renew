@@ -284,8 +284,8 @@ Ext.define('app.controller.mag', {
 		
 		controller.palmSalesLocalStore.data.each(function(record){
 			if(
-				record.get('ddate')>=Ext.getCmp('startDate').getValue() &&
-				record.get('ddate')<=Ext.getCmp('endDate').getValue()){
+				record.get('ddate')>=Ext.getCmp('ddatebPalmSales').getValue() &&
+				record.get('ddate')<=Ext.getCmp('ddateePalmSales').getValue()){
 					var r = {
 							id: -record.get('id'),
 							ddate: Ext.Date.format(record.get('ddate'), 'Y-m-d H:i:s'),
@@ -301,8 +301,8 @@ Ext.define('app.controller.mag', {
 			timeout: 300000,
 			method: 'GET',
 			params: {
-				ddateb: Ext.getCmp('startDate').getValue(),
-				ddatee: Ext.getCmp('endDate').getValue()
+				ddateb: Ext.getCmp('ddatebPalmSales').getValue(),
+				ddatee: Ext.getCmp('ddateePalmSales').getValue()
 			},
 			callback: function(options, success, response){
 				if(success===true){
