@@ -47,6 +47,12 @@ Ext.define('app.view.Lib.Grid.Panel', {
 			);
 		}
 		
+		if(config.extraButtons!=null){
+			for(var i=0; i<config.extraButtons.length; i++){
+				buttons.push(extraButtons);
+			}
+		}
+		
 		config.dockedItems = [{
 			xtype: 'toolbar',
 			dock: config.buttonsDock || 'top',
@@ -68,7 +74,7 @@ Ext.define('app.view.Lib.Grid.Panel', {
 			config.columns.push({
 				xtype:'actioncolumn',
 				width:20,
-				icon: 'ext/examples/shared/icons/fam/cross.gif',
+				icon: '/ext/examples/shared/icons/fam/cross.gif',
 				handler: function(grid, rowIndex){
 					grid.store.removeAt(rowIndex);
 				}
