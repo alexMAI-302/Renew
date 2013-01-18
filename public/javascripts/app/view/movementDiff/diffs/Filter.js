@@ -10,11 +10,6 @@ Ext.define('app.view.movementDiff.diffs.Filter', {
 		columns: 3,
 		rows:2
 	},
-	defaults: {
-		style: {
-			margin: '5px'
-		}
-	},
 	items: [{
 		id: 'startDate',
 		xtype: 'datefield',

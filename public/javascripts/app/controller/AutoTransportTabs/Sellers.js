@@ -57,20 +57,19 @@ Ext.define('app.controller.AutoTransportTabs.Sellers', {
 		controller.control({
 			'#saveSellers': {
 				click: function(){
-					var selected=Ext.getCmp('nomenclatureGroupsTable').getSelectionModel().getSelection()[0];
 					controller.sync(
 						controller.sellersStore,
 						controller.sellersContainer);
 					return true;
 				}
 			},
-			'#sellersTable': {
+			'#SellersTable': {
 				selectionchange: function(sm, selected, eOpts){
-					Ext.getCmp('deleteSeller').setDisabled(selected==null || selected.length==0);
+					Ext.getCmp('deleteSellers').setDisabled(selected==null || selected.length==0);
 					return true;
 				}
 			},
-			'#addSeller':{
+			'#addSellers':{
 				click: function(){
 					var r = Ext.ModelManager.create({}, 'app.model.valueModel');
 					controller.sellersStore.add(r);
@@ -79,9 +78,9 @@ Ext.define('app.controller.AutoTransportTabs.Sellers', {
 			'#refreshSellers': {
 				click: controller.refreshSellers
 			},
-			'#deleteSeller': {
+			'#deleteSellers': {
 				click: function(button){
-					var sm = Ext.getCmp('sellersTable').getSelectionModel();
+					var sm = Ext.getCmp('SellersTable').getSelectionModel();
 					
 					controller.sellersStore.remove(sm.getSelection()[0]);
 					if (controller.sellersStore.getCount() > 0) {
@@ -103,7 +102,7 @@ Ext.define('app.controller.AutoTransportTabs.Sellers', {
 	bindStores: function(){
 		var controller=this;
 		
-		Ext.getCmp('sellersTable').reconfigure(controller.sellersStore);
+		Ext.getCmp('SellersTable').reconfigure(controller.sellersStore);
 	},
 	
 	onLaunch: function(){

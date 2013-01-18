@@ -98,11 +98,10 @@ class AutoTransportController < ApplicationSimpleErrorController
           i.id,
           i.ddate,
           i.type,
-          ig.vol*ig.price sum,
+          (SELECT SUM(ig.vol*ig.price) FROM dbo.at_incgoods ig WHERE ig.at_income=i.id) sum,
           i.at_seller
         FROM
           dbo.at_income i
-          LEFT JOIN dbo.at_incgoods ig ON ig.at_income=i.id
         WHERE
           i.ddate >= '#{Time.parse(params[:ddateb]).strftime('%F %T')}'
           AND
@@ -198,10 +197,10 @@ class AutoTransportController < ApplicationSimpleErrorController
           r.id,
           r.ddate,
           r.truck truck_id,
-          t.name truck_name
+          t.name + ' ' + ISNULL(t.model, '') truck_name
         FROM
           dbo.at_recept r
-          LEFT JOIN truck t ON t.id=r.truck
+          LEFT JOIN dbo.at_truck t ON t.id=r.truck
         WHERE
           r.ddate >= '#{Time.parse(params[:ddateb]).strftime('%F %T')}'
           AND

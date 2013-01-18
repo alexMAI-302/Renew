@@ -3,7 +3,7 @@ Ext.define('app.view.mag.palmSaleOrders.container', {
 	alias: 'widget.ordersContainer',
 	
 	requires: [
-		'app.view.mag.palmSaleOrders.filter',
+		'app.view.Lib.DateIntervalFilter',
 		'app.view.mag.palmSaleOrders.itemsGrid',
 		'app.view.mag.palmSaleOrders.Grid'
 	],
@@ -14,7 +14,9 @@ Ext.define('app.view.mag.palmSaleOrders.container', {
 	
 	items: [
         {
-			xtype: 'ordersFilter'
+			xtype: 'dateIntervalFilter',
+			suffix: 'PalmSales',
+			shiftEnd: 1
 		},
 		{
 			xtype: 'ordersGrid'
