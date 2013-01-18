@@ -13,6 +13,7 @@ Ext.define('app.view.Lib.DateIntervalFilter', {
 	 * shiftInterval - интервал сдвига (на основе констант Ext.Date). По умолчанию Ext.Date.DAY
 	 * shiftBegin - величина сдвига относительно даты конца. По умолчанию 0
 	 * shiftEnd - величина сдвига относительно даты конца. По умолчанию 0
+	 * extraItems - дополнительные элементы. Передается "сырая" конфигурация
 	 */
 	constructor : function(config) {
 		config = config || {};

@@ -6,7 +6,10 @@ Ext.define('app.view.Lib.Grid.Panel', {
 	 * Creates the Proxy
 	 * @param {Object} config Config object.
 	 * suffix - специальное имя для компонента. используется при построении идентификатора объектов
-	 * *Disable - не использовать данную кнопку
+	 * disable* - не использовать данную кнопку
+	 * extraButtons - дополнительные кнопки для панели
+	 * disableEditing - таблица нередактируемая. По умолчанию используется редактирование ячеек
+	 * disableDeleteColumn - не добавлять колонку удаления позиций. По умолчанию добавляется
 	 */
 	constructor : function(config) {
 		config = config || {};
@@ -63,10 +66,12 @@ Ext.define('app.view.Lib.Grid.Panel', {
 			enableTextSelection : true
 		};
 		
-		config.plugins = config.plugins || [Ext.create('Ext.grid.plugin.CellEditing', {
-			clicksToEdit : 1,
-			pluginId : 'cellEditing'+config.suffix
-		})];
+		if(config.disableEditing!==true){
+			config.plugins = config.plugins || [Ext.create('Ext.grid.plugin.CellEditing', {
+				clicksToEdit : 1,
+				pluginId : 'cellEditing'+config.suffix
+			})];
+		}
 		
 		config.id = config.suffix+'Table';
 		
