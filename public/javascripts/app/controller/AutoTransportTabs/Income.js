@@ -152,7 +152,7 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 				click: function(){
 					var sm=Ext.getCmp('IncomeTable').getSelectionModel(),
 						r = Ext.ModelManager.create({master_id: sm.getSelection()[0].getId()}, 'app.model.AutoTransport.GoodsModel');
-					controller.detailStore.add(r);
+					controller.detailStore.insert(0, r);
 				}
 			},
 			'#saveIncome': {
@@ -171,7 +171,7 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 				click: function(){
 					var sm=Ext.getCmp('IncomeTable').getSelectionModel(),
 						r = Ext.ModelManager.create({ddate: new Date()}, 'app.model.AutoTransport.IncomeModel');
-					controller.masterStore.add(r);
+					controller.masterStore.insert(0, r);
 					sm.select(r);
 				}
 			},
@@ -225,8 +225,9 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 	
 	makeComboColumn: function(column, storeCombo, tableStore, property, allowNull, onlyRenderer){
 		function renderer(value){
-			var matching = null;
-			storeCombo.each(function(record){
+			var matching = null,
+				data=storeCombo.snapshot || storeCombo.data;
+			data.each(function(record){
 				if(record.get('id')==value){
 					matching=record.get('name');
 				}

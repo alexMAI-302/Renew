@@ -142,7 +142,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 				click: function(){
 					var sm=Ext.getCmp('ReceptTable').getSelectionModel(),
 						r = Ext.ModelManager.create({master_id: sm.getSelection()[0].getId()}, 'app.model.AutoTransport.GoodsModel');
-					controller.detailStore.add(r);
+					controller.detailStore.insert(0, r);
 				}
 			},
 			'#saveRecept': {
@@ -163,7 +163,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 				click: function(){
 					var sm=Ext.getCmp('ReceptTable').getSelectionModel(),
 						r = Ext.ModelManager.create({ddate: new Date()}, 'app.model.AutoTransport.ReceptModel');
-					controller.masterStore.add(r);
+					controller.masterStore.insert(0, r);
 					sm.select(r);
 				}
 			},
@@ -213,10 +213,11 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 		receptTable.reconfigure(controller.masterStore);
 	},
 	
-	makeComboColumn: function(column, storeCombo, tableStore, property, onlyRenderer){
+	makeComboColumn: function(column, storeCombo, tableStore, property, allowNull, onlyRenderer){
 		function renderer(value){
-			var matching = null;
-			storeCombo.each(function(record){
+			var matching = null,
+				data=storeCombo.snapshot || storeCombo.data;
+			data.each(function(record){
 				if(record.get('id')==value){
 					matching=record.get('name');
 				}
@@ -231,7 +232,8 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 				queryMode: 'local',
 				displayField: 'name',
 				valueField: 'id',
-				value: ""
+				value: "",
+				autoSelect: (allowNull!==true)
 			});
 		}
 		column.renderer=renderer;
