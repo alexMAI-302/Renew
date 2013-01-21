@@ -129,7 +129,7 @@ function Unact(){
 		
 		functionPlaceunload: function(sid, i){
 			for (var j = 0; j < rr.length; j++) {
-				if ( polygons[j].geometry.contains(placemarks[i].getCoordinates() ) ) {
+				if ( polygons[j].geometry.contains(placemarks[i].geometry.getCoordinates() ) ) {
 					$('a_' + sid + '_buyers_route_id').value = rr[j].id;
 				};
 			};
