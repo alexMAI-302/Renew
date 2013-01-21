@@ -226,7 +226,8 @@ Ext.define('app.controller.movementDiff', {
 						url: '/movement_diff/clear_diff',
 						success: function(response){
 							controller.loadMovementDiff();
-						}
+						},
+						failure: showServerError
 					});
 				}
 			},

@@ -32,18 +32,16 @@ class MovementDiffController < ApplicationSimpleErrorController
     xml.sale_items do
       ids.each do |i|
         elements=i.split('_')
-        xml.item(
-        :site_from => elements[0],
-        :site_to => elements[1],
-        :id => elements[2],
-        :subid => elements[3]
-        )
+        xml.item do |t|
+          t.id elements[2]
+          t.subid elements[3]
+        end
       end
     end
 
-    logger.info "exec dbo.movement_diff_clear '#{new_xml}'"
+    logger.info "call dbo.movement_diff_clear(#{ActiveRecord::Base.connection.quote(new_xml)})"
 
-    Proxycat.connection.execute("exec dbo.movement_diff_clear '#{new_xml}'")
+    ActiveRecord::Base.connection.execute("call dbo.movement_diff_clear(#{ActiveRecord::Base.connection.quote(new_xml)})")
 
     render :text => 'ok'
   end
