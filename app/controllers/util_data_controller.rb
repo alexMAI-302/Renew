@@ -141,7 +141,7 @@ class UtilDataController < ApplicationSimpleErrorController
   end
 
   def get_sites
-    sites=Proxycat.connection.select_all("
+    sites=ActiveRecord::Base.connection.select_all("
 		SELECT
 			id,
 			name

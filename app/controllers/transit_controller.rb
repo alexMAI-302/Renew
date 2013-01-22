@@ -175,7 +175,7 @@ class TransitController < ApplicationSimpleErrorController
 				end
 			#если файл не только с товарами и количеством, а еще и площадками, то
 			else
-				sites=Proxycat.connection.select_all("
+				sites=ActiveRecord::Base.connection.select_all("
 				SELECT
 					id,
 					name

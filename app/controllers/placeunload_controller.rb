@@ -466,7 +466,7 @@ private
     SELECT
       id,
       name,
-      null,
+      null points,
       'buyers_route_list' type
     FROM
       buyers_route

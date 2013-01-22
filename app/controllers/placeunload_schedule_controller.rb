@@ -55,7 +55,7 @@ class PlaceunloadScheduleController < ApplicationSimpleErrorController
       pref_concept.type = 1 AND 
       pref_concept.name = 'Хр: Партнеры - Торг.предст.'
       AND
-      partners_groups.name LIKE '%'+'#{Proxycat.connection.quote_string(params[:query])}'+'%'
+      partners_groups.name LIKE '%'+'#{ActiveRecord::Base.connection.quote_string(params[:query])}'+'%'
     ORDER BY
       partners_groups.name")
 
