@@ -20,7 +20,6 @@ Ext.define('app.controller.calcBp', {
 				url: '/bprog/test',				
 				timeout: 600000,
 				params: {
-					filial_id: filialCombo.getValue(),
 					partner_groups_id: partnerGroupsCombo.getValue(),
 					authenticity_token: window._token
 				},
@@ -34,18 +33,7 @@ Ext.define('app.controller.calcBp', {
 				},
 				failure: showServerError
 			});		
-		}
-
-		var filialStore = Ext.create('Ext.data.Store', {
-			model: 'app.model.valueModel',
-			proxy: {
-				type: 'rest',
-				url : '/bprog/get_filial',
-				reader: {
-					type: 'json'
-				}
-			}
-		});
+		};
 
 		var partnerGroupsStore = Ext.create('Ext.data.Store', {
 			model: 'app.model.valueModel',
@@ -81,35 +69,6 @@ Ext.define('app.controller.calcBp', {
 				}
 			}
 		});
-		
-		var filialCombo=Ext.create('Ext.form.ComboBox', {
-			fieldLabel: 'Филиал',
-			store: filialStore,
-			displayField: 'name',
-			valueField: 'id',
-			allowBlank: false,
-			queryMode: 'local',
-			listeners: {
-				'select': function(combo, record, index) {
-					var partner_groups = Ext.getCmp('partner_groups');
-					
-					//partner_groups.setLoading(true);
-					partner_groups.setDisabled(true);
-					
-					partner_groups.clearValue();
-										
-					partner_groups.store.load({
-						params: { 
-							'filial_id': combo.getValue()
-						}
-					});
-					partner_groups.select(partner_groups.getStore().data.items[0]);
-					
-					partner_groups.setDisabled(false);
-					//partner_groups.setLoading(false);
-				}
-			}
-		});
 	
 		var partnerGroupsCombo=Ext.create('Ext.form.ComboBox', {
 			id: 'partner_groups',
@@ -126,21 +85,12 @@ Ext.define('app.controller.calcBp', {
 			handler : calc
 		});
 
-		filterPanel.add(filialCombo);
 		filterPanel.add(partnerGroupsCombo);
 		filterPanel.add(calcButton)
 		mainContainer.add(filterPanel);
 	
 
 		mainContainer.setLoading(true);
-		
-		filialStore.load(function(records, operation, success) {
-			finishFilials=true;
-			filialCombo.select(records[0]);
-			if (finishGroups){
-				mainContainer.setLoading(false);
-			}
-		});
 
 		partnerGroupsStore.load(function(records, operation, success) {
 			finishGroups=true;

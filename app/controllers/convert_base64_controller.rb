@@ -7,20 +7,18 @@ class ConvertBase64Controller < ApplicationPageErrorController
   def points_string_get
     site=params['site'].to_i
     if site>0 then
-      @points_strings=Proxycat.connection.select_all("
-      EXEC get_data_site
-      'SELECT
+      @points_strings=ActiveRecord::Base.connection.select_all("
+      SELECT
         buyers_route,
         pps_zone,
-        ''[''+list(''[''+CONVERT(varchar(30), latitude)+'', ''+CONVERT(varchar(30), longitude)+'']'' ORDER BY gc.number)+'']'' points_string
+        '['+list('['+CONVERT(varchar(30), latitude)+', '+CONVERT(varchar(30), longitude)+']' ORDER BY gc.number)+']' points_string
       FROM
         geozone_coordinates gc
       GROUP BY
         gc.buyers_route,
-        gc.pps_zone',
-      #{site}")
+        gc.pps_zone")
     end
-    
+
     render :partial => "points"
   end
 
@@ -31,12 +29,10 @@ class ConvertBase64Controller < ApplicationPageErrorController
     site=params[:site].to_i
     if site>0 then
       zones.each_key do |i|
-        Proxycat.connection.execute("
-        EXEC iud_data_site
-        'UPDATE #{buyers_routes[i].to_i>0 ? 'buyers_route' : 'pps_zone'}
-        SET points=''#{zones[i]}''
-        WHERE id=#{buyers_routes[i].to_i>0 ? buyers_routes[i].to_i : pps_zones[i].to_i}',
-        #{site}")
+        ActiveRecord::Base.connection.execute("
+        UPDATE #{buyers_routes[i].to_i>0 ? 'buyers_route' : 'pps_zone'}
+        SET points='#{zones[i]}'
+        WHERE id=#{buyers_routes[i].to_i>0 ? buyers_routes[i].to_i : pps_zones[i].to_i}")
       end
     end
     render :text => 'ok'
