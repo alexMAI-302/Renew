@@ -3,19 +3,28 @@ Ext.define('app.view.AutoTransport.Sellers.Container', {
 	alias: 'widget.sellersTab',
 	
 	requires: [
-		'app.view.AutoTransport.Sellers.Grid'
+		'app.view.Lib.Grid.Panel'
 	],
 	
 	layout: {
-		type: 'border'
+		type: 'anchor'
 	},
 	
 	title: 'Поставщики',
 	
 	items: [
 		{
-			xtype: 'sellersGrid',
-			region: 'center'
+			xtype: 'simpleGrid',
+			suffix: 'Sellers',
+			disableDeleteColumn: true,
+			columns : [{
+				width : 150,
+				header : 'Наименование',
+				dataIndex : 'name',
+				field : {
+					xtype : 'textfield',
+				}
+			}]
 		}
 	]
 });

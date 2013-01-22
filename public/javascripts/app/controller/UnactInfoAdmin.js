@@ -30,22 +30,20 @@ Ext.define('app.controller.UnactInfoAdmin', {
 		controller.fileWindow=Ext.create('app.view.UnactInfoAdmin.FileWindow');
 		
 		controller.control({
-			'#addFile': {
+			'#addActions': {
 				click: function(button, e){
 					var r = Ext.ModelManager.create({}, 'app.model.UnactInfoAdmin.ActionModel');
 					controller.actionsStore.add(r);
 				}
 			},
-			'#refresh': {
+			'#refreshActions': {
 				click: function(button, e){
-					controller.mainContainer.setLoading(true);
 					controller.actionsStore.load();
 					return true;
 				}
 			},
-			'#save': {
+			'#saveActions': {
 				click: function(button, e){
-					controller.mainContainer.setLoading(true);
 					controller.actionsStore.sync({
 						callback: function(batch){
 							if(batch.exceptions.length>0){
@@ -87,23 +85,17 @@ Ext.define('app.controller.UnactInfoAdmin', {
 		var controller=this;
 		
 		controller.actionsStore=controller.getUnactInfoAdminActionsStore();
-		controller.actionsStore.addListener(
-			"load",
-			function(){
-				controller.mainContainer.setLoading(false);
-				return true;
-			});
 	},
 	
 	bindStores: function(){
 		var controller=this;
 		
-		controller.mainContainer.reconfigure(controller.actionsStore);
+		Ext.getCmp('ActionsTable').reconfigure(controller.actionsStore);
 	},
 	
 	initTables: function(){
 		var controller=this,
-			columnUpload = controller.mainContainer.columns[4];
+			columnUpload = Ext.getCmp('ActionsTable').columns[4];
 		
 		columnUpload.handler = function(grid, rowIndex, colIndex){
 			var r=grid.store.getAt(rowIndex);

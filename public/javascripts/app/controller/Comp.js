@@ -69,7 +69,7 @@ Ext.define('app.controller.Comp', {
 			'#filterComp': {
 				click: controller.filterComp
 			},
-			'#compTable': {
+			'#CompTable': {
 				selectionchange: function(sm, selected, eOpts){
 					if(selected!=null && selected.length==1){
 						var selectedId=selected[0].get('id');
@@ -79,13 +79,13 @@ Ext.define('app.controller.Comp', {
 							controller.loadDetail(
 								selectedId,
 								controller.operationsStore,
-								Ext.getCmp('operationsTable')
+								Ext.getCmp('OperationsTable')
 							);
 						} else {
-							Ext.getCmp('operationsTable').setDisabled(false);
+							Ext.getCmp('OperationsTable').setDisabled(false);
 						}
 					} else {
-						Ext.getCmp('operationsTable').setDisabled(true);
+						Ext.getCmp('OperationsTable').setDisabled(true);
 					}
 					Ext.getCmp('actionPanel').setDisabled(selected==null || selected.length==0 || selected[0].phantom);
 					return true;
@@ -95,13 +95,13 @@ Ext.define('app.controller.Comp', {
 				click: function(){
 					var r = Ext.ModelManager.create({serial:'бн'}, 'app.model.Comp.ComponentModel');
 					controller.compStore.add(r);
-					Ext.getCmp('compTable').getPlugin('rowEditingComp').startEdit(r, 0);
+					Ext.getCmp('CompTable').getPlugin('rowEditingComp').startEdit(r, 0);
 					Ext.getCmp('addComp').setDisabled(true);
 				}
 			},
 			'#actionMoveComp': {
 				click: function(){
-					var selection = Ext.getCmp('compTable').getSelectionModel().getSelection(),
+					var selection = Ext.getCmp('CompTable').getSelectionModel().getSelection(),
 						ids=[],
 						destination = Ext.getCmp('actionDestinationComp').getValue();
 					
@@ -131,7 +131,7 @@ Ext.define('app.controller.Comp', {
 									controller.loadDetail(
 										selection[0].get('id'),
 										controller.operationsStore,
-										Ext.getCmp('operationsTable')
+										Ext.getCmp('OperationsTable')
 									);
 								}
 							} else {
@@ -142,19 +142,19 @@ Ext.define('app.controller.Comp', {
 					});
 				}
 			},
-			'#refreshCompOperations': {
+			'#refreshOperations': {
 				click: function(){
-					var selection = Ext.getCmp('compTable').getSelectionModel().getSelection();
+					var selection = Ext.getCmp('CompTable').getSelectionModel().getSelection();
 					controller.loadDetail(
 						selection[0].get('id'),
 						controller.operationsStore,
-						Ext.getCmp('operationsTable')
+						Ext.getCmp('OperationsTable')
 					);
 				}
 			}
 		});
 		
-		Ext.getCmp('compTable').getPlugin('rowEditingComp').addListener(
+		Ext.getCmp('CompTable').getPlugin('rowEditingComp').addListener(
 			"edit",
 			function(editor, e, eOpts){
 				controller.compStore.proxy.extraParams={};
@@ -172,7 +172,7 @@ Ext.define('app.controller.Comp', {
 				return true;
 			}
 		);
-		Ext.getCmp('compTable').getPlugin('rowEditingComp').addListener(
+		Ext.getCmp('CompTable').getPlugin('rowEditingComp').addListener(
 			"canceledit",
 			function(editor, e, eOpts){
 				if(e.record.phantom){
@@ -236,9 +236,9 @@ Ext.define('app.controller.Comp', {
 	
 	bindStores: function(){
 		var controller=this,
-			compTable=Ext.getCmp('compTable');
+			compTable=Ext.getCmp('CompTable');
 		
-		Ext.getCmp('operationsTable').reconfigure(controller.operationsStore);
+		Ext.getCmp('OperationsTable').reconfigure(controller.operationsStore);
 		compTable.reconfigure(controller.compStore);
 		
 		Ext.getCmp('filterTypeComp').bindStore(controller.typesStore);
@@ -292,8 +292,8 @@ Ext.define('app.controller.Comp', {
 	
 	initTables: function(){
 		var controller=this,
-			compTable = Ext.getCmp('compTable'),
-			operationsTable = Ext.getCmp('operationsTable'),
+			compTable = Ext.getCmp('CompTable'),
+			operationsTable = Ext.getCmp('OperationsTable'),
 			typeColumn = compTable.columns[0],
 			stateColumn = compTable.columns[2],
 			compPersonColumn = compTable.columns[3];

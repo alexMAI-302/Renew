@@ -125,29 +125,29 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 					);
 				}
 			},
-			'#receptTable': {
+			'#ReceptTable': {
 				selectionchange: function(sm, selected, eOpts){
 					if(selected!=null && selected.length>0){
 						controller.loadDetail(
 							selected[0].getId(),
-							Ext.getCmp('recGoodsTable')
+							Ext.getCmp('RecGoodsTable')
 						);
 					} else {
-						Ext.getCmp('recGoodsTable').setDisabled(true);
+						Ext.getCmp('RecGoodsTable').setDisabled(true);
 					}
 					return true;
 				}
 			},
 			'#addRecGoods':{
 				click: function(){
-					var sm=Ext.getCmp('receptTable').getSelectionModel(),
+					var sm=Ext.getCmp('ReceptTable').getSelectionModel(),
 						r = Ext.ModelManager.create({master_id: sm.getSelection()[0].getId()}, 'app.model.AutoTransport.GoodsModel');
-					controller.detailStore.add(r);
+					controller.detailStore.insert(0, r);
 				}
 			},
 			'#saveRecept': {
 				click: function(){
-					var selected=Ext.getCmp('receptTable').getSelectionModel().getSelection()[0];
+					var selected=Ext.getCmp('ReceptTable').getSelectionModel().getSelection()[0];
 					controller.syncMaster(
 						controller.receptContainer,
 						(selected!=null)?
@@ -161,19 +161,19 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 			},
 			'#addRecept':{
 				click: function(){
-					var sm=Ext.getCmp('receptTable').getSelectionModel(),
+					var sm=Ext.getCmp('ReceptTable').getSelectionModel(),
 						r = Ext.ModelManager.create({ddate: new Date()}, 'app.model.AutoTransport.ReceptModel');
-					controller.masterStore.add(r);
+					controller.masterStore.insert(0, r);
 					sm.select(r);
 				}
 			},
 			'#refreshRecGoods': {
 				click: function(){
-					var selected=Ext.getCmp('receptTable').getSelectionModel().getSelection();
+					var selected=Ext.getCmp('ReceptTable').getSelectionModel().getSelection();
 					if(selected!=null && selected.length>0){
 						controller.loadDetail(
 							selected[0].getId(),
-							Ext.getCmp('recGoodsTable')
+							Ext.getCmp('RecGoodsTable')
 						);
 					}
 				}
@@ -207,16 +207,17 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 	
 	bindStores: function(){
 		var controller=this,
-			receptTable=Ext.getCmp('receptTable');
+			receptTable=Ext.getCmp('ReceptTable');
 		
-		Ext.getCmp('recGoodsTable').reconfigure(controller.detailStore);
+		Ext.getCmp('RecGoodsTable').reconfigure(controller.detailStore);
 		receptTable.reconfigure(controller.masterStore);
 	},
 	
-	makeComboColumn: function(column, storeCombo, tableStore, property, onlyRenderer){
+	makeComboColumn: function(column, storeCombo, tableStore, property, allowNull, onlyRenderer){
 		function renderer(value){
-			var matching = null;
-			storeCombo.each(function(record){
+			var matching = null,
+				data=storeCombo.snapshot || storeCombo.data;
+			data.each(function(record){
 				if(record.get('id')==value){
 					matching=record.get('name');
 				}
@@ -231,7 +232,8 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 				queryMode: 'local',
 				displayField: 'name',
 				valueField: 'id',
-				value: ""
+				value: "",
+				autoSelect: (allowNull!==true)
 			});
 		}
 		column.renderer=renderer;
@@ -248,8 +250,8 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 	
 	initTables: function(){
 		var controller=this,
-			receptTable = Ext.getCmp('receptTable'),
-			recGoodsTable = Ext.getCmp('recGoodsTable'),
+			receptTable = Ext.getCmp('ReceptTable'),
+			recGoodsTable = Ext.getCmp('RecGoodsTable'),
 			truckColumn = receptTable.columns[1],
 			groupColumn = recGoodsTable.columns[0],
 			goodsColumn = recGoodsTable.columns[1],

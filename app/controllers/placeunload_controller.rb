@@ -10,8 +10,8 @@ class PlaceunloadController < ApplicationPageErrorController
 
   def autocomplete_pgroup_name
     pname = params[:pgroup][:name]
-    
-    if pname == '*' 
+
+    if pname == '*'
       pname = ''
     else
       pname = "where name like '%#{ActiveRecord::Base.connection.quote_string(pname)}%'"
@@ -239,26 +239,26 @@ class PlaceunloadController < ApplicationPageErrorController
   end
 
   def save_buyer
-    serr = Proxycat.connection.select_value("
-	exec dbo.placeunload_save_buyer
-	#{params[:partner][:id].to_i},
-	#{params[:pgroup][:id].to_i},
-	'#{ActiveRecord::Base.connection.quote_string(params[:partner][:name].strip)}',
-	'#{ActiveRecord::Base.connection.quote_string(params[:buyer][:name].strip)}',
-	#{params[:buyer][:id].to_i},
-	#{params[:placeunload][:id].to_i},
-    '#{ActiveRecord::Base.connection.quote_string(params[:a][:loadto].strip)}',
-    '#{ActiveRecord::Base.connection.quote_string(params[:a][:fulladdress])}',
-	#{params[:a][:longitude].to_f},
-	#{params[:a][:latitude].to_f},
-	'#{ActiveRecord::Base.connection.quote_string(params[:placeunload][:descr].strip)}',
-	#{params[:placeunload][:unloading]=="-1" ? 'null' : params[:placeunload][:unloading]},
-	#{params[:placeunload][:delscheduleid].to_i},
-	#{params[:placeunload][:incscheduleid].to_i},
-	#{params[:placeunload][:buyers_route_id]=="-1" ? 'null' : params[:placeunload][:buyers_route_id]},
-	#{params[:placeunload][:placecategory_id].to_i},
-	'#{ActiveRecord::Base.connection.quote_string(params[:placeunload][:name].strip)}'
-	")
+    serr = ActiveRecord::Base.connection.select_value("
+      SELECT * FROM renew_web.placeunload_save_buyer(
+        #{params[:partner][:id].to_i},
+        #{params[:pgroup][:id].to_i},
+        '#{ActiveRecord::Base.connection.quote_string(params[:partner][:name].strip)}',
+        '#{ActiveRecord::Base.connection.quote_string(params[:buyer][:name].strip)}',
+        #{params[:buyer][:id].to_i},
+        #{params[:placeunload][:id].to_i},
+        '#{ActiveRecord::Base.connection.quote_string(params[:a][:loadto].strip)}',
+        '#{ActiveRecord::Base.connection.quote_string(params[:a][:fulladdress])}',
+        #{params[:a][:longitude].to_f},
+        #{params[:a][:latitude].to_f},
+        '#{ActiveRecord::Base.connection.quote_string(params[:placeunload][:descr].strip)}',
+        #{params[:placeunload][:unloading]=="-1" ? 'null' : params[:placeunload][:unloading]},
+        #{params[:placeunload][:delscheduleid].to_i},
+        #{params[:placeunload][:incscheduleid].to_i},
+        #{params[:placeunload][:buyers_route_id]=="-1" ? 'null' : params[:placeunload][:buyers_route_id]},
+        #{params[:placeunload][:placecategory_id].to_i},
+        '#{ActiveRecord::Base.connection.quote_string(params[:placeunload][:name].strip)}')
+    ")
 
     if serr.size==0
       flash[:notice] = "Данные сохранены успешно"
@@ -363,28 +363,30 @@ class PlaceunloadController < ApplicationPageErrorController
       xml.points do
         params[:a].each_pair do |key, value|
           if value[:needsave].to_i == 1
-            xml.point(
-            :id => key,
-            :name => value[:pname],
-            :address => value[:srcaddress],
-            :fulladdress => value[:fulladdress],
-            :descr => value[:descr],
-            :latitude => value[:latitude],
-            :longitude => value[:longitude],
-            :ischeck => value[:ischeck],
-            :unloading => value[:unloading],
-            :delscheduleid => value[:delscheduleid],
-            :incscheduleid => value[:incscheduleid],
-            :buyers_route_id => value[:buyers_route_id],
-            :placecategory_id => value[:placecategory_id],
-            :join => value[:join]
-          )
+            xml.point do |p|
+              p.id key
+              p.name value[:pname]
+              p.address value[:srcaddress]
+              p.fulladdress value[:fulladdress]
+              p.descr value[:descr]
+              p.latitude value[:latitude]
+              p.longitude value[:longitude]
+              p.ischeck value[:ischeck]
+              p.unloading value[:unloading]
+              p.delscheduleid value[:delscheduleid]
+              p.incscheduleid value[:incscheduleid]
+              p.buyers_route_id value[:buyers_route_id]
+              p.placecategory_id value[:placecategory_id]
+              p.join value[:join]
+            end
           end
         end
       end
     end
 
-    res=Proxycat.connection.select_value("exec dbo.placeunload_save_point '#{new_xml}', 0")
+    res=ActiveRecord::Base.connection.select_value("
+    SELECT * FROM
+    renew_web.placeunload_save_point(#{ActiveRecord::Base.connection.quote(new_xml)}, 0)")
 
     if !res.nil?
       flash[:notice]=res
@@ -400,34 +402,36 @@ class PlaceunloadController < ApplicationPageErrorController
       xml.points do
         params[:a].each_pair do |key, value|
           if value[:needsave].to_i == 1
-            xml.point(
-            :id => key,
-            :name => value[:pname],
-            :address => value[:srcaddress],
-            :fulladdress => value[:fulladdress],
-            :descr => value[:descr],
-            :latitude => value[:latitude],
-            :longitude => value[:longitude],
-            :ischeck => value[:ischeck],
-            :join => value[:join]
-          )
+            xml.point do |p|
+              p.id = key
+              p.name = value[:pname]
+              p.address = value[:srcaddress]
+              p.fulladdress = value[:fulladdress]
+              p.descr = value[:descr]
+              p.latitude = value[:latitude]
+              p.longitude = value[:longitude]
+              p.ischeck = value[:ischeck]
+              p.join = value[:join]
+            end
           end
         end
 
         if params[:b]
           params[:b].each_pair do |key, value|
             if value[:join].to_i == 1
-              xml.point(
-              :id => key,
-              :join => value[:join]
-            )
+              xml.point do |p|
+                p.id = key
+                p.join = value[:join]
+              end
             end
           end
         end
       end
     end
 
-    res=Proxycat.connection.select_value("exec dbo.placeunload_save_point '#{new_xml}', 1")
+    res=ActiveRecord::Base.connection.select_value("
+    SELECT * FROM
+    renew_web.placeunload_save_point(#{ActiveRecord::Base.connection.quote(new_xml)}, 1)")
 
     if !res.nil?
       flash[:notice]=res
@@ -458,22 +462,44 @@ private
     @placecategory_list = ActiveRecord::Base.connection.select_all( "select id, name from placecategory order by name" ).collect {|p| [ p["name"], p["id"] ] }
     @schedule_list      = ActiveRecord::Base.connection.select_all( "select id, name from schedule order by name" ).collect {|p| [ p["name"], p["id"] ] }
 
-    res = Proxycat.connection.select_all("exec placeunload_set_conditions")
+    res = ActiveRecord::Base.connection.select_all("
+    SELECT
+      id,
+      name,
+      null,
+      'buyers_route_list' type
+    FROM
+      buyers_route
+    UNION ALL
+    SELECT
+      id,
+      name,
+      points,
+      'route_json'
+    FROM
+      buyers_route where length(points) > 0
+    UNION ALL
+    SELECT
+      -1,
+      '__Не определен',
+      null,
+      'buyers_route'")
 
     @buyers_route_list  = (res.select{|p| p["type"]=="buyers_route_list"}).collect{|p| [ p["name"], p["id"] ]}
     @route_json = ((res.select {|p| p["type"]=="route_json" }).collect{|p| {"id" => p["id"], "name" => p["name"], "points" => p["point"]} }).to_json
   end
 
   def init_placeunload_data
-    @rst_buyers=Proxycat.connection.select_all("exec placeunload_index
+    @rst_buyers=ActiveRecord::Base.connection.select_all("
+    call renew_web.placeunload_index(
 		#{@id},
-		'#{Proxycat.connection.quote_string(@flt_name)}',
-		'#{Proxycat.connection.quote_string(@flt_address)}',
-		'#{Proxycat.connection.quote_string(@flt_tp)}',
+		'#{ActiveRecord::Base.connection.quote_string(@flt_name)}',
+		'#{ActiveRecord::Base.connection.quote_string(@flt_address)}',
+		'#{ActiveRecord::Base.connection.quote_string(@flt_tp)}',
 		#{@flt_ischeck},
 		#{@flt_buyers_route_id},
 		#{@flt_ddate},
-		#{@flt_notgeo}")
+		#{@flt_notgeo})")
 
     @rst_new = @rst_buyers.to_json( :only => [ "id", "longitude", "latitude", "pname" ] )
     if @rst_buyers.size > 0

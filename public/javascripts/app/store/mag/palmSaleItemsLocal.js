@@ -5,6 +5,6 @@ Ext.define('app.store.mag.palmSaleItemsLocal', {
 	model: 'app.model.mag.palmSaleItemModel',
 	proxy: {
 		type: 'localstorage',
-		id  : 'unactmag-palmsaleorderitems'
+		id  : 'unactmag-palmsaleorderitem'
 	}
 });
