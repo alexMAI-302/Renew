@@ -1,0 +1,15 @@
+<% content_for :js_controller do %>
+,'Dov'
+<% end -%>
+<% content_for :title do %>
+Выдача доверенностей
+<%	end -%>
+<% content_for :content do %>
+	<% if @site.nil? %>
+Не назначена площадка
+	<% else %>
+		<div id="dov_js">
+		</div>
+	<% end %>
+<% end -%>
+<% render :file => 'layouts/application' %>
