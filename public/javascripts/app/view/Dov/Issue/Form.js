@@ -1,7 +1,7 @@
 //фильтр
-Ext.define('app.view.Dov.Form', {
+Ext.define('app.view.Dov.Issue.Form', {
 	extend: 'Ext.container.Container',
-	alias: 'widget.dovForm',
+	alias: 'widget.dovIssueForm',
     
     layout: {
 		type: 'vbox'
@@ -15,7 +15,7 @@ Ext.define('app.view.Dov.Form', {
 	},
 	items: [
 		{
-			id: 'palmSalesman',
+			id: 'palmSalesmanIssue',
 			xtype: 'combobox',
 			fieldLabel: 'Торг. пред.',
 			valueField: 'id',
