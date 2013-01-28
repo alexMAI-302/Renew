@@ -6,50 +6,60 @@ Ext.define('app.view.Dov.Revoke.Container', {
 		'app.view.Dov.Revoke.Filter'
 	],
 	
+	title: 'Возврат доверенностей',
 	items: [
 		{
 			xtype: 'dovRevokeFilter'
 		},
 		{
-			xtype: 'panel',
-			id: 'DovRevokeTable',
-			title: 'Выданные торговому представителю доверенности за сегодня',
+			xtype: 'simpleGrid',
+			suffix: 'DovRevoke',
+			disableSave: true,
+			disableAdd: true,
+			disableDelete: true,
+			disableDeleteColumn: true,
+			disableRefresh: true,
+			title: 'Доверенности',
+			height: 400,
 			columns: [
 				{
-					width: 350,
+					width: 200,
 					header: 'Торговый представитель',
 					dataIndex: 'salesman_name'
 				},
 				{
-					width: 350,
+					width: 150,
 					header: 'Номер',
 					dataIndex: 'ndoc'
 				},
 				{
-					width: 350,
+					width: 100,
 					header: 'Дата',
-					dataIndex: 'ddate'
+					dataIndex: 'ddate',
+					xtype: 'datecolumn',
+					format: 'Y-m-d'
 				},
 				{
 					xtype: 'actioncolumn',
-					width: 40,
+					width: 60,
 					header: 'Возврат',
 					align: 'center',
-					dataIndex: 'status'
+					dataIndex: 'status',
+					icon: '/images/empty-16.png'
 				},
 				{
 					xtype: 'actioncolumn',
-					width: 25,
+					width: 100,
 					header: 'Не использовано',
 					align: 'center',
-					dataIndex: 'unused'
+					dataIndex: 'unused',
+					icon: '/images/empty-16.png'
 				},
 				{
 					width: 300,
 					dataIndex: 'message'
 				}
-			],
-			height: 400
+			]
 		}
 	]
 });

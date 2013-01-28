@@ -9,5 +9,6 @@ Ext.define('app.view.Dov.Container', {
 	id: 'DovMain',
 	renderTo: Ext.get('dov_js'),
 	
-	
+	items: [
+    ]
 });

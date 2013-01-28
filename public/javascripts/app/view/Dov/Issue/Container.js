@@ -1,5 +1,5 @@
 Ext.define('app.view.Dov.Issue.Container', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
 	alias: 'widget.issueTab',
 	
 	requires: [
@@ -7,6 +7,7 @@ Ext.define('app.view.Dov.Issue.Container', {
 		'app.view.Dov.Issue.Form'
 	],
 	
+	title: 'Выдача доверенностей',
 	items: [
 		{
 			xtype: 'dovIssueForm'
@@ -19,14 +20,14 @@ Ext.define('app.view.Dov.Issue.Container', {
 			disableDelete: true,
 			disableDeleteColumn: true,
 			title: 'Выданные торговому представителю доверенности за сегодня',
+			hright: 400,
 			columns: [
 				{
 					width: 350,
 					header: 'Номер',
 					dataIndex: 'id'
 				}
-			],
-			height: 400
+			]
 		}
 	]
 });

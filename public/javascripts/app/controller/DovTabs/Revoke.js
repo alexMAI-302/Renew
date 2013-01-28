@@ -10,6 +10,10 @@ Ext.define('app.controller.DovTabs.Revoke', {
 		'Dov.Revoke.Container'
 	],
 	
+	models: [
+		'valueModel'
+	],
+	
 	revokeContainer: null,
 	
 	refreshDov: function(){
@@ -49,12 +53,20 @@ Ext.define('app.controller.DovTabs.Revoke', {
 					return true;
 				}
 			},
+			'#showAllRevoke': {
+				change: function(field, newValue, oldValue, eOpts){
+					controller.refreshDov();
+					return true;
+				}
+			},
 			'#filterNdocRevoke': {
 				change: function(field, newValue, oldValue, eOpts){
-					if(newValue.substring(0, oldValue.length)!=oldValue){
+					if(oldValue!=null && newValue.substring(0, oldValue.length-1)!=oldValue){
 						controller.dovStore.clearFilter(true);
 					}
-					controller.dovStore.filter("ndoc", new Regexp(newValue+'*'));
+					if(newValue!=''){
+						controller.dovStore.filter("ndoc", newValue);
+					}
 					return true;
 				}
 			}
@@ -64,58 +76,81 @@ Ext.define('app.controller.DovTabs.Revoke', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.dovStore=controller.getDovDovStore();
+		controller.dovStore=controller.getDovRevokeDovStore();
 		controller.palmSalesmansStore=controller.getDovPalmSalesmansStore();
+		
+		controller.palmSalesmansStore.addListener({
+			load: function(store, records, successful, eOpts){
+				if(successful===true){
+					store.insert(
+						0,
+						Ext.ModelManager.create({
+							id: -1,
+							name: 'ВСЕ'
+						}, 'app.model.valueModel'));
+				} else {
+					Ext.Msg.alert("Ошибка", "Ошибка при загрузке списка торговых представителей. Попробуйте обновить страницу.")
+				}
+			}
+		})
 	},
 	
 	bindStores: function(){
 		var controller=this;
 		
-		Ext.getCmp('DovTable').reconfigure(controller.dovStore);
-		Ext.getCmp('palmSalesman').bindStore(controller.palmSalesmansStore);
+		Ext.getCmp('DovRevokeTable').reconfigure(controller.dovStore);
+		Ext.getCmp('palmSalesmanRevoke').bindStore(controller.palmSalesmansStore);
 	},
 	
 	initTables: function(){
 		var controller=this,
-			dovTable=Ext.get('DovTable'),
+			dovTable=Ext.getCmp('DovRevokeTable'),
 			revokeColumn=dovTable.columns[3],
 			unusedColumn=dovTable.columns[4];
 		
 		function getClass(v){
 			switch(v){
-				case '1':
+				case 1:
 					return 'x-checked';
-				break;
-				case '0':
+				case 0:
 					return 'x-unchecked';
-				break;
-				case '-1':
+				case -1:
 					return 'x-wait';
-				break;
 			}
 		};
 		
-		revokeColumn.getClass=getClass;
-		unusedColumn.getClass=getClass;
+		revokeColumn.getClass=function(v, metadata, r){
+			return getClass(r.get('status'));
+		};
+		unusedColumn.getClass=function(v, metadata, r){
+			return getClass(r.get('unused'));
+		};
 		
 		revokeColumn.handler=function(view, rowIndex, colIndex, item, e){
 			var r = view.store.getAt(rowIndex),
 				status=r.get('status');
 			if(status!=-1 && r.get('unused')!=-1){
 				r.set('status', -1);
+				r.set('message', '');
+				dovTable.updateLayout();
 				Ext.Ajax.request({
 					url: '/dov/set_dov_status',
 					timeout: 300000,
 					method: "POST",
 					params: {
-						status: 1-abs(status)
+						id: r.get('id'),
+						status: 1-Math.abs(status),
+						authenticity_token: window._token
 					},
 					success: function(response, e){
 						var data = eval('('+response.responseText+')');
 						r.set('status', data.status);
 						if(data.status==1){
 							r.set('message', 'Принято');
+						} else {
+							r.set('message', '');
 						}
+						dovTable.updateLayout();
 					},
 					failure: function(response, e){
 						r.set('message', response.responseText);
@@ -129,15 +164,19 @@ Ext.define('app.controller.DovTabs.Revoke', {
 				status=r.get('status'),
 				unused=r.get('unused');
 			
-			if(oldStatus!=-1 && unused!=-1){
+			if(status!=-1 && unused!=-1){
 				r.set('status', -1);
 				r.set('unused', -1);
+				r.set('message', '');
+				dovTable.updateLayout();
 				Ext.Ajax.request({
 					url: '/dov/set_dov_unused',
 					timeout: 300000,
 					method: "POST",
 					params: {
-						unused: 1-abs(unused)
+						id: r.get('id'),
+						unused: 1-Math.abs(unused),
+						authenticity_token: window._token
 					},
 					success: function(response, e){
 						var data = eval('('+response.responseText+')');
@@ -149,6 +188,7 @@ Ext.define('app.controller.DovTabs.Revoke', {
 							r.set('message', '');
 							r.set('status', status);
 						}
+						dovTable.updateLayout();
 					},
 					failure: function(response, e){
 						r.set('message', response.responseText);

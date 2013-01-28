@@ -111,14 +111,14 @@ Ext.define('app.controller.DovTabs.Issue', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.dovStore=controller.getDovDovStore();
-		controller.palmSalesmansStore=controller.getDovpalmSalesmanIssuesStore();
+		controller.dovStore=controller.getDovIssueDovStore();
+		controller.palmSalesmansStore=controller.getDovPalmSalesmansStore();
 	},
 	
 	bindStores: function(){
 		var controller=this;
 		
-		Ext.getCmp('DovTable').reconfigure(controller.dovStore);
+		Ext.getCmp('DovIssueTable').reconfigure(controller.dovStore);
 		Ext.getCmp('palmSalesmanIssue').bindStore(controller.palmSalesmansStore);
 	},
 	

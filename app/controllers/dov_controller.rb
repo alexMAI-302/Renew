@@ -44,19 +44,19 @@ class DovController < ApplicationSimpleErrorController
     SELECT ndoc id FROM dov WHERE ddate = today() and salesman_id = #{params[:salesman_id].to_i} ORDER BY 1")
     render :text => res.to_json
   end
-  
+
   def get_dov_revoke
     res=ActiveRecord::Base.connection.select_all("
     SELECT
       d.id,
-      ps.name,
+      ps.name salesman_name,
       d.ndoc,
       d.ddate,
       d.status,
       d.unused
     FROM
       dov d
-      JOIN palm_salesman ps ON ps.salesman_id=d.salesman_id 
+      JOIN palm_salesman ps ON ps.salesman_id=d.salesman_id
     WHERE
       (
         #{params[:salesman_id].to_i}=-1
@@ -65,10 +65,12 @@ class DovController < ApplicationSimpleErrorController
       )
       AND
       (
-        #{params[:status].to_i} = 1
+        #{((params[:show_all_revoke]=='true')? 1 : 0)} = 1
         OR
         status = 0
       )
+      AND
+      ddate>=DATEADD(month, -1, TODAY)
     ORDER BY
       ps.name ASC,
       d.ndoc DESC")
@@ -79,7 +81,7 @@ class DovController < ApplicationSimpleErrorController
     ActiveRecord::Base.connection.execute("call dbo.dov_delete(#{params[:salesman_id].to_i})")
     render :text => {"success" => true}.to_json
   end
-  
+
   def set_dov_status
     status=params[:status].to_i
     ActiveRecord::Base.connection.execute("
@@ -89,15 +91,15 @@ class DovController < ApplicationSimpleErrorController
       id=#{params[:id].to_i}")
     render :text => {"success" => true, "status" => status}.to_json
   end
-  
+
   def set_dov_unused
-    unused=params[:unused].to_i 
+    unused=params[:unused].to_i
     ActiveRecord::Base.connection.execute("
     UPDATE dov SET
-      status=IF #{unused} = 0 THEN 0 ELSE status END IF,
+      status=IF #{unused} = 1 THEN 1 ELSE status END IF,
       unused=#{unused}
     WHERE
       id=#{params[:id].to_i}")
-    render :text => {"success" => true, "unused" => unused, "status" => status}.to_json
+    render :text => {"success" => true, "unused" => unused}.to_json
   end
 end
