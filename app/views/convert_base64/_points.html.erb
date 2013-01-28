@@ -1,9 +1,0 @@
-<% if !@points_strings.nil? then %>
-	<input type="hidden" id="points_quantity" name="points_quantity" value="<%= @points_strings.length %>" />
-	<% @points_strings.each_index do |i| %>
-		<input type="hidden" id="buyers_route[<%=i%>]" name="buyers_route[<%=i%>]" value="<%= @points_strings[i]['buyers_route'] %>"/>
-		<input type="hidden" id="pps_zone[<%=i%>]" name="pps_zone[<%=i%>]" value="<%= @points_strings[i]['pps_zone'] %>"/>
-		<input type="hidden" id="points_string[<%=i%>]" name="points_string[<%=i%>]" value="<%= @points_strings[i]['points_string'] %>"/>
-		<input type="hidden" id="new_value[<%=i%>]" name="new_value[<%=i%>]" value=""/>
-	<% end %>
-<% end %>
