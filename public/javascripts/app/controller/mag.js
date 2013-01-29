@@ -155,7 +155,7 @@ Ext.define('app.controller.mag', {
 					name	: record.get('name'),
 					price	: record.get('price'),
 					volume	: record.get('volume'),
-					cost	: record.get('price'),
+					cost	: record.get('cost'),
 					sale_id	: r.get('id'),
 					is_good	: record.get('is_good')
 				}, 'app.model.mag.palmSaleItemModel');
@@ -274,7 +274,10 @@ Ext.define('app.controller.mag', {
 	filterPalmSales: function(button, e, eOpts){
 		var controller = this,
 			palmSaleOrdersTable = Ext.getCmp('palmSaleOrdersTable'),
-			palmSaleOrderItemsTable = Ext.getCmp('palmSaleOrderItemsTable');
+			palmSaleOrderItemsTable = Ext.getCmp('palmSaleOrderItemsTable'),
+			ddateb=Ext.getCmp('ddatebPalmSales').getValue(),
+			ddatee=Ext.getCmp('ddateePalmSales').getValue(),
+			ddatee1=Ext.Date.add(ddatee, Ext.Date.DAY, 1);
 		
 		
 		palmSaleOrdersTable.setLoading(true);
@@ -284,8 +287,9 @@ Ext.define('app.controller.mag', {
 		
 		controller.palmSalesLocalStore.data.each(function(record){
 			if(
-				record.get('ddate')>=Ext.getCmp('ddatebPalmSales').getValue() &&
-				record.get('ddate')<=Ext.getCmp('ddateePalmSales').getValue()){
+				record.get('ddate')>=ddateb &&
+				record.get('ddate')<=ddatee1
+			){
 					var r = {
 							id: -record.get('id'),
 							ddate: Ext.Date.format(record.get('ddate'), 'Y-m-d H:i:s'),
@@ -301,8 +305,8 @@ Ext.define('app.controller.mag', {
 			timeout: 300000,
 			method: 'GET',
 			params: {
-				ddateb: Ext.getCmp('ddatebPalmSales').getValue(),
-				ddatee: Ext.getCmp('ddateePalmSales').getValue()
+				ddateb: ddateb,
+				ddatee: ddatee
 			},
 			callback: function(options, success, response){
 				if(success===true){
@@ -403,7 +407,6 @@ Ext.define('app.controller.mag', {
 								}, 'app.model.mag.palmSaleItemModel');
 								
 								sel.set('volume', sel.get('volume') - 1);
-								console.log(r.get('name'));
 								controller.currentPalmSaleItemsLocalStore.add(r);
 								controller.currentPalmSaleItemsLocalStore.sync();
 								

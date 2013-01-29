@@ -1,0 +1,37 @@
+<% content_for :js_controller do %>
+,'TermDelivery.Monitor'
+<% end -%>
+<% content_for :stylesheets do %>
+	.x-common_errors .x-grid-cell {
+		background-color: #FF8888;
+	}
+	
+	.x-terminal_near_far_payment .x-grid-cell {
+		background-color: #FFFF88;
+	}
+	
+	.x-printer_errors .x-grid-cell {
+		background-color: #8888FF;
+	}
+	
+	.x-incass_printer_errors .x-grid-cell {
+		color: #0000FF;
+	}
+	
+	.x-in_route .x-grid-cell {
+		background-color: #88FF88;
+	}
+	
+	.x-wrap_cells .x-grid-cell-inner {
+		white-space: normal;
+	}
+<% end %>
+
+<% content_for :title do %>
+	Мониторинг терминалов
+<% end %>
+
+<% content_for :content do %>
+	<div id="term_delivery_monitor_js">
+	</div>
+<% end %>

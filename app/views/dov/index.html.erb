@@ -1,8 +1,22 @@
+<% content_for :stylesheets do %>
+
+	.x-action-col-cell img.x-checked {
+		background-image: url(/ext/resources/themes/images/default/grid/drop-yes.gif);
+	}
+	
+	.x-action-col-cell img.x-unchecked {
+		background-image: url(/ext/resources/themes/images/default/grid/unchecked.gif);
+	}
+	.x-action-col-cell img.x-wait {
+		background-image: url(/images/spinner.gif);
+	}
+
+<% end -%>
 <% content_for :js_controller do %>
-,'Dov'
+,'Dov','DovTabs.Issue','DovTabs.Revoke'
 <% end -%>
 <% content_for :title do %>
-Выдача доверенностей
+СБС - Доверенности
 <%	end -%>
 <% content_for :content do %>
 	<% if @site.nil? %>

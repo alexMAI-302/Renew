@@ -1,34 +1,14 @@
 Ext.define('app.view.Dov.Container', {
-    extend: 'Ext.container.Container',
-	alias: 'widget.compPanel',
+    extend: 'Ext.tab.Panel',
+
+    layout: {
+		type: 'fit'
+	},
 	
-	requires: [
-		'app.view.Lib.Grid.Panel',
-		'app.view.Dov.Form'
-	],
-	
-	renderTo: 'dov_js',
+	height: 600,
+	id: 'DovMain',
+	renderTo: Ext.get('dov_js'),
 	
 	items: [
-		{
-			xtype: 'dovForm'
-		},
-		{
-			xtype: 'simpleGrid',
-			suffix: 'Dov',
-			disableSave: true,
-			disableAdd: true,
-			disableDelete: true,
-			disableDeleteColumn: true,
-			title: 'Выданные торговому представителю доверенности за сегодня',
-			columns: [
-				{
-					width: 350,
-					header: 'Номер',
-					dataIndex: 'id'
-				}
-			],
-			height: 400
-		}
-	]
+    ]
 });
