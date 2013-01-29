@@ -62,7 +62,7 @@ class TermDelivery::MakeAutoTechSetupController < ApplicationSimpleErrorControll
                 AND
                 '#{Time.parse(params[:stop_time].gsub(/[T]/, ' ')).strftime('%T')}'
                 EVERY #{params[:interval_amt].to_i} MINUTES;
-            IF #{params[:enabled].to_i} = 1 THEN
+            IF #{(params[:event_enabled].to_s=="true")?1:0} = 1 THEN
               ALTER EVENT spp.terminal_delivery_make_auto ENABLE
             ELSE
               ALTER EVENT spp.terminal_delivery_make_auto DISABLE

@@ -3,7 +3,7 @@ Ext.define('app.view.TermDelivery.MakeAutoTechSetup.Container', {
 	alias: 'widget.sellersTab',
 	
 	requires: [
-		'app.view.TermDelivery.MakeAutoTechSetup.Grid',
+		'app.view.Lib.Grid.Panel',
 		'app.view.TermDelivery.MakeAutoTechSetup.Settings'
 	],
 	

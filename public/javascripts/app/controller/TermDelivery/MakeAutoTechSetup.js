@@ -83,7 +83,7 @@ Ext.define('app.controller.TermDelivery.MakeAutoTechSetup', {
 		controller.control({
 			'#saveZones': {
 				click: function(){
-					var selected=Ext.getCmp('zonesTable').getSelectionModel().getSelection()[0];
+					var selected=Ext.getCmp('ZonesTable').getSelectionModel().getSelection()[0];
 					controller.sync(
 						controller.zonesStore,
 						controller.mainContainer);
@@ -123,7 +123,7 @@ Ext.define('app.controller.TermDelivery.MakeAutoTechSetup', {
 	bindStores: function(){
 		var controller=this;
 		
-		Ext.getCmp('zonesTable').reconfigure(controller.zonesStore);
+		Ext.getCmp('ZonesTable').reconfigure(controller.zonesStore);
 	},
 	
 	onLaunch: function(){
