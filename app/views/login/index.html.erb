@@ -3,20 +3,56 @@
 <% end %>
 
 <% content_for :content do %>
-	<div id="main">
-		Добро пожаловать!<br/><br/>
-		<div class="poll-form">
-			<ul>
-				<% if @menu_subjects!=nil then @menu_subjects.each do |menu_subject| %>
-
-				<li>
-					<a href="<%= menu_subject['url_pattern'] %>" class="f">
-						<%= menu_subject['name'] %>
-					</a>
-				</li>
-
-				<% end end %>
-			</ul>
-		</div>
-	</div>
-<% end %>
+<div id="main">
+	<font size="3"> Добро пожаловать в ЮНЭКТ!
+		<br/>
+		<br/>
+		Вы можете
+		<br/>
+		&nbsp;- посмотреть <a href="/certificate">сертификаты на товары</a>
+		<br/>
+		&nbsp;- ознакомиться с <a href="/unact_info/user">информацией для клиентов</a>
+		<br/>
+		<br/>
+		<div id="contacts">
+			<table style="width: 400px;">
+				<tr>
+					<td>Адрес</td>
+					<td/>
+					<td>125212, Москва,</br>Кронштадтский бульвар, д. 18</td>
+				</tr>
+				<tr>
+					<td/><td/>
+					<td><a href="http://g.co/maps/s8jf4">Схема проезда</a></td>
+				</tr>
+				<tr>
+					<td>E-mail</td>
+					<td/>
+					<td><a href="mailto:info@unact.ru">info@unact.ru</a></td>
+				</tr>
+				<tr>
+					<td>Отдел доставки в магазины</td>
+					<td/>
+					<td>(495) 725-2235 (многоканальный),
+					<br/>
+					(495) 450-1722</td>
+				</tr>
+				<tr>
+					<td>Оптовый отдел</td>
+					<td></td>
+					<td>(495) 725-2232</td>
+				</tr>
+				<tr>
+					<td/>
+					<td/>
+					<td>Все отделы работают с понедельника по пятницу с 9:00 до 18:00</td>
+				</tr>
+				<tr>
+					<td/>
+					<td/>
+					<td><!--<br/><a href="vacancies.php">вакансии</a>--></td>
+				</tr>
+			</table>
+		</div> </font>
+</div>
+<% end %> 

@@ -99,13 +99,13 @@ Ext.define('app.controller.Certificate', {
 				e=Ext.getCmp('errorCertificates');
 			
 			if(error){
-				e.setText('Введите номер накладной или код товара');
+				e.setText('Введите номер накладной или артикул товара');
 				e.show();
 			} else {
 				e.hide();
 			}
 			
-			return (!error)?true:'Введите номер накладной или код товара';
+			return (!error)?true:'Введите номер накладной или артикул товара';
 		};
 		
 		function innValidator(value){
