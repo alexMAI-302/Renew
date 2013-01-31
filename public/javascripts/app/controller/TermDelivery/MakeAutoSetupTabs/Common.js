@@ -60,7 +60,7 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Common', {
 		var controller=this;
 		
 		controller.terminalsStore=controller.getTermDeliveryMakeAutoSetupTerminalsStore();
-		controller.zonesStore=controller.getTermDeliveryMakeAutoSetupZonesStore();
+		controller.zonesStore=Ext.create('app.store.TermDelivery.MakeAutoSetup.Zones');
 		
 		controller.zonesStore.proxy.extraParams={
 			zone_type: 0

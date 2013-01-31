@@ -143,7 +143,7 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
 		
 		controller.ppsZoneNormesStore = controller.getTermDeliveryMakeAutoSetupPpsZoneNormesStore();
 		controller.periodsStore = controller.getTermDeliveryMakeAutoSetupPeriodsStore();
-		controller.zonesStore = controller.getTermDeliveryMakeAutoSetupZonesStore();
+		controller.zonesStore=Ext.create('app.store.TermDelivery.MakeAutoSetup.Zones');
 		controller.ppsZoneWorkdaysStore = controller.getTermDeliveryMakeAutoSetupPpsZoneWorkdaysStore();
 		controller.dayTypesStore = controller.getTermDeliveryMakeAutoSetupDayTypesStore();
 		
