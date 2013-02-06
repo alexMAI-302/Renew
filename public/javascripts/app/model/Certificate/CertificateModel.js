@@ -1,7 +1,7 @@
 Ext.define('app.model.Certificate.CertificateModel', {
 	extend: 'Ext.data.Model',
 	fields: [
-	{name: 'id'					, type:'int'},
+	{name: 'id'					, type:'string'},
 	{name: 'ndoc'				, type:'string'},
 	{name: 'goods_code'			, type:'string'},
 	{name: 'goods_name'			, type:'string'},
