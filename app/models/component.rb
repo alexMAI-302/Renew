@@ -1,3 +1,4 @@
+# encoding: utf-8
 class Component < ActiveRecord::Base
 	set_table_name "component"
 

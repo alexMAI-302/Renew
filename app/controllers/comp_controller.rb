@@ -66,7 +66,6 @@ class CompController < ApplicationSimpleErrorController
           left outer join  osmp_terminal  ot on ot.id = t.terminal
         #{swhere}
         order by 2,3"
-        logger.info sql
         res = ActiveRecord::Base.connection.select_all(sql)
         
         render :text => res.to_json
