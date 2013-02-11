@@ -43,7 +43,8 @@ Ext.define('app.view.ContentEditor.Container', {
 			width: '100%',
 			resizable: true,
 			resizeHandles: 's',
-			pinned: true
+			pinned: true,
+			enableLists: false
 		}
 	]
 });
