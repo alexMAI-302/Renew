@@ -53,12 +53,10 @@
 		</div>
 		<div id="menu_js"></div>
 		<% if !@my_url.nil? %>
-		<iframe
-		src="/util_data/get_page_part_content?page_part_id=1&url_id=<%= @my_url.id %>"
-		<%= "height='#{(@my_url.height.nil?)?"100%":@my_url.height}'"%>
-		<%= "width='#{(@my_url.width.nil?)?"100%":@my_url.width}'"%>
-		frameborder='no'
-		></iframe>
+		<div
+		style="<%= "height:#{@my_url.height}px;"%>
+		<%= "width:100%;"%>"
+		><%= @my_url.html %></div>
 		<% end %>
 		<div>
 			<div id="content" class="center_content">

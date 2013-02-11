@@ -124,12 +124,6 @@ class UtilDataController < ApplicationSimpleErrorController
     render :text => subjects.to_json
   end
 
-  def get_page_part_content
-    content=RenewPageContent.find_by_url_part_user(params[:url_id], params[:page_part_id], session[:user_id])
-
-    render :text => (content.nil?)?"":content.html
-  end
-
   def get_user_info
     user_id = ActiveRecord::Base.connection.select_value("SELECT
 			id

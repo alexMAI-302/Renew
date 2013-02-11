@@ -17,7 +17,7 @@ class ContentEditorController < ApplicationSimpleErrorController
           if id.to_i>0
             RenewPageContent.update(id, {:html=>params[:html], :height=>params[:height]})
           else
-            id=ActiveRecord::Base.connection.execute("
+            id=ActiveRecord::Base.connection.select_value("
             BEGIN
               DECLARE @id INT;
               SET @id=idgenerator('renew_web.renew_page_content');
@@ -25,9 +25,10 @@ class ContentEditorController < ApplicationSimpleErrorController
               INSERT INTO renew_web.renew_page_content(id, html, height, renew_url_id)
               VALUES(
                 @id,
-                #{ActiveRecord::Base.connection.quote(params[:html])},
+                '#{ActiveRecord::Base.connection.quote_string(params[:html].to_s.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;").gsub("'", "&#39;").gsub('"', "&quot;"))}',
                 #{params[:height].to_i},
                 #{params[:url_id].to_i});
+              SELECT @id;
             END")
           end
         else

@@ -18,7 +18,7 @@ class ApplicationController < ActionController::Base
   private
   def create_page_content
     @my_url=RenewUrl.first(
-      :select => 'renew_web.renew_url.id, rpc.height, rpc.width',
+      :select => 'renew_web.renew_url.id, rpc.height, rpc.width, rpc.html',
       :joins => 'JOIN renew_web.renew_page_content rpc ON rpc.renew_url_id=renew_web.renew_url.id',
       :conditions => ["url_type_id = (SELECT rut.id FROM renew_web.renew_url_type rut WHERE rut.name='Пункт меню')
       AND
