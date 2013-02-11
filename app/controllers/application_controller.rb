@@ -13,7 +13,18 @@ class ApplicationController < ActionController::Base
   before_filter :store_location, :except => [:login, :logout]
   before_filter :check_access
   
+  before_filter :create_page_content
+  
   private
+  def create_page_content
+    @my_url=RenewUrl.first(
+      :select => 'renew_web.renew_url.id, rpc.height, rpc.width, rpc.html',
+      :joins => 'JOIN renew_web.renew_page_content rpc ON rpc.renew_url_id=renew_web.renew_url.id',
+      :conditions => ["url_type_id = (SELECT rut.id FROM renew_web.renew_url_type rut WHERE rut.name='Пункт меню')
+      AND
+      url_pattern=?", request.path])
+  end
+  
   def store_location
 	# меню загружается ajax-запросом, поэтому не надо сохранять ссылку на него
 	if request.path[Regexp.new("^/util_data/get_menu.*")] != request.path
@@ -24,36 +35,24 @@ class ApplicationController < ActionController::Base
   protected
   def check_access
 	$username=(!session[:user_id].nil?)?(session[:user_id]):("guest")
-	user_urls=ActiveRecord::Base.connection.select_all("
-	SELECT DISTINCT
-		url_pattern
-	FROM
-		renew_web.renew_url ru
-		JOIN renew_web.renew_users_urls ruu ON ru.id=ruu.renew_user_url_id
-		JOIN renew_web.renew_users_groups rug ON rug.renew_user_group_id=ruu.renew_user_group_id
-		JOIN renew_web.renew_users rusr ON rusr.id=rug.renew_user_id
-	WHERE
-		rusr.name='#{session[:user_id]}'
-		OR
-		rusr.name='guest'
-	")
-	check_status=false
-	if !user_urls.nil? then
-		user_urls.each do |user_url|
-			if request.path[Regexp.new(user_url["url_pattern"])] == request.path then
-				check_status=true
-				break
-			end
-		end
-	end
-	
-	unless check_status
-		if session[:user_id].nil? then
-			redirect_to "/login/login"
-		else
-			@error_text="#{request.request_uri}"
-			render :template => "/errors/403.html.erb", :status => 403
-		end
-	end
+  	user_urls=RenewUrl.user_urls(session[:user_id])
+  	check_status=false
+  	if !user_urls.nil? then
+  		user_urls.each do |user_url|
+  			if request.path[Regexp.new(user_url["url_pattern"])] == request.path then
+  				check_status=true
+  				break
+  			end
+  		end
+  	end
+  	
+  	unless check_status
+  		if session[:user_id].nil? then
+  			redirect_to "/login/login"
+  		else
+  			@error_text="#{request.request_uri}"
+  			render :template => "/errors/403.html.erb", :status => 403
+  		end
+  	end
   end
 end

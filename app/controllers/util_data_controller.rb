@@ -158,21 +158,20 @@ class UtilDataController < ApplicationSimpleErrorController
     :order => "name",
     :limit => params[:limit],
     :conditions => "short_name LIKE '%#{val}%'" )
-    puts goods.to_json
-    response.charset="utf-8"
+
     render :json => goods.to_json
   end
-  
- def get_branches
+
+  def get_branches
     zone_types=ActiveRecord::Base.connection.select_all("SELECT id, name FROM branch")
     render :text => zone_types.to_json
   end
-  
+
   def get_subdealers
     subdealers=PpsSubdealer.find(:all,
-  :select => "subdealerid id, name",
-  :conditions => 'subdealerid in (select main_subdealerid from pps_terminal where isdeleted=0)',
-  :order => :name)
+    :select => "subdealerid id, name",
+    :conditions => 'subdealerid in (select main_subdealerid from pps_terminal where isdeleted=0)',
+    :order => :name)
 
     render :text => subdealers.to_json
   end
