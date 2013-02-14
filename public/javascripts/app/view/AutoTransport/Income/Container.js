@@ -98,7 +98,7 @@ Ext.define('app.view.AutoTransport.Income.Container', {
 					dataIndex: 'vol',
 					field: {
 						xtype: 'numberfield',
-						minValue: 1
+						minValue: 0.0001
 					}
 				},
 				{
