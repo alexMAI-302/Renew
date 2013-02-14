@@ -38,12 +38,8 @@ Ext.define('app.view.Lib.DateIntervalFilter', {
 			altFormat : 'd/m/Y|d m Y',
 			startDay : 1,
 			value : Ext.Date.add(
-				Ext.Date.parse(
-					config.endDate ||
-					Ext.Date.format(new Date(), 'Y.m.d'),
-					'Y.m.d'
-				),
-				config.shiftInterval,
+				Ext.Date.parse(config.endDate || Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'),
+				(config.shiftInterval || Ext.Date.DAY),
 				(config.shiftEnd || 0)),
 			width : 125,
 			labelWidth : 25

@@ -2,354 +2,480 @@ Ext.Loader.setPath('Ext.ux', '/ext/examples/ux');
 Ext.require([
     'Ext.ux.CheckColumn'
 ]);
-Ext.define('app.controller.renewPlan', {
+Ext.define('app.controller.RenewPlan', {
     extend: 'Ext.app.Controller',
-	models: [
-		'app.model.renewPlan.renewPlanModel',
-		'app.model.renewPlan.siteStorageModel',
-		'app.model.valueModel'
+	
+	stores: [
+		'RenewPlan.RenewPlans',
+		'RenewPlan.RenewPlanTypes',
+		'RenewPlan.RenewPlanGoods',
+		'RenewPlan.SiteToStorages',
+		'RenewPlan.Sites',
+		// 'RenewPlan.Lggroups',
+		'RenewPlan.Goods',
+		// 'RenewPlan.Sellers'
 	],
-	requires: ['app.view.Lib.DateIntervalFilter'],
-    init: function() {
-    	
-    	var name='RenewPlan';
 	
-		function showServerError(response, options) {
-			Ext.Msg.alert('Ошибка', response.responseText);
-			mainContainer.setLoading(false);
-		}
+	models: [
+		'valueModel',
+		'RenewPlan.RenewPlanModel',
+		'RenewPlan.RenewPlanGoodsModel',
+		'RenewPlan.SiteStorageModel'
+	],
 	
-		function loadRenewPlans(){
-			var ddateb = new Date(Ext.getCmp('ddateb'+name).getValue()),
-				ddatee = new Date(Ext.getCmp('ddatee'+name).getValue());
+	views: [
+		'RenewPlan.Container'
+	],
+	
+	mainContainer: null,
+	
+	detailStore: null,
+	masterStore: null,
+	sitesStore: null,
+	siteToStoragesStore: null,
+	renewPlanTypesStore: null,
+	siteToStoragesComboStore: null,
+	
+	selectedRenewPlan: null,
+	
+	storeHasChanges: function(store){
+		return (store.getNewRecords().length > 0) ||
+			(store.getUpdatedRecords().length > 0) ||
+			(store.getRemovedRecords().length > 0)
+	},
+	
+	showServerError: function(response, options) {
+		var controller=this;
+		Ext.Msg.alert('Ошибка', response.responseText);
+		controller.mainContainer.setLoading(false);
+	},
+	
+	syncDetail: function(container, masterId){
+		var controller=this;
+		
+		if (controller.storeHasChanges(detailStore)){
 			
-			siteStoragesStore.proxy.extraParams={};
-			
-			siteStoragesStore.load(function(records, operation, success){
-				renewPlansStore.proxy.extraParams={
-					ddateb: Ext.Date.format(ddateb, 'Y-m-d'),
-					ddatee: Ext.Date.format(ddatee, 'Y-m-d')
+			if(masterId!=null){
+				controller.detailStore.proxy.extraParams={
+					master_id: masterId
 				};
-				renewPlansStore.load();
-			});
-			
-			refreshDdate();
+				
+				controller.detailStore.sync({
+					callback: function(batch){
+						if(batch.exceptions.length>0){
+							Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+						}
+						container.setLoading(false);
+					}
+				});
+			} else {
+				Ext.Msg.alert("Внимание", "Ваши данные в таблице с детализацией были утеряны. Сначала сохраняйте данные в основной таблице, затем вводите детализацию.");
+				container.setLoading(false);
+			}
+		} else {
+			container.setLoading(false);
 		}
+	},
 	
-		var siteStoragesStore = Ext.create('Ext.data.Store', {
-			model: 'app.model.renewPlan.siteStorageModel',
-			proxy: {
-				type: 'rest',
-				url : '/renew_plan/get_site_to_storages',
-				reader: {
-					type: 'json'
+	syncMaster: function(container, selectedMasterId){
+		var controller=this;
+		
+		if (controller.storeHasChanges(controller.masterStore)){
+				
+			container.setLoading(true);
+			controller.masterStore.sync({
+				callback: function(batch){
+					if(batch.exceptions.length>0){
+						Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+						container.setLoading(false);
+					} else {
+						//controller.syncDetail(container, selectedMasterId);
+					}
+					container.setLoading(false);
+					controller.renewPlanSelectionChange(controller.masterStore.getById(selectedMasterId));
+				}
+			});
+		} else {
+			//controller.syncDetail(container, selectedMasterId);
+		}
+	},
+	
+	loadDetail: function(masterId, detailTable){
+		var controller=this;
+		
+		controller.detailStore.proxy.extraParams={
+			master_id: masterId
+		};
+		controller.detailStore.load(
+			function(){
+				detailTable.setDisabled(false);
+			}
+		);
+	},
+	
+	filterRenewPlan: function(){
+		var controller=this;
+		
+		controller.mainContainer.setLoading(true);
+		controller.masterStore.proxy.extraParams={
+			ddateb: Ext.getCmp('ddatebRenewPlan').getValue(),
+			ddatee: Ext.getCmp('ddateeRenewPlan').getValue()
+		};
+		controller.masterStore.load(
+			function(records, operation, success){
+				if(!success){
+					Ext.Msg.alert("Ошибка", "Ошибка при получении планируемых поставок");
+				}
+				controller.renewPlanSelectionChange();
+				controller.mainContainer.setLoading(false);
+				return true;
+			}
+		);
+	},
+	
+	renewPlanSelectionChange: function(s){
+		var controller=this;
+		if(s!=null && s.length==1){
+			var selectedId=s.get('id');
+			
+			if(selectedId!=controller.selectedRenewPlan && !s.phantom){
+				// controller.selectedRenewPlan=selectedId;
+				// controller.loadDetail(
+					// selectedId,
+					// controller.operationsStore,
+					// Ext.getCmp('RenewPlanGoodsTable')
+				// );
+			} else {
+				//Ext.getCmp('RenewPlanGoodsTable').setDisabled(false);
+			}
+		} else {
+			//Ext.getCmp('RenewPlanGoodsTable').setDisabled(true);
+		}
+		Ext.getCmp('actionPanel').setDisabled(s==null || s.phantom);
+		if(s!=null){
+			var sorderBox = Ext.getCmp('actionSorderRenewPlan'),
+				supplyBox = Ext.getCmp('actionSupplyRenewPlan');
+			Ext.getCmp('actionRenewPlanType').setValue(s.get('renew_plan_type_id'));
+			
+			controller.siteToStoragesComboStore.clearFilter(true);
+			controller.siteToStoragesComboStore.filter("site_from", s.get('site_from'));
+			controller.siteToStoragesComboStore.filter("site_to", s.get('site_to'));
+			
+			var selectedStorage = controller.siteToStoragesComboStore.getAt(0);
+			Ext.getCmp('actionSiteToStorageRenewPlan').setValue((selectedStorage!=null)?selectedStorage.get('id'):null);
+			
+			Ext.getCmp('actionPlanRenewPlan').setDisabled(s.get('status2')==1 || s.get('sorder')!=null);
+			
+			sorderBox.setRawValue(s.get('sorder')!=null);
+			sorderBox.setDisabled(s.get('status2')==1);
+			
+			supplyBox.setDisabled(s.get('renew_plan_type_id')==null || s.get('sorder')==null);
+			supplyBox.setRawValue(s.get('status2'));
+		}
+	},
+	
+	init: function() {
+		var controller = this;
+		
+		controller.mainContainer=Ext.create('app.view.RenewPlan.Container');
+		
+		function getId(r){
+			return (r!=null)?
+					((r.getId()!=null && r.getId()!=0)?
+						r.getId():
+						r.get('id')
+					):
+					null;
+		}
+		
+		controller.control({
+			'#filterRenewPlan': {
+				click: controller.filterRenewPlan
+			},
+			'#RenewPlanTable': {
+				selectionchange: function(sm, selected, eOpts){
+					var s=(selected!=null)?selected[0]:null;
+					controller.renewPlanSelectionChange(s);
+					return true;
+				}
+			},
+			'#addRenewPlanGoods':{
+				click: function(){
+					var sm=Ext.getCmp('RenewPlanTable').getSelectionModel(),
+						r = Ext.ModelManager.create({master_id: sm.getSelection()[0].getId()}, 'app.model.RenewPlan.RenewPlanGoodsModel');
+					controller.detailStore.insert(0, r);
+				}
+			},
+			'#saveRenewPlan': {
+				click: function(){
+					var selected=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
+					if(selected != null){
+						selected.set('sum', controller.detailStore.sum('sum'));
+					}
+					controller.syncMaster(
+						controller.mainContainer,
+						getId(selected));
+					return true;
+				}
+			},
+			'#addRenewPlan':{
+				click: function(){
+					var sm=Ext.getCmp('RenewPlanTable').getSelectionModel(),
+						r = Ext.ModelManager.create({
+							send_ddate: Ext.Date.parse(Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'),
+							sup_ddate: Ext.Date.parse(Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'),
+							k_renew: 1,
+							k_sens: 0.7,
+							k_rem: 0.5
+						}, 'app.model.RenewPlan.RenewPlanModel');
+					controller.masterStore.insert(0, r);
+					sm.select(r);
+				}
+			},
+			'#refreshRenewPlanGoods': {
+				click: function(){
+					var selected=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection();
+					if(selected!=null && selected.length>0){
+						controller.loadDetail(
+							getId(selected[0]),
+							Ext.getCmp('RenewPlanGoodsTable')
+						);
+					}
+				}
+			},
+			'#actionSorderRenewPlan': {
+				change: function(field, newValue, oldValue, eOpts){
+					var rec=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
+					controller.mainContainer.setLoading(true);
+					Ext.Ajax.request({
+						url: '/renew_plan/do_sorder',
+						timeout: 600000,
+						params: {
+							id: rec.get("id"),
+							site_to_storage: Ext.getCmp('actionSiteToStorageRenewPlan').getValue(),
+							authenticity_token: window._token
+						},
+						success: function(response){
+							if(response.responseText=="lackvol"){
+								Ext.Msg.alert("Внимание", "Заказ сформирован с отклонениями от плана!");
+							}
+							
+							controller.filterRenewPlan();
+						},
+						failure: controller.showServerError
+					});
+
+					return true;
+				}
+			},
+			'#actionSupplyRenewPlan': {
+				change: function(field, newValue, oldValue, eOpts){
+					if(rec.get("sorder")){
+						controller.mainContainer.setLoading(true);
+						Ext.Ajax.request({
+							url: '/renew_plan/do_sorder_status1',
+							timeout: 600000,
+							params: {
+								id: rec.get("id"),
+								authenticity_token: window._token
+							},
+							success: function(response){
+								controller.filterRenewPlan();
+							},
+							failure: controller.showServerError
+						});
+					}
+
+					return true;
+				}
+			},
+			'#actionPlanRenewPlan': {
+				click: function(){
+					var rec=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
+					if(rec.get("sorder")!=null){
+						controller.mainContainer.setLoading(true);
+						Ext.Ajax.request({
+							url: '/renew_plan/do_plan',
+							timeout: 1200000,
+							params: {
+								id: rec.get("id"),
+								renew_plan_type_id: Ext.getCmp('actionRenewPlanType').getValue(),
+								authenticity_token: window._token
+							},
+							success: function(response){
+								controller.filterRenewPlan();
+							},
+							failure: controller.showServerError
+						});
+					}
 				}
 			}
 		});
 		
-		var storagesStore = Ext.create('Ext.data.Store', {
-			model: 'app.model.valueModel',
-			
+		Ext.getCmp('RenewPlanTable').getPlugin('rowEditingRenewPlan').addListener(
+			"beforeedit",
+			function(editor, e, eOpts){
+				return ((e.record.get('sorder')==null || e.record.get('sorder')=='') && e.record.get('status2')!=1);
+			}
+		);
+		Ext.getCmp('RenewPlanTable').getPlugin('rowEditingRenewPlan').addListener(
+			"edit",
+			function(editor, e, eOpts){
+				controller.masterStore.proxy.extraParams={};
+				controller.masterStore.sync({
+					callback: function(batch){
+						if(batch.exceptions.length>0){
+							Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+						} else {
+							e.record.set('renew_plan_type_id', null);
+							e.record.set('sorder', null);
+							e.record.set('sorder_ndoc', null);
+							e.record.set('weight', null);
+							e.record.set('volume', null);
+							e.record.set('status2', 0);
+							e.record.set('site_to_storage', null);
+							e.record.set('sitevol', null);
+						}
+						Ext.getCmp('addRenewPlan').setDisabled(false);
+						controller.renewPlanSelectionChange(e.record);
+					}
+				});
+				return true;
+			}
+		);
+		
+		Ext.getCmp('RenewPlanTable').getPlugin('rowEditingRenewPlan').addListener(
+			"canceledit",
+			function(editor, e, eOpts){
+				if(e.record.phantom){
+					controller.masterStore.remove(e.record);
+					Ext.getCmp('addRenewPlan').setDisabled(false);
+				}
+				return true;
+			}
+		);
+	},
+	
+	loadDictionaries: function(){
+		var controller=this,
+			count=3;
+		
+		controller.mainContainer.setLoading(true);
+		function checkLoading(val){
+			if(val==0){
+				controller.mainContainer.setLoading(false);
+			}
+		};
+		
+		controller.renewPlanTypesStore.load(
+			function(records, operation, success){
+				count--;
+				checkLoading(count);
+			}
+		);
+		controller.siteToStoragesStore.load(
+			function(records, operation, success){
+				count--;
+				controller.siteToStoragesComboStore.loadData(records);
+				checkLoading(count);
+			}
+		);
+		
+		controller.sitesStore.load(
+			function(records, operation, success){
+				count--;
+				checkLoading(count);
+			}
+		);
+	},
+	
+	initStores: function(){
+		var controller=this;
+		
+		controller.masterStore = controller.getRenewPlanRenewPlansStore();
+		controller.detailStore=controller.getRenewPlanRenewPlanGoodsStore();
+		controller.sitesStore = controller.getRenewPlanSitesStore();
+		controller.siteToStoragesStore = controller.getRenewPlanSiteToStoragesStore();
+		controller.renewPlanTypesStore = controller.getRenewPlanRenewPlanTypesStore();
+		controller.siteToStoragesComboStore = Ext.create('Ext.data.Store', {
+		    model: 'app.model.RenewPlan.SiteStorageModel',
 			proxy: {
 		        type: 'memory'
 			}
 		});
 		
-		var renewPlansStore = Ext.create('Ext.data.Store', {
-			model: 'app.model.renewPlan.renewPlanModel',
-			sorters: [
-				{
-					property : 'send_ddate',
-					direction: 'ASC'
-				},
-				{
-					property : 'site_from',
-					direction: 'ASC'
-				}
-			],
-			proxy: {
-				type: 'rest',
-				url : '/renew_plan/get_renew_plans',
-				reader: {
-					type: 'json'
-				}
-			},
-			listeners: {
-				"load": function(store, records, successful, operation, options ){
-					if(successful){
-						renewPlansPanel.setLoading(false);
-					}
-				}
-			}
-		});
+		controller.loadDictionaries();
+	},
 	
-		var mainContainer=Ext.create('Ext.container.Container', {
-			width: 1000,
-			layout: {
-				type: 'anchor'
-			},
-			renderTo: Ext.get('renew_plan_js'),
-			items: [
-				{
-					xtype: 'dateIntervalFilter',
-					suffix: name,
-					shiftInterval: Ext.Date.DAY,
-					shiftBegin: 1,
-					shiftEnd: 3
+	bindStores: function(){
+		var controller=this,
+			renewPlanTable=Ext.getCmp('RenewPlanTable');
+		
+		//Ext.getCmp('RenewPlanGoodsTable').reconfigure(controller.detailStore);
+		renewPlanTable.reconfigure(controller.masterStore);
+		
+		Ext.getCmp('actionRenewPlanType').bindStore(controller.renewPlanTypesStore);
+		Ext.getCmp('actionSiteToStorageRenewPlan').bindStore(controller.siteToStoragesComboStore);
+	},
+	
+	makeComboColumn: function(column, storeCombo, tableStore, property, allowNull, onlyRenderer){
+		function renderer(value){
+			var matching = null,
+				data=storeCombo.snapshot || storeCombo.data;
+			data.each(function(record){
+				if(record.get('id')==value){
+					matching=record.get('name');
 				}
-			]
-		});
-		
-		Ext.getCmp('filter'+name).handler=loadRenewPlans;
-		
-		var cellEditingRenewPlans = Ext.create('Ext.grid.plugin.CellEditing', {
-			clicksToEdit: 1,
-			listeners: {
-				beforeedit: function(editor, e, options){
-					if(e.record.get("sorder")){
-						if(e.colIdx==9){
-							return false;
-						}
-					}
-					return true;
-				}
-			}
-		});
-		
-		var gridId='renewPlansTable';
-		var renewPlansPanel=Ext.create('Ext.grid.Panel', {
-			id: gridId,
-			title: 'Межплощадочные перемещения',
-			store: renewPlansStore,
-			columns: [
-				Ext.create('Ext.grid.RowNumberer'),
-				{
-					width: 100,
-					header: 'Дата',
-					dataIndex: 'send_ddate',
-					renderer: Ext.util.Format.dateRenderer('d.m.Y'),
-					disabled: true
-				},
-				{
-					width: 100,
-					header: 'Откуда',
-					dataIndex: 'site_from',
-					disabled: true
-				},
-				{
-					width: 100,
-					header: 'Куда',
-					dataIndex: 'site_to',
-					disabled: true
-				},
-				{
-					xtype:'actioncolumn',
-					width:75,
-					header: 'План',
-					items: [{
-						getClass: function(v, meta, rec) {
-							return (rec.get('plan'))?'checked-col':'unchecked-col';
-						},
-						handler: function(grid, rowIndex, colIndex) {
-							var rec=grid.store.getAt(rowIndex);
-							if(!rec.get("sorder")){
-								mainContainer.setLoading(true);
-								Ext.Ajax.request({
-									url: '/renew_plan/do_plan',
-									timeout: 1200000,
-									params: {
-										id: rec.get("id"),
-										authenticity_token: window._token
-									},
-									success: function(response){
-										mainContainer.setLoading(false);
-										loadRenewPlans();
-									},
-									failure: showServerError
-								});
-							}
-						}
-					}]
-				},
-				{
-					xtype:'actioncolumn',
-					width:75,
-					header: 'Поставка',
-					items: [{
-						getClass: function(v, meta, rec) {
-							return (rec.get('sorder'))?'checked-col':'unchecked-col';
-						},
-						handler: function(grid, rowIndex, colIndex) {
-							var rec=grid.store.getAt(rowIndex);
-							mainContainer.setLoading(true);
-							Ext.Ajax.request({
-								url: '/renew_plan/do_sorder',
-								timeout: 600000,
-								params: {
-									id: rec.get("id"),
-									site_to_storage: rec.get("site_to_storage"),
-									authenticity_token: window._token
-								},
-								success: function(response){
-									if(response.responseText=="lackvol"){
-										Ext.Msg.alert("Внимание", "Заказ сформирован с отклонениями от плана!");
-									}
-									mainContainer.setLoading(false);
-									loadRenewPlans();
-								},
-								failure: showServerError
-							});
-						}
-					}]
-				},
-				{
-					width: 100,
-					header: 'Номер заказа',
-					dataIndex: 'sndoc',
-					disabled: true
-				},
-				{
-					width: 100,
-					header: 'Вес',
-					dataIndex: 'weight',
-					disabled: true,
-					renderer: function(value, metaData, record){
-						return (record.get('sndoc') && record.get('sndoc')!="") ? value : '';
-					}
-				},
-				{
-					width: 100,
-					header: 'Объем',
-					dataIndex: 'volume',
-					disabled: true,
-					renderer: function(value, metaData, record){
-						return (record.get('sndoc') && record.get('sndoc')!="") ? value : '';
-					}
-				},
-				{
-					xtype:'actioncolumn',
-					width:20,
-					header: 'Н',
-					items: [{
-						getClass: function(v, meta, rec) {
-							if(rec.get('sorder_status')=="x"){
-								return '';
-							} else if(rec.get('sorder_status')=="1"){
-								return 'checked-col';
-							} else if(rec.get('sorder_status')=="0"){
-								return 'unchecked-col';
-							}
-						},
-						handler: function(grid, rowIndex, colIndex) {
-							var rec=grid.store.getAt(rowIndex);
-							if(rec.get("sorder")){
-								mainContainer.setLoading(true);
-								Ext.Ajax.request({
-									url: '/renew_plan/do_sorder_status1',
-									timeout: 600000,
-									params: {
-										id: rec.get("id"),
-										site_to_storage: rec.get("site_to_storage"),
-										authenticity_token: window._token
-									},
-									success: function(response){
-										mainContainer.setLoading(false);
-										loadRenewPlans();
-									},
-									failure: showServerError
-								});
-							}
-						}
-					}]
-				},
-				{
-					header: 'Id',
-					dataIndex: 'id',
-					disabled: true
-				},
-				{
-					width: 170,
-					header: 'Склад площадки-приемника',
-					dataIndex: 'site_to_storage',
-					renderer: function(value){
-						var matching = siteStoragesStore.queryBy(
-							function(record, id){
-								return record.get('id') == value;
-							});
-						return (matching.items[0]) ? matching.items[0].data.storage_name : '';
-					},
-					field: Ext.create('Ext.form.ComboBox', {
-						store: storagesStore,
-						displayField: 'name',
-						valueField: 'id',
-						allowBlank: false,
-						listeners:{
-							"focus": function (obj, options){
-								obj.expand();
-							}
-						}
-					}) 
-				}
-			],
-			rowToDelete: null,
-			selModel : Ext.create('Ext.selection.CellModel', {
-				selType: 'cellmodel',
-				listeners : {
-					select : function(cellModel, record, rowIndex) {
-						var newStorages=[];
-						var i=0;
-						
-						if(record){
-							siteStoragesStore.each( function(record_site){
-								if(
-									record_site.get("site_to") == record.get("site_to_id") &&
-									record_site.get("site_from") == record.get("site_from_id")){
-									
-									newStorages[i]=Ext.ModelManager.create({
-										id: record_site.get("id"),
-										name: record_site.get("storage_name")
-									}, 'app.model.valueModel');
-									i++;
-								}
-								return true;
-							});
-						}
-						renewPlansPanel.columns[11].field.store.loadData(newStorages, false);
-					},
-					scope : this
-				}
-			}),
-			plugins: [cellEditingRenewPlans],
-			height: 400
-		});
-		
-		var refreshContainer=Ext.create('Ext.container.Container', {
-			layout: {
-				type: 'hbox'
-			},
-			margins: '10 0 0 10'
-		});
-		
-		var refreshDdateLabel=Ext.create("Ext.form.Label", {});
-		function refreshDdate(){
-		
-			Ext.Ajax.request({
-				url: '/renew_plan/get_refreshddate',
-				success: function(response){
-					var response_json=Ext.JSON.decode(response.responseText, true);
-					
-					refreshDdateLabel.setText("Остатки обновлены "+response_json.refresh_ddate);
-				},
-				failure: showServerError
+				return matching==null;
 			});
+			return matching;
 		};
 		
-		refreshContainer.add(refreshDdateLabel);
+		if(!onlyRenderer){
+			column.field = Ext.create('Ext.form.ComboBox', {
+				store: storeCombo,
+				queryMode: 'local',
+				displayField: 'name',
+				valueField: 'id',
+				value: "",
+				autoSelect: (allowNull!==true)
+			});
+		}
+		column.renderer=renderer;
 		
-		mainContainer.add(renewPlansPanel);
-		mainContainer.add(refreshContainer);
+		column.doSort = function(state){
+			tableStore.sort({
+				property: property,
+				transform: renderer,
+				direction: state
+			});
+			return true;
+		};
+	},
+	
+	initTables: function(){
+		var controller=this,
+			renewPlanTable = Ext.getCmp('RenewPlanTable'),
+			renewPlanGoodsTable = Ext.getCmp('RenewPlanGoodsTable'),
+			siteFromColumn=renewPlanTable.columns[3],
+			siteToColumn=renewPlanTable.columns[4],
+			PlanTypeColumn=renewPlanTable.columns[8],
+			siteToStorageColumn=renewPlanTable.columns[13];
 		
-		refreshDdate();
-		loadRenewPlans();
+		controller.makeComboColumn(siteFromColumn, controller.sitesStore, controller.masterStore, 'site_from');
+		controller.makeComboColumn(siteToColumn, controller.sitesStore, controller.masterStore, 'site_to');
+		controller.makeComboColumn(PlanTypeColumn, controller.renewPlanTypesStore, controller.masterStore, 'renew_plan_type_id', true, true);
+		controller.makeComboColumn(siteToStorageColumn, controller.siteToStoragesStore, controller.masterStore, 'site_to_storage', true, true);
+		// controller.makeComboColumn(measureColumn, controller.measureStore, controller.detailStore, 'measure', false, true);
+	},
+	
+	onLaunch: function(){
+		var controller = this;
+		
+		controller.initStores();
+		
+		controller.bindStores();
+		
+		controller.initTables();
 	}
 });

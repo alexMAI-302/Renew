@@ -7,7 +7,8 @@ Ext.define('app.view.Lib.Grid.Panel', {
 	 * @param {Object} config Config object.
 	 * suffix - специальное имя для компонента. используется при построении идентификатора объектов
 	 * disable* - не использовать данную кнопку
-	 * extraButtons - дополнительные кнопки для панели
+	 * beforeButtons - дополнительные элементы для панели, располагающиеся перед основными кнопками
+	 * afterButtons - дополнительные элементы для панели, располагающиеся после основных кнопок
 	 * disableEditing - таблица нередактируемая. По умолчанию используется редактирование ячеек
 	 * disableDeleteColumn - не добавлять колонку удаления позиций. По умолчанию добавляется
 	 */
@@ -16,6 +17,12 @@ Ext.define('app.view.Lib.Grid.Panel', {
 		config.columns = config.columns || [];
 		
 		var buttons = [];
+		if(config.beforeButtons!=null){
+			for(var i=0; i<config.beforeButtons.length; i++){
+				buttons.push(beforeButtons[i]);
+			}
+		}
+		
 		if(config.disableRefresh!==true){
 			buttons.push(
 				{
@@ -50,9 +57,9 @@ Ext.define('app.view.Lib.Grid.Panel', {
 			);
 		}
 		
-		if(config.extraButtons!=null){
-			for(var i=0; i<config.extraButtons.length; i++){
-				buttons.push(extraButtons);
+		if(config.afterButtons!=null){
+			for(var i=0; i<config.afterButtons.length; i++){
+				buttons.push(afterButtons[i]);
 			}
 		}
 		
@@ -67,10 +74,17 @@ Ext.define('app.view.Lib.Grid.Panel', {
 		};
 		
 		if(config.disableEditing!==true){
-			config.plugins = config.plugins || [Ext.create('Ext.grid.plugin.CellEditing', {
-				clicksToEdit : 1,
-				pluginId : 'cellEditing'+config.suffix
-			})];
+			config.plugins = config.plugins || [
+				(config.editing=='row')?
+				Ext.create('Ext.grid.plugin.RowEditing', {
+					clicksToEdit : 2,
+					pluginId : 'rowEditing'+config.suffix
+				}):
+				Ext.create('Ext.grid.plugin.CellEditing', {
+					clicksToEdit : 1,
+					pluginId : 'cellEditing'+config.suffix
+				})
+			];
 		}
 		
 		config.id = config.suffix+'Table';
