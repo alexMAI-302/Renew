@@ -23,7 +23,7 @@ Ext.define('app.view.brsComment.BrsComment' ,{
 		sortable: true,
 		hideable: false,
 		editor: {
-			xtyte: 'textfield',
+			xtype: 'textfield',
 			allowBlank: false
 		}
 	}],
