@@ -292,7 +292,7 @@ Ext.define('app.controller.RenewPlan', {
 			'#actionPlanRenewPlan': {
 				click: function(){
 					var rec=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
-					if(rec.get("sorder")!=null){
+					if(rec.get("sorder")==null || rec.get("sorder")==''){
 						controller.mainContainer.setLoading(true);
 						Ext.Ajax.request({
 							url: '/renew_plan/do_plan',
