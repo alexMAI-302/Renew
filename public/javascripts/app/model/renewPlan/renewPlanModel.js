@@ -73,6 +73,12 @@ Ext.define('app.model.RenewPlan.RenewPlanModel', {
 		persist: false
 	},
 	{
+		name: "sorder_status1",
+		type: "float",
+		useNull: true,
+		persist: false
+	},
+	{
 		name: "sitevol",
 		type: "int",
 		useNull: true,

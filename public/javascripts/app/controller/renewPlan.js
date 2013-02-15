@@ -154,7 +154,9 @@ Ext.define('app.controller.RenewPlan', {
 		Ext.getCmp('actionPanel').setDisabled(s==null || s.phantom);
 		if(s!=null){
 			var sorderBox = Ext.getCmp('actionSorderRenewPlan'),
-				supplyBox = Ext.getCmp('actionSupplyRenewPlan');
+				sorderStatus1Box = Ext.getCmp('actionSorderStatus1RenewPlan'),
+				status2 = s.get('status2'),
+				sorderStatus1 = s.get('sorder_status1');
 			Ext.getCmp('actionRenewPlanType').setValue(s.get('renew_plan_type_id'));
 			
 			controller.siteToStoragesComboStore.clearFilter(true);
@@ -164,13 +166,15 @@ Ext.define('app.controller.RenewPlan', {
 			var selectedStorage = controller.siteToStoragesComboStore.getAt(0);
 			Ext.getCmp('actionSiteToStorageRenewPlan').setValue((selectedStorage!=null)?selectedStorage.get('id'):null);
 			
-			Ext.getCmp('actionPlanRenewPlan').setDisabled(s.get('status2')==1 || s.get('sorder')!=null);
+			Ext.getCmp('actionPlanRenewPlan').setDisabled(status2==1);
 			
-			sorderBox.setRawValue(s.get('sorder')!=null);
-			sorderBox.setDisabled(s.get('status2')==1);
+			sorderBox.setRawValue(status2);
+			sorderBox.setDisabled(sorderStatus1==1);
+			sorderBox.lastValue = sorderBox.getValue();
 			
-			supplyBox.setDisabled(s.get('renew_plan_type_id')==null || s.get('sorder')==null);
-			supplyBox.setRawValue(s.get('status2'));
+			sorderStatus1Box.setDisabled((sorderStatus1!=0 && sorderStatus1!=1) || (status2!=1));
+			sorderStatus1Box.setRawValue(sorderStatus1);
+			sorderStatus1Box.lastValue = sorderStatus1Box.getValue();
 		}
 	},
 	
@@ -255,22 +259,26 @@ Ext.define('app.controller.RenewPlan', {
 							site_to_storage: Ext.getCmp('actionSiteToStorageRenewPlan').getValue(),
 							authenticity_token: window._token
 						},
-						success: function(response){
-							if(response.responseText=="lackvol"){
-								Ext.Msg.alert("Внимание", "Заказ сформирован с отклонениями от плана!");
+						callback: function(options, success, response){
+							if(success!==true){
+								controller.showServerError(response, options);
+							} else {
+								if(response.responseText=="lackvol"){
+									Ext.Msg.alert("Внимание", "Заказ сформирован с отклонениями от плана!");
+								}
 							}
 							
 							controller.filterRenewPlan();
-						},
-						failure: controller.showServerError
+						}
 					});
 
 					return true;
 				}
 			},
-			'#actionSupplyRenewPlan': {
+			'#actionSorderStatus1RenewPlan': {
 				change: function(field, newValue, oldValue, eOpts){
-					if(rec.get("sorder")){
+					var rec=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
+					if(rec.get("status2")==1){
 						controller.mainContainer.setLoading(true);
 						Ext.Ajax.request({
 							url: '/renew_plan/do_sorder_status1',
@@ -279,10 +287,12 @@ Ext.define('app.controller.RenewPlan', {
 								id: rec.get("id"),
 								authenticity_token: window._token
 							},
-							success: function(response){
+							callback: function(options, success, response){
+								if(success!==true){
+									controller.showServerError(response, options);
+								}
 								controller.filterRenewPlan();
-							},
-							failure: controller.showServerError
+							}
 						});
 					}
 
@@ -291,21 +301,24 @@ Ext.define('app.controller.RenewPlan', {
 			},
 			'#actionPlanRenewPlan': {
 				click: function(){
-					var rec=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
-					if(rec.get("sorder")==null || rec.get("sorder")==''){
+					var rec=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0],
+						renewPlanTypeId = Ext.getCmp('actionRenewPlanType').getValue();
+					if((rec.get("sorder")==null || rec.get("sorder")=='') && renewPlanTypeId>0){
 						controller.mainContainer.setLoading(true);
 						Ext.Ajax.request({
 							url: '/renew_plan/do_plan',
 							timeout: 1200000,
 							params: {
 								id: rec.get("id"),
-								renew_plan_type_id: Ext.getCmp('actionRenewPlanType').getValue(),
+								renew_plan_type_id: renewPlanTypeId,
 								authenticity_token: window._token
 							},
-							success: function(response){
+							callback: function(options, success, response){
+								if(success!==true){
+									controller.showServerError(response, options);
+								}
 								controller.filterRenewPlan();
-							},
-							failure: controller.showServerError
+							}
 						});
 					}
 				}
@@ -315,7 +328,7 @@ Ext.define('app.controller.RenewPlan', {
 		Ext.getCmp('RenewPlanTable').getPlugin('rowEditingRenewPlan').addListener(
 			"beforeedit",
 			function(editor, e, eOpts){
-				return ((e.record.get('sorder')==null || e.record.get('sorder')=='') && e.record.get('status2')!=1);
+				return (e.record.get('status2')!=1);
 			}
 		);
 		Ext.getCmp('RenewPlanTable').getPlugin('rowEditingRenewPlan').addListener(
