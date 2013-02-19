@@ -20,7 +20,11 @@ Ext.define('app.view.Dov.Revoke.Container', {
 			disableDeleteColumn: true,
 			disableRefresh: true,
 			title: 'Доверенности',
-			height: 400,
+			height: '100%',
+			viewConfig: {
+				markDirty:false,
+				enableTextSelection : true
+			},
 			columns: [
 				{
 					width: 200,

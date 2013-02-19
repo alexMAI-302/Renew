@@ -40,16 +40,20 @@ Ext.define('app.controller.DovTabs.Revoke', {
 		controller.revokeContainer=Ext.create('app.view.Dov.Revoke.Container');
 		Ext.getCmp('DovMain').add(controller.revokeContainer);
 		
+		controller.revokeContainer.addListener(
+			"show",
+			function(){
+				controller.refreshDov();
+			}
+		);
+		
 		controller.control({
 			'#palmSalesmanRevoke': {
 				select: function(combo, records){
 					if(records!=null && records.length>0){
 						controller.refreshDov();
+						Ext.getCmp('filterNdocRevoke').setValue('');
 					}
-					return true;
-				},
-				change: function(field, newValue, oldValue, eOpts){
-					Ext.getCmp('operations').setDisabled(true);
 					return true;
 				}
 			},
@@ -61,12 +65,18 @@ Ext.define('app.controller.DovTabs.Revoke', {
 			},
 			'#filterNdocRevoke': {
 				change: function(field, newValue, oldValue, eOpts){
-					if(oldValue!=null && newValue.substring(0, oldValue.length-1)!=oldValue){
-						controller.dovStore.clearFilter(true);
-					}
-					if(newValue!=''){
+					if(newValue==null || newValue==''){
+						controller.dovStore.clearFilter();
+					} else {
+						if(oldValue!=null && newValue.substring(0, oldValue.length-1)!=oldValue){
+							controller.dovStore.clearFilter(true);
+						}
 						controller.dovStore.filter("ndoc", newValue);
 					}
+					return true;
+				},
+				focus: function(field, e, eOpts){
+					field.setValue('');
 					return true;
 				}
 			}
@@ -82,17 +92,19 @@ Ext.define('app.controller.DovTabs.Revoke', {
 		controller.palmSalesmansStore.addListener({
 			load: function(store, records, successful, eOpts){
 				if(successful===true){
-					store.insert(
-						0,
-						Ext.ModelManager.create({
+					var r=Ext.ModelManager.create({
 							id: -1,
 							name: 'ВСЕ'
-						}, 'app.model.valueModel'));
+						}, 'app.model.valueModel');
+					store.insert(0, r);
+					Ext.getCmp('palmSalesmanRevoke').setValue(r);
 				} else {
 					Ext.Msg.alert("Ошибка", "Ошибка при загрузке списка торговых представителей. Попробуйте обновить страницу.")
 				}
 			}
-		})
+		});
+		
+		controller.palmSalesmansStore.load();
 	},
 	
 	bindStores: function(){
@@ -149,11 +161,13 @@ Ext.define('app.controller.DovTabs.Revoke', {
 							r.set('message', 'Принято');
 						} else {
 							r.set('message', '');
+							r.set('unused', 0);
 						}
 						dovTable.updateLayout();
 					},
 					failure: function(response, e){
-						r.set('message', response.responseText);
+						Ext.Msg.alert('Ошибка', response.responseText);
+						controller.refreshDov();
 					}
 				});
 			}
@@ -181,7 +195,7 @@ Ext.define('app.controller.DovTabs.Revoke', {
 					success: function(response, e){
 						var data = eval('('+response.responseText+')');
 						r.set('unused', data.unused);
-						if(data.unused==1 && status==0){
+						if(data.unused==1){
 							r.set('message', 'Принято');
 							r.set('status', 1);
 						} else {
@@ -191,11 +205,12 @@ Ext.define('app.controller.DovTabs.Revoke', {
 						dovTable.updateLayout();
 					},
 					failure: function(response, e){
-						r.set('message', response.responseText);
+						Ext.Msg.alert('Ошибка', response.responseText);
+						controller.refreshDov();
 					}
 				});
 			}
-		}
+		};
 	},
 	
 	onLaunch: function(){

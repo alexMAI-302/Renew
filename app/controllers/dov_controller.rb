@@ -12,6 +12,7 @@ class DovController < ApplicationSimpleErrorController
   end
 
   def get_palm_salesmans
+    query=(params[:query].nil?) ? '' : params[:query]
     res=ActiveRecord::Base.connection.select_all(
     "SELECT TOP #{params[:limit].to_i}
       ps.salesman_id id,
@@ -19,7 +20,7 @@ class DovController < ApplicationSimpleErrorController
     FROM
       palm_salesman ps
     WHERE
-      ps.name like '%'+'#{ActiveRecord::Base.connection.quote_string(params[:query])}'+'%'
+      ps.name like '%'+'#{ActiveRecord::Base.connection.quote_string(query)}'+'%'
       AND
       ps.site = (
       SELECT
@@ -41,7 +42,16 @@ class DovController < ApplicationSimpleErrorController
 
   def get_dov_issue
     res=ActiveRecord::Base.connection.select_all("
-    SELECT ndoc id FROM dov WHERE ddate = today() and salesman_id = #{params[:salesman_id].to_i} ORDER BY 1")
+    SELECT
+      ndoc id, ndoc name
+    FROM
+      dov
+    WHERE
+      (ddate >= today() and ddate < DATEADD(day, 1, TODAY()))
+      and
+      salesman_id = #{params[:salesman_id].to_i}
+    ORDER BY
+      1")
     render :text => res.to_json
   end
 
@@ -70,7 +80,7 @@ class DovController < ApplicationSimpleErrorController
         status = 0
       )
       AND
-      ddate>=DATEADD(month, -1, TODAY)
+      ddate>=DATEADD(month, -1, TODAY())
     ORDER BY
       ps.name ASC,
       d.ndoc DESC")
