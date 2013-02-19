@@ -93,9 +93,11 @@ class DovController < ApplicationSimpleErrorController
 
   def set_dov_status
     status=params[:status].to_i
+    unused=params[:unused].to_i
     ActiveRecord::Base.connection.execute("
     UPDATE dov SET
-      status=#{status}
+      status=#{status},
+      unused=IF #{unused} = 0 THEN 0 ELSE unused END IF
     WHERE
       id=#{params[:id].to_i}")
     render :text => {"success" => true, "status" => status}.to_json
