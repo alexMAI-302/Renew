@@ -82,7 +82,6 @@ class DovController < ApplicationSimpleErrorController
       AND
       ddate>=DATEADD(month, -1, TODAY())
     ORDER BY
-      ps.name ASC,
       d.ndoc DESC")
     render :text => res.to_json
   end
