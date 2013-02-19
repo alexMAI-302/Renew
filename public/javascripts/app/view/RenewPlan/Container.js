@@ -27,6 +27,7 @@ Ext.define('app.view.RenewPlan.Container', {
 		{
 			xtype: 'simpleGrid',
 			suffix: 'RenewPlan',
+			disableSave: true,
 			disableRefresh: true,
 			disableDelete: true,
 			title: 'Планируемые поставки',

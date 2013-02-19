@@ -15,12 +15,13 @@ Ext.define('app.view.Dov.Issue.Container', {
 		{
 			xtype: 'simpleGrid',
 			suffix: 'DovIssue',
+			disableRefresh: true,
 			disableSave: true,
 			disableAdd: true,
 			disableDelete: true,
 			disableDeleteColumn: true,
 			title: 'Выданные торговому представителю доверенности за сегодня',
-			hright: 400,
+			height: '100%',
 			columns: [
 				{
 					width: 350,

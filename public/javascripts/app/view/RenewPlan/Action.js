@@ -62,9 +62,9 @@ Ext.define('app.view.RenewPlan.Action', {
 			fieldLabel: 'Заказ'
 		},
 		{
-			id: 'actionSupplyRenewPlan',
+			id: 'actionSorderStatus1RenewPlan',
 			xtype: 'checkbox',
-			fieldLabel: 'Поставка'
+			fieldLabel: 'Н'
 		}
 	]
 });

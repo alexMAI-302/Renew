@@ -3,7 +3,7 @@ Ext.define('app.model.Dov.Revoke.DovModel', {
 	fields: [
 	{name: 'id'				, type:'int'},
 	{name: 'salesman_name'	, type:'string'},
-	{name: 'ndoc'			, type:'string'},
+	{name: 'ndoc'			, type:'int'},
 	{
 		name: 'ddate',
 		type: 'date',

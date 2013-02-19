@@ -33,11 +33,13 @@ Ext.define('app.controller.DovTabs.Issue', {
 	palmSalesmansStore: null,
 	
 	init: function() {
-		var controller = this;
+		var controller = this,
+			mainContainer = Ext.getCmp('DovMain');
 		
 		controller.issueContainer=Ext.create('app.view.Dov.Issue.Container');
 		
-		Ext.getCmp('DovMain').add(controller.issueContainer);
+		mainContainer.add(controller.issueContainer);
+		mainContainer.setActiveTab(controller.issueContainer);
 		
 		controller.control({
 			'#createDov': {
@@ -48,7 +50,7 @@ Ext.define('app.controller.DovTabs.Issue', {
 						timeout: 300000,
 						params: {
 							salesman_id: Ext.getCmp('palmSalesmanIssue').getValue(),
-							quantity: Ext.getCmp('quantity').getValue(),
+							quantity: Ext.getCmp('quantityIssue').getValue(),
 							authenticity_token: window._token
 						},
 						method: "POST",
@@ -57,6 +59,7 @@ Ext.define('app.controller.DovTabs.Issue', {
 							if(success!==true){
 								Ext.Msg.alert("Ошибка при создании доверенностей", response.responseText);
 							}
+							Ext.getCmp('quantityIssue').setValue(1);
 							controller.refreshDov();
 						}
 					});
@@ -102,6 +105,7 @@ Ext.define('app.controller.DovTabs.Issue', {
 				},
 				change: function(field, newValue, oldValue, eOpts){
 					Ext.getCmp('operations').setDisabled(true);
+					Ext.getCmp('quantityIssue').setValue(1);
 					return true;
 				}
 			}
@@ -112,7 +116,7 @@ Ext.define('app.controller.DovTabs.Issue', {
 		var controller=this;
 		
 		controller.dovStore=controller.getDovIssueDovStore();
-		controller.palmSalesmansStore=controller.getDovPalmSalesmansStore();
+		controller.palmSalesmansStore=Ext.create('app.store.Dov.PalmSalesmans');
 	},
 	
 	bindStores: function(){

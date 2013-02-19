@@ -22,7 +22,7 @@ Ext.define('app.view.Dov.Issue.Form', {
 			displayField: 'name'
 		},
 		{
-			id: 'quantity',
+			id: 'quantityIssue',
 			fieldLabel: 'Количество',
 			xtype: 'numberfield',
 			value: 1,
