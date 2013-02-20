@@ -196,11 +196,11 @@ class AutoTransportController < ApplicationSimpleErrorController
         SELECT
           r.id,
           r.ddate,
-          r.truck truck_id,
+          r.pa_card truck_id,
           t.name + ' ' + ISNULL(t.model, '') truck_name
         FROM
           dbo.at_recept r
-          LEFT JOIN dbo.at_truck t ON t.id=r.truck
+          LEFT JOIN dbo.at_truck t ON t.id=r.pa_card
         WHERE
           r.ddate >= '#{Time.parse(params[:ddateb]).strftime('%F %T')}'
           AND
@@ -211,8 +211,8 @@ class AutoTransportController < ApplicationSimpleErrorController
         BEGIN
           DECLARE @id INT;
           SET @id=idgenerator('at_recept');
-          INSERT INTO dbo.at_recept(id, ddate, truck)
-          VALUES(@id, '#{Time.parse(params[:ddate]).strftime('%F %T')}', #{params[:truck_id].to_i});
+          INSERT INTO dbo.at_recept(id, ddate, pa_card)
+          VALUES(@id, '#{Time.parse(params[:ddate]).strftime('%F %T')}', #{(!params[:truck_id].nil? && params[:truck_id]!='null') ? params[:truck_id].to_i: 'null'});
           
           SELECT @id;
         END")
@@ -222,7 +222,7 @@ class AutoTransportController < ApplicationSimpleErrorController
         ActiveRecord::Base.connection.update("
         UPDATE dbo.at_recept SET
           ddate='#{Time.parse(params[:ddate]).strftime('%F %T')}',
-          truck=#{params[:truck_id].to_i}
+          pa_card=#{(!params[:truck_id].nil? && params[:truck_id]!='null') ? params[:truck_id].to_i: 'null'}
         WHERE id=#{params[:id].to_i}")
         
         render :text => {"success" => true, "id" => params[:id]}.to_json
@@ -321,7 +321,7 @@ class AutoTransportController < ApplicationSimpleErrorController
   def get_measures
     measures=Measure.find(:all,
     :select => "id, name",
-    :conditions => "name IN ('литр', 'килограмм', 'грамм', 'штука', 'комплект')",
+    :conditions => "is_at_meas=1",
     :order => "name")
     render :text => measures.to_json
   end
