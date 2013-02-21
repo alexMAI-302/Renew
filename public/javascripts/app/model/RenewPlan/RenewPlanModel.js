@@ -103,6 +103,7 @@ Ext.define('app.model.RenewPlan.RenewPlanModel', {
 	{
 		name: 'site_to_storage',
 		type:'int',
+		useNull: true,
 		persist: false
 	},
 	{

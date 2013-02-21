@@ -149,6 +149,7 @@ Ext.define('app.controller.RenewPlan', {
 				//Ext.getCmp('RenewPlanGoodsTable').setDisabled(false);
 			}
 		} else {
+			Ext.getCmp('deleteRenewPlan').setDisabled(false);
 			//Ext.getCmp('RenewPlanGoodsTable').setDisabled(true);
 		}
 		Ext.getCmp('actionPanel').setDisabled(s==null || s.phantom);
@@ -157,6 +158,8 @@ Ext.define('app.controller.RenewPlan', {
 				sorderStatus1Box = Ext.getCmp('actionSorderStatus1RenewPlan'),
 				status2 = s.get('status2'),
 				sorderStatus1 = s.get('sorder_status1');
+				
+			Ext.getCmp('deleteRenewPlan').setDisabled(false);
 			Ext.getCmp('actionRenewPlanType').setValue(s.get('renew_plan_type_id'));
 			
 			controller.siteToStoragesComboStore.clearFilter(true);
@@ -164,7 +167,13 @@ Ext.define('app.controller.RenewPlan', {
 			controller.siteToStoragesComboStore.filter("site_to", s.get('site_to'));
 			
 			var selectedStorage = controller.siteToStoragesComboStore.getAt(0);
-			Ext.getCmp('actionSiteToStorageRenewPlan').setValue((selectedStorage!=null)?selectedStorage.get('id'):null);
+			Ext.getCmp('actionSiteToStorageRenewPlan').setValue(
+				(s.get('site_to_storage')!=null)?
+					s.get('site_to_storage'):
+					((selectedStorage!=null)?
+						(selectedStorage.get('selected')):
+						null)
+			);
 			
 			Ext.getCmp('actionPlanRenewPlan').setDisabled(status2==1);
 			
@@ -175,6 +184,8 @@ Ext.define('app.controller.RenewPlan', {
 			sorderStatus1Box.setDisabled((sorderStatus1!=0 && sorderStatus1!=1) || (status2!=1));
 			sorderStatus1Box.setRawValue(sorderStatus1);
 			sorderStatus1Box.lastValue = sorderStatus1Box.getValue();
+		} else {
+			Ext.getCmp('deleteRenewPlan').setDisabled(true);
 		}
 	},
 	
@@ -213,27 +224,36 @@ Ext.define('app.controller.RenewPlan', {
 			'#saveRenewPlan': {
 				click: function(){
 					var selected=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
-					if(selected != null){
-						selected.set('sum', controller.detailStore.sum('sum'));
-					}
 					controller.syncMaster(
 						controller.mainContainer,
-						getId(selected));
+						(selected!=null)?selected.get('id'):null);
 					return true;
 				}
 			},
 			'#addRenewPlan':{
 				click: function(){
-					var sm=Ext.getCmp('RenewPlanTable').getSelectionModel(),
+					var renewPlanTable=Ext.getCmp('RenewPlanTable'),
+						sm=renewPlanTable.getSelectionModel(),
 						r = Ext.ModelManager.create({
-							send_ddate: Ext.Date.parse(Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'),
-							sup_ddate: Ext.Date.parse(Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'),
+							send_ddate: Ext.Date.add(Ext.Date.parse(Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'), Ext.Date.DAY, 1),
+							sup_ddate: Ext.Date.add(Ext.Date.parse(Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'), Ext.Date.DAY, 2),
+							truckvol: 45,
 							k_renew: 1,
 							k_sens: 0.7,
 							k_rem: 0.5
 						}, 'app.model.RenewPlan.RenewPlanModel');
 					controller.masterStore.insert(0, r);
-					sm.select(r);
+					renewPlanTable.getPlugin('rowEditingRenewPlan').startEdit(r, 0);
+				}
+			},
+			'#deleteRenewPlan': {
+				click: function(button){
+					var sm = Ext.getCmp('RenewPlanTable').getSelectionModel();
+					
+					controller.masterStore.remove(sm.getSelection());
+					if (controller.masterStore.getCount() > 0) {
+						sm.select(0);
+					}
 				}
 			},
 			'#refreshRenewPlanGoods': {
