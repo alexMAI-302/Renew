@@ -321,7 +321,7 @@ class AutoTransportController < ApplicationSimpleErrorController
   def get_measures
     measures=Measure.find(:all,
     :select => "id, name",
-    :conditions => "is_at_meas=1",
+    :conditions => "EXISTS(SELECT * FROM extra e JOIN etype et ON e.etype=et.id WHERE et.code='usedinautotransport' AND e.record_id=measures.id)",
     :order => "name")
     render :text => measures.to_json
   end
