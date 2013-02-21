@@ -27,9 +27,8 @@ Ext.define('app.view.RenewPlan.Container', {
 		{
 			xtype: 'simpleGrid',
 			suffix: 'RenewPlan',
-			disableSave: true,
 			disableRefresh: true,
-			disableDelete: true,
+			disableDeleteColumn: true,
 			title: 'Планируемые поставки',
 			editing: 'row',
 			columns: [
@@ -114,7 +113,7 @@ Ext.define('app.view.RenewPlan.Container', {
 				{
 					width: 150,
 					header: 'Номер заказа',
-					dataIndex: 'sorder',
+					dataIndex: 'sorder_ndoc',
 					disabled: true
 				},
 				{

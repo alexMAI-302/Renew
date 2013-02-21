@@ -53,7 +53,8 @@ class RenewPlanController < ApplicationSimpleErrorController
      sts.id,
      s.name,
      sts.site_to,
-     sts.site_from
+     sts.site_from,
+     sts.selected
     FROM
      site_to_storages sts
      JOIN storages s ON sts.client_id=-s.id

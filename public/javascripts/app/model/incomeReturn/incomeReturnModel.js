@@ -1,0 +1,23 @@
+Ext.define('app.model.incomeReturn.incomeReturnModel', {
+	extend: 'Ext.data.Model',
+	fields: [
+	{name: 'id'				, type: 'int'},
+	{name: 'subid'			, type: 'int'},
+	{name: 'goods'			, type: 'int'},
+	{name: 'goods_name'		, type: 'string'},
+	{name: 'doc_vol'		, type: 'float'},
+	{name: 'doc_measure'	, type: 'int'},
+	{name: 'doc_price'		, type: 'float'},
+	{name: 'currency'		, type: 'string'},
+	{name: 'measure_price'	, type: 'float'},
+	{name: 'nds_summ'		, type: 'number'},
+	{name: 'summ'			, type: 'float'},
+	{name: 'vol'			, type: 'float'},
+	{name: 'measure'		, type: 'int'},
+	{name: 'nds'			, type: 'int'},
+	{name: 'vrel'			, type: 'int'},
+	{name: 'prel'			, type: 'int'},
+	{name: 'msrh_id'		, type: 'int'},
+	],
+	 idProperty:'subid',
+});
