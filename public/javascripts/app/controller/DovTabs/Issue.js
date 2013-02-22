@@ -93,7 +93,7 @@ Ext.define('app.controller.DovTabs.Issue', {
 				select: function(combo, records){
 					if(records!=null && records.length>0){
 						var b=Ext.getCmp('printDov');
-						b.href='https://rs3.unact.ru/ReportServer?/Бухгалтерия/СБС/Доверенности&salesman_id='+records[0].get('id');
+						b.href='https://rs3.unact.ru/ReportServer/Pages/ReportViewer.aspx?/%D0%91%D1%83%D1%85%D0%B3%D0%B0%D0%BB%D1%82%D0%B5%D1%80%D0%B8%D1%8F/%D0%A1%D0%91%D0%A1/%D0%94%D0%BE%D0%B2%D0%B5%D1%80%D0%B5%D0%BD%D0%BD%D0%BE%D1%81%D1%82%D0%B8&salesman_id='+records[0].get('id');
 						b.setParams();
 						
 						Ext.getCmp('operations').setDisabled(false);
