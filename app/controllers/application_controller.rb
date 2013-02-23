@@ -1,6 +1,4 @@
 # encoding: utf-8
-# Filters added to this controller apply to all controllers in the application.
-# Likewise, all the methods added will be available for all controllers.
 
 class ApplicationController < ActionController::Base
   helper :all # include all helpers, all the time
@@ -26,15 +24,15 @@ class ApplicationController < ActionController::Base
   end
   
   def store_location
-	# меню загружается ajax-запросом, поэтому не надо сохранять ссылку на него
-	if request.path[Regexp.new("^/util_data/get_menu.*")] != request.path
-		session[:return_to] = request.request_uri
-	end
+  	# меню загружается ajax-запросом, поэтому не надо сохранять ссылку на него
+  	if request.path[Regexp.new("^/util_data/get_menu.*")] != request.path
+  		session[:return_to] = request.request_uri
+  	end
   end
   
   protected
   def check_access
-	$username=(!session[:user_id].nil?)?(session[:user_id]):("guest")
+    $username=(!session[:user_id].nil?)?(session[:user_id]):("guest")
   	user_urls=RenewUrl.user_urls(session[:user_id])
   	check_status=false
   	if !user_urls.nil? then
@@ -48,7 +46,9 @@ class ApplicationController < ActionController::Base
   	
   	unless check_status
   		if session[:user_id].nil? then
-  			redirect_to "/login/login"
+  		  if request.path!="/auth" && request.path!="/login/login"
+  		    redirect_to "/login/login"
+  		  end
   		else
   			@error_text="#{request.request_uri}"
   			render :template => "/errors/403.html.erb", :status => 403
