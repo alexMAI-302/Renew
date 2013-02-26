@@ -207,6 +207,11 @@ Ext.define('app.controller.ppsZone', {
 							valueField: 'id',
 							allowBlank: false
 						})
+					},
+					{
+						header: 'Оплачиваемость переработки',
+						dataIndex: 'overtime_payment',
+						xtype: 'checkcolumn'
 					}
 				],
 				selModel: {
