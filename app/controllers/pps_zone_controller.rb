@@ -26,7 +26,8 @@ class PpsZoneController < ApplicationSimpleErrorController
 			  :visit_freq => params[:visit_freq],
 			  :subdealerid => 7,
 			  :bound_summ => params[:bound_summ],
-			  :branch => params[:branch])
+			  :branch => params[:branch],
+			  :overtime_payment => params[:overtime_payment])
 			pps_zone.id = ActiveRecord::Base.connection.select_value("SELECT idgenerator('pps_zone')")
 			pps_zone.save
 		end
@@ -40,7 +41,8 @@ class PpsZoneController < ApplicationSimpleErrorController
 			  :spv_id => params[:spv_id],
 			  :visit_freq => params[:visit_freq],
 			  :bound_summ => params[:bound_summ],
-			  :branch => params[:branch]})
+			  :branch => params[:branch],
+			  :overtime_payment => params[:overtime_payment]})
 		end
 		when "delete"
 		begin
