@@ -1,4 +1,13 @@
-﻿
+<% content_for :stylesheets do %>
+.poll_form label, legend, input, button, span{
+	font-size: large;
+}
+
+.login {
+	padding: 5px;
+}
+<% end %>
+
 <% content_for :title do %>
 Вход в систему
 <% end %>
@@ -10,19 +19,41 @@
 				<legend>Вход (имя и пароль как при входе в компьютер)</legend>
 				
 				<% form_tag do %>
-					<p>
-					<label for="name">Имя:</label>
-					<%= text_field_tag :name, params[:name] %>
-					</p>
-
-					<p>
-					<label for="password">Пароль:</label>
-					<%= password_field_tag :password, params[:password] %>
-					</p>
-					
-					<p>
-					<%= submit_tag " Войти " %>
-					</p>
+				<table>
+					<tr>
+						<td class="login">
+							<label for="name">Имя:</label>
+						</td>
+						<td class="login">
+							<%= text_field_tag :name, params[:name] %>
+						</td>
+					</tr>
+					<tr>
+						<td class="login">
+							<label for="password">Пароль:</label>
+						</td>
+						<td class="login">
+							<%= password_field_tag :password, params[:password] %>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2" class="login">
+							<%= submit_tag " Войти ", :style => 'width: 100%; height: 28px;'%>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2" class="login">
+							<a
+								href="https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/userinfo.email+https://www.googleapis.com/auth/userinfo.profile&response_type=code&client_id=1043543321098-pp8ltrn0oqnrattumr2ukmc57svpp555.apps.googleusercontent.com&redirect_uri=https://system.unact.ru/oauth/handler/auth/google/renew">
+								<span class="login" style="top: 15px;">Войти через </span>
+								<img
+									src="/images/logo_google.png"
+									alt="Авторизация через Google+"
+									title="Авторизация через Google+"/>
+							</a>
+						</td>
+					</tr>
+				</table>
 				<% end %>
 			</fieldset>
 		</div>

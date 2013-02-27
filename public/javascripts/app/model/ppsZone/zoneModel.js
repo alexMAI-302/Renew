@@ -10,5 +10,6 @@ Ext.define('app.model.ppsZone.zoneModel', {
 	{name: 'subdealerid', type:'int'},
 	{name: 'branch'		, type:'int'},
 	{name: 'points'		, type:'string', persist: false},
-	{name: 'spv_id'		, type:'int'}]
+	{name: 'spv_id'		, type:'int'},
+	{name: 'overtime_payment'		, type:'bool'}]
 });
