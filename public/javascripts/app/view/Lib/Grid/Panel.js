@@ -14,7 +14,7 @@ Ext.define('app.view.Lib.Grid.Panel', {
 	 */
 	constructor : function(config) {
 		config = config || {};
-		config.columns = config.columns || [];
+		config.columns =  [].concat((this.columns || []), (config.columns || [])); //Колонки можно передавать в потомке и(ли) в конфиге
 		
 		var buttons = [];
 		if(config.beforeButtons!=null){
