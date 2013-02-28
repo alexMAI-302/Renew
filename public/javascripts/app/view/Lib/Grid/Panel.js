@@ -14,12 +14,13 @@ Ext.define('app.view.Lib.Grid.Panel', {
 	 */
 	constructor : function(config) {
 		config = config || {};
-		config.columns = config.columns || [];
+		//Колонки можно передавать в потомке и(ли) в конфиге
+		config.columns =  [].concat((this.columns || []), (config.columns || []));
 		
 		var buttons = [];
 		if(config.beforeButtons!=null){
 			for(var i=0; i<config.beforeButtons.length; i++){
-				buttons.push(beforeButtons[i]);
+				buttons.push(config.beforeButtons[i]);
 			}
 		}
 		
@@ -59,7 +60,7 @@ Ext.define('app.view.Lib.Grid.Panel', {
 		
 		if(config.afterButtons!=null){
 			for(var i=0; i<config.afterButtons.length; i++){
-				buttons.push(afterButtons[i]);
+				buttons.push(config.afterButtons[i]);
 			}
 		}
 		
