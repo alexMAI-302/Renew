@@ -12,10 +12,17 @@ Ext.define('app.view.Lib.Grid.Panel', {
 	 * disableEditing - таблица нередактируемая. По умолчанию используется редактирование ячеек
 	 * disableDeleteColumn - не добавлять колонку удаления позиций. По умолчанию добавляется
 	 */
-	constructor : function(config) {
-		config = config || {};
-		//Колонки можно передавать в потомке и(ли) в конфиге
-		config.columns =  [].concat((this.columns || []), (config.columns || []));
+	constructor : function(currentConfig) {
+		var initConfig = this.getInitialConfig() || {};
+		currentConfig=currentConfig || {};
+		config = {};
+		for(var i in initConfig){
+			config[i]=initConfig[i];
+		}
+		
+		for(var i in currentConfig){
+			config[i]=currentConfig[i];
+		}
 		
 		var buttons = [];
 		if(config.beforeButtons!=null){
@@ -28,7 +35,7 @@ Ext.define('app.view.Lib.Grid.Panel', {
 			buttons.push(
 				{
 					id : 'refresh'+config.suffix,
-					icon : '/ext/examples/shared/icons/fam/table_refresh.png'
+					icon : '/ext/resources/themes/images/default/grid/refresh.gif'
 				}
 			);
 		}
