@@ -132,9 +132,17 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 							selected[0].getId(),
 							Ext.getCmp('RecGoodsTable')
 						);
+						Ext.getCmp('deleteRecept').setDisabled(false);
 					} else {
 						Ext.getCmp('RecGoodsTable').setDisabled(true);
+						Ext.getCmp('deleteRecept').setDisabled(true);
 					}
+					return true;
+				}
+			},
+			'#RecGoodsTable': {
+				selectionchange: function(sm, selected, eOpts){
+					Ext.getCmp('deleteRecGoods').setDisabled(selected==null || selected.length==0);
 					return true;
 				}
 			},
@@ -167,6 +175,16 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 					sm.select(r);
 				}
 			},
+			'#deleteRecept': {
+				click: function(button){
+					var sm = Ext.getCmp('ReceptTable').getSelectionModel();
+					
+					controller.masterStore.remove(sm.getSelection()[0]);
+					if (controller.masterStore.getCount() > 0) {
+						sm.select(0);
+					}
+				}
+			},
 			'#refreshRecGoods': {
 				click: function(){
 					var selected=Ext.getCmp('ReceptTable').getSelectionModel().getSelection();
@@ -175,6 +193,16 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 							selected[0].getId(),
 							Ext.getCmp('RecGoodsTable')
 						);
+					}
+				}
+			},
+			'#deleteRecGoods': {
+				click: function(button){
+					var sm = Ext.getCmp('RecGoodsTable').getSelectionModel();
+					
+					controller.detailStore.remove(sm.getSelection()[0]);
+					if (controller.detailStore.getCount() > 0) {
+						sm.select(0);
 					}
 				}
 			}

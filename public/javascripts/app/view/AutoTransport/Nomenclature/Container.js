@@ -18,12 +18,14 @@ Ext.define('app.view.AutoTransport.Nomenclature.Container', {
 			region: 'north',
 			items:[
 				{
-					id: 'saveNomenclatureGroup',
-					icon: '/images/save.png'
+					id: 'refreshNomenclatureGroup',
+					icon : '/ext/resources/themes/images/default/grid/refresh.gif',
+					tooltip: 'Обновить'
 				},
 				{
-					id: 'refreshNomenclatureGroup',
-					icon: '/ext/examples/shared/icons/fam/table_refresh.png'
+					id: 'saveNomenclatureGroup',
+					icon: '/images/save.png',
+					tooltip: 'Сохранить'
 				}
 			]
 		},

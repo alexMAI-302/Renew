@@ -23,7 +23,8 @@ Ext.define('app.view.AutoTransport.Income.Container', {
 				{
 					id: 'save',
 					icon: '/images/save.png',
-					xtype: 'button'
+					xtype: 'button',
+					tooltip: 'Сохранить'
 				}
 			],
 			region: 'north'
@@ -33,7 +34,7 @@ Ext.define('app.view.AutoTransport.Income.Container', {
 			suffix: 'Income',
 			title: 'Приход',
 			disableSave: true,
-			disableDelete: true,
+			disableDeleteColumn: true,
 			disableRefresh: true,
 			columns: [
 				{
@@ -80,7 +81,7 @@ Ext.define('app.view.AutoTransport.Income.Container', {
 			suffix: 'IncGoods',
 		    disabled: true,
 		    disableSave: true,
-		    disableDelete: true,
+		    disableDeleteColumn: true,
 			columns: [
 				{
 					width: 170,

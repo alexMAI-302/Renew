@@ -15,11 +15,12 @@ Ext.define('app.controller.AutoTransportTabs.Sellers', {
 	],
 	
 	sellersContainer: null,
+	masterStore: null,
 	
 	refreshSellers: function(){
 		var controller=this;
 		
-		controller.sellersStore.load(
+		controller.masterStore.load(
 			function(records, operation, success){
 				if(!success){
 					Ext.Msg.alert("Ошибка", "Ошибка при загрузке поставщиков");
@@ -58,7 +59,7 @@ Ext.define('app.controller.AutoTransportTabs.Sellers', {
 			'#saveSellers': {
 				click: function(){
 					controller.sync(
-						controller.sellersStore,
+						controller.masterStore,
 						controller.sellersContainer);
 					return true;
 				}
@@ -72,7 +73,7 @@ Ext.define('app.controller.AutoTransportTabs.Sellers', {
 			'#addSellers':{
 				click: function(){
 					var r = Ext.ModelManager.create({}, 'app.model.valueModel');
-					controller.sellersStore.add(r);
+					controller.masterStore.add(r);
 				}
 			},
 			'#refreshSellers': {
@@ -82,8 +83,8 @@ Ext.define('app.controller.AutoTransportTabs.Sellers', {
 				click: function(button){
 					var sm = Ext.getCmp('SellersTable').getSelectionModel();
 					
-					controller.sellersStore.remove(sm.getSelection()[0]);
-					if (controller.sellersStore.getCount() > 0) {
+					controller.masterStore.remove(sm.getSelection()[0]);
+					if (controller.masterStore.getCount() > 0) {
 						sm.select(0);
 					}
 				}
@@ -94,7 +95,7 @@ Ext.define('app.controller.AutoTransportTabs.Sellers', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.sellersStore=controller.getAutoTransportSellersStore();
+		controller.masterStore=controller.getAutoTransportSellersStore();
 		
 		controller.refreshSellers();
 	},
@@ -102,7 +103,7 @@ Ext.define('app.controller.AutoTransportTabs.Sellers', {
 	bindStores: function(){
 		var controller=this;
 		
-		Ext.getCmp('SellersTable').reconfigure(controller.sellersStore);
+		Ext.getCmp('SellersTable').reconfigure(controller.masterStore);
 	},
 	
 	onLaunch: function(){

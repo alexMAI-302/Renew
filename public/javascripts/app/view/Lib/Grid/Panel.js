@@ -35,7 +35,8 @@ Ext.define('app.view.Lib.Grid.Panel', {
 			buttons.push(
 				{
 					id : 'refresh'+config.suffix,
-					icon : '/ext/resources/themes/images/default/grid/refresh.gif'
+					icon : '/ext/resources/themes/images/default/grid/refresh.gif',
+					tooltip: 'Обновить'
 				}
 			);
 		}
@@ -43,7 +44,8 @@ Ext.define('app.view.Lib.Grid.Panel', {
 			buttons.push(
 				{
 					id : 'save'+config.suffix,
-					icon : '/images/save.png'
+					icon : '/images/save.png',
+					tooltip: 'Сохранить'
 				}
 			);
 		}
@@ -51,7 +53,8 @@ Ext.define('app.view.Lib.Grid.Panel', {
 			buttons.push(
 				{
 					id : 'add'+config.suffix,
-					icon : '/ext/examples/shared/icons/fam/add.gif'
+					icon : '/ext/examples/shared/icons/fam/add.gif',
+					tooltip: 'Добавить'
 				}
 			);
 		}
@@ -60,7 +63,8 @@ Ext.define('app.view.Lib.Grid.Panel', {
 				{
 					id : 'delete'+config.suffix,
 					icon : '/ext/examples/shared/icons/fam/delete.gif',
-					disabled : true
+					disabled : true,
+					tooltip: 'Удалить'
 				}
 			);
 		}
@@ -102,6 +106,7 @@ Ext.define('app.view.Lib.Grid.Panel', {
 				xtype:'actioncolumn',
 				width:20,
 				icon: '/ext/examples/shared/icons/fam/cross.gif',
+				tooltip: 'Удалить',
 				handler: function(grid, rowIndex){
 					grid.store.removeAt(rowIndex);
 				}

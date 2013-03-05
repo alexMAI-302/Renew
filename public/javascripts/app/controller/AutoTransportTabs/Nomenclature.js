@@ -114,11 +114,13 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 	},
 	
 	init: function() {
-		var controller = this;
+		var controller = this,
+			mainContainer = Ext.getCmp('AutoTransportMain');
 		
 		controller.nomenclatureContainer=Ext.create('app.view.AutoTransport.Nomenclature.Container');
 		
-		Ext.getCmp('AutoTransportMain').add(controller.nomenclatureContainer);
+		mainContainer.add(controller.nomenclatureContainer);
+		mainContainer.setActiveTab(controller.nomenclatureContainer);
 		
 		controller.control({
 			'#NomenclatureGroupTable': {

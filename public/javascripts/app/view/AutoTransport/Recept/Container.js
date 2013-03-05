@@ -23,7 +23,8 @@ Ext.define('app.view.AutoTransport.Recept.Container', {
 				{
 					id: 'save',
 					icon: '/images/save.png',
-					xtype: 'button'
+					xtype: 'button',
+					tooltip: 'Сохранить'
 				}
 			],
 			region: 'north'
@@ -32,7 +33,7 @@ Ext.define('app.view.AutoTransport.Recept.Container', {
 			xtype: 'simpleGrid',
 			title: 'Расход',
 			disableSave: true,
-			disableDelete: true,
+			disableDeleteColumn: true,
 			disableRefresh: true,
 			suffix: 'Recept',
 			columns: [
@@ -63,7 +64,7 @@ Ext.define('app.view.AutoTransport.Recept.Container', {
 			suffix: 'RecGoods',
 		    disabled: true,
 		    disableSave: true,
-		    disableDelete: true,
+		    disableDeleteColumn: true,
 			disabled: true,
 			columns: [
 				{
