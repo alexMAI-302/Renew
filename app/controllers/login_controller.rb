@@ -41,7 +41,7 @@ class LoginController < ApplicationController
             user=AdUser.find_by_email(email)
             renew_user = RenewUser.find(
               :first,
-              :conditions => ["name=?", user.user_id])
+              :conditions => ["name=?", user.user_id]) if !user.nil?
             if renew_user.nil? && !user.nil?
               renew_user = RenewUser.create(:name => user.user_id)
             end

@@ -12,14 +12,22 @@ Ext.define('app.view.Lib.Grid.Panel', {
 	 * disableEditing - таблица нередактируемая. По умолчанию используется редактирование ячеек
 	 * disableDeleteColumn - не добавлять колонку удаления позиций. По умолчанию добавляется
 	 */
-	constructor : function(config) {
-		config = config || {};
-		config.columns =  [].concat((this.columns || []), (config.columns || [])); //Колонки можно передавать в потомке и(ли) в конфиге
+	constructor : function(currentConfig) {
+		var initConfig = this.getInitialConfig() || {};
+		currentConfig=currentConfig || {};
+		config = {};
+		for(var i in initConfig){
+			config[i]=initConfig[i];
+		}
+		
+		for(var i in currentConfig){
+			config[i]=currentConfig[i];
+		}
 		
 		var buttons = [];
 		if(config.beforeButtons!=null){
 			for(var i=0; i<config.beforeButtons.length; i++){
-				buttons.push(beforeButtons[i]);
+				buttons.push(config.beforeButtons[i]);
 			}
 		}
 		
@@ -27,7 +35,8 @@ Ext.define('app.view.Lib.Grid.Panel', {
 			buttons.push(
 				{
 					id : 'refresh'+config.suffix,
-					icon : '/ext/examples/shared/icons/fam/table_refresh.png'
+					icon : '/ext/resources/themes/images/default/grid/refresh.gif',
+					tooltip: 'Обновить'
 				}
 			);
 		}
@@ -35,7 +44,8 @@ Ext.define('app.view.Lib.Grid.Panel', {
 			buttons.push(
 				{
 					id : 'save'+config.suffix,
-					icon : '/images/save.png'
+					icon : '/images/save.png',
+					tooltip: 'Сохранить'
 				}
 			);
 		}
@@ -43,7 +53,8 @@ Ext.define('app.view.Lib.Grid.Panel', {
 			buttons.push(
 				{
 					id : 'add'+config.suffix,
-					icon : '/ext/examples/shared/icons/fam/add.gif'
+					icon : '/ext/examples/shared/icons/fam/add.gif',
+					tooltip: 'Добавить'
 				}
 			);
 		}
@@ -52,14 +63,15 @@ Ext.define('app.view.Lib.Grid.Panel', {
 				{
 					id : 'delete'+config.suffix,
 					icon : '/ext/examples/shared/icons/fam/delete.gif',
-					disabled : true
+					disabled : true,
+					tooltip: 'Удалить'
 				}
 			);
 		}
 		
 		if(config.afterButtons!=null){
 			for(var i=0; i<config.afterButtons.length; i++){
-				buttons.push(afterButtons[i]);
+				buttons.push(config.afterButtons[i]);
 			}
 		}
 		
@@ -94,6 +106,7 @@ Ext.define('app.view.Lib.Grid.Panel', {
 				xtype:'actioncolumn',
 				width:20,
 				icon: '/ext/examples/shared/icons/fam/cross.gif',
+				tooltip: 'Удалить',
 				handler: function(grid, rowIndex){
 					grid.store.removeAt(rowIndex);
 				}

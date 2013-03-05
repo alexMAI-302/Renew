@@ -58,7 +58,8 @@ Ext.define('app.view.Lib.DateIntervalFilter', {
 			items.push({
 				id : 'filter' + config.suffix,
 				xtype : 'button',
-				text : 'Фильтр'
+				icon : '/ext/resources/themes/images/default/grid/refresh.gif',
+				tooltip: 'Фильтр/обновить'
 			});
 		}
 		

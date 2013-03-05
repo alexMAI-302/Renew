@@ -166,7 +166,7 @@ class AutoTransportController < ApplicationSimpleErrorController
             @id,
             #{params[:master_id].to_i},
             #{params[:at_goods].to_i},
-            #{params[:vol].to_i},
+            #{params[:vol].to_f},
             #{params[:price].to_f});
           
           SELECT @id;
@@ -177,7 +177,7 @@ class AutoTransportController < ApplicationSimpleErrorController
         ActiveRecord::Base.connection.update("
         UPDATE dbo.at_incgoods SET
           at_goods= #{params[:at_goods].to_i},
-          vol= #{params[:vol].to_i},
+          vol= #{params[:vol].to_f},
           price= #{params[:price].to_i}
         WHERE id=#{params[:id].to_i}")
         
@@ -259,7 +259,7 @@ class AutoTransportController < ApplicationSimpleErrorController
             @id,
             #{params[:master_id].to_i},
             #{params[:at_goods].to_i},
-            #{params[:vol].to_i});
+            #{params[:vol].to_f});
           
           SELECT @id;
         END")
@@ -269,7 +269,7 @@ class AutoTransportController < ApplicationSimpleErrorController
         ActiveRecord::Base.connection.update("
         UPDATE dbo.at_recgoods SET
           at_goods= #{params[:at_goods].to_i},
-          vol= #{params[:vol].to_i}
+          vol= #{params[:vol].to_f}
         WHERE id=#{params[:id].to_i}")
         
         render :text => {"success" => true, "id" => params[:id]}.to_json

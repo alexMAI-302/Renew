@@ -142,9 +142,18 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 							getId(selected[0]),
 							Ext.getCmp('IncGoodsTable')
 						);
+						Ext.getCmp('deleteIncome').setDisabled(false);
 					} else {
+						controller.detailStore.removeAll();
 						Ext.getCmp('IncGoodsTable').setDisabled(true);
+						Ext.getCmp('deleteIncome').setDisabled(true);
 					}
+					return true;
+				}
+			},
+			'#IncGoodsTable': {
+				selectionchange: function(sm, selected, eOpts){
+					Ext.getCmp('deleteIncGoods').setDisabled(selected==null || selected.length==0);
 					return true;
 				}
 			},
@@ -175,6 +184,16 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 					sm.select(r);
 				}
 			},
+			'#deleteIncome': {
+				click: function(button){
+					var sm = Ext.getCmp('IncomeTable').getSelectionModel();
+					
+					controller.masterStore.remove(sm.getSelection()[0]);
+					if (controller.masterStore.getCount() > 0) {
+						sm.select(0);
+					}
+				}
+			},
 			'#refreshIncGoods': {
 				click: function(){
 					var selected=Ext.getCmp('IncomeTable').getSelectionModel().getSelection();
@@ -183,6 +202,16 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 							getId(selected[0]),
 							Ext.getCmp('IncGoodsTable')
 						);
+					}
+				}
+			},
+			'#deleteIncGoods': {
+				click: function(button){
+					var sm = Ext.getCmp('IncGoodsTable').getSelectionModel();
+					
+					controller.detailStore.remove(sm.getSelection()[0]);
+					if (controller.detailStore.getCount() > 0) {
+						sm.select(0);
 					}
 				}
 			}
