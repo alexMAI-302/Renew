@@ -86,7 +86,7 @@ class UtilDataController < ApplicationSimpleErrorController
   		JOIN renew_web.renew_users_groups rug ON rug.renew_user_group_id=ruu.renew_user_group_id
   		JOIN renew_web.renew_users rusr ON rusr.id=rug.renew_user_id
   	WHERE
-  		rusr.name='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}'
+  		rusr.name='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}' OR rusr.name='guest'
   	ORDER BY
   		ru.sorder
   	")
