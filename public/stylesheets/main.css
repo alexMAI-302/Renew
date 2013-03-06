@@ -90,12 +90,6 @@ A IMG
 	color: #333;
 }
 
-th.mauseover
-{
-	background: #DDD;
-	cursor:hand
-}
-
 #map
 {
 	width: 100%;
@@ -137,11 +131,19 @@ th.mauseover
 
 #header .title
 {
-	padding-left: 40px;
+	padding-left: 45px;
 	font: 21px tahoma;
 	color: white;
 	text-transform: uppercase;
-	padding-bottom: 42px;
+	padding-bottom: 28px;
+}
+
+#header .user
+{
+	padding-right: 50px;
+	font: bold 10px tahoma;
+	color: #555;
+	padding-top: 65px;
 }
 
 #notice
@@ -154,7 +156,12 @@ th.mauseover
 
 .logobg 
 {
-	background: url('./../../images/logobg.gif') bottom repeat-x;
+	background: url('./../../images/logobg.png') bottom repeat-x;
+}
+
+.logodecor 
+{
+	background: url('./../../images/logodecor.png') right no-repeat;
 }
 
 .gray
