@@ -196,11 +196,9 @@ class AutoTransportController < ApplicationSimpleErrorController
         SELECT
           r.id,
           r.ddate,
-          r.pa_card truck_id,
-          t.name + ' ' + ISNULL(t.model, '') truck_name
+          r.pa_card truck_id
         FROM
           dbo.at_recept r
-          LEFT JOIN dbo.at_truck t ON t.id=r.pa_card
         WHERE
           r.ddate >= '#{Time.parse(params[:ddateb]).strftime('%F %T')}'
           AND
@@ -338,8 +336,6 @@ class AutoTransportController < ApplicationSimpleErrorController
       name + ' ' + ISNULL(model, '') name
     FROM
       dbo.at_truck
-    WHERE
-      name LIKE '%'+#{ActiveRecord::Base.connection.quote(params[:query])}+'%'
     ORDER BY
       name, model")
     render :text => res.to_json

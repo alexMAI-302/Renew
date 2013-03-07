@@ -52,7 +52,7 @@ Ext.define('app.view.AutoTransport.Recept.Container', {
 				{
 					width: 240,
 					header: 'Машина',
-					dataIndex: 'truck'
+					dataIndex: 'truck_id'
 				}
 			],
 			region: 'center',
