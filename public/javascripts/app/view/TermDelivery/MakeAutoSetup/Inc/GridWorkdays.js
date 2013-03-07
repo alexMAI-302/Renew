@@ -1,62 +1,48 @@
 //таблица
 Ext.define('app.view.TermDelivery.MakeAutoSetup.Inc.GridWorkdays', {
-	extend: 'Ext.grid.Panel',
+	extend: 'app.view.Lib.Grid.Panel',
 	alias: 'widget.workdaysGrid',
 	
 	requires: [
-		'app.view.TermDelivery.MakeAutoSetup.Inc.FilterWorkdays'
+		'app.view.Lib.DateIntervalFilter'
 	],
     
-    initComponent: function() {
-        Ext.apply(this, {
-			id: 'workdaysTable',
-			title: 'Типы дней для посещения',
-			height: 300,
-			columns: [
-				{
-					width: 120,
-					header: 'Дата',
-					dataIndex: 'ddate',
-					xtype: 'datecolumn',
-					format: 'Y-m-d',
-					field: {
-						xtype: 'datefield',
-						format: 'Y-m-d'
-					}
-				},
-				{
-					width: 110,
-					header: 'Тип',
-					dataIndex: 'type',
-					field: {
-						xtype: 'combo',
-						displayField: 'name',
-						valueField: 'id'
-					}
+    config: {
+		suffix: 'Workdays',
+		title: 'Типы дней для посещения',
+		height: 300,
+		disableRefresh: true,
+		disableDelete: true,
+		beforeButtons: [
+			{
+				xtype: 'dateIntervalFilter',
+				suffix: 'Workdays',
+				shiftInterval: Ext.Date.MONTH,
+				shiftBegin: -1
+			}
+		],
+		columns: [
+			{
+				width: 120,
+				header: 'Дата',
+				dataIndex: 'ddate',
+				xtype: 'datecolumn',
+				format: 'Y-m-d',
+				field: {
+					xtype: 'datefield',
+					format: 'Y-m-d'
 				}
-			],
-			viewConfig: {
-				enableTextSelection: true
 			},
-			plugins: [Ext.create('Ext.grid.plugin.CellEditing', {
-				clicksToEdit: 1,
-				pluginId: 'cellEditingWorkday'
-			})],
-			tbar: [
-				{
-					xtype: 'workdaysFilter'
-				},
-				{
-					id: 'saveWorkdays',
-					icon: '/images/save.png'
-				},
-				{
-					id: 'addWorkday',
-					icon: '/ext/examples/shared/icons/fam/add.gif'
+			{
+				width: 110,
+				header: 'Тип',
+				dataIndex: 'type',
+				field: {
+					xtype: 'combo',
+					displayField: 'name',
+					valueField: 'id'
 				}
-			]
-		});
-        
-        this.callParent(arguments);
+			}
+		]
     }
 });

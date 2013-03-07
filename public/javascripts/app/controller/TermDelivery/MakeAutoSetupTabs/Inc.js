@@ -73,9 +73,9 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
 					return true;
 				}
 			},
-			'#addNorm':{
+			'#addNormes':{
 				click: function(){
-					var sm=Ext.getCmp('normesTable').getSelectionModel(),
+					var sm=Ext.getCmp('NormesTable').getSelectionModel(),
 						r = Ext.ModelManager.create(
 							{period: controller.currentPeriod},
 							'app.model.TermDelivery.MakeAutoSetup.PpsZoneNormModel');
@@ -112,9 +112,9 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
 					return true;
 				}
 			},
-			'#addWorkday':{
+			'#addWorkdays':{
 				click: function(){
-					var sm=Ext.getCmp('workdaysTable').getSelectionModel(),
+					var sm=Ext.getCmp('WorkdaysTable').getSelectionModel(),
 						r = Ext.ModelManager.create(
 							{
 								ddate: Ext.Date.parse(Ext.Date.format(new Date(), 'Y-m-d'), 'Y-m-d'),
@@ -170,8 +170,8 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
 	bindStores: function(){
 		var controller=this;
 		
-		Ext.getCmp('normesTable').reconfigure(controller.ppsZoneNormesStore);
-		Ext.getCmp('workdaysTable').reconfigure(controller.ppsZoneWorkdaysStore);
+		Ext.getCmp('NormesTable').reconfigure(controller.ppsZoneNormesStore);
+		Ext.getCmp('WorkdaysTable').reconfigure(controller.ppsZoneWorkdaysStore);
 	},
 	
 	makeComboColumn: function(column, storeCombo, tableStore, property, allowNull, onlyRenderer){
@@ -210,8 +210,8 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
 	
 	initTables: function(){
 		var controller=this,
-			normesTable = Ext.getCmp('normesTable'),
-			workdaysTable = Ext.getCmp('workdaysTable'),
+			normesTable = Ext.getCmp('NormesTable'),
+			workdaysTable = Ext.getCmp('WorkdaysTable'),
 			dayTypeColumn = workdaysTable.columns[1],
 			periodColumn = normesTable.columns[1],
 			zoneColumn = normesTable.columns[0];
