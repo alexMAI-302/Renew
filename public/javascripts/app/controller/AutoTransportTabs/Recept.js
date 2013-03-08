@@ -218,6 +218,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 		};
 		controller.goodsStore.load();
 		controller.measureStore.load();
+		controller.truckStore.load();
 	},
 	
 	initStores: function(){
@@ -285,35 +286,10 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 			goodsColumn = recGoodsTable.columns[1],
 			measureColumn = recGoodsTable.columns[3];
 		
+		controller.makeComboColumn(truckColumn, controller.truckStore, controller.masterStore, 'truck_id', true);
 		controller.makeComboColumn(groupColumn, controller.ggroupStore, controller.detailStore, 'at_ggroup');
 		controller.makeComboColumn(goodsColumn, controller.goodsStore, controller.detailStore, 'at_goods');
 		controller.makeComboColumn(measureColumn, controller.measureStore, controller.detailStore, 'measure', true);
-		
-		truckColumn.field = Ext.create('Ext.form.ComboBox', {
-			store: controller.truckStore,
-			queryMode: 'remote',
-			displayField: 'name',
-			valueField: 'id',
-			value: "",
-			listeners: {
-				select: function(combo, selected, eOpts){
-					var r=receptTable.getSelectionModel().getSelection()[0];
-					r.set('truck_id', (selected[0]!=null)?selected[0].getId():null);
-					r.set('truck_name', (selected[0]!=null)?selected[0].get('name'):null);
-					return true;
-				}
-			}
-		});
-		truckColumn.renderer = function(value, metaData, record){
-			return record.get('truck_name');
-		};
-		truckColumn.doSort = function(state){
-			controller.masterStore.sort({
-				property: 'truck_name',
-				direction: state
-			});
-			return true;
-		};
 		
 		goodsColumn.field.addListener(
 			"select",
