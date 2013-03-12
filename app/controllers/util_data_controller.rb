@@ -54,12 +54,6 @@ class UtilDataController < ApplicationSimpleErrorController
   		JOIN renew_web.renew_users rusr ON rusr.id=rug.renew_user_id
   	WHERE
   		rusr.name='#{(!session[:user_id].nil?)?(session[:user_id]):("guest")}' OR rusr.name='guest'
-  	UNION ALL
-  	SELECT
-  		-1 id,
-  		IF #{(session[:user_id].nil?)?(1):(0)}=1 THEN 'Вход' ELSE 'Выход' END IF name,
-  		IF #{(session[:user_id].nil?)?(1):(0)}=1 THEN '/login/login' ELSE '/login/logout' END IF url_pattern,
-  		2147483647 sorder
   	ORDER BY
   		sorder
   	")

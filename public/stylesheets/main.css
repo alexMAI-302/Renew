@@ -118,7 +118,7 @@ A IMG
 	position: relative;
     padding: 0px;
 	margin:0 -1px;
-	background-color: #FF000A;
+	background-color: #ED1C24;
 } 
 
 #header #logo 
@@ -138,12 +138,25 @@ A IMG
 	padding-bottom: 28px;
 }
 
-#header .user
+#header .user a
 {
-	padding-right: 50px;
-	font: bold 10px tahoma;
-	color: #555;
-	padding-top: 65px;
+	font: bold 12px tahoma;
+	color: #FFF;
+}
+
+#header .user div
+{
+	padding-right: 10px;
+	margin-top: 40px;
+}
+
+#header .user span
+{
+	padding-left: 10px;
+	padding-right: 10px;
+	font: bold 12px tahoma;
+	background-color: #ED1C24;
+	color: #EEE;
 }
 
 #notice

@@ -48,10 +48,18 @@
 						<%= yield(:title)%>
 					</nobr></td>
 					<td class="logodecor logobg user" align="right" width="96%">
-						
-						<nobr>
-						<%= session[:user_id] %>
-						</nobr>
+						<div>
+							<span>
+								<nobr>
+									<%= session[:user_id] %>&nbsp;&nbsp;
+									<% if session[:user_id].nil? %>
+										<a href="/login/login">Вход</a>
+									<% else %>
+										<a href="/login/logout">Выход</a>
+									<% end %>
+								</nobr>
+							</span>
+						</div>
 					</td>
 				</tr>
 			</table>
