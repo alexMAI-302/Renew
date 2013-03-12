@@ -1,4 +1,5 @@
 Ext.define('app.controller.incomeReturn', {
+Ext.define('app.controller.incomeReturn', {
     extend: 'Ext.app.Controller',
 	stores: [
 		'incomeReturn.income',
@@ -189,7 +190,7 @@ Ext.define('app.controller.incomeReturn', {
 			IncomeReturnTable = Ext.getCmp('IncomeReturnTable'),
 			goodsColumn=IncomeReturnTable.columns[1],
 			docMeasureColumn=IncomeReturnTable.columns[3]
-			measureColumn=IncomeReturnTable.columns[10];
+			measureColumn=IncomeReturnTable.columns[11];
 		
 		controller.goodsMakeComboColumn(goodsColumn, controller.goodsStore, controller.incomeReturnStore, 'goods');
 		
@@ -209,25 +210,25 @@ Ext.define('app.controller.incomeReturn', {
 
 		);
 		Ext.getCmp('incomeCombo').addListener(
-			"change",
-			function(field, newValue, oldValue, options){
-				if(newValue!=null){
+			"select",
+			function(field, value, options){
+				if(value!=null){
 					controller.mainContainer.setLoading(true);
 		
 					controller.incomeReturnStore.proxy.extraParams={
-						inc_id: newValue
+						inc_id: value[0].data.id
 					};
 					controller.incomeReturnStore.load(
 						function(records, operation, success){
 							if(!success) {
-								Ext.Msg.alert('Ошибка', operation.error)
-							
+								Ext.Msg.alert('Ошибка', operation.error.responseText)							
 							}
 							var disabled=!records.length;
 							//controller.mainContainer.items.items[1].dockedItems.items[1].items.items[0].setDisabled(disabled);
 							controller.mainContainer.setLoading(false);
 						}
 					);
+					//Ext.getCmp('ddate').setValue(value[0].data.ddate);
 				}
 			}
 		);
