@@ -11,7 +11,7 @@ Ext.define('app.view.incomeReturn.container', {
 		type: 'anchor'
 	},
 	
-	width: 1200,
+	width: 1300,
 	renderTo: Ext.get('income_return_js'),
 	defaults: {
 		style: {
@@ -122,6 +122,12 @@ Ext.define('app.view.incomeReturn.container', {
 							}
 						}
 					}
+				},
+				{
+					width: 50,
+					header: 'Ставка</br>НДС',
+					dataIndex: 'nds',
+					renderer: Ext.util.Format.numberRenderer('00%')
 				},
 				{
 					width: 100,

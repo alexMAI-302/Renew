@@ -62,10 +62,10 @@ class LoginController < ApplicationController
             
             if user.nil?
               user = AdUser.new
-              user.user_id = id
+              user.user_id = email
               user.mail = email
               user.displayname = name
-              user.userprincipalname = id
+              user.userprincipalname = email
             end
             create_user_session(user)
           else

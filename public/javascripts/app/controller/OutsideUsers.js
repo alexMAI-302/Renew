@@ -56,7 +56,7 @@ Ext.define('app.controller.OutsideUsers', {
 		controller.mainContainer=Ext.create('app.view.OutsideUsers.Container');
 		
 		controller.control({
-			'#filterOutsideUsers': {
+			'#refreshOutsideUsers': {
 				click: function(){
 					controller.masterStore.load();
 				}
