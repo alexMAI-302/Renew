@@ -18,7 +18,8 @@ class IncomeReturnController < ApplicationSimpleErrorController
 		
 	def get_income
 		ddate=(params[:ddate].nil? || params[:ddate].to_s=='')?('1900-01-01'):params[:ddate]
-		income = ActiveRecord::Base.connection.select_all("select * from ask_income_return_income('#{ddate}')")
+		query=(params[:query].nil?)?(''):params[:query]
+		income = ActiveRecord::Base.connection.select_all("select * from ask_income_return_income('#{ddate}','#{ActiveRecord::Base.connection.quote_string(query)}')")
 		#logger.info(ddate)
 		render :json => income.to_json
 	end
