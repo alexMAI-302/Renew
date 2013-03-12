@@ -12,16 +12,20 @@ Ext.define('app.model.OutsideUsers.UserModel', {
 	{
 		name: "system_id",
 		type: "int",
-		persit: false
+		persist: false
 	},
 	{
 		name: "email",
 		type: "string",
-		persit: false
+		persist: false
 	},
 	{
 		name: "account_info",
 		type: "string",
-		persit: false
+		convert: function(v){
+			v=Ext.String.htmlEncode(v);
+			return v.replace(/\n/g, '<br/>');
+		},
+		persist: false
 	}]
 });
