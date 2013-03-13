@@ -1,5 +1,4 @@
 Ext.define('app.controller.incomeReturn', {
-Ext.define('app.controller.incomeReturn', {
     extend: 'Ext.app.Controller',
 	stores: [
 		'incomeReturn.income',
