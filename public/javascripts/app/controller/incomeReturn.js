@@ -116,19 +116,11 @@ Ext.define('app.controller.incomeReturn', {
 			params: {authenticity_token: window._token},
 			jsonData: rows,
 			method: 'POST',
-			timeout: 30000,
+			timeout: 300000,
 			 success: function(response, opts) {
 					if (response.responseText=="ok") 
 					{
 						Ext.Msg.alert('Сообщение', 'Документы сформированы');
-						controller.mainContainer.items.items[0].down('#ddate').setValue(null);
-						
-						
-						controller.incomeReturnStore.proxy.extraParams={
-							inc_id: -1
-						};
-						controller.incomeReturnStore.load();
-						Ext.getCmp('incomeCombo').setValue(null);
 						controller.mainContainer.setLoading(false);
 					}
 					else
