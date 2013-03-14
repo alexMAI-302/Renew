@@ -49,15 +49,19 @@
 					</nobr></td>
 					<td class="logodecor logobg user" align="right" width="96%">
 						<div>
-							<span>
-								<nobr>
-									<%= session[:user_id] %>&nbsp;&nbsp;
-									<% if session[:user_id].nil? %>
-										<a href="/login/login">Вход</a>
-									<% else %>
-										<a href="/login/logout">Выход</a>
-									<% end %>
-								</nobr>
+							<span style="background-color: rgba(237, 28, 36, 0.5); padding-top: 10px;">
+								<span style="background-color: rgba(229, 20, 28, 0.6); padding-top: 5px; padding-bottom: 3px;">
+									<span>
+										<nobr>
+											<%= session[:user_id] %>&nbsp;&nbsp;
+											<% if session[:user_id].nil? %>
+												<a href="/login/login">Вход</a>
+											<% else %>
+												<a href="/login/logout">Выход</a>
+											<% end %>
+										</nobr>
+									</span>
+								</span>
 							</span>
 						</div>
 					</td>

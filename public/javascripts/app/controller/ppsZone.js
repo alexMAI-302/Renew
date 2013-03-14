@@ -229,7 +229,7 @@ Ext.define('app.controller.ppsZone', {
 					'beforeselect': function(view, node, selections, options){
 						var data=(node!=null)?node.data:null;
 						terminalTabs.setDisabled(true);
-						refreshTerminals(data.points, data.id);
+						refreshTerminals((data.points)?data.points:null, (data.id)?data.id:null);
 					}
 				}
 			}),
@@ -513,6 +513,13 @@ Ext.define('app.controller.ppsZone', {
 						{balloonContent: zonesStore.getById(zoneId).get('name')},
 						style2
 					);
+			} else {
+				if(zoneId!=null){
+					polygon = new ymaps.Polygon([[center]], null, style1);
+				}
+			}
+
+			if (polygon!=null){
 				polygon.selected="selected";
 				changeZonePoints();
 				
@@ -520,18 +527,13 @@ Ext.define('app.controller.ppsZone', {
 				polygon.events.add("geometrychange", function () {
 					changeZonePoints();
 				});
-			} else {
-				if(zoneId!=null){
-					polygon = new ymaps.Polygon([[center]], null, style1);
+			
+				if(polygon.geometry.get(0).length > 2){
+					map.setBounds(polygon.geometry.getBounds());
+				} else {
+					map.setCenter(center, 10);
 				}
-			}
-
-			if (polygon!=null && polygon.geometry.get(0).length > 2) {
-				map.setBounds(polygon.geometry.getBounds());
 				polygon.editor.startEditing();
-			}
-			else {
-				map.setCenter(center, 10);
 			}
 		};
 		

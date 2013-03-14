@@ -31,6 +31,7 @@ class LoginController < ApplicationController
           t=res.body.force_encoding(Encoding::UTF_8)
           xml_doc = Nokogiri::XML(t)
           account_info = xml_doc.css('response account').first
+          user=nil
           if !account_info.nil?
             id = account_info.css('id').first.content.to_i
             email = account_info.css('email').first.content
@@ -38,13 +39,19 @@ class LoginController < ApplicationController
             outside_user = RenewOutsideUser.find(
               :first,
               :conditions => ["system_id = ?", id])
-            user=AdUser.find_by_email(email)
-            renew_user = RenewUser.find(
-              :first,
-              :conditions => ["name=?", user.user_id]) if !user.nil?
-            if renew_user.nil? && !user.nil?
-              renew_user = RenewUser.create(:name => user.user_id)
+            renew_user=RenewUser.find(outside_user.renew_user_id) if !outside_user.renew_user_id.nil?
+            if renew_user.nil?
+              user=AdUser.find_by_email(email)
+              renew_user = RenewUser.find(
+                :first,
+                :conditions => ["name=?", user.user_id]) if !user.nil?
+              if renew_user.nil? && !user.nil?
+                renew_user = RenewUser.create(:name => user.user_id)
+              end
+            else
+              user=AdUser.find_by_name(renew_user.name)
             end
+            
             if outside_user.nil?
               outside_user = RenewOutsideUser.new
               outside_user.system_id = id
