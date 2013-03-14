@@ -28,6 +28,7 @@ Ext.define('app.controller.menu', {
 				
 				var tb = Ext.create('Ext.toolbar.Toolbar', {
 					renderTo: Ext.get('menu_js'),
+					enableOverflow: true,
 					items: items
 				});
 			},
