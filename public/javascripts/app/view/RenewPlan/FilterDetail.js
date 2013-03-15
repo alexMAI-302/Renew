@@ -14,105 +14,38 @@ Ext.define('app.view.RenewPlan.FilterDetail', {
 	},
 	items: [
 		{
-			defaults: {
-				border: false,
-				style: {
-					margin: '5px'
+			id: 'filterLggroupRenewPlanGoods',
+			xtype: 'combobox',
+			fieldLabel: 'Гр. план.',
+			valueField: 'id',
+			displayField: 'name',
+			queryMode: 'local',
+			allowNull: true,
+			width: 250,
+			labelWidth: 60,
+			listeners: {
+				select: function(field){
+					field.getStore().clearFilter(true);
+					return true;
 				}
-			},
-			layout: 'vbox',
-			items: [
-				{
-					layout: 'hbox',
-					items: [
-						{
-							id: 'filterTypeComp',
-							xtype: 'combobox',
-							fieldLabel: 'Тип',
-							valueField: 'id',
-							displayField: 'name',
-							queryMode: 'local',
-							allowNull: true,
-							width: 410,
-							labelWidth: 25,
-							listeners: {
-								select: function(field){
-									field.getStore().clearFilter(true);
-									return true;
-								}
-							}
-						},
-						{
-							id: 'filterSerialComp',
-							xtype: 'textfield',
-							fieldLabel: 'Номер',
-							width: 200,
-							labelWidth: 40
-						}
-					]
-				},
-				{
-					layout: 'hbox',
-					items: [
-						{
-							id: 'filterCompLocationComp',
-							xtype: 'combobox',
-							fieldLabel: 'Местонахождение',
-							valueField: 'id',
-							displayField: 'name',
-							queryMode: 'local',
-							allowNull: true,
-							width: 250,
-							labelWidth: 110,
-							listeners: {
-								select: function(field){
-									field.getStore().clearFilter(true);
-									return true;
-								}
-							}
-						},
-						{
-							id: 'filterTerminalComp',
-							xtype: 'combobox',
-							fieldLabel: 'Терминал',
-							valueField: 'id',
-							displayField: 'name',
-							queryMode: 'local',
-							allowNull: true,
-							width: 160,
-							labelWidth: 60,
-							listeners: {
-								select: function(field){
-									field.getStore().clearFilter(true);
-									return true;
-								}
-							}
-						},
-						{
-							id: 'filterPersonComp',
-							xtype: 'combobox',
-							fieldLabel: 'Сотрудник',
-							valueField: 'id',
-							displayField: 'name',
-							queryMode: 'local',
-							allowNull: true,
-							width: 200,
-							labelWidth: 65,
-							listeners: {
-								select: function(field){
-									field.getStore().clearFilter(true);
-									return true;
-								}
-							}
-						}
-					]
-				}
-			]
+			}
 		},
 		{
-			id: 'filterComp',
-			xtype: 'button',
-			text: 'Фильтр'
+			id: 'filterSellerRenewPlanGoods',
+			xtype: 'combobox',
+			fieldLabel: 'Поставщик',
+			valueField: 'id',
+			displayField: 'name',
+			queryMode: 'local',
+			allowNull: true,
+			width: 250,
+			labelWidth: 65,
+			listeners: {
+				select: function(field){
+					field.getStore().clearFilter(true);
+					return true;
+				}
+			}
 		}
 	]
 });

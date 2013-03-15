@@ -19,6 +19,64 @@ class RenewPlanController < ApplicationSimpleErrorController
     end
   end
   
+  def renew_plan_goods
+    method=request.method.to_s
+    case method
+    when "get"
+      res=ActiveRecord::Base.connection.select_all("
+      call dbo.ask_dw_renew_plan_goods(
+        #{params[:master_id].to_i},
+        #{params[:lggroup_id].to_i},
+        0,
+        #{params[:seller_id].to_i}
+      )")
+      render :text => res.to_json
+    when "post"
+      id=ActiveRecord::Base.connection.select_value("
+      BEGIN
+        DECLARE @id INT;
+        SET @id=idgenerator('renew_plan_goods');
+        INSERT INTO dbo.renew_plan_goods(
+          id,
+          goods,
+          renew_plan,
+          measure,
+          goods_volume,
+          trucknum
+          isxls)
+        VALUES(
+          @id,
+          #{params[:goods].to_i},
+          #{params[:renew_plan].to_i},
+          1078,
+          (SELECT ISNULL(g.height * g.length * g.width / 1000000000, 0)
+          FROM goods g
+          WHERE g.id=#{params[:goods].to_i}),
+          #{(params[:trucknum].to_i==0) ? params[:trucknum].to_i : 'null'}
+          1);
+        SELECT @id;
+      END")
+      
+      render :text => {"success" => true, "id" => id}.to_json
+    when "put"
+      ActiveRecord::Base.connection.execute("
+      UPDATE renew_plan_goods
+      SET
+        goods=#{params[:goods].to_i},
+        donevol=#{(params[:donevol].to_i==0)? params[:donevol].to_i : 'null'},
+        trucknum#{(params[:trucknum].to_i==0)? params[:trucknum].to_i : 'null'}
+      WHERE id=#{params[:id].to_i} AND isxls=1")
+      
+      render :text => {"success" => true, "id" => params[:id]}.to_json
+    when "delete"
+      ActiveRecord::Base.connection.execute("
+      DELETE FROM renew_plan_goods
+      WHERE id=#{params[:id].to_i} AND isxls=1")
+      
+      render :text => {"success" => true}.to_json
+    end
+  end
+  
   def get_sites
     res=ActiveRecord::Base.connection.select_all("
     SELECT
@@ -30,6 +88,30 @@ class RenewPlanController < ApplicationSimpleErrorController
       s.id IN (SELECT site_to FROM site_to_storages UNION ALL SELECT site_to FROM site_to_storages)
     ORDER BY
       s.id")
+
+    render :text => res.to_json
+  end
+  
+  def get_sellers
+    res=ActiveRecord::Base.connection.select_all("
+    SELECT
+      id,
+      name
+    FROM
+      ask_ddw_renew_partners()")
+
+    render :text => res.to_json
+  end
+  
+  def get_lggroups
+    res=ActiveRecord::Base.connection.select_all("
+    SELECT
+      id,
+      name
+    FROM
+      lggroup
+    ORDER BY
+      name")
 
     render :text => res.to_json
   end
