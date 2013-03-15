@@ -39,7 +39,7 @@ class LoginController < ApplicationController
             outside_user = RenewOutsideUser.find(
               :first,
               :conditions => ["system_id = ?", id])
-            renew_user=RenewUser.find(outside_user.renew_user_id) if !outside_user.renew_user_id.nil?
+            renew_user=RenewUser.find(outside_user.renew_user_id) if !outside_user.nil? && !outside_user.renew_user_id.nil?
             if renew_user.nil?
               user=AdUser.find_by_email(email)
               renew_user = RenewUser.find(
