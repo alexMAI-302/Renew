@@ -134,7 +134,8 @@ Ext.define('app.view.incomeReturn.container', {
 					header: 'Сумма НДС',
 					align: 'right',
 					dataIndex: 'nds_summ',
-					renderer: Ext.util.Format.numberRenderer('0.00')
+					renderer: Ext.util.Format.numberRenderer('0.00'),
+					summaryType: 'sum'
 				},
 				{
 					width: 100,
@@ -156,13 +157,15 @@ Ext.define('app.view.incomeReturn.container', {
 								return true;
 							}
 						}
-					}
+					},
+					summaryType: 'sum'
 				},
 				{
 					width: 75,
 					header: 'Кол-во<br>по факту',
 					align: 'right',
-					dataIndex: 'vol'
+					dataIndex: 'vol',
+					summaryType: 'sum'
 				},
 				{
 					width: 100,
@@ -170,7 +173,10 @@ Ext.define('app.view.incomeReturn.container', {
 					dataIndex: 'measure'
 				}
 				
-			]
+			],
+			features: [{
+				ftype: 'summary'
+			}]
 		}
 	]
 });

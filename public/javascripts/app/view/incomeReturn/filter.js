@@ -16,7 +16,7 @@ Ext.define('app.view.incomeReturn.filter', {
 			id: 'ddate',
 			xtype: 'datefield',
 			name: 'ddate',
-			fieldLabel: 'Дата',
+			fieldLabel: 'Дата прихода',
 			labelAlign: 'top',
 			format: 'd.m.Y',
 			altFormat: 'd/m/Y|d m Y',
@@ -79,6 +79,17 @@ Ext.define('app.view.incomeReturn.filter', {
 			labelWidth: 180,
 			width: 180
 
+		},
+		{
+			id: 'doc_ddate',
+			xtype: 'datefield',
+			name: 'doc_ddate',
+			fieldLabel: 'Дата документа',
+			labelAlign: 'top',
+			format: 'd.m.Y',
+			altFormat: 'd/m/Y|d m Y',
+			startDay: 1,
+			width: 100
 		}
 	]	
 });
