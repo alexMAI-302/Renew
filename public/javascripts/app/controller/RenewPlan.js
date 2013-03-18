@@ -357,8 +357,12 @@ Ext.define('app.controller.RenewPlan', {
 			},
 			'#RenewPlanGoodsTable': {
 				selectionchange: function(sm, selected, eOpts){
-					var s=(selected!=null)?selected[0]:null;
-					Ext.getCmp('deleteRenewPlanGoods').setDisabled(s==null || s.get('isxls')==1);
+					var s=(selected!=null)?selected[0]:null,
+						renewPlan=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
+					Ext.getCmp('deleteRenewPlanGoods').setDisabled(
+						renewPlan==null || renewPlan.get('status2')==1 ||
+						s==null || s.get('isxls')!=1
+					);
 					return true;
 				}
 			},
@@ -435,7 +439,7 @@ Ext.define('app.controller.RenewPlan', {
 											if(data!=null && data.length==1){
 												var r = Ext.ModelManager.create({
 													isxls: 1,
-													goods_id: data.id,
+													goods: data[0].id,
 													goods_name: renewPlanGoodsArray[options.num][0],
 													donevol: renewPlanGoodsArray[options.num][1]
 												}, 'app.model.RenewPlan.RenewPlanGoodsModel');
