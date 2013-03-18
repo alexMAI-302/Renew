@@ -61,7 +61,9 @@ Ext.define('app.controller.RenewPlan', {
 		var controller=this;
 		
 		if (controller.storeHasChanges(controller.detailStore)){
-			controller.detailStore.proxy.extraParams={};
+			controller.detailStore.proxy.extraParams={
+				master_id: masterId
+			};
 			
 			controller.detailStore.sync({
 				callback: function(batch){
@@ -374,17 +376,13 @@ Ext.define('app.controller.RenewPlan', {
 			'#saveRenewPlanGoods': {
 				click: function(){
 					var selected=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
-					controller.syncDetail(controller.mainContainer);
+					controller.syncDetail(controller.mainContainer, getId(selected));
 					return true;
 				}
 			},
 			'#addRenewPlanGoods':{
 				click: function(){
-					var renewPlanTable=Ext.getCmp('RenewPlanTable'),
-						sm=renewPlanTable.getSelectionModel(),
-						master=sm.getSelection()[0],
-						r = Ext.ModelManager.create({
-							renew_plan: master.get('id'),
+					var r = Ext.ModelManager.create({
 							isxls: 1
 						}, 'app.model.RenewPlan.RenewPlanGoodsModel');
 					controller.detailStore.insert(0, r);
@@ -413,10 +411,7 @@ Ext.define('app.controller.RenewPlan', {
 				change: function(field, newValue, oldValue, eOpts){
 					var rpgs = newValue.split('\n'),
 						rpg=null,
-						renewPlanGoodsArray=[],
-						renewPlanTable=Ext.getCmp('RenewPlanTable'),
-						sm=renewPlanTable.getSelectionModel(),
-						master=sm.getSelection()[0];
+						renewPlanGoodsArray=[];
 					
 					if(newValue!=""){
 						for(var i=0; i<rpgs.length; i++){
@@ -439,7 +434,6 @@ Ext.define('app.controller.RenewPlan', {
 											var data = eval('('+response.responseText+')');
 											if(data!=null && data.length==1){
 												var r = Ext.ModelManager.create({
-													renew_plan: master.get('id'),
 													isxls: 1,
 													goods_id: data.id,
 													goods_name: renewPlanGoodsArray[options.num][0],

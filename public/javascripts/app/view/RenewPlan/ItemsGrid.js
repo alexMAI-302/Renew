@@ -104,10 +104,11 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 				dataIndex: 'needvol',
 				disabled: true,
 				renderer: function(value, metaData, record){
+					var src=record.get('fcast_src');
 					if(record.get('peak')==1){
 						metaData.tdCls += 'x-bold';
 					}
-					if(record.get('fcast_src')==1){
+					if(src!=null || src!=1){
 						metaData.tdCls += ' x-red';
 					}
 					return (value)?Ext.Number.toFixed(value, 2):'';
@@ -226,7 +227,8 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 				dataIndex: 'forecast_volume',
 				disabled: true,
 				renderer: function(value, metaData, record){
-					if(record.get('fcast_src')==1){
+					var src=record.get('fcast_src');
+					if(src!=null || src!=1){
 						metaData.tdCls += ' x-red';
 					}
 					return (value)?Ext.Number.toFixed(value, 2):'';

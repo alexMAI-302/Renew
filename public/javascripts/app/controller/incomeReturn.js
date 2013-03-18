@@ -13,6 +13,7 @@ Ext.define('app.controller.incomeReturn', {
 	models: [
 		'app.model.valueModel',
 		'app.model.valueStrModel',
+		'app.model.incomeReturn.incomeModel',
 		'app.model.incomeReturn.incomeReturnModel',
 		'app.model.incomeReturn.goodsModel',
 		'app.model.incomeReturn.measureModel',
@@ -93,10 +94,17 @@ Ext.define('app.controller.incomeReturn', {
 			Ext.Msg.alert('Ошибка', 'Необходимо выбрать организацию');
 			return;
 		};
+		
+		if (Ext.getCmp('doc_ddate').getValue()==null)
+		{
+			Ext.Msg.alert('Ошибка', 'Необходимо задать дату документа');
+			return;
+		};
 		controller.mainContainer.setLoading(true);
 	
 		controller.incomeReturnStore.each(function(r){
 			rows.push({
+				ddate:		Ext.Date.format(Ext.getCmp('doc_ddate').getValue(), 'Y-m-d'),
 				income:		Ext.getCmp('incomeCombo').getValue(),
 				inn:		Ext.getCmp('innCombo').getValue(),
 				pr :		Ext.getCmp('prCombo').getValue(),
@@ -219,7 +227,7 @@ Ext.define('app.controller.incomeReturn', {
 							controller.mainContainer.setLoading(false);
 						}
 					);
-					//Ext.getCmp('ddate').setValue(value[0].data.ddate);
+					Ext.getCmp('doc_ddate').setValue(value[0].data.ddate);
 				}
 			}
 		);
