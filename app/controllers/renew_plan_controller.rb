@@ -42,17 +42,17 @@ class RenewPlanController < ApplicationSimpleErrorController
           renew_plan,
           measure,
           goods_volume,
-          trucknum
+          trucknum,
           isxls)
         VALUES(
           @id,
           #{params[:goods].to_i},
-          #{params[:renew_plan].to_i},
+          #{params[:master_id].to_i},
           1078,
           (SELECT ISNULL(g.height * g.length * g.width / 1000000000, 0)
           FROM goods g
           WHERE g.id=#{params[:goods].to_i}),
-          #{(params[:trucknum].to_i==0) ? params[:trucknum].to_i : 'null'}
+          #{(params[:trucknum].to_i==0) ? params[:trucknum].to_i : 'null'},
           1);
         SELECT @id;
       END")
