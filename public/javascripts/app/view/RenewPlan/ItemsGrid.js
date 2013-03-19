@@ -108,7 +108,7 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 					if(record.get('peak')==1){
 						metaData.tdCls += 'x-bold';
 					}
-					if(src!=null || src!=1){
+					if(src!=null && src!=1){
 						metaData.tdCls += ' x-red';
 					}
 					return (value)?Ext.Number.toFixed(value, 2):'';
@@ -228,10 +228,10 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 				disabled: true,
 				renderer: function(value, metaData, record){
 					var src=record.get('fcast_src');
-					if(src!=null || src!=1){
+					if(src!=null && src!=1){
 						metaData.tdCls += ' x-red';
 					}
-					return (value)?Ext.Number.toFixed(value, 2):'';
+					return (value)?Ext.Number.toFixed(value, 4):'';
 				}
 			}
 		]
