@@ -33,7 +33,7 @@ class BprogController < ApplicationSimpleErrorController
             palm_salesman
               JOIN partners_groups_tree ON partners_groups_tree.id = palm_salesman.srv_pgroup
           WHERE
-            partners_groups_tree.parent = partners_groups.id")
+            partners_groups_tree.parent = partners_groups.id)")
 
 		partner_groups.unshift({:id => 0, :name => "<Все подразделения>"})
 		render :text => partner_groups.to_json

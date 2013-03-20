@@ -6,8 +6,6 @@ Ext.define('app.controller.calcBp', {
 	],
 
     init: function() {
-
-		var finishFilials = false;
 		var finishGroups  = false;
 
 		function showServerError(response, options) {
@@ -95,9 +93,7 @@ Ext.define('app.controller.calcBp', {
 		partnerGroupsStore.load(function(records, operation, success) {
 			finishGroups=true;
 			partnerGroupsCombo.select(records[0]);
-			if (finishFilials){
-				mainContainer.setLoading(false);
-			}
+			mainContainer.setLoading(false);
 		});
 	}
 
