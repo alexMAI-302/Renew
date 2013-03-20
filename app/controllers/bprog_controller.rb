@@ -5,8 +5,8 @@ class BprogController < ApplicationSimpleErrorController
 	end
 
 	def test
-		if params[:filial_id] and params[:partner_groups_id]
-			ActiveRecord::Base.connection.execute("trigger event evt_calc_bp (partner_group = #{params[:partner_groups_id]})")
+		if !params[:partner_groups_id].nil?
+			ActiveRecord::Base.connection.execute("trigger event evt_calc_bp (partner_group = #{params[:partner_groups_id].to_i})")
 
 			render :text => {"result" => "Готово"}.to_json	
 		else
