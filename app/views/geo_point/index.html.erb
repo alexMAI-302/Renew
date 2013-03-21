@@ -1,0 +1,17 @@
+<% content_for :js do %>
+<script src="http://api-maps.yandex.ru/2.0/?load=package.full&mode=debug&lang=ru-RU" type="text/javascript"></script>
+<% end %>
+<% content_for :js_controller do %>
+,'GeoPoint' 
+<% end -%>
+﻿<% content_for :title do %>
+Координаты терминалов
+<%	end -%>
+<% content_for :stylesheets do %>
+	.x-wrap_cells .x-grid-cell-inner {
+		white-space: normal;
+	}
+<% end %>
+<% content_for :content do %>
+	<div id="geo_point_js"></div>
+<%	end -%>
