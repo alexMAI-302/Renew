@@ -1,114 +1,57 @@
 class GeoPointController < ApplicationPageErrorController
   
+  def geo_points
+    method=request.method.to_s
+    case method
+    when "get"
+      str_cond = "pt.isdeleted = 0 AND ttp.enabled = 1 AND pt.main_subdealerID = #{params[:subdealer]} "
+      str_cond += " and (g.latitude is not null) " if params[:point_kind].to_i == 3
+      str_cond += " and (g.latitude is null) " if params[:point_kind].to_i == 1
+      if !params[:filter_str].nil? && params[:filter_str].size > 0
+        str_cond += " and (pt.name like '%#{params[:filter_str]}%' OR pt.address like '%#{params[:filter_str]}%')"
+      end
+      if !params[:terminal_id].nil? && params[:terminal_id].size > 0
+        str_cond += " and pt.terminalID=#{params[:terminal_id].to_i}"
+      end
+      
+      rst = Geoaddress.find(
+        :all,
+        :select => "
+        g.id,
+        pt.terminalID,
+        pt.code,
+        pt.name,
+        pt.address taddress,
+        g.fulladdress,
+        g.srcaddress,
+        g.latitude,
+        g.longitude,
+        g.ismanual,
+        g.city",
+        :from => "geoaddress g",
+        :joins => "JOIN pps_terminal pt ON g.id=pt.geoaddressid
+        JOIN terminal_type ttp ON ttp.ttp_id = pt.ttp_id",
+        :conditions => str_cond,
+        :order => 'pt.address')
+        
+      render :text => rst.to_json
+    when "put"
+      Geoaddress.update(
+        params[:id],
+        {
+          :taddress_old => params[:taddress],
+          :fulladdress => params[:fulladdress],
+          :srcaddress => params[:srcaddress],
+          :ismanual => params[:ismanual],
+          :latitude => params[:latitude],
+          :longitude => params[:longitude]
+        })
+      
+      render :text => {"success" => true, "id" => params[:id]}.to_json
+    end
+  end
+  
   def index
-	@longitude = 30
-	@latitude = 50
-
-	set_conditions
-	
-	@rst_sub = ActiveRecord::Base.connection.select_all( "
-	select
-		ps.subdealerid id,
-		ps.name name,
-		g.latitude latitude,
-		g.longitude longitude,
-		g.city city
-	from
-		pps_subdealers ps
-		join subdealer_geoaddress sg on sg.subdealerid = ps.subdealerid
-		join geoaddress g on g.id = sg.geoaddressid
-	where ps.subdealerid  in ( select main_subdealerid from pps_terminal)" )
-	@subdealers_list = @rst_sub.collect {|p| [ p["name"], p["id"] ] }
-	@rst_sub.each do |p|
-		if p["id"] == @subdealer
-			@longitude = p["longitude"]
-			@latitude = p["latitude"]
-		end 
 	end
-	
-	ActiveRecord::Base.include_root_in_json = false				
-	@rst_new = Geoaddress.find( :all, :from => 'geoaddress_v', :conditions => @str_cond, :order => 'srcaddress'
-	                          ).to_json( :only => [ :id, :longitude, :latitude, :pname ]) 
-
-	@city_list = @rst_sub.to_json( :only => "city" )
-	refresh_point_list				
-  end
-  
-  def save_point
-	if params[:a]
-		params[:a].each_pair do |id, value|
-			if value[:needsave] == "1"
-				g = Geoaddress.find( id )
-				g.ismanual = value[:ismanual]
-				g.srcaddress = value[:srcaddress]
-				g.fulladdress = value[:fulladdress]
-				g.latitude = value[:latitude]
-				g.longitude = value[:longitude]
-				g.taddress = value[:taddress]
-				g.save
-			end
-		end
-	end
-	set_conditions
-	refresh_point_list
-  end
-  
-  def refresh_point
-	set_conditions
-	refresh_point_list
-  end
-  
-private
-  def refresh_point_list
-	@addr = Geoaddress.paginate( :from => 'geoaddress_v', :page => params[:page], 
-		:order => 'srcaddress', 
-		:conditions => @str_cond )
-	
-	
-    respond_to do |format|
-		format.html
-		format.js {
-		  render :update do |page|
-			page.replace 'results', :partial => 'point_list'
-		  end
-		}
-    end 
-  end
-
-  def set_conditions
-	@subdealer = 7
-	@pointkind = 1
-	@pointname = ""
-	@pointaddr = ""
-	if params[:post] 
-		@subdealer = params[:post][:subdealer].to_i
-		session[:subdealer] = @subdealer
-		@pointkind = params[:post][:pointkind].to_i
-		session[:pointkind] = @pointkind
-		@pointname = params[:pointname]  
-		session[:pointname] = @pointname
-		@pointaddr = params[:pointaddr]
-		session[:pointaddr] = @pointaddr
-	elsif params[:page]
-		@subdealer = session[:subdealer] if session[:subdealer]
-		@pointkind = session[:pointkind] if session[:pointkind]
-		@pointname = session[:pointname] if session[:pointname]
-		@pointaddr = session[:pointaddr] if session[:pointaddr]
-	else
-		session[:subdealer] = nil
-		session[:pointkind] = nil
-		session[:pointname] = nil
-		session[:pointaddr] = nil
-	end
-	icw = Iconv.new('WINDOWS-1251','UTF-8')
-	@str_cond = " main_subdealerID = #{@subdealer} "
-
-	@str_cond += " and (latitude is not null) " if @pointkind == 3
-	@str_cond += " and (latitude is null) " if @pointkind == 1
-	@str_cond += " and pname like '%#{@pointname}%' " if @pointname.size > 0
-	@str_cond += " and srcaddress like  '%#{@pointaddr}%' " if @pointaddr.size > 0
-
-  end
-
 end
   
