@@ -7,7 +7,7 @@ Ext.define('app.controller.GeoPoint', {
 	
 	stores: [
 		'GeoPoint.GeoPoints',
-		'Subdealers'
+		'Branches'
 	],
 	
 	models: [
@@ -22,7 +22,7 @@ Ext.define('app.controller.GeoPoint', {
 	mainContainer: null,
 	
 	masterStore: null,
-	subdealersStore: null,
+	branchesStore: null,
 	pointTypesStore: null,
 	
 	mainCity: [],
@@ -62,10 +62,10 @@ Ext.define('app.controller.GeoPoint', {
 	
 	filterMaster: function(){
 		var controller=this,
-			subdealer = Ext.getCmp('filterSubdealerGeoPoint').getValue(),
+			branch = Ext.getCmp('filterBranchGeoPoint').getValue(),
 			pointKind = Ext.getCmp('filterPointsGeoPoint').getValue();
 		
-		if(subdealer!=null && pointKind!=null){
+		if(branch!=null && pointKind!=null){
 			controller.mainCity = [];
 			controller.map.geoObjects.each(function(o){
 				controller.map.geoObjects.remove(o);
@@ -74,7 +74,7 @@ Ext.define('app.controller.GeoPoint', {
 			controller.mainContainer.setLoading(true);
 			
 			controller.masterStore.proxy.extraParams={
-				subdealer: subdealer,
+				branch: branch,
 				point_kind: pointKind,
 				filter_str: Ext.getCmp('filterTerminalStrGeoPoint').getValue(),
 				terminal_id: Ext.getCmp('filterTerminalIdGeoPoint').getValue()
@@ -91,6 +91,7 @@ Ext.define('app.controller.GeoPoint', {
 							cities[city] = city;
 							latitude = r.get('latitude');
 							longitude = r.get('longitude');
+							
 							r.point = new ymaps.Placemark(
 								(latitude!=null && longitude!=null &&
 								latitude!="" && longitude!="")?
@@ -111,9 +112,13 @@ Ext.define('app.controller.GeoPoint', {
 								r.set('latitude', coords[0]);
 								r.set('longitude', coords[1]);
 								r.set('ismaunual', 1);
-								
+							});
+							r.point.events.add("click", function (mEvent) {
 								Ext.getCmp('GeoPointTable').getSelectionModel().select(r);
 							});
+							
+							latitude = (latitude!=null && latitude!="")? latitude : controller.center[0];
+							longitude = (longitude!=null && longitude!="")? longitude : controller.center[1];
 							minLatitude = (minLatitude>latitude)?latitude:minLatitude;
 							minLongitude = (minLongitude>longitude)?longitude:minLongitude;
 							maxLatitude = (maxLatitude<latitude)?latitude:maxLatitude;
@@ -217,6 +222,10 @@ Ext.define('app.controller.GeoPoint', {
 										};
 									};
 									
+									e.record.set('latitude', geoResultPoint[0]);
+									e.record.set('longitude', geoResultPoint[1]);
+									e.record.set('fulladdress', geoResultInfo.text);
+									
 									changePoint(geoResultPoint);
 								},
 								function (error) {
@@ -288,7 +297,7 @@ Ext.define('app.controller.GeoPoint', {
 		var controller=this;
 		
 		controller.masterStore = controller.getGeoPointGeoPointsStore();
-		controller.subdealersStore = controller.getSubdealersStore();
+		controller.branchesStore = controller.getBranchesStore();
 		controller.pointTypesStore = Ext.create('Ext.data.Store', {
 		    model: 'app.model.valueModel',
 		    data: [
@@ -305,13 +314,13 @@ Ext.define('app.controller.GeoPoint', {
 	bindStores: function(){
 		var controller=this,
 			geoPointKind = Ext.getCmp('filterPointsGeoPoint'),
-			subdealer = Ext.getCmp('filterSubdealerGeoPoint');
+			branch = Ext.getCmp('filterBranchGeoPoint');
 		
 		Ext.getCmp('GeoPointTable').reconfigure(controller.masterStore);
 		
 		geoPointKind.bindStore(controller.pointTypesStore);
 		geoPointKind.setValue(1);
-		subdealer.bindStore(controller.subdealersStore);
+		branch.bindStore(controller.branchesStore);
 	},
 	
 	initTables: function(){

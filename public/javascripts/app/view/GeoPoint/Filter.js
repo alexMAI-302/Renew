@@ -14,9 +14,9 @@ Ext.define('app.view.GeoPoint.Filter', {
 	},
 	items: [
 		{
-			id: 'filterSubdealerGeoPoint',
+			id: 'filterBranchGeoPoint',
 			xtype: 'combobox',
-			fieldLabel: 'Дилер',
+			fieldLabel: 'Отделение',
 			valueField: 'id',
 			displayField: 'name',
 			queryMode: 'local',
