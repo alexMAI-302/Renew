@@ -21,7 +21,7 @@ Ext.define('app.view.GeoPoint.Filter', {
 			displayField: 'name',
 			queryMode: 'local',
 			width: 200,
-			labelWidth: 40
+			labelWidth: 70
 		},
 		{
 			id: 'filterPointsGeoPoint',
