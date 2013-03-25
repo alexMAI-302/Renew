@@ -157,8 +157,11 @@ class UtilDataController < ApplicationSimpleErrorController
   end
 
   def get_branches
-    zone_types=ActiveRecord::Base.connection.select_all("SELECT id, name FROM branch")
-    render :text => zone_types.to_json
+    res=ActiveRecord::Base.connection.select_all("
+    SELECT id, name
+    FROM branch
+    WHERE exists (select * from pps_terminal where isdeleted=0 and main_subdealerid=branch.subdealerid and ttp_id in (4,16))")
+    render :text => res.to_json
   end
 
   def get_subdealers

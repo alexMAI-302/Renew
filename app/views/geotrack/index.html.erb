@@ -1,0 +1,15 @@
+<% content_for :js do %>
+<script src="http://api-maps.yandex.ru/2.0/?load=package.full&mode=debug&lang=ru-RU" type="text/javascript"></script>
+<% end %>
+<% content_for :js_controller do %>
+,'Geotrack' 
+<% end -%>
+﻿<% content_for :title do %>
+Геотрэк
+<%	end -%>
+<% content_for :content do %>
+	<input type="hidden" name="agent_id" id="agent_id" value="<%= params[:agent_id] %>"/>
+	<input type="hidden" name="ddate" id="ddate" value="<%= params[:ddate] %>"/>
+	
+	<div id="geotrack_js"></div>
+<%	end -%>

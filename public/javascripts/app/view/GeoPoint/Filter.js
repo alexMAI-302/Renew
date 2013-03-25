@@ -14,14 +14,14 @@ Ext.define('app.view.GeoPoint.Filter', {
 	},
 	items: [
 		{
-			id: 'filterSubdealerGeoPoint',
+			id: 'filterBranchGeoPoint',
 			xtype: 'combobox',
-			fieldLabel: 'Дилер',
+			fieldLabel: 'Отделение',
 			valueField: 'id',
 			displayField: 'name',
 			queryMode: 'local',
 			width: 200,
-			labelWidth: 40
+			labelWidth: 70
 		},
 		{
 			id: 'filterPointsGeoPoint',

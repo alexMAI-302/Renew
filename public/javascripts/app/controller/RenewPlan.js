@@ -144,33 +144,37 @@ Ext.define('app.controller.RenewPlan', {
 				return true;
 			}
 		);
-		controller.groupInfoStore.loadData([
-			{
-				name: '',
-				volume: volumeNull,
-				pans: pansNull,
-				weight: weightNull,
-				siteRemains: renewPlan.get('sitevol') - volumeAll,
-				truckRemains: renewPlan.get('truckvol') - volumeAll,
-				positions: positions,
-				pansAll: pansAll,
-				donevol: donevol,
-				weightAll: weightAll,
-				volumeAll: volumeAll
-			},
-			{
-				name: '№1',
-				volume: volume1,
-				pans: pans1,
-				weight: weight1
-			},
-			{
-				name: '№2',
-				volume: volume2,
-				pans: pans2,
-				weight: weight2
-			}
-		]);
+		if(renewPlan!=null){
+			controller.groupInfoStore.loadData([
+				{
+					name: '',
+					volume: volumeNull,
+					pans: pansNull,
+					weight: weightNull,
+					siteRemains: renewPlan.get('sitevol') - volumeAll,
+					truckRemains: renewPlan.get('truckvol') - volumeAll,
+					positions: positions,
+					pansAll: pansAll,
+					donevol: donevol,
+					weightAll: weightAll,
+					volumeAll: volumeAll
+				},
+				{
+					name: '№1',
+					volume: volume1,
+					pans: pans1,
+					weight: weight1
+				},
+				{
+					name: '№2',
+					volume: volume2,
+					pans: pans2,
+					weight: weight2
+				}
+			]);
+		} else {
+			controller.groupInfoStore.removeAll();
+		}
 	},
 	
 	loadDetail: function(masterId, detailTable){
@@ -394,7 +398,7 @@ Ext.define('app.controller.RenewPlan', {
 			},
 			'#deleteRenewPlanGoods':{
 				click: function(){
-					var sm = Ext.getCmp('RenewPlanTableGoods').getSelectionModel();
+					var sm = Ext.getCmp('RenewPlanGoodsTable').getSelectionModel();
 					
 					controller.detailStore.remove(sm.getSelection());
 					if (controller.detailStore.getCount() > 0) {

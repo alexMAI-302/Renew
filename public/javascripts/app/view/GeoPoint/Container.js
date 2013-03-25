@@ -28,6 +28,7 @@ Ext.define('app.view.GeoPoint.Container', {
 			width: '33%',
 			height: '100%',
 			split: true,
+			collapsible: true,
 			items:[{
 				width: '100%',
 				height: '100%',
