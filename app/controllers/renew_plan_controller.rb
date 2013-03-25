@@ -43,6 +43,7 @@ class RenewPlanController < ApplicationSimpleErrorController
           measure,
           goods_volume,
           trucknum,
+          donevol,
           isxls)
         VALUES(
           @id,
@@ -52,7 +53,8 @@ class RenewPlanController < ApplicationSimpleErrorController
           (SELECT ISNULL(g.height * g.length * g.width / 1000000000, 0)
           FROM goods g
           WHERE g.id=#{params[:goods].to_i}),
-          #{(params[:trucknum].to_i==0) ? params[:trucknum].to_i : 'null'},
+          #{(params[:trucknum].to_i!=0) ? params[:trucknum].to_i : 'null'},
+          #{(params[:donevol].to_i!=0)? params[:donevol].to_i : 'null'},
           1);
         SELECT @id;
       END")
@@ -63,8 +65,8 @@ class RenewPlanController < ApplicationSimpleErrorController
       UPDATE renew_plan_goods
       SET
         goods=#{params[:goods].to_i},
-        donevol=#{(params[:donevol].to_i==0)? params[:donevol].to_i : 'null'},
-        trucknum#{(params[:trucknum].to_i==0)? params[:trucknum].to_i : 'null'}
+        donevol=#{(params[:donevol].to_i!=0)? params[:donevol].to_i : 'null'},
+        trucknum#{(params[:trucknum].to_i!=0)? params[:trucknum].to_i : 'null'}
       WHERE id=#{params[:id].to_i} AND isxls=1")
       
       render :text => {"success" => true, "id" => params[:id]}.to_json
