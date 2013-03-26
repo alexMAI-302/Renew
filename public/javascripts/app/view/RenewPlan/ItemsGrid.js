@@ -11,6 +11,7 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 		suffix: 'RenewPlanGoods',
 		disableDeleteColumn: true,
 		height: 300,
+		columnLines: true,
 		beforeButtons: [{
 			xtype: 'renewPlanFilterDetail'
 		}],
@@ -195,12 +196,6 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 				dataIndex: 'trucknum'
 			},
 			{
-				width: 55,
-				header: 'Ед. изм.',
-				dataIndex: 'measure',
-				disabled: true
-			},
-			{
 				width: 50,
 				header: 'Заявка',
 				dataIndex: 'isxls',
@@ -220,19 +215,6 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 				header: 'Поддонов',
 				dataIndex: 'pans',
 				disabled: true
-			},
-			{
-				width: 60,
-				header: 'Прогноз',
-				dataIndex: 'forecast_volume',
-				disabled: true,
-				renderer: function(value, metaData, record){
-					var src=record.get('fcast_src');
-					if(src!=null && src!=1){
-						metaData.tdCls += ' x-red';
-					}
-					return (value)?Ext.Number.toFixed(value, 4):'';
-				}
 			}
 		]
 	}
