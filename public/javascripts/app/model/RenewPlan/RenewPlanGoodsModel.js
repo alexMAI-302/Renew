@@ -47,12 +47,6 @@ Ext.define('app.model.RenewPlan.RenewPlanGoodsModel', {
 		useNull: true
 	},
 	{
-		name: "measure",
-		type: "int",
-		useNull: true,
-		persist: false
-	},
-	{
 		name: "goods_volume",
 		type: "float",
 		useNull: true,
@@ -145,12 +139,6 @@ Ext.define('app.model.RenewPlan.RenewPlanGoodsModel', {
 	{
 		name: "has_remains",
 		type: "string",
-		useNull: true,
-		persist: false
-	},
-	{
-		name: "forecast_volume",
-		type: "float",
 		useNull: true,
 		persist: false
 	},

@@ -13,8 +13,7 @@ Ext.define('app.controller.RenewPlan', {
 		'RenewPlan.Sites',
 		'RenewPlan.Lggroups',
 		'RenewPlan.Goods',
-		'RenewPlan.Sellers',
-		'RenewPlan.Measures'
+		'RenewPlan.Sellers'
 	],
 	
 	models: [
@@ -34,7 +33,6 @@ Ext.define('app.controller.RenewPlan', {
 	detailStore: null,
 	masterStore: null,
 	goodsStore: null,
-	measuresStore: null,
 	lggroupsStore: null,
 	sellersStore: null,
 	sitesStore: null,
@@ -284,7 +282,7 @@ Ext.define('app.controller.RenewPlan', {
 		if(showOnlyNotEmpty==true){
 			controller.detailStore.filterBy(
 				function(rec, id){
-					return rec.get('donevol')>0;
+					return rec.get('volume')>0;
 				}
 			);
 		} else {
@@ -609,7 +607,7 @@ Ext.define('app.controller.RenewPlan', {
 	
 	loadDictionaries: function(){
 		var controller=this,
-			count=6;
+			count=5;
 		
 		controller.mainContainer.setLoading(true);
 		function checkLoading(val){
@@ -646,13 +644,6 @@ Ext.define('app.controller.RenewPlan', {
 			}
 		);
 		
-		controller.measuresStore.load(
-			function(records, operation, success){
-				count--;
-				checkLoading(count);
-			}
-		);
-		
 		controller.sellersStore.load(
 			function(records, operation, success){
 				count--;
@@ -681,7 +672,6 @@ Ext.define('app.controller.RenewPlan', {
 		controller.sitesStore = controller.getRenewPlanSitesStore();
 		controller.siteToStoragesStore = controller.getRenewPlanSiteToStoragesStore();
 		controller.renewPlanTypesStore = controller.getRenewPlanRenewPlanTypesStore();
-		controller.measuresStore = controller.getRenewPlanMeasuresStore();
 		controller.goodsStore = controller.getRenewPlanGoodsStore();
 		controller.lggroupsStore = controller.getRenewPlanLggroupsStore();
 		controller.sellersStore = controller.getRenewPlanSellersStore();
@@ -761,7 +751,6 @@ Ext.define('app.controller.RenewPlan', {
 			siteToStorageColumn=renewPlanTable.columns[13],
 			
 			goodsColumn=renewPlanGoodsTable.columns[0],
-			measureColumn=renewPlanGoodsTable.columns[19],
 			donevolColumn=renewPlanGoodsTable.columns[11],
 			truckColumn = renewPlanGoodsTable.columns[18];
 		
@@ -802,8 +791,6 @@ Ext.define('app.controller.RenewPlan', {
 				}
 			}
 		});
-		
-		controller.makeComboColumn(measureColumn, controller.measuresStore, controller.detailStore, 'measure', false, true);
 		
 		function rowNavigation(field, e, eOpts){
 			var key=e.getKey(),
