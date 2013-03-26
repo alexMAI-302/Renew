@@ -6,17 +6,17 @@ Ext.define('app.model.RenewPlan.InfoTableModel', {
     		type: 'string'
     	},
     	{
-    		name: 'volume',
+    		name: 'all',
     		type: 'float',
     		useNull: true
     	},
 		{
-			name: 'pans',
+			name: 'num1',
     		type: 'float',
     		useNull: true
 		},
 		{
-			name: 'weight',
+			name: 'num2',
     		type: 'float',
     		useNull: true
 		},

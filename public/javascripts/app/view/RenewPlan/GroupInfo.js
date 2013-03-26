@@ -16,24 +16,28 @@ Ext.define('app.view.RenewPlan.GroupInfo', {
 				{
 					xtype: 'numbercolumn',
 					format: '0.00',
-					dataIndex: 'volume',
-					header: 'Объем по маш.',
+					dataIndex: 'all',
+					header: '',
 					menuDisabled: true,
 					sortable: false
 				},
 				{
 					xtype: 'numbercolumn',
 					format: '0.00',
-					dataIndex: 'pans',
-					header: 'Под. по маш.',
+					dataIndex: 'num1',
+					header: '№1',
 					menuDisabled: true,
 					sortable: false
 				},
 				{
 					xtype: 'numbercolumn',
 					format: '0.00',
-					dataIndex: 'weight',
-					header: 'Вес по маш.',
+					dataIndex: 'num2',
+					header: '№2',
+					menuDisabled: true,
+					sortable: false
+				},
+				{
 					menuDisabled: true,
 					sortable: false
 				},
