@@ -8,7 +8,6 @@ Ext.define('app.view.RenewPlan.Grid', {
 	
 	config: {
 		suffix: 'RenewPlan',
-		disableSave: true,
 		disableRefresh: true,
 		disableDeleteColumn: true,
 		title: 'Планируемые поставки',

@@ -175,6 +175,40 @@ Ext.define('app.controller.RenewPlan', {
 		}
 	},
 	
+	saveDialogDetail: function(callback){
+		var controller = this;
+		if(controller.storeHasChanges(controller.detailStore)){
+			Ext.Msg.show({
+				title:'Сохранить изменения?',
+				msg: 'Сохранить данные в таблице детализации?',
+				buttons: Ext.Msg.YESNOCANCEL,
+				icon: Ext.Msg.QUESTION,
+				closable: true,
+				fn: function(buttonId, text, opt){
+					if(buttonId=='yes'){
+						controller.mainContainer.setLoading(true);
+						controller.detailStore.sync({
+							callback: function(batch){
+								if(batch.exceptions.length>0){
+									Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+								}
+								controller.mainContainer.setLoading(false);
+								callback.call(controller);
+							}
+						});
+					} else {
+						if(buttonId == 'no'){
+							controller.detailStore.removeAll();
+							callback.call(controller);
+						}
+					}
+				}
+			});
+		} else {
+			callback.call(controller);
+		}
+	},
+	
 	loadDetail: function(masterId, detailTable){
 		var controller=this;
 		
@@ -290,6 +324,104 @@ Ext.define('app.controller.RenewPlan', {
 		}
 	},
 	
+	addRenewPlan: function(){
+		var controller = this,
+			renewPlanTable=Ext.getCmp('RenewPlanTable'),
+			sm=renewPlanTable.getSelectionModel(),
+			r = Ext.ModelManager.create({
+				send_ddate: Ext.Date.add(Ext.Date.parse(Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'), Ext.Date.DAY, 1),
+				sup_ddate: Ext.Date.add(Ext.Date.parse(Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'), Ext.Date.DAY, 2),
+				truckvol: 45,
+				k_renew: 1,
+				k_sens: 0.7,
+				k_rem: 0.5
+			}, 'app.model.RenewPlan.RenewPlanModel');
+		controller.masterStore.insert(0, r);
+		renewPlanTable.getPlugin('rowEditingRenewPlan').startEdit(r, 0);
+	},
+	
+	deleteRenewPlan: function(){
+		var controller = this,
+			sm = Ext.getCmp('RenewPlanTable').getSelectionModel();
+					
+		controller.masterStore.remove(sm.getSelection());
+		if (controller.masterStore.getCount() > 0) {
+			sm.select(0);
+		}
+	},
+	
+	actionSorderRenewPlan: function(){
+		var controller = this,
+			rec=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
+		controller.mainContainer.setLoading(true);
+		Ext.Ajax.request({
+			url: '/renew_plan/do_sorder',
+			timeout: 600000,
+			params: {
+				id: rec.get("id"),
+				site_to_storage: Ext.getCmp('actionSiteToStorageRenewPlan').getValue(),
+				authenticity_token: window._token
+			},
+			callback: function(options, success, response){
+				if(success!==true){
+					controller.showServerError(response, options);
+				} else {
+					if(response.responseText=="lackvol"){
+						Ext.Msg.alert("Внимание", "Заказ сформирован с отклонениями от плана!");
+					}
+				}
+				
+				controller.filterRenewPlan();
+			}
+		});
+	},
+	
+	actionSorderStatus1RenewPlan: function(){
+		var controller = this,
+			rec=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
+		if(rec.get("status2")==1){
+			controller.mainContainer.setLoading(true);
+			Ext.Ajax.request({
+				url: '/renew_plan/do_sorder_status1',
+				timeout: 600000,
+				params: {
+					id: rec.get("id"),
+					authenticity_token: window._token
+				},
+				callback: function(options, success, response){
+					if(success!==true){
+						controller.showServerError(response, options);
+					}
+					controller.filterRenewPlan();
+				}
+			});
+		}
+	},
+	
+	actionPlanRenewPlan: function(){
+		var controller = this,
+			rec=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0],
+			renewPlanTypeId = Ext.getCmp('actionRenewPlanType').getValue();
+		if((rec.get("sorder")==null || rec.get("sorder")=='') && renewPlanTypeId>0){
+			controller.mainContainer.setLoading(true);
+			Ext.Ajax.request({
+				url: '/renew_plan/do_plan',
+				timeout: 1200000,
+				params: {
+					id: rec.get("id"),
+					renew_plan_type_id: renewPlanTypeId,
+					authenticity_token: window._token
+				},
+				callback: function(options, success, response){
+					if(success!==true){
+						controller.showServerError(response, options);
+					}
+					controller.filterRenewPlan();
+				}
+			});
+		}
+	},
+	
 	init: function() {
 		var controller = this;
 		
@@ -306,20 +438,46 @@ Ext.define('app.controller.RenewPlan', {
 		
 		controller.control({
 			'#filterRenewPlan': {
-				click: controller.filterRenewPlan
-			},
-			'#RenewPlanTable': {
-				selectionchange: function(sm, selected, eOpts){
-					var s=(selected!=null)?selected[0]:null;
-					controller.renewPlanSelectionChange(s);
-					return true;
+				click: function(){
+					controller.saveDialogDetail(controller.filterRenewPlan);
 				}
 			},
-			'#addRenewPlanGoods':{
-				click: function(){
-					var sm=Ext.getCmp('RenewPlanTable').getSelectionModel(),
-						r = Ext.ModelManager.create({master_id: sm.getSelection()[0].getId()}, 'app.model.RenewPlan.RenewPlanGoodsModel');
-					controller.detailStore.insert(0, r);
+			'#RenewPlanTable': {
+				beforeselect: function(sm, record, index, eOpts){
+					if(controller.storeHasChanges(controller.detailStore)){
+						Ext.Msg.show({
+							title:'Сохранить изменения?',
+							msg: 'Сохранить данные в таблице детализации?',
+							buttons: Ext.Msg.YESNOCANCEL,
+							icon: Ext.Msg.QUESTION,
+							closable: true,
+							fn: function(buttonId, text, opt){
+								if(buttonId=='yes'){
+									controller.mainContainer.setLoading(true);
+									controller.detailStore.sync({
+										callback: function(batch){
+											if(batch.exceptions.length>0){
+												Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+											}
+											controller.mainContainer.setLoading(false);
+											controller.renewPlanSelectionChange(record);
+											sm.select(record);
+										}
+									});
+									return false;
+								} else {
+									if(buttonId == 'no'){
+										controller.renewPlanSelectionChange(record);
+										sm.select(record, false, true);
+									}
+								}
+							}
+						});
+						return false;
+					} else {
+						controller.renewPlanSelectionChange(record);
+						return true;
+					}
 				}
 			},
 			'#saveRenewPlan': {
@@ -328,33 +486,23 @@ Ext.define('app.controller.RenewPlan', {
 					controller.syncMaster(
 						controller.mainContainer,
 						(selected!=null)?selected.get('id'):null);
-					return true;
 				}
 			},
 			'#addRenewPlan':{
 				click: function(){
-					var renewPlanTable=Ext.getCmp('RenewPlanTable'),
-						sm=renewPlanTable.getSelectionModel(),
-						r = Ext.ModelManager.create({
-							send_ddate: Ext.Date.add(Ext.Date.parse(Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'), Ext.Date.DAY, 1),
-							sup_ddate: Ext.Date.add(Ext.Date.parse(Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'), Ext.Date.DAY, 2),
-							truckvol: 45,
-							k_renew: 1,
-							k_sens: 0.7,
-							k_rem: 0.5
-						}, 'app.model.RenewPlan.RenewPlanModel');
-					controller.masterStore.insert(0, r);
-					renewPlanTable.getPlugin('rowEditingRenewPlan').startEdit(r, 0);
+					controller.saveDialogDetail(controller.addRenewPlan);
 				}
 			},
 			'#deleteRenewPlan': {
 				click: function(button){
-					var sm = Ext.getCmp('RenewPlanTable').getSelectionModel();
-					
-					controller.masterStore.remove(sm.getSelection());
-					if (controller.masterStore.getCount() > 0) {
-						sm.select(0);
-					}
+					controller.saveDialogDetail(controller.deleteRenewPlan);
+				}
+			},
+			'#addRenewPlanGoods':{
+				click: function(){
+					var sm=Ext.getCmp('RenewPlanTable').getSelectionModel(),
+						r = Ext.ModelManager.create({master_id: sm.getSelection()[0].getId()}, 'app.model.RenewPlan.RenewPlanGoodsModel');
+					controller.detailStore.insert(0, r);
 				}
 			},
 			'#RenewPlanGoodsTable': {
@@ -467,78 +615,25 @@ Ext.define('app.controller.RenewPlan', {
 			},
 			'#actionSorderRenewPlan': {
 				change: function(field, newValue, oldValue, eOpts){
-					var rec=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
-					controller.mainContainer.setLoading(true);
-					Ext.Ajax.request({
-						url: '/renew_plan/do_sorder',
-						timeout: 600000,
-						params: {
-							id: rec.get("id"),
-							site_to_storage: Ext.getCmp('actionSiteToStorageRenewPlan').getValue(),
-							authenticity_token: window._token
-						},
-						callback: function(options, success, response){
-							if(success!==true){
-								controller.showServerError(response, options);
-							} else {
-								if(response.responseText=="lackvol"){
-									Ext.Msg.alert("Внимание", "Заказ сформирован с отклонениями от плана!");
-								}
-							}
-							
-							controller.filterRenewPlan();
-						}
-					});
+					field.setRawValue(oldValue);
+					field.lastValue = oldValue;
+					controller.saveDialogDetail(controller.actionSorderRenewPlan);
 
 					return true;
 				}
 			},
 			'#actionSorderStatus1RenewPlan': {
 				change: function(field, newValue, oldValue, eOpts){
-					var rec=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
-					if(rec.get("status2")==1){
-						controller.mainContainer.setLoading(true);
-						Ext.Ajax.request({
-							url: '/renew_plan/do_sorder_status1',
-							timeout: 600000,
-							params: {
-								id: rec.get("id"),
-								authenticity_token: window._token
-							},
-							callback: function(options, success, response){
-								if(success!==true){
-									controller.showServerError(response, options);
-								}
-								controller.filterRenewPlan();
-							}
-						});
-					}
+					field.setRawValue(oldValue);
+					field.lastValue = oldValue;
+					controller.saveDialogDetail(controller.actionSorderStatus1RenewPlan);
 
 					return true;
 				}
 			},
 			'#actionPlanRenewPlan': {
 				click: function(){
-					var rec=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0],
-						renewPlanTypeId = Ext.getCmp('actionRenewPlanType').getValue();
-					if((rec.get("sorder")==null || rec.get("sorder")=='') && renewPlanTypeId>0){
-						controller.mainContainer.setLoading(true);
-						Ext.Ajax.request({
-							url: '/renew_plan/do_plan',
-							timeout: 1200000,
-							params: {
-								id: rec.get("id"),
-								renew_plan_type_id: renewPlanTypeId,
-								authenticity_token: window._token
-							},
-							callback: function(options, success, response){
-								if(success!==true){
-									controller.showServerError(response, options);
-								}
-								controller.filterRenewPlan();
-							}
-						});
-					}
+					controller.saveDialogDetail(controller.actionPlanRenewPlan);
 				}
 			}
 		});
