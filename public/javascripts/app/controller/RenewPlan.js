@@ -423,7 +423,7 @@ Ext.define('app.controller.RenewPlan', {
 						for(var i=0; i<rpgs.length; i++){
 							if(rpgs[i]!=null && rpgs[i].length>0){
 								rpg=rpgs[i].split('\t');
-								renewPlanGoodsArray[i]=[rpg[0], rpg[1]];
+								renewPlanGoodsArray[i]=[rpg[0], parseInt(rpg[1])];
 								Ext.Ajax.request({
 									num: i,
 									url: '/util_data/get_goods',
