@@ -12,6 +12,14 @@ class PpsZoneController < ApplicationSimpleErrorController
     :order => :name)
     render :text => zone_types.to_json
   end
+  
+ def get_branches
+    res=ActiveRecord::Base.connection.select_all("
+    SELECT id, name
+    FROM branch
+    ")
+    render :text => res.to_json
+ end
 
   def zones
     case request.method.to_s
