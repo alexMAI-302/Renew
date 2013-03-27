@@ -36,7 +36,6 @@ Ext.define('app.view.Geotrack.Filter', {
 			disableDelete: true,
 			disableAdd: true,
 			disableSave: true,
-			disableRefresh: true,
 			title: 'Агенты',
 			columns: [
 				{

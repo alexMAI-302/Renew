@@ -76,12 +76,32 @@ Ext.define('app.controller.Geotrack', {
 		}
 	},
 	
-	filterMaster: function(){
+	loadGeotrack: function(){
 		var controller=this,
 			ddate = Ext.getCmp('filterGeotrackDdate').getValue(),
 			agent = Ext.getCmp('GeoTrackAgentsTable').getSelectionModel().getSelection()[0];
 		
 		controller.refreshMapData(ddate, agent.get('id'));
+	},
+	
+	filterMaster: function(){
+		var controller = this;
+		
+		var controller = this;
+		
+		controller.mainContainer.setLoading(true);
+		
+		controller.masterStore.proxy.extraParams = {
+			ddate: Ext.getCmp('filterGeotrackDdate').getValue()
+		};
+		controller.masterStore.load(
+			function(records, operation, success){
+				if(success!==true){
+					Ext.Msg.alert("Ошибка", "Ошибка при получении списка агентов");
+				}
+				controller.mainContainer.setLoading(false);
+			}
+		)
 	},
 	
 	init: function() {
@@ -90,8 +110,11 @@ Ext.define('app.controller.Geotrack', {
 		controller.mainContainer=Ext.create('app.view.Geotrack.Container');
 		
 		controller.control({
-			'#refreshGeotrack': {
+			'#refreshGeoTrackAgents': {
 				click: controller.filterMaster
+			},
+			'#refreshGeotrack': {
+				click: controller.loadGeotrack
 			},
 			'#GeoTrackAgentsTable': {
 				selectionchange: function(sm, selected, eOpts){
@@ -146,9 +169,17 @@ Ext.define('app.controller.Geotrack', {
 	},
 	
 	loadDictionaries: function(){
-		var controller = this;
+		var controller = this,
+			ddate = Ext.get('ddate').getValue();
+			
+		if(ddate==null || ddate==""){
+			ddate = Ext.Date.format(new Date(), 'Y.m.d');
+		}
 		
 		controller.mainContainer.setLoading(true);
+		controller.masterStore.proxy.extraParams = {
+			ddate: ddate
+		};
 		controller.masterStore.load(
 			function(records, operation, success){
 				if(success!==true){
@@ -160,7 +191,7 @@ Ext.define('app.controller.Geotrack', {
 				}
 				controller.mainContainer.setLoading(false);
 			}
-		)
+		);
 	},
 	
 	initPageData: function(){
