@@ -9,7 +9,7 @@ Ext.define('app.controller.ppsZone', {
 		'ppsZone.zoneModel',
 		'ppsZone.terminalModel'],
 	stores: [
-		'Branches',
+		'ppsZone.Branches',
 		'ppsZone.ZoneTypes'
 	],
     init: function() {
@@ -42,7 +42,7 @@ Ext.define('app.controller.ppsZone', {
 				}
 			}),
 			zoneTypesStore = controller.getPpsZoneZoneTypesStore(),
-			branchesStore = controller.getBranchesStore(),
+			branchesStore = controller.getPpsZoneBranchesStore(),
 			zoneTypesCombo=Ext.create('Ext.form.ComboBox', {
 				fieldLabel: 'Тип зоны',
 				store: zoneTypesStore,

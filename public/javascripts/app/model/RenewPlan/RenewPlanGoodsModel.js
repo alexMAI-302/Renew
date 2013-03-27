@@ -37,13 +37,13 @@ Ext.define('app.model.RenewPlan.RenewPlanGoodsModel', {
 	},
 	{
 		name: "volume",
-		type: "float",
+		type: "int",
 		useNull: true,
 		persist: false
 	},
 	{
 		name: "donevol",
-		type: "float",
+		type: "int",
 		useNull: true
 	},
 	{

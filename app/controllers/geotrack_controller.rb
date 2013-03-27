@@ -12,14 +12,7 @@ class GeotrackController < ApplicationPageErrorController
 
   def get_agents
     rst = ActiveRecord::Base.connection.select_all("
-    select
-      a.id,
-      a.name
-    from
-      uac.account ua
-      join dbo.agents a on a.loginname = ua.code
-    order by
-      a.name")
+    call renew_web.geotrack_get_agents('#{Time.parse(params[:ddate]).strftime('%F')}')")
 
     render :text => rst.to_json
   end
