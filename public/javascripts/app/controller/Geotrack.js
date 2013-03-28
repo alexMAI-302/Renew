@@ -121,6 +121,13 @@ Ext.define('app.controller.Geotrack', {
 					Ext.getCmp('refreshGeotrack').setDisabled(selected[0]==null);
 				}
 			},
+			'#filterGeotrackDdate': {
+				change: function(field, newValue, oldValue, eOpts){
+					if(newValue instanceof Date){
+						controller.filterMaster();
+					}
+				}
+			},
 			"#geotrackMap": {
 				resize: function(){
 					controller.map.container.fitToViewport();
