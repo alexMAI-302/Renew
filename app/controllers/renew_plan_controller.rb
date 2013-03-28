@@ -67,7 +67,7 @@ class RenewPlanController < ApplicationSimpleErrorController
         goods=#{params[:goods].to_i},
         donevol=#{(params[:donevol].to_i!=0)? params[:donevol].to_i : 'null'},
         trucknum = #{(params[:trucknum].to_i!=0)? params[:trucknum].to_i : 'null'}
-      WHERE id=#{params[:id].to_i} AND isxls=1")
+      WHERE id=#{params[:id].to_i}")
       
       render :text => {"success" => true, "id" => params[:id]}.to_json
     when "delete"

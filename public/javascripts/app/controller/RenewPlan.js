@@ -145,10 +145,10 @@ Ext.define('app.controller.RenewPlan', {
 		if(renewPlan!=null){
 			controller.groupInfoStore.loadData([
 				{
-					name: 'Объем по маш.',
-					all: volumeNull,
-					num1: volume1,
-					num2: volume2,
+					name: 'Вес по маш.',
+					all: weightNull,
+					num1: weight1,
+					num2: weight2,
 					siteRemains: renewPlan.get('sitevol') - volumeAll,
 					truckRemains: renewPlan.get('truckvol') - volumeAll,
 					positions: positions,
@@ -164,10 +164,10 @@ Ext.define('app.controller.RenewPlan', {
 					num2: pans2
 				},
 				{
-					name: 'Вес по маш.',
-					all: weightNull,
-					num1: weight1,
-					num2: weight2
+					name: 'Объем по маш.',
+					all: volumeNull,
+					num1: volume1,
+					num2: volume2
 				}
 			]);
 		} else {
@@ -748,13 +748,13 @@ Ext.define('app.controller.RenewPlan', {
 		
 		controller.groupInfoStore.loadData([
 			{
-				name: 'Объем по маш.'
+				name: 'Вес по маш.'
 			},
 			{
 				name: 'Под. по маш.'
 			},
 			{
-				name: 'Вес по маш.'
+				name: 'Объем по маш.'
 			}
 		]);
 	},
