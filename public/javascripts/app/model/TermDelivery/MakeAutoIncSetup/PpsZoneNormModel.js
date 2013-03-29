@@ -1,4 +1,4 @@
-Ext.define('app.model.TermDelivery.MakeAutoSetup.PpsZoneNormModel', {
+Ext.define('app.model.TermDelivery.MakeAutoIncSetup.PpsZoneNormModel', {
 	extend: 'Ext.data.Model',
 	fields: [
 	{name: 'id'			, type:'string'},

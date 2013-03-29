@@ -1,26 +1,25 @@
-Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
+Ext.define('app.controller.TermDelivery.MakeAutoIncSetup', {
     extend: 'Ext.app.Controller',
 	
 	stores: [
-		'TermDelivery.MakeAutoSetup.Periods',
-		'TermDelivery.MakeAutoSetup.PpsZoneNormes',
-		'TermDelivery.MakeAutoSetup.PpsZoneWorkdays',
-		'TermDelivery.MakeAutoSetup.Zones',
-		'TermDelivery.MakeAutoSetup.DayTypes'
+		'TermDelivery.MakeAutoIncSetup.Periods',
+		'TermDelivery.MakeAutoIncSetup.PpsZoneNormes',
+		'TermDelivery.MakeAutoIncSetup.PpsZoneWorkdays',
+		'TermDelivery.MakeAutoIncSetup.Zones',
+		'TermDelivery.MakeAutoIncSetup.DayTypes'
 	],
 	
 	models: [
 		'valueModel',
-		'TermDelivery.MakeAutoSetup.PpsZoneNormModel',
-		'TermDelivery.MakeAutoSetup.PpsZoneWorkdayModel'
+		'TermDelivery.MakeAutoIncSetup.PpsZoneNormModel',
+		'TermDelivery.MakeAutoIncSetup.PpsZoneWorkdayModel'
 	],
 	
 	views: [
-		'TermDelivery.MakeAutoSetup.Container',
-		'TermDelivery.MakeAutoSetup.Inc.Container'
+		'TermDelivery.MakeAutoIncSetup.Container'
 	],
 	
-	incContainer: null,
+	mainContainer: null,
 	
 	ppsZoneNormesStore: null,
 	periodsStore: null,
@@ -33,15 +32,7 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
 	init: function() {
 		var controller = this;
 		
-		controller.incContainer=Ext.create('app.view.TermDelivery.MakeAutoSetup.Inc.Container');
-		controller.incContainer.addListener(
-			"show",
-			function(){
-				controller.loadDictionaries();
-			}
-		);
-		
-		Ext.getCmp('MakeAutoSetupMain').add(controller.incContainer);
+		controller.mainContainer=Ext.create('app.view.TermDelivery.MakeAutoIncSetup.Container');
 		
 		controller.control({
 			'#filterNormes': {
@@ -78,7 +69,7 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
 					var sm=Ext.getCmp('NormesTable').getSelectionModel(),
 						r = Ext.ModelManager.create(
 							{period: controller.currentPeriod},
-							'app.model.TermDelivery.MakeAutoSetup.PpsZoneNormModel');
+							'app.model.TermDelivery.MakeAutoIncSetup.PpsZoneNormModel');
 					controller.ppsZoneNormesStore.add(r);
 					sm.select(r);
 				}
@@ -120,7 +111,7 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
 								ddate: Ext.Date.parse(Ext.Date.format(new Date(), 'Y-m-d'), 'Y-m-d'),
 								type: null
 							},
-							'app.model.TermDelivery.MakeAutoSetup.PpsZoneWorkdayModel');
+							'app.model.TermDelivery.MakeAutoIncSetup.PpsZoneWorkdayModel');
 					controller.ppsZoneWorkdaysStore.add(r);
 					sm.select(r);
 				}
@@ -141,11 +132,11 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Inc', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.ppsZoneNormesStore = controller.getTermDeliveryMakeAutoSetupPpsZoneNormesStore();
-		controller.periodsStore = controller.getTermDeliveryMakeAutoSetupPeriodsStore();
-		controller.zonesStore=Ext.create('app.store.TermDelivery.MakeAutoSetup.Zones');
-		controller.ppsZoneWorkdaysStore = controller.getTermDeliveryMakeAutoSetupPpsZoneWorkdaysStore();
-		controller.dayTypesStore = controller.getTermDeliveryMakeAutoSetupDayTypesStore();
+		controller.ppsZoneNormesStore = controller.getTermDeliveryMakeAutoIncSetupPpsZoneNormesStore();
+		controller.periodsStore = controller.getTermDeliveryMakeAutoIncSetupPeriodsStore();
+		controller.zonesStore = controller.getTermDeliveryMakeAutoIncSetupZonesStore();
+		controller.ppsZoneWorkdaysStore = controller.getTermDeliveryMakeAutoIncSetupPpsZoneWorkdaysStore();
+		controller.dayTypesStore = controller.getTermDeliveryMakeAutoIncSetupDayTypesStore();
 		
 		controller.periodsStore.addListener({
 			load: function(store, records, successful, eOpts){

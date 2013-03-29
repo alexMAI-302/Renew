@@ -2,12 +2,12 @@ Ext.Loader.setPath('Ext.ux', '/ext/examples/ux');
 Ext.require([
     'Ext.ux.CheckColumn'
 ]);
-Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Common', {
+Ext.define('app.controller.TermDelivery.MakeAutoCommonSetup', {
     extend: 'Ext.app.Controller',
 	
 	stores: [
-		'TermDelivery.MakeAutoSetup.Zones',
-		'TermDelivery.MakeAutoSetup.Terminals'
+		'TermDelivery.MakeAutoCommonSetup.Zones',
+		'TermDelivery.MakeAutoCommonSetup.Terminals'
 	],
 	
 	models: [
@@ -15,11 +15,10 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Common', {
 	],
 	
 	views: [
-		'TermDelivery.MakeAutoSetup.Container',
-		'TermDelivery.MakeAutoSetup.Common.Container'
+		'TermDelivery.MakeAutoCommonSetup.Container'
 	],
 	
-	terminalsContainer: null,
+	mainContainer: null,
 	
 	zonesStore: null,
 	terminalsStore: null,
@@ -27,9 +26,7 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Common', {
 	init: function() {
 		var controller = this;
 		
-		controller.terminalsContainer=Ext.create('app.view.TermDelivery.MakeAutoSetup.Common.Container');
-		
-		Ext.getCmp('MakeAutoSetupMain').add(controller.terminalsContainer);
+		controller.mainContainer=Ext.create('app.view.TermDelivery.MakeAutoCommonSetup.Container');
 		
 		controller.control({
 			'#saveTerminals': {
@@ -48,7 +45,7 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Common', {
 							if(!success){
 								Ext.Msg.alert("Ошибка", "Ошибка при загрузке терминалов");
 							}
-							controller.terminalsContainer.setLoading(false);
+							controller.mainContainer.setLoading(false);
 						}
 					);
 				}
@@ -59,8 +56,8 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Common', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.terminalsStore=controller.getTermDeliveryMakeAutoSetupTerminalsStore();
-		controller.zonesStore=Ext.create('app.store.TermDelivery.MakeAutoSetup.Zones');
+		controller.terminalsStore=controller.getTermDeliveryMakeAutoCommonSetupTerminalsStore();
+		controller.zonesStore=controller.getTermDeliveryMakeAutoCommonSetupZonesStore();
 		
 		controller.zonesStore.proxy.extraParams={
 			zone_type: 0
@@ -71,7 +68,7 @@ Ext.define('app.controller.TermDelivery.MakeAutoSetupTabs.Common', {
 	bindStores: function(){
 		var controller=this;
 		
-		Ext.getCmp('terminalsTable').reconfigure(controller.terminalsStore);
+		Ext.getCmp('TerminalsTable').reconfigure(controller.terminalsStore);
 		Ext.getCmp('filterZoneCommon').bindStore(controller.zonesStore);
 	},
 	

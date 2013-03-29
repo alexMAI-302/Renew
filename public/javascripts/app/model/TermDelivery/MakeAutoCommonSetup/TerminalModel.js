@@ -1,4 +1,4 @@
-Ext.define('app.model.TermDelivery.MakeAutoSetup.TerminalModel', {
+Ext.define('app.model.TermDelivery.MakeAutoCommonSetup.TerminalModel', {
 	extend: 'Ext.data.Model',
 	fields: [
 	{name: 'id'			, type:'int'},

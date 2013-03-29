@@ -55,4 +55,8 @@ class ApplicationController < ActionController::Base
   		end
   	end
   end
+  
+  def nullify_int(val)
+    (val.nil? || val=="" || val=="null")?'null':val.to_i
+  end
 end

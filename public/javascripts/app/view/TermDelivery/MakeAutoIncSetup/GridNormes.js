@@ -1,5 +1,5 @@
 //таблица
-Ext.define('app.view.TermDelivery.MakeAutoSetup.Inc.GridNormes', {
+Ext.define('app.view.TermDelivery.MakeAutoIncSetup.GridNormes', {
 	extend: 'app.view.Lib.Grid.Panel',
 	alias: 'widget.normesGrid',
 	
