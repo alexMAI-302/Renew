@@ -1,5 +1,5 @@
 //фильтр
-Ext.define('app.view.TermDelivery.MakeAutoSetup.Common.Filter', {
+Ext.define('app.view.TermDelivery.MakeAutoCommonSetup.Filter', {
 	extend: 'Ext.container.Container',
 	alias: 'widget.terminalsFilter',
     

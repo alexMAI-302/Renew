@@ -1,5 +1,5 @@
 //таблица
-Ext.define('app.view.TermDelivery.MakeAutoSetup.Inc.GridWorkdays', {
+Ext.define('app.view.TermDelivery.MakeAutoIncSetup.GridWorkdays', {
 	extend: 'app.view.Lib.Grid.Panel',
 	alias: 'widget.workdaysGrid',
 	

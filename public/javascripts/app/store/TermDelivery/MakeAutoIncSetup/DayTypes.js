@@ -1,4 +1,4 @@
-Ext.define('app.store.TermDelivery.MakeAutoSetup.DayTypes', {
+Ext.define('app.store.TermDelivery.MakeAutoIncSetup.DayTypes', {
 	extend: 'Ext.data.Store',
 	model: 'app.model.valueModel',
 	data:[

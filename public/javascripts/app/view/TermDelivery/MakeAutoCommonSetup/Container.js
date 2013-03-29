@@ -1,17 +1,18 @@
-Ext.define('app.view.TermDelivery.MakeAutoSetup.Common.Container', {
+Ext.define('app.view.TermDelivery.MakeAutoCommonSetup.Container', {
     extend: 'Ext.panel.Panel',
 	alias: 'widget.commonTab',
 	
 	requires: [
-		'app.view.TermDelivery.MakeAutoSetup.Common.Filter',
-		'app.view.TermDelivery.MakeAutoSetup.Common.Grid'
+		'app.view.TermDelivery.MakeAutoCommonSetup.Filter',
+		'app.view.TermDelivery.MakeAutoCommonSetup.Grid'
 	],
 	
 	layout: {
 		type: 'border'
 	},
 	
-	title: 'Общая настройка',
+	renderTo: 'term_delivery_auto_common_js',
+	height: 700,
 	
 	items: [
 		{

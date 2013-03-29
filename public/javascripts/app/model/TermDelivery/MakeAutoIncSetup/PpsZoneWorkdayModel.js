@@ -1,4 +1,4 @@
-Ext.define('app.model.TermDelivery.MakeAutoSetup.PpsZoneWorkdayModel', {
+Ext.define('app.model.TermDelivery.MakeAutoIncSetup.PpsZoneWorkdayModel', {
 	extend: 'Ext.data.Model',
 	fields: [
 	{
