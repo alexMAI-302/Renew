@@ -4,21 +4,21 @@ class RenewPlanController < ApplicationSimpleErrorController
   def renew_plan
     method=request.method.to_s
     if method == "get"
-        ddateb=Time.parse(params[:ddateb]).strftime('%F')
-        ddatee=Time.parse(params[:ddatee]).strftime('%F')
-        res = ActiveRecord::Base.connection.select_all("call renew_plan_get('#{ddateb}', '#{ddatee}')")
-        
-        render :text => res.to_json
+      ddateb=Time.parse(params[:ddateb]).strftime('%F')
+      ddatee=Time.parse(params[:ddatee]).strftime('%F')
+      res = ActiveRecord::Base.connection.select_all("call renew_plan_get('#{ddateb}', '#{ddatee}')")
+
+      render :text => res.to_json
     else
       id=ActiveRecord::Base.connection.select_value("call renew_plan_modify(
         #{params[:id].to_i},
         '#{request.method.to_s}',
         #{ActiveRecord::Base.connection.quote(params.to_xml(:root => 'params', :dasherize => false))})")
-        
-        render :text => {"success" => true, "id" => id}.to_json
+
+      render :text => {"success" => true, "id" => id}.to_json
     end
   end
-  
+
   def renew_plan_goods
     method=request.method.to_s
     case method
@@ -32,53 +32,51 @@ class RenewPlanController < ApplicationSimpleErrorController
       )")
       render :text => res.to_json
     when "post"
-      id=ActiveRecord::Base.connection.select_value("
-      BEGIN
-        DECLARE @id INT;
-        SET @id=idgenerator('renew_plan_goods');
-        INSERT INTO dbo.renew_plan_goods(
-          id,
-          goods,
-          renew_plan,
-          measure,
-          goods_volume,
-          trucknum,
-          donevol,
-          isxls)
-        VALUES(
-          @id,
-          #{params[:goods].to_i},
-          #{params[:master_id].to_i},
-          1078,
-          (SELECT ISNULL(g.height * g.length * g.width / 1000000000, 0)
-          FROM goods g
-          WHERE g.id=#{params[:goods].to_i}),
-          #{(params[:trucknum].to_i!=0) ? params[:trucknum].to_i : 'null'},
-          #{(params[:donevol].to_i!=0)? params[:donevol].to_i : 'null'},
-          1);
-        SELECT @id;
-      END")
-      
-      render :text => {"success" => true, "id" => id}.to_json
+      rpgs=ActiveSupport::JSON.decode(request.body.gets)
+      if Array.try_convert(rpgs).nil?
+        rpgs=[rpgs]
+      end
+      items=rpgs.to_xml(:root => "renew_plan_goods")
+      res = ActiveRecord::Base.connection.select_all("
+      call renew_web.renew_plan_goods_ins(
+      #{ActiveRecord::Base.connection.quote(items)},
+      #{params[:master_id].to_i})")
+
+      render :text => res.to_json
     when "put"
-      ActiveRecord::Base.connection.execute("
-      UPDATE renew_plan_goods
-      SET
-        goods=#{params[:goods].to_i},
-        donevol=#{(params[:donevol].to_i!=0)? params[:donevol].to_i : 'null'},
-        trucknum = #{(params[:trucknum].to_i!=0)? params[:trucknum].to_i : 'null'}
-      WHERE id=#{params[:id].to_i}")
-      
-      render :text => {"success" => true, "id" => params[:id]}.to_json
+      rpgs=ActiveSupport::JSON.decode(request.body.gets)
+      if Array.try_convert(rpgs).nil?
+        rpgs=[rpgs]
+      end
+      items=rpgs.to_xml(:root => "renew_plan_goods")
+      res = ActiveRecord::Base.connection.select_all("
+      call renew_web.renew_plan_goods_upd(#{ActiveRecord::Base.connection.quote(items)})")
+
+      render :text => {"success" => true}.to_json
     when "delete"
+      rpgs=ActiveSupport::JSON.decode(request.body.gets)
+      if Array.try_convert(rpgs).nil?
+        rpgs=[rpgs]
+      end
+      items=rpgs.to_xml(:root => "renew_plan_goods")
       ActiveRecord::Base.connection.execute("
-      DELETE FROM renew_plan_goods
-      WHERE id=#{params[:id].to_i} AND isxls=1")
-      
+      call renew_web.renew_plan_goods_del(#{ActiveRecord::Base.connection.quote(items)})")
+
       render :text => {"success" => true}.to_json
     end
   end
   
+  def get_goods
+    goods_names=ActiveSupport::JSON.decode(request.body.gets)["goods"]
+    items=goods_names.to_xml(:root => "goods")
+    logger.info "
+    call renew_web.renew_plan_goods_get_goods(#{ActiveRecord::Base.connection.quote(items)})"
+    res = ActiveRecord::Base.connection.select_all("
+    call renew_web.renew_plan_goods_get_goods(#{ActiveRecord::Base.connection.quote(items)})")
+    
+    render :text => res.to_json
+  end
+
   def get_sites
     res=ActiveRecord::Base.connection.select_all("
     SELECT
@@ -93,7 +91,7 @@ class RenewPlanController < ApplicationSimpleErrorController
 
     render :text => res.to_json
   end
-  
+
   def get_sellers
     res=ActiveRecord::Base.connection.select_all("
     SELECT
@@ -104,7 +102,7 @@ class RenewPlanController < ApplicationSimpleErrorController
 
     render :text => res.to_json
   end
-  
+
   def get_lggroups
     res=ActiveRecord::Base.connection.select_all("
     SELECT
@@ -130,7 +128,7 @@ class RenewPlanController < ApplicationSimpleErrorController
 
     render :text => res.to_json
   end
-  
+
   def get_site_to_storages
     res=ActiveRecord::Base.connection.select_all("
     SELECT
@@ -155,7 +153,7 @@ class RenewPlanController < ApplicationSimpleErrorController
     r = ActiveRecord::Base.connection.select_value("call renew_plan_plan(
       #{params[:id].to_i},
       #{params[:renew_plan_type_id]});")
-    
+
     render :text => {:res => r}.to_json
   end
 

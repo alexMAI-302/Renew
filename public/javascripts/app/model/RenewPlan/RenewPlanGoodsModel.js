@@ -73,8 +73,7 @@ Ext.define('app.model.RenewPlan.RenewPlanGoodsModel', {
 	{
 		name: "trucknum",
 		type: "int",
-		useNull: true,
-		persist: false
+		useNull: true
 	},
 	{
 		name: "goodsstat",

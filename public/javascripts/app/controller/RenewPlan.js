@@ -58,6 +58,7 @@ Ext.define('app.controller.RenewPlan', {
 	syncDetail: function(container, masterId){
 		var controller=this;
 		
+		container.setLoading(true);
 		if (controller.storeHasChanges(controller.detailStore)){
 			controller.detailStore.proxy.extraParams={
 				master_id: masterId
@@ -350,6 +351,64 @@ Ext.define('app.controller.RenewPlan', {
 		}
 	},
 	
+	getXLSGoods: function(XLSGoods){
+		var controller = this,
+			rpgs = XLSGoods.split('\n'),
+			rpg=null,
+			renewPlanGoodsArray=[];
+		
+		controller.mainContainer.setLoading(true);
+		
+		for(var i=0; i<rpgs.length; i++){
+			if(rpgs[i]!=null && rpgs[i].length>0){
+				rpg=rpgs[i].split('\t');
+				renewPlanGoodsArray.push({name: rpg[0], donevol: parseInt(rpg[1])});
+			}
+		}
+		
+		Ext.Ajax.request({
+			url: '/renew_plan/get_goods',
+			timeout: 600000,
+			method: 'POST',
+			params: {
+				authenticity_token: window._token
+			},
+			jsonData: {
+				goods: renewPlanGoodsArray
+			},
+			callback: function(options, success, response){
+				if(success!==true){
+					controller.showServerError(response, options);
+				} else {
+					var data = eval('('+response.responseText+')');
+					if(data!=null && data.length>0){
+						var rpgs=[],
+							error="";
+						for(var i=0; i<data.length; i++){
+							if(data[i].id != null){
+								rpgs.push({
+									isxls: 1,
+									goods: data[i].id,
+									goods_name: data[i].name,
+									donevol: data[i].donevol
+								});
+							} else {
+								error += data[i].name + "<br/>";
+							}
+						}
+						if(error!=""){
+							Ext.Msg.alert("Ошибка", "Не найдены товары с наименованиями:<br/>"+error);
+						}
+						controller.detailStore.loadData(rpgs);
+					} else {
+						Ext.Msg.alert("Ошибка", "Ничего не найдено");
+					}
+				}
+				controller.mainContainer.setLoading(false);
+			}
+		});
+	},
+	
 	actionSorderRenewPlan: function(){
 		var controller = this,
 			rec=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
@@ -563,50 +622,8 @@ Ext.define('app.controller.RenewPlan', {
 			'#XLSRenewPlanGoods': {
 				//подразумеваем, что вставляют наименования товаров и/или количество
 				change: function(field, newValue, oldValue, eOpts){
-					var rpgs = newValue.split('\n'),
-						rpg=null,
-						renewPlanGoodsArray=[];
-					
 					if(newValue!=""){
-						for(var i=0; i<rpgs.length; i++){
-							if(rpgs[i]!=null && rpgs[i].length>0){
-								rpg=rpgs[i].split('\t');
-								renewPlanGoodsArray[i]=[rpg[0], parseInt(rpg[1])];
-								Ext.Ajax.request({
-									num: i,
-									url: '/util_data/get_goods',
-									timeout: 600000,
-									method: 'GET',
-									params: {
-										query: renewPlanGoodsArray[i][0],
-										authenticity_token: window._token
-									},
-									callback: function(options, success, response){
-										if(success!==true){
-											controller.showServerError(response, options);
-										} else {
-											var data = eval('('+response.responseText+')');
-											if(data!=null && data.length==1){
-												var r = Ext.ModelManager.create({
-													isxls: 1,
-													goods: data[0].id,
-													goods_name: renewPlanGoodsArray[options.num][0],
-													donevol: renewPlanGoodsArray[options.num][1]
-												}, 'app.model.RenewPlan.RenewPlanGoodsModel');
-												
-												controller.detailStore.add(r);
-											}
-											if(data==null || data.length==0){
-												Ext.Msg.alert("Ошибка", "Не найдено товаров с именем "+renewPlanGoodsArray[options.num][0]);
-											}
-											if(data!=null && data.length>1){
-												Ext.Msg.alert("Ошибка", "Найдено более одного товара с именем "+renewPlanGoodsArray[options.num][0]);
-											}
-										}
-									}
-								});
-							}
-						}
+						controller.getXLSGoods(newValue);
 						field.setValue("");
 					}
 					
