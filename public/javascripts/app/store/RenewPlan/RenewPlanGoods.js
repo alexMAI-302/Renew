@@ -4,8 +4,9 @@ Ext.define('app.store.RenewPlan.RenewPlanGoods', {
 	proxy: {
 		type: 'rest',
 		url : '/renew_plan/renew_plan_goods',
+		batchActions: true,
 		reader: {
-			type: 'json'
+			root: 'renew_plan_goods'
 		},
 		writer: {
 			type: 'json'
