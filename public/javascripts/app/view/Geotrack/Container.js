@@ -21,14 +21,6 @@ Ext.define('app.view.Geotrack.Container', {
 			split: true
 		},
 		{
-			tbar: [
-				{
-					id : 'refreshGeotrack',
-					icon : '/ext/resources/themes/images/default/grid/refresh.gif',
-					tooltip: 'Обновить',
-					disabled: true
-				}
-			],
 			region: 'center',
 			height: '100%',
 			items:[{

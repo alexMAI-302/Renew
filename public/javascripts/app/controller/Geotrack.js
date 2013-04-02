@@ -2,13 +2,13 @@ Ext.define('app.controller.Geotrack', {
     extend: 'Ext.app.Controller',
 	
 	stores: [
-		'Geotrack.RoutePoints',
-		'Geotrack.Agents',
+		'Geotrack.Tracks',
+		'Geotrack.Agents'
 	],
 	
 	models: [
 		'valueModel',
-		'Geotrack.PointModel'
+		'Geotrack.TrackModel'
 	],
 	
 	views: [
@@ -18,11 +18,11 @@ Ext.define('app.controller.Geotrack', {
 	mainContainer: null,
 	
 	masterStore: null,
-	pointsStore: null,
+	detailStore: null,
 	
 	map: null,
 	center: [55.7, 37.6],
-	trackLine: null,
+	trackLines: null,
 	
 	showServerError: function(response, options) {
 		var controller=this;
@@ -33,37 +33,42 @@ Ext.define('app.controller.Geotrack', {
 	refreshMapData: function(ddate, agentId){
 		var controller = this;
 		
-		if(controller.trackLine!=null){
-			controller.map.geoObjects.remove(controller.trackLine);
-			controller.trackLine = null;
-		}
+		controller.trackLines.removeAll();
 		
 		if(ddate!=null && ddate!="" && agentId>0){
 			controller.mainContainer.setLoading(true);
-			controller.pointsStore.proxy.extraParams = {
+			controller.detailStore.proxy.extraParams = {
 				ddate: ddate,
 				agent_id: agentId
 			};
-			controller.pointsStore.load(
+			controller.detailStore.load(
 				function(records, operation, success){
 					if(success!==true){
-						Ext.Msg.alert("Ошибка", "Ошибка при получении координат точек маршрута");
+						Ext.Msg.alert("Ошибка", "Ошибка при получении трэков");
 					} else {
-						var points=[];
+						var points=[],
+							trackLine,
+							data;
+						
 						for(var i=0; i<records.length; i++){
-							points.push([records[i].get('latitude'), records[i].get('longitude')]);
-						}
-						
-						controller.trackLine = new ymaps.Polyline(
-							points,
-							{}, {
-								strokeWidth : 3,
-								opacity : 0.5,
-								strokeColor : '0000FF'
+							if(records[i].pointsArray!=null && records[i].pointsArray.length>0){
+								trackLine = new ymaps.Polyline(
+									records[i].pointsArray,
+									{
+										id: records[i].get('id'),
+										num: i+1,
+										start_time: Ext.Date.format(records[i].get('start_time'), 'Y.m.d H:i:s'),
+										finish_time: Ext.Date.format(records[i].get('finish_time'), 'Y.m.d H:i:s')
+									},
+									{
+										strokeWidth : 2,
+										opacity : 0.4,
+										strokeColor : '555555'
+									}
+								);
+								controller.trackLines.add(trackLine);
 							}
-						)
-						
-						controller.map.geoObjects.add(controller.trackLine);
+						}
 						
 						if(controller.map.geoObjects.getBounds()!=null){
 							controller.map.setBounds(controller.map.geoObjects.getBounds());
@@ -83,10 +88,8 @@ Ext.define('app.controller.Geotrack', {
 		
 		controller.refreshMapData(ddate, agent.get('id'));
 	},
-	
+
 	filterMaster: function(){
-		var controller = this;
-		
 		var controller = this;
 		
 		controller.mainContainer.setLoading(true);
@@ -113,12 +116,34 @@ Ext.define('app.controller.Geotrack', {
 			'#refreshGeoTrackAgents': {
 				click: controller.filterMaster
 			},
-			'#refreshGeotrack': {
+			'#refreshGeoTracks': {
 				click: controller.loadGeotrack
 			},
 			'#GeoTrackAgentsTable': {
 				selectionchange: function(sm, selected, eOpts){
-					Ext.getCmp('refreshGeotrack').setDisabled(selected[0]==null);
+					Ext.getCmp('GeoTracksTable').setDisabled(selected[0]==null);
+					controller.loadGeotrack();
+				}
+			},
+			'#GeoTracksTable': {
+				selectionchange: function(sm, selected, eOpts){
+					var id=(selected[0]!=null)?selected[0].get('id'):null;
+					controller.trackLines.each(
+						function(o){
+							if(o.properties.get('id')==id){
+								o.options.set('strokeColor', '0000FF');
+								o.options.set('strokeWidth', '4');
+								o.options.set('opacity', '0.5');
+								controller.map.setBounds(o.geometry.getBounds());
+								o.balloon.open(o.geometry.get(0));
+							} else {
+								o.options.set('strokeColor', '555555');
+								o.options.set('strokeWidth', '2');
+								o.options.set('opacity', '0.4');
+								o.balloon.close();
+							}
+						}
+					)
 				}
 			},
 			'#filterGeotrackDdate': {
@@ -157,6 +182,19 @@ Ext.define('app.controller.Geotrack', {
 				controller.initPageData();
 			}
 			
+			controller.trackLines = new ymaps.GeoObjectCollection(
+				{},
+				{
+					balloonContentLayout: ymaps.templateLayoutFactory.createClass(
+						'<h3>$[properties.num]</h3>' +
+						'<p>Начало: $[properties.start_time]</p>' +
+						'<p>Конец: $[properties.finish_time]</p>'
+					)
+				}
+			);
+			
+			controller.map.geoObjects.add(controller.trackLines);
+			
 			controller.mainContainer.setLoading(false);
 		});
 	},
@@ -165,7 +203,7 @@ Ext.define('app.controller.Geotrack', {
 		var controller=this;
 		
 		controller.masterStore = controller.getGeotrackAgentsStore();
-		controller.pointsStore = controller.getGeotrackRoutePointsStore();
+		controller.detailStore = controller.getGeotrackTracksStore();
 	},
 	
 	bindStores: function(){
@@ -173,6 +211,7 @@ Ext.define('app.controller.Geotrack', {
 			agentTable = Ext.getCmp('GeoTrackAgentsTable');
 		
 		agentTable.reconfigure(controller.masterStore);
+		Ext.getCmp('GeoTracksTable').reconfigure(controller.detailStore);
 	},
 	
 	loadDictionaries: function(){
