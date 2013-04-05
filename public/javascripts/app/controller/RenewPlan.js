@@ -315,11 +315,11 @@ Ext.define('app.controller.RenewPlan', {
 	postFilterRenewPlanGoods: function(showOnlyNotEmpty){
 		var controller=this;
 		if(showOnlyNotEmpty==true){
-			controller.detailStore.filterBy(
-				function(rec, id){
-					return rec.get('volume')>0;
+			controller.detailStore.filter({
+				filterFn: function(rec){
+					return rec.get('volume')>0 || rec.get('isxls')==1;
 				}
-			);
+			});
 		} else {
 			controller.detailStore.clearFilter();
 		}
@@ -715,6 +715,81 @@ Ext.define('app.controller.RenewPlan', {
 				}
 			}
 		);
+		
+		renewPlanGoodsPlugin.addListener(
+			"edit",
+			function(editor, e, eOpts){
+				if(e.colIdx==11){
+					var oldVal = e.originalValue,
+						newVal = e.value,
+						singleVolume = e.record.get('single_volume'),
+						singleWeight = e.record.get('single_weight'),
+						oldGoodsVolume = e.record.get('goods_volume'),
+						oldWeight = e.record.get('weight'),
+						oldPans = e.record.get('pans'),
+						newGoodsVolume = newVal*singleVolume,
+						newWeight = newVal*singleWeight,
+						minvol = e.record.get('minvol'),
+						newPans = (minvol!=null)?1.0*newVal/minvol:null,
+						trucknum = e.record.get('trucknum'),
+						infoRow = controller.groupInfoStore.getAt(0),
+						pansRow = controller.groupInfoStore.getAt(1),
+						volRow = controller.groupInfoStore.getAt(2),
+						positions = infoRow.get('positions'),
+						donevol = infoRow.get('donevol'),
+						weightAll = infoRow.get('weightAll'),
+						pansAll = infoRow.get('pansAll'),
+						volumeAll = infoRow.get('volumeAll'),
+						siteRemains = infoRow.get('siteRemains'),
+						truckRemains = infoRow.set('truckRemains');
+					
+					function changeInfo(fieldName){
+						var weight = infoRow.get(fieldName),
+							pans = pansRow.get(fieldName),
+							volume = volRow.get(fieldName);
+						
+						weight += newWeight - oldWeight;
+						pans += newPans - oldPans;
+						volume += newGoodsVolume - oldGoodsVolume;
+						
+						infoRow.set(fieldName, weight);
+						pansRow.set(fieldName, pans);
+						volRow.set(fieldName, volume);
+					};
+					
+					positions += ((newVal>0)?1:0)-((oldVal>0)?1:0);
+					donevol += newVal - oldVal;
+					weightAll += newWeight - oldWeight;
+					pansAll += newPans - oldPans;
+					volumeAll += newGoodsVolume - oldGoodsVolume;
+					siteRemains += newGoodsVolume - oldGoodsVolume;
+					truckRemains += newGoodsVolume - oldGoodsVolume;
+					if(trucknum==null){
+						changeInfo('all');
+					} else {
+						if(trucknum==1){
+							changeInfo('num1');
+						} else {
+							if(trucknum==2){
+								changeInfo('num2');
+							}
+						}
+					}
+					
+					e.record.set('goods_volume', newGoodsVolume);
+					e.record.set('weight', newWeight);
+					e.record.set('pans', newPans);
+					
+					infoRow.set('pansAll', pansAll);
+					infoRow.set('volumeAll', volumeAll);
+					infoRow.set('positions', positions);
+					infoRow.set('donevol', donevol);
+					infoRow.set('weightAll', weightAll);
+					infoRow.set('siteRemains', siteRemains);
+					infoRow.set('truckRemains', truckRemains);
+				}
+			}
+		);
 	},
 	
 	loadDictionaries: function(){
@@ -876,7 +951,7 @@ Ext.define('app.controller.RenewPlan', {
 		};
 		goodsColumn.renderer = goodsRenderer;
 		goodsColumn.doSort = function(state){
-			tableStore.sort({
+			controller.detailStore.sort({
 				property: 'goods_name',
 				direction: state
 			});

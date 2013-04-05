@@ -151,7 +151,7 @@ class UtilDataController < ApplicationSimpleErrorController
     :select => "id, short_name name",
     :order => "name",
     :limit => params[:limit],
-    :conditions => "short_name LIKE '%#{val}%'" )
+    :conditions => "short_name LIKE '%#{ActiveRecord::Base.connection.quote_string(val)}%'" )
 
     render :json => goods.to_json
   end
