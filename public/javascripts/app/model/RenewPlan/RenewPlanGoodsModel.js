@@ -107,7 +107,7 @@ Ext.define('app.model.RenewPlan.RenewPlanGoodsModel', {
 	},
 	{
 		name: "minvol",
-		type: "int",
+		type: "float",
 		useNull: true,
 		persist: false
 	},
@@ -164,6 +164,18 @@ Ext.define('app.model.RenewPlan.RenewPlanGoodsModel', {
 		type: "string",
 		useNull: true,
 		persist: false
-	}
+	},
+	{
+		name: "single_volume",
+		type: "float",
+		useNull: true,
+		persist: false
+	},
+	{
+		name: "single_weight",
+		type: "float",
+		useNull: true,
+		persist: false
+	},
 	]
 });

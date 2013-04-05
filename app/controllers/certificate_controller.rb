@@ -40,7 +40,7 @@ class CertificateController < ApplicationPageErrorController
 			renew_web.certificates_get(#{ActiveRecord::Base.connection.quote(inn)},
 			#{ActiveRecord::Base.connection.quote(ndoc)},
 			#{ActiveRecord::Base.connection.quote(goods_code)})")
-	  if !info.nil? then
+	  if !info.nil? && info.length>0 then
 	    #начать обновление кэша на диске
 	    picture_ids=info.collect do |i|
         i["picture_id"]
@@ -93,6 +93,8 @@ class CertificateController < ApplicationPageErrorController
             'ndoc' => i['ndoc']}
         end
       end
+    else
+      info=nil
 	  end
 	  
     certificates.each do |id, cert|
