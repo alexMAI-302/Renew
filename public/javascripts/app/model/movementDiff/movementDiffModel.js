@@ -9,7 +9,6 @@ Ext.define('app.model.movementDiff.movementDiffModel', {
     {
     	name: 'ddate_so',
     	type: 'date',
-    	dateFormat: 'Y-m-d H:i:s',
 		convert: function(v, record){
 			var val=Ext.Date.parse(v, 'Y-m-d H:i:s');
 			val = (val==null || val==undefined) ? Ext.Date.parse(v, "Y-m-d\\TH:i:s") : val;
@@ -19,7 +18,6 @@ Ext.define('app.model.movementDiff.movementDiffModel', {
     {
     	name: 'ddate_sup',
     	type: 'date',
-    	dateFormat: 'Y-m-d H:i:s',
 		convert: function(v, record){
 			var val=Ext.Date.parse(v, 'Y-m-d H:i:s');
 			val = (val==null || val==undefined) ? Ext.Date.parse(v, "Y-m-d\\TH:i:s") : val;
