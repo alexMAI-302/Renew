@@ -57,13 +57,13 @@ Ext.define('app.controller.Geotrack', {
 									{
 										id: records[i].get('id'),
 										num: i+1,
-										start_time: Ext.Date.format(records[i].get('start_time'), 'Y.m.d H:i:s'),
-										finish_time: Ext.Date.format(records[i].get('finish_time'), 'Y.m.d H:i:s')
+										start_time: Ext.Date.format(records[i].get('start_time'), 'H:i:s'),
+										finish_time: Ext.Date.format(records[i].get('finish_time'), 'H:i:s')
 									},
 									{
-										strokeWidth : 2,
-										opacity : 0.4,
-										strokeColor : '555555'
+										strokeWidth : 4,
+										opacity : 0.5,
+										strokeColor : '0000FF'
 									}
 								);
 								controller.trackLines.add(trackLine);

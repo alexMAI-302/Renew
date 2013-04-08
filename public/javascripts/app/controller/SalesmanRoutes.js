@@ -1,5 +1,3 @@
-Ext.Loader.setPath('Ext.ux', '/ext/examples/ux');
-Ext.require(['Ext.ux.CheckColumn']);
 Ext.define('app.controller.SalesmanRoutes', {
 	extend : 'Ext.app.Controller',
 

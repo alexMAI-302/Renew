@@ -33,21 +33,10 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 				width: 75
 			}
 		],
-		bbar: [
-			{xtype: 'renewPlanGroupInfo'}
-		],
 		viewConfig: {
 			enableTextSelection: true,
 			getRowClass: function(record, rowIndex, rowParams, store){
 				return record.get('row_class');
-			},
-			listeners: {
-				itemkeydown: function(view, record, item, index, e, eOpts){
-					if(e.getKey()==e.ENTER){
-						view.ownerCt.getPlugin('cellEditingRenewPlanGoods').startEdit(record, 11);
-					}
-					return true;
-				}
 			}
 		},
 		columns: [

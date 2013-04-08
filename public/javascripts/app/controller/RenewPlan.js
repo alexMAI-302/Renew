@@ -1,7 +1,3 @@
-Ext.Loader.setPath('Ext.ux', '/ext/examples/ux');
-Ext.require([
-    'Ext.ux.CheckColumn'
-]);
 Ext.define('app.controller.RenewPlan', {
     extend: 'Ext.app.Controller',
 	
@@ -42,6 +38,11 @@ Ext.define('app.controller.RenewPlan', {
 	groupInfoStore: null,
 	
 	selectedRenewPlan: null,
+	detailColumn: 11,
+	
+	getDetailColumn: function(){
+		return this.detailColumn;
+	},
 	
 	storeHasChanges: function(store){
 		return (store.getNewRecords().length > 0) ||
@@ -104,17 +105,19 @@ Ext.define('app.controller.RenewPlan', {
 			volumeNull = volumeAll = volume1 = volume2 = 0.0,
 			positions=0,
 			donevol = 0.0,
+			minvol,
 			renewPlan = Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
-			
+
 		controller.detailStore.each(
 			function(r){
 				curVol=r.get('volume');
 				curDonevol=r.get('donevol');
 				
 				vol=(curDonevol==null)?curVol:curDonevol;
-				weight = r.get('weight');
-				pans = r.get('pans');
-				goodsVolume = r.get('goods_volume');
+				weight = r.get('single_weight')*vol;
+				minvol = r.get('minvol');
+				pans = (minvol>0)?vol/minvol:0;
+				goodsVolume = r.get('single_volume')*vol;
 				trucknum = r.get('trucknum');
 				
 				positions+=(vol>0)?1:0;
@@ -174,6 +177,76 @@ Ext.define('app.controller.RenewPlan', {
 		} else {
 			controller.groupInfoStore.removeAll();
 		}
+	},
+	
+	recomputeGroupInfoOnTrucknum: function(e){
+		var oldVal = e.originalValue,
+			newVal = e.value,
+			singleVolume = e.record.get('single_volume'),
+			singleWeight = e.record.get('single_weight'),
+			oldGoodsVolume = e.record.get('goods_volume'),
+			oldWeight = e.record.get('weight'),
+			oldPans = e.record.get('pans'),
+			newGoodsVolume = newVal*singleVolume,
+			newWeight = newVal*singleWeight,
+			minvol = e.record.get('minvol'),
+			newPans = (minvol!=null)?1.0*newVal/minvol:null,
+			trucknum = e.record.get('trucknum'),
+			infoRow = controller.groupInfoStore.getAt(0),
+			pansRow = controller.groupInfoStore.getAt(1),
+			volRow = controller.groupInfoStore.getAt(2),
+			positions = infoRow.get('positions'),
+			donevol = infoRow.get('donevol'),
+			weightAll = infoRow.get('weightAll'),
+			pansAll = infoRow.get('pansAll'),
+			volumeAll = infoRow.get('volumeAll'),
+			siteRemains = infoRow.get('siteRemains'),
+			truckRemains = infoRow.set('truckRemains');
+		
+		e.record.set('goods_volume', newGoodsVolume);
+		e.record.set('weight', newWeight);
+		e.record.set('pans', newPans);
+		
+		function changeInfo(fieldName){
+			var weight = infoRow.get(fieldName),
+				pans = pansRow.get(fieldName),
+				volume = volRow.get(fieldName);
+			
+			weight += newWeight - oldWeight;
+			pans += newPans - oldPans;
+			volume += newGoodsVolume - oldGoodsVolume;
+			
+			infoRow.set(fieldName, weight);
+			pansRow.set(fieldName, pans);
+			volRow.set(fieldName, volume);
+		};
+		
+		positions += ((newVal>0)?1:0)-((oldVal>0)?1:0);
+		donevol += newVal - oldVal;
+		weightAll += newWeight - oldWeight;
+		pansAll += newPans - oldPans;
+		volumeAll += newGoodsVolume - oldGoodsVolume;
+		siteRemains += newGoodsVolume - oldGoodsVolume;
+		truckRemains += newGoodsVolume - oldGoodsVolume;
+		if(trucknum==null){
+			changeInfo('all');
+		} else {
+			if(trucknum==1){
+				changeInfo('num1');
+			} else {
+				if(trucknum==2){
+					changeInfo('num2');
+				}
+			}
+		}
+		
+		infoRow.set('pansAll', pansAll);
+		infoRow.set('volumeAll', volumeAll);
+		infoRow.set('positions', positions);
+		infoRow.set('donevol', donevol);
+		infoRow.set('weightAll', weightAll);
+		infoRow.set('siteRemains', siteRemains);
+		infoRow.set('truckRemains', truckRemains);
 	},
 	
 	saveDialogDetail: function(callback){
@@ -656,7 +729,19 @@ Ext.define('app.controller.RenewPlan', {
 		});
 		
 		var renewPlanPlugin = Ext.getCmp('RenewPlanTable').getPlugin('rowEditingRenewPlan'),
-			renewPlanGoodsPlugin=Ext.getCmp('RenewPlanGoodsTable').getPlugin('cellEditingRenewPlanGoods');
+			renewPlanGoodsTable = Ext.getCmp('RenewPlanGoodsTable'),
+			renewPlanGoodsPlugin = renewPlanGoodsTable.getPlugin('cellEditingRenewPlanGoods');
+			
+		renewPlanGoodsTable.getView().addListener(
+			"itemkeydown",
+			function(view, record, item, index, e, eOpts){
+				if(e.getKey()==e.ENTER){
+					renewPlanGoodsPlugin.startEdit(record, controller.getDetailColumn());
+				}
+				return true;
+			}
+		);
+		
 		renewPlanPlugin.addListener(
 			"beforeedit",
 			function(editor, e, eOpts){
@@ -719,74 +804,9 @@ Ext.define('app.controller.RenewPlan', {
 		renewPlanGoodsPlugin.addListener(
 			"edit",
 			function(editor, e, eOpts){
-				if(e.colIdx==11){
-					var oldVal = e.originalValue,
-						newVal = e.value,
-						singleVolume = e.record.get('single_volume'),
-						singleWeight = e.record.get('single_weight'),
-						oldGoodsVolume = e.record.get('goods_volume'),
-						oldWeight = e.record.get('weight'),
-						oldPans = e.record.get('pans'),
-						newGoodsVolume = newVal*singleVolume,
-						newWeight = newVal*singleWeight,
-						minvol = e.record.get('minvol'),
-						newPans = (minvol!=null)?1.0*newVal/minvol:null,
-						trucknum = e.record.get('trucknum'),
-						infoRow = controller.groupInfoStore.getAt(0),
-						pansRow = controller.groupInfoStore.getAt(1),
-						volRow = controller.groupInfoStore.getAt(2),
-						positions = infoRow.get('positions'),
-						donevol = infoRow.get('donevol'),
-						weightAll = infoRow.get('weightAll'),
-						pansAll = infoRow.get('pansAll'),
-						volumeAll = infoRow.get('volumeAll'),
-						siteRemains = infoRow.get('siteRemains'),
-						truckRemains = infoRow.set('truckRemains');
-					
-					function changeInfo(fieldName){
-						var weight = infoRow.get(fieldName),
-							pans = pansRow.get(fieldName),
-							volume = volRow.get(fieldName);
-						
-						weight += newWeight - oldWeight;
-						pans += newPans - oldPans;
-						volume += newGoodsVolume - oldGoodsVolume;
-						
-						infoRow.set(fieldName, weight);
-						pansRow.set(fieldName, pans);
-						volRow.set(fieldName, volume);
-					};
-					
-					positions += ((newVal>0)?1:0)-((oldVal>0)?1:0);
-					donevol += newVal - oldVal;
-					weightAll += newWeight - oldWeight;
-					pansAll += newPans - oldPans;
-					volumeAll += newGoodsVolume - oldGoodsVolume;
-					siteRemains += newGoodsVolume - oldGoodsVolume;
-					truckRemains += newGoodsVolume - oldGoodsVolume;
-					if(trucknum==null){
-						changeInfo('all');
-					} else {
-						if(trucknum==1){
-							changeInfo('num1');
-						} else {
-							if(trucknum==2){
-								changeInfo('num2');
-							}
-						}
-					}
-					
-					e.record.set('goods_volume', newGoodsVolume);
-					e.record.set('weight', newWeight);
-					e.record.set('pans', newPans);
-					
-					infoRow.set('pansAll', pansAll);
-					infoRow.set('volumeAll', volumeAll);
-					infoRow.set('positions', positions);
-					infoRow.set('donevol', donevol);
-					infoRow.set('weightAll', weightAll);
-					infoRow.set('siteRemains', siteRemains);
-					infoRow.set('truckRemains', truckRemains);
+				controller.detailColumn = e.colIdx;
+				if(e.colIdx==11 || e.colIdx==18){
+					controller.computeGroupInfo();
 				}
 			}
 		);
@@ -1004,8 +1024,13 @@ Ext.define('app.controller.RenewPlan', {
 			return true;
 		};
 		
+		function selectOnEdit(component){
+			component.selectText();
+		};
+		
 		donevolColumn.field = Ext.create('Ext.form.field.Text', {
 			listeners: {
+				focus: selectOnEdit,
 				specialkey: {fn: rowNavigation, colId: 11}
 			}
 		});
@@ -1014,6 +1039,7 @@ Ext.define('app.controller.RenewPlan', {
 				return (v==null || v=="" || v==1 || v==2);
 			},
 			listeners: {
+				focus: selectOnEdit,
 				specialkey: {fn: rowNavigation, colId: 18}
 			}
 		});

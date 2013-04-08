@@ -1,7 +1,3 @@
-Ext.Loader.setPath('Ext.ux', '/ext/examples/ux');
-Ext.require([
-    'Ext.ux.CheckColumn'
-]);
 Ext.define('app.controller.transit', {
     extend: 'Ext.app.Controller',
 	models: [
