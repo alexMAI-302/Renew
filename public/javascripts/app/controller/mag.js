@@ -327,7 +327,7 @@ Ext.define('app.controller.mag', {
 		var grid=Ext.getCmp(cmpId);
 		Ext.ux.grid.Printer.printAutomatically=true;
 		Ext.ux.grid.Printer.closeAutomaticallyAfterPrint=true;
-		Ext.ux.grid.Printer.extraCSS=['/ext/examples/ux/css/CheckHeader.css'];
+		Ext.ux.grid.Printer.extraCSS=['/ext/resources/css/ext-all.css'];
 		Ext.ux.grid.Printer.print(grid, ['barcode', 'is_good'], 'Итого: '+grid.store.sum('cost'));
 	},
 	
