@@ -5,7 +5,6 @@ Ext.define('app.model.AutoTransport.IncomeModel', {
 	{
 		name: 'ddate',
 		type: 'date',
-		dateFormat: 'd.m.Y H:i',
 		convert: function(v, record){
 			if(Ext.isDate(v)){
 				return v

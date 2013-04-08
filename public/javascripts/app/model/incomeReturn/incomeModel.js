@@ -3,7 +3,7 @@ Ext.define('app.model.incomeReturn.incomeModel', {
 	fields: [
 	{name: 'id'		, type: 'int'},
 	{name: 'name'	, type: 'string'},
-	{name: 'ddate'	, type: 'date',		dateFormat: 'd.m.Y',
+	{name: 'ddate'	, type: 'date',
 		convert: function(v, record){
 			if(Ext.isDate(v)){
 				return v

@@ -5,7 +5,6 @@ Ext.define('app.model.RenewPlan.RenewPlanModel', {
 	{
 		name: 'send_ddate',
 		type:'date',
-		dateFormat: 'd.m.Y',
 		convert: function(v, record){
 			if(Ext.isDate(v)){
 				return v
@@ -20,7 +19,6 @@ Ext.define('app.model.RenewPlan.RenewPlanModel', {
 	{
 		name: 'sup_ddate',
 		type:'date',
-		dateFormat: 'd.m.Y',
 		convert: function(v, record){
 			if(Ext.isDate(v)){
 				return v
