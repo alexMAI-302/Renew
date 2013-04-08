@@ -67,8 +67,8 @@ Ext.define('app.view.Geotrack.Filter', {
 					header: 'Информация',
 					dataIndex: 'id',
 					renderer: function(v, metaData, r){
-						return "Начало: " + Ext.Date.format(r.get('start_time'), 'Y.m.d H:i:s') +
-						"<br/> Конец: " + Ext.Date.format(r.get('finish_time'), 'Y.m.d H:i:s') +
+						return "Начало: " + Ext.Date.format(r.get('start_time'), 'H:i:s') +
+						"<br/> Конец: " + Ext.Date.format(r.get('finish_time'), 'H:i:s') +
 						"<br/> Точек: " + r.get('points_quantity');
 					},
 					disabled: true

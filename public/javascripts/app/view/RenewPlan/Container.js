@@ -33,7 +33,19 @@ Ext.define('app.view.RenewPlan.Container', {
 			region: 'south',
 			split: true,
 			flex: 1,
-			xtype: 'renewPlanGoodsPanel'
+			layout: {
+				type: 'border'
+			},
+			items: [
+				{
+					region: 'center',
+					xtype: 'renewPlanGoodsPanel'
+				},
+				{
+					region: 'south',
+					xtype: 'renewPlanGroupInfo'
+				}
+			]
 		}
 	]
 });

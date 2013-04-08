@@ -1,7 +1,3 @@
-Ext.Loader.setPath('Ext.ux', '/ext/examples/ux');
-Ext.require([
-    'Ext.ux.CheckColumn'
-]);
 Ext.define('app.controller.GeoPoint', {
     extend: 'Ext.app.Controller',
 	
@@ -186,6 +182,7 @@ Ext.define('app.controller.GeoPoint', {
 				edit: function(editor, e, eOpts){
 					function changePoint(coords){
 						e.record.point.geometry.setCoordinates(coords);
+						e.record.set('ismanual', 1);
 						controller.map.setCenter(coords, 13, {checkZoomRange: true});
 					};
 					

@@ -1,6 +1,5 @@
 Ext.Loader.setPath('Ext.ux', '/ext/examples/ux');
 Ext.require([
-    'Ext.ux.CheckColumn',
 	'Ext.ux.grid.Printer'
 ]);
 Ext.define('app.controller.mag', {
