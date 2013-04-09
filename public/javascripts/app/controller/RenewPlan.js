@@ -472,7 +472,7 @@ Ext.define('app.controller.RenewPlan', {
 						if(error!=""){
 							Ext.Msg.alert("Ошибка", "Не найдены товары с наименованиями:<br/>"+error);
 						}
-						controller.detailStore.loadData(rpgs);
+						controller.detailStore.loadData(rpgs, true);
 					} else {
 						Ext.Msg.alert("Ошибка", "Ничего не найдено");
 					}
