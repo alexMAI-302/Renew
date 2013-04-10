@@ -26,8 +26,6 @@ class RenewPlanController < ApplicationSimpleErrorController
       res=ActiveRecord::Base.connection.select_all("
       call dbo.ask_dw_renew_plan_goods(
         #{params[:master_id].to_i},
-        #{params[:lggroup_id].to_i},
-        0,
         #{params[:seller_id].to_i}
       )")
       render :text => res.to_json

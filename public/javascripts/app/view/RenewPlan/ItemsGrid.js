@@ -17,6 +17,17 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 		}],
 		afterButtons: [
 			{
+				id: 'filterLggroupRenewPlanGoods',
+				xtype: 'combobox',
+				fieldLabel: 'Гр. план.',
+				valueField: 'id',
+				displayField: 'name',
+				queryMode: 'local',
+				allowNull: true,
+				width: 250,
+				labelWidth: 60
+			},
+			{
 				xtype: 'checkbox',
 				id: 'filterRenewPlanGoodsOnlyNotEmpty',
 				fieldLabel: 'Только заполненные',
@@ -128,6 +139,7 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 				width: 220,
 				header: 'Статистика продаж',
 				dataIndex: 'goodsstat',
+				tdCls: 'x-wrap_cells',
 				disabled: true
 			},
 			{

@@ -2,7 +2,7 @@ Ext.define('app.view.RenewPlan.GroupInfo', {
 	extend: 'Ext.grid.Panel',
 	alias: 'widget.renewPlanGroupInfo',
 	
-	height: 90,
+	height: 91,
 	id: 'RenewPlanGoodsInfoTable',
 	columns: [
 		{
