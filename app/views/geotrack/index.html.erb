@@ -9,7 +9,7 @@
 <%	end -%>
 <% content_for :content do %>
 	<input type="hidden" name="agent_id" id="agent_id" value="<%= params[:agent_id] %>"/>
-	<input type="hidden" name="ddate" id="ddate" value="<%= params[:ddate] %>"/>
+	<input type="hidden" name="ddate" id="ddate" value="<%= Time.parse(params[:ddate]).strftime('%F') %>"/>
 	
 	<div id="geotrack_js"></div>
 <%	end -%>

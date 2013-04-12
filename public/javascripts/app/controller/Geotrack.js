@@ -3,12 +3,14 @@ Ext.define('app.controller.Geotrack', {
 	
 	stores: [
 		'Geotrack.Tracks',
+		'Geotrack.Terminals',
 		'Geotrack.Agents'
 	],
 	
 	models: [
 		'valueModel',
-		'Geotrack.TrackModel'
+		'Geotrack.TrackModel',
+		'Geotrack.TerminalModel'
 	],
 	
 	views: [
@@ -19,10 +21,12 @@ Ext.define('app.controller.Geotrack', {
 	
 	masterStore: null,
 	detailStore: null,
+	terminalsStore: null,
 	
 	map: null,
 	center: [55.7, 37.6],
 	trackLines: null,
+	terminalCollection: null,
 	
 	showServerError: function(response, options) {
 		var controller=this;
@@ -34,6 +38,7 @@ Ext.define('app.controller.Geotrack', {
 		var controller = this;
 		
 		controller.trackLines.removeAll();
+		controller.terminalCollection.removeAll();
 		
 		if(ddate!=null && ddate!="" && agentId>0){
 			controller.mainContainer.setLoading(true);
@@ -46,9 +51,7 @@ Ext.define('app.controller.Geotrack', {
 					if(success!==true){
 						Ext.Msg.alert("Ошибка", "Ошибка при получении трэков");
 					} else {
-						var points=[],
-							trackLine,
-							data;
+						var trackLine;
 						
 						for(var i=0; i<records.length; i++){
 							if(records[i].pointsArray!=null && records[i].pointsArray.length>0){
@@ -76,6 +79,40 @@ Ext.define('app.controller.Geotrack', {
 					}
 					
 					controller.mainContainer.setLoading(false);
+				}
+			);
+			
+			controller.terminalsStore.proxy.extraParams = {
+				ddate: ddate,
+				agent_id: agentId
+			};
+			controller.terminalsStore.load(
+				function(records, operation, success){
+					if(success!==true){
+						Ext.Msg.alert("Ошибка", "Ошибка при получении терминалов");
+					} else {
+						var terminal;
+						
+						for(var i=0; i<records.length; i++){
+							
+							terminal = new ymaps.Placemark(
+								[records[i].get('latitude'), records[i].get('longitude')],
+								{
+									id: records[i].get('id'),
+									code: records[i].get('code'),
+									terminalid: records[i].get('terminalid')
+								},
+								{
+									preset: "twirl#bankIcon"
+								}
+							);
+							controller.terminalCollection.add(terminal);
+						}
+						
+						if(controller.map.geoObjects.getBounds()!=null){
+							controller.map.setBounds(controller.map.geoObjects.getBounds());
+						}
+					}
 				}
 			);
 		}
@@ -193,7 +230,18 @@ Ext.define('app.controller.Geotrack', {
 				}
 			);
 			
+			controller.terminalCollection = new ymaps.GeoObjectCollection(
+				{},
+				{
+					balloonContentLayout: ymaps.templateLayoutFactory.createClass(
+						'<p>Код: $[properties.code]</p>' +
+						'<p>TerminalID: $[properties.terminalid]</p>'
+					)
+				}
+			);
+			
 			controller.map.geoObjects.add(controller.trackLines);
+			controller.map.geoObjects.add(controller.terminalCollection);
 			
 			controller.mainContainer.setLoading(false);
 		});
@@ -204,6 +252,7 @@ Ext.define('app.controller.Geotrack', {
 		
 		controller.masterStore = controller.getGeotrackAgentsStore();
 		controller.detailStore = controller.getGeotrackTracksStore();
+		controller.terminalsStore = controller.getGeotrackTerminalsStore();
 	},
 	
 	bindStores: function(){
