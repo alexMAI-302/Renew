@@ -177,5 +177,11 @@ Ext.define('app.model.RenewPlan.RenewPlanGoodsModel', {
 		useNull: true,
 		persist: false
 	},
+	{
+		name: "lggroup",
+		type: "int",
+		useNull: true,
+		persist: false
+	},
 	]
 });

@@ -108,7 +108,8 @@ Ext.define('app.controller.RenewPlan', {
 			minvol,
 			renewPlan = Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
 
-		controller.detailStore.each(
+		(controller.detailStore.snapshot || controller.detailStore.data)
+		.each(
 			function(r){
 				curVol=r.get('volume');
 				curDonevol=r.get('donevol');
@@ -298,7 +299,8 @@ Ext.define('app.controller.RenewPlan', {
 				} else {
 					controller.computeGroupInfo();
 					controller.postFilterRenewPlanGoods(
-						Ext.getCmp('filterRenewPlanGoodsOnlyNotEmpty').getValue()
+						Ext.getCmp('filterRenewPlanGoodsOnlyNotEmpty').getValue(),
+						Ext.getCmp('filterLggroupRenewPlanGoods').getValue()
 					);
 				}
 				detailTable.setDisabled(false);
@@ -385,12 +387,14 @@ Ext.define('app.controller.RenewPlan', {
 		}
 	},
 	
-	postFilterRenewPlanGoods: function(showOnlyNotEmpty){
+	postFilterRenewPlanGoods: function(showOnlyNotEmpty, lggroup){
 		var controller=this;
-		if(showOnlyNotEmpty==true){
+		if(lggroup>0 || showOnlyNotEmpty==true){
+			controller.detailStore.clearFilter(true);
 			controller.detailStore.filter({
 				filterFn: function(rec){
-					return rec.get('volume')>0 || rec.get('isxls')==1;
+					return ((showOnlyNotEmpty!=true) || ((showOnlyNotEmpty==true) && (rec.get('volume')>0 || rec.get('isxls')==1))) &&
+					(!(lggroup>0) || (lggroup>0 && rec.get('lggroup')==lggroup));
 				}
 			});
 		} else {
@@ -688,7 +692,34 @@ Ext.define('app.controller.RenewPlan', {
 				change: function(field, newValue, oldValue, eOpts){
 					var controller=this;
 					
-					controller.postFilterRenewPlanGoods(newValue);
+					controller.postFilterRenewPlanGoods(
+						newValue,
+						Ext.getCmp('filterLggroupRenewPlanGoods').getValue()
+					);
+					return true;
+				}
+			},
+			'#filterLggroupRenewPlanGoods': {
+				change: function(field, newValue, oldValue, eOpts){
+					var controller=this;
+					
+					if(newValue==null || newValue=="")
+					{
+						controller.postFilterRenewPlanGoods(
+							null,
+							Ext.getCmp('filterLggroupRenewPlanGoods').getValue()
+						);
+					}
+					return true;
+				},
+				select: function(field, records, eOpts){
+					var controller=this;
+					
+					controller.postFilterRenewPlanGoods(
+						Ext.getCmp('filterRenewPlanGoodsOnlyNotEmpty').getValue(),
+						records[0].get('id')
+					);
+					field.getStore().clearFilter(true);
 					return true;
 				}
 			},
@@ -788,7 +819,7 @@ Ext.define('app.controller.RenewPlan', {
 		renewPlanGoodsPlugin.addListener(
 			"beforeedit",
 			function(editor, e, eOpts){
-				if(e.colIdx!=0){
+				if(renewPlanGoodsTable.columns[e.colIdx].text!='Наименование'){
 					return true;
 				} else {
 					r=Ext.getCmp('RenewPlanTable').getSelectionModel().getSelection()[0];
@@ -805,7 +836,10 @@ Ext.define('app.controller.RenewPlan', {
 			"edit",
 			function(editor, e, eOpts){
 				controller.detailColumn = e.colIdx;
-				if(e.colIdx==11 || e.colIdx==18){
+				if(
+					renewPlanGoodsTable.columns[e.colIdx].text=='Факт' ||
+					renewPlanGoodsTable.columns[e.colIdx].text=='Машина'
+				){
 					controller.computeGroupInfo();
 				}
 			}
@@ -947,6 +981,21 @@ Ext.define('app.controller.RenewPlan', {
 		};
 	},
 	
+	changeIntSorter: function(column, tableStore, property){
+		function transform(v){
+			return (v!=null)?v:Number.NEGATIVE_INFINITY;
+		};
+		
+		column.doSort = function(state){
+			tableStore.sort({
+				property: property,
+				transform: transform,
+				direction: state
+			});
+			return true;
+		};
+	},
+	
 	initTables: function(){
 		var controller=this,
 			renewPlanTable = Ext.getCmp('RenewPlanTable'),
@@ -965,6 +1014,9 @@ Ext.define('app.controller.RenewPlan', {
 		controller.makeComboColumn(siteToColumn, controller.sitesStore, controller.masterStore, 'site_to');
 		controller.makeComboColumn(PlanTypeColumn, controller.renewPlanTypesStore, controller.masterStore, 'renew_plan_type_id', true, true);
 		controller.makeComboColumn(siteToStorageColumn, controller.siteToStoragesStore, controller.masterStore, 'site_to_storage', true, true);
+		
+		controller.changeIntSorter(donevolColumn, controller.detailStore, 'donevol');
+		controller.changeIntSorter(renewPlanGoodsTable.columns[10], controller.detailStore, 'volume');
 		
 		function goodsRenderer(value, metaData, record){
 			return record.get('goods_name');
