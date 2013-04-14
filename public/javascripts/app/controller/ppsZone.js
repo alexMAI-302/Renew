@@ -144,6 +144,7 @@ Ext.define('app.controller.ppsZone', {
 					},
 					{
 						header: 'Частота',
+						width: 60,
 						dataIndex: 'visit_freq',
 						field: {
 							xtype: 'numberfield'
@@ -151,6 +152,7 @@ Ext.define('app.controller.ppsZone', {
 					},
 					{
 						header: 'Статус',
+						width: 50,
 						dataIndex: 'status',
 						field: {
 							xtype: 'numberfield'
@@ -158,6 +160,7 @@ Ext.define('app.controller.ppsZone', {
 					},
 					{
 						header: 'Граница #',
+						width: 60,
 						dataIndex: 'bound_notes',
 						field: {
 							xtype: 'numberfield'
@@ -165,13 +168,14 @@ Ext.define('app.controller.ppsZone', {
 					},
 					{
 						header: 'Граница $',
+						width: 60,
 						dataIndex: 'bound_summ',
 						field: {
 							xtype: 'numberfield'
 						}
 					},
 					{
-						header: 'Тип зоны (техники или инкассаторы)',
+						header: 'Тип зоны',
 						dataIndex: 'spv_id',
 						renderer: function(value){
 							var matching = zoneTypesStore.queryBy(
@@ -189,6 +193,7 @@ Ext.define('app.controller.ppsZone', {
 					},
 					{
 						header: 'Отделение банка',
+						width: 130,
 						dataIndex: 'branch',
 						renderer: function(value){
 							var matching = branchesStore.queryBy(
@@ -205,7 +210,8 @@ Ext.define('app.controller.ppsZone', {
 						})
 					},
 					{
-						header: 'Оплачиваемость переработки',
+						header: 'Оплачиваемость<br/>переработки',
+						width: 100,
 						dataIndex: 'overtime_payment',
 						xtype: 'checkcolumn'
 					}
@@ -234,7 +240,8 @@ Ext.define('app.controller.ppsZone', {
 				{
 					header: 'Идентификатор',
 					dataIndex: 'id',
-					hidden: true},
+					hidden: true
+				},
 				{
 					header: 'Наименование',
 					dataIndex: 'name',
@@ -244,6 +251,8 @@ Ext.define('app.controller.ppsZone', {
 				},
 				{
 					header: 'мо #',
+					width: 60,
+					hidden: true,
 					dataIndex: 'avg_notes',
 					field: {
 						xtype: 'numberfield'
@@ -251,6 +260,8 @@ Ext.define('app.controller.ppsZone', {
 				},
 				{
 					header: 'ско #',
+					width: 60,
+					hidden: true,
 					dataIndex: 'stdev_notes',
 					field: {
 						xtype: 'numberfield'
@@ -258,13 +269,16 @@ Ext.define('app.controller.ppsZone', {
 				},
 				{
 					header: 'Граница #',
+					width: 60,
 					dataIndex: 'bound_notes',
 					field: {
 						xtype: 'numberfield'
 					}
 				},
 				{
-					header: 'Граница (расчет) #',
+					header: 'Граница<br/>(расчет) #',
+					width: 60,
+					hidden: true,
 					dataIndex: 'opt_bound',
 					field: {
 						xtype: 'numberfield'
@@ -272,6 +286,8 @@ Ext.define('app.controller.ppsZone', {
 				},
 				{
 					header: 'мо $',
+					width: 60,
+					hidden: true,
 					dataIndex: 'avg_summ',
 					field: {
 						xtype: 'numberfield'
@@ -279,6 +295,8 @@ Ext.define('app.controller.ppsZone', {
 				},
 				{
 					header: 'ско $',
+					width: 60,
+					hidden: true,
 					dataIndex: 'stdev_summ',
 					field: {
 						xtype: 'numberfield'
@@ -286,13 +304,16 @@ Ext.define('app.controller.ppsZone', {
 				},
 				{
 					header: 'граница $',
+					width: 60,
 					dataIndex: 'bound_summ',
 					field: {
 						xtype: 'numberfield'
 					}
 				},
 				{
-					header: 'Граница (расчет) $',
+					header: 'Граница<br/>(расчет) $',
+					width: 60,
+					hidden: true,
 					dataIndex: 'opt_bound_summ',
 					field: {
 						xtype: 'numberfield'
@@ -301,11 +322,12 @@ Ext.define('app.controller.ppsZone', {
 				{
 					xtype: 'checkcolumn',
 					header : 'Обязательная',
+					width: 90,
 					dataIndex: 'required'
 				},
 				{
 					xtype:'actioncolumn',
-					width:50,
+					width:25,
 					items: [{
 						getClass: getTerminalClass,
 						handler: function(view, rowIndex, colIndex) {
@@ -329,6 +351,7 @@ Ext.define('app.controller.ppsZone', {
 				},
 				{
 					header: 'Система',
+					width: 60,
 					dataIndex: 'src_system_name',
 					disabled: true
 				}
@@ -598,7 +621,7 @@ Ext.define('app.controller.ppsZone', {
 		filterContainer.add(zoneTypesCombo);
 		
 		var mainContainer=Ext.create('Ext.panel.Panel', {
-			height: 1000,
+			height: 800,
 			layout: 'border',
 			split: true,
 			resizable: true,
@@ -617,26 +640,22 @@ Ext.define('app.controller.ppsZone', {
 				},
 				items: [
 					zonesPanel,
-					terminalTabs,
-					{
-						region: 'south',
-						xtype: 'panel',
-						layout: 'border',
-						tbar: [saveZonePointsButton],
-						items:[
-							{
-								region: 'center',
-								xtype: 'panel',
-								items: {
-									html: '<div id="YMapsID"/>'
-								},
-								height: '100%'
-							}
-						],
-						split: true,
-						height: '33%'
-					}
+					terminalTabs
 				]
+			},
+			{
+				region: 'east',
+				height: '100%',
+				width: '50%',
+				xtype: 'panel',
+				tbar: [saveZonePointsButton],
+				split: true,
+				items:[{
+					width: '100%',
+					height: '100%',
+					xtype: 'container',
+					id: 'ppsZoneMap'				
+				}]
 			}],
 			renderTo: Ext.get('pps_zone_js'),
 		});
@@ -646,7 +665,7 @@ Ext.define('app.controller.ppsZone', {
 		
 		ymaps.ready(function(){
             // Создание экземпляра карты и его привязка к созданному контейнеру
-            map = new ymaps.Map("YMapsID",
+            map = new ymaps.Map("ppsZoneMap",
             	{
 			        // Центр карты
 			        center: center,
