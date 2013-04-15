@@ -415,6 +415,8 @@ Ext.define('app.controller.mag', {
 								errorField.show();
 							}
 						}
+						
+						field.focus();
 					}
 						
 					return true;
