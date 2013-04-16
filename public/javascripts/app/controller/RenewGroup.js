@@ -24,7 +24,12 @@ Ext.define('app.controller.RenewGroup', {
 
 			//Синхронизация выполняется из двух мест (из коллбека синхронизации мастера или (если в мастере нечего синхронихировать) самостоятельно по кнопке "Сохранить")
 			//что бы не прописывать каждый раз коллбеки создадим новый метод detailSync()
-			detailSync: function() {
+			detailSync: function(id_name, id) {
+				//Установить новым строкам ссылку на мастре
+				for(i=0; i<this.getNewRecords().length; i++) {
+					this.getNewRecords()[i].set(id_name, id);
+				};
+			
 				if ((this.getNewRecords().length > 0) || (this.getUpdatedRecords().length > 0) || (this.getRemovedRecords().length > 0)) 
 					this.sync({
 						success: function(batch, options) {
@@ -52,7 +57,12 @@ Ext.define('app.controller.RenewGroup', {
 
 			//Синхронизация выполняется из двух мест (из коллбека синхронизации мастера или (если в мастере нечего синхронихировать) самостоятельно по кнопке "Сохранить")
 			//что бы не прописывать каждый раз коллбеки создадим новый метод detailSync()
-			detailSync: function() {
+			detailSync: function(id_name, id) {
+				//Установить новым строкам ссылку на мастре
+				for(i=0; i<this.getNewRecords().length; i++) {
+					this.getNewRecords()[i].set(id_name, id);
+				};
+				
 				if ((this.getNewRecords().length > 0) || (this.getUpdatedRecords().length > 0) || (this.getRemovedRecords().length > 0)) 
 					this.sync({
 						success: function(batch, options) {
@@ -177,14 +187,13 @@ Ext.define('app.controller.RenewGroup', {
 			},
         });
 	},
-	
 
 	onMasterSelectionchange: function(view, records) {
-		var store = detailPanel.getStore(),
+		var store    = detailPanel.getStore(),
 		    urlStore = detailUrlPanel.getStore();
 
 
-		if (records.length == 1) {
+		if (records!=null && records.length == 1) {
 			masterId = records[0].get("id");
 			
 			if (!records[0].phantom) {				
@@ -194,11 +203,11 @@ Ext.define('app.controller.RenewGroup', {
 				}
 
 				store.proxy.extraParams = {
-					renew_user_group_id: masterId
+					user_group_master_id: masterId
 				};
 				
 				urlStore.proxy.extraParams = {
-					renew_user_group_id: masterId
+					user_group_master_id: masterId
 				};
 
 				store.load(
@@ -248,11 +257,11 @@ Ext.define('app.controller.RenewGroup', {
 				)
 			}
 			else {  //У фантомных строк не может быть записей в базе, поэтому просто очищаем детей. Например, строка сменилась в результате добавления строки
-				store.removeAll(false);
-				urlStore.removeAll(false)
-				
 				store.proxy.extraParams = {};
+				store.loadData([], false);
+				
 				urlStore.proxy.extraParams = {};
+				urlStore.loadData([], false);
 			}
 		}
 	},
@@ -265,9 +274,6 @@ Ext.define('app.controller.RenewGroup', {
 		    model = new store.model;
 
 		cellEditing.cancelEdit();
-
-		//Сгенерить новый id
-		model.set('id',this.getId());
 
 		store.insert(Math.max(index, 0), model);
 		sm.select(model)
@@ -301,9 +307,6 @@ Ext.define('app.controller.RenewGroup', {
 
 		cellEditing.cancelEdit();
 
-		//Установить id из мастера
-		model.set('renew_user_group_id', masterId);
-
 		store.insert(Math.max(index, 0), model);
 		sm.select(model)
 		cellEditing.startEdit(model, 0);
@@ -333,11 +336,7 @@ Ext.define('app.controller.RenewGroup', {
 		    cellEditing = detailUrlPanel.getPlugin('cellEditing')
 		    model = new store.model
 
-
 		cellEditing.cancelEdit();
-
-		//Установить id из мастера
-		model.set('renew_user_group_id', masterId);
 
 		store.insert(Math.max(index, 0), model);
 		sm.select(model)
@@ -375,8 +374,15 @@ Ext.define('app.controller.RenewGroup', {
 		if ((masterStore.getNewRecords().length > 0) || (masterStore.getUpdatedRecords().length > 0) || (masterStore.getRemovedRecords().length > 0))
 			masterStore.sync({
 				success: function(batch, options) {
-					detailStore.detailSync();
-					detailUrlStore.detailSync();					
+					detailStore.detailSync(
+						"renew_user_group_id",
+						panel.getSelectionModel().getLastSelected().get("id")
+					);
+					
+					detailUrlStore.detailSync(
+						"renew_user_group_id",
+						panel.getSelectionModel().getLastSelected().get("id")
+					);			
 				},
 				failure: function(batch, options) {
 					Ext.Msg.alert('Ошибка', batch.exceptions[0].error + '<br/>Всего ошибок: ' + batch.exceptions.length)
@@ -384,30 +390,15 @@ Ext.define('app.controller.RenewGroup', {
 				}
 			})
 		else {
-			detailStore.detailSync();
-			detailUrlStore.detailSync();
-		}
-	},
-
-	getId: function() {
-		var ret;
-
-		panel.setLoading(true);
-
-		Ext.Ajax.request({
-			async: false,
-			url: '/renew_users/get_group_id',
-			success: function(response){
-				var response_json = Ext.JSON.decode(response.responseText, true);
-				ret = response_json.id;
-				panel.setLoading(false)
-			},
-			failure: function(response) {
-				Ext.Msg.alert('Ошибка', response.responseText);
-				ret = null;
-				panel.setLoading(false)
-			}
-		});
-		return ret;
-	},
+			detailStore.detailSync(
+				"renew_user_group_id",
+				panel.getSelectionModel().getLastSelected().get("id")
+			);
+					
+			detailUrlStore.detailSync(
+				"renew_user_group_id",
+				panel.getSelectionModel().getLastSelected().get("id")
+			);
+		};
+	}
 });

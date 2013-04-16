@@ -21,8 +21,13 @@ Ext.define('app.controller.RenewUser', {
 
 			//Синхронизация выполняется из двух мест (из коллбека синхронизации мастера или (если в мастере нечего синхронихировать) самостоятельно по кнопке "Сохранить")
 			//что бы не прописывать каждый раз коллбеки создадим новый метод detailSync()
-			detailSync: function() {
-				if ((this.getNewRecords().length > 0) || (this.getUpdatedRecords().length > 0) || (this.getRemovedRecords().length > 0)) 
+			detailSync: function(id_name, id) {
+				//Установить новым строкам ссылку на мастре
+				for(i=0; i<this.getNewRecords().length; i++) {
+					this.getNewRecords()[i].set(id_name, id);
+				};
+			
+				if ((this.getNewRecords().length > 0) || (this.getUpdatedRecords().length > 0) || (this.getRemovedRecords().length > 0))
 					this.sync({
 						success: function(batch, options) {
 							mainPanel.setLoading(false)
@@ -34,16 +39,12 @@ Ext.define('app.controller.RenewUser', {
 					});
 				else
 					mainPanel.setLoading(false)
-			}
+			},
 		});
-
-		
-
-
 
 		mainPanel = Ext.create('Ext.panel.Panel', {
 			renderTo: Ext.get('renew_user_js'),
-			
+
 			height: 500,
 			layout: 'border',
 
@@ -73,7 +74,7 @@ Ext.define('app.controller.RenewUser', {
 
 
 		mainPanel.setLoading(true);
-		detailNeedLoading = false; //false означает, что идет первый load. в этом случае setLoading общий для мастера и для детейла 
+		detailNeedLoading = false; //false означает, что идет первый load. в этом случае setLoading общий для мастера и для детейла
 		                           //и не надо отдельно setLoading детейл, когда selectionchange мастер
 
 		masterStore.load(
@@ -90,14 +91,14 @@ Ext.define('app.controller.RenewUser', {
 		);
 
 
-		this.control({	
-			'#masterPanelId': {				
+		this.control({
+			'#masterPanelId': {
 				selectionchange: this.onMasterSelectionchange
-			},		
+			},
 			'#masterPanelId > toolbar > #add': {
 				click: this.onMasterAdd
 			},
-			
+
 			'#masterPanelId > toolbar > #delete': {
 				click: this.onMasterDelete
 			},
@@ -106,26 +107,25 @@ Ext.define('app.controller.RenewUser', {
 			},
 			'#detailPanelId > toolbar > #delete': {
 				click: this.onDetailDelete
-			},			
+			},
 			'#submit': {
 				click: this.onSubmit
 			},
         });
 	},
-	
 
 	onMasterSelectionchange: function(view, records) {
 		var store = detailPanel.getStore();
 
-		if (records.length == 1) {
-			if (!records[0].phantom) {				
+		if (records!=null && records.length == 1) {
+			if (!records[0].phantom) {
 				if (detailNeedLoading)
 					detailPanel.setLoading(true);
 
 				masterId = records[0].get("id");
 
 				store.proxy.extraParams = {
-					renew_user_id: masterId
+					user_master_id: masterId //будет слаться на сервак при всех типах запросов, но нужен  только при get
 				};
 
 				store.load(
@@ -140,16 +140,16 @@ Ext.define('app.controller.RenewUser', {
 
 						if (detailNeedLoading)
 							detailPanel.setLoading(false);
-						else {						
+						else {
 							mainPanel.setLoading(false);
 							detailNeedLoading = true;
 						}
-						
 					}
 				)
 			}
 			else {  //У фантомных строк не может быть записей в базе, поэтому просто очищаем детей. Например, строка сменилась в результате добавления строки
-				store.removeAll(false)
+				store.proxy.extraParams = {} //Параметры нужны только для ретрива. у новых строк нечего ретривить. очистим параметры
+				store.loadData([], false)    //Раньше был store.removeAdd(), но с переходом на Sencha 4.2 он стал не очищать store, а физически удалять (при Sync шлются delete на сервер)
 			}
 		}
 	},
@@ -162,9 +162,6 @@ Ext.define('app.controller.RenewUser', {
 		    model = new store.model;
 
 		cellEditing.cancelEdit();
-
-		//Сгенерить новый id
-		model.set('id',this.getId());
 
 		store.insert(Math.max(index, 0), model);
 		sm.select(model)
@@ -198,9 +195,6 @@ Ext.define('app.controller.RenewUser', {
 
 		cellEditing.cancelEdit();
 
-		//Установить id из мастера
-		model.set('renew_user_id', masterId);
-
 		store.insert(Math.max(index, 0), model);
 		sm.select(model)
 		cellEditing.startEdit(model, 0);
@@ -225,16 +219,19 @@ Ext.define('app.controller.RenewUser', {
 
 	onSubmit: function(button) {
 		var masterStore = panel.getStore()
-		    detailStore = detailPanel.getStore();
-			
+		    detailStore = detailPanel.getStore(),
+
 		mainPanel.setLoading(true);
-	
+
 		//Если требуется синхронизация мастера, то синхрим его, и в случае успешного завершения - синхрим детейл, иначе синхрим тольк детейл
 		//Синхрим детейл в двух местах, потому что если нечего синхрить в мастере, что коллбэки не вызовутся.
 		if ((masterStore.getNewRecords().length > 0) || (masterStore.getUpdatedRecords().length > 0) || (masterStore.getRemovedRecords().length > 0))
 			masterStore.sync({
 				success: function(batch, options) {
-					detailStore.detailSync();
+					detailStore.detailSync(
+						"renew_user_id",
+						panel.getSelectionModel().getLastSelected().get("id")
+					);
 				},
 				failure: function(batch, options) {
 					Ext.Msg.alert('Ошибка', batch.exceptions[0].error + '<br/>Всего ошибок: ' + batch.exceptions.length)
@@ -242,29 +239,11 @@ Ext.define('app.controller.RenewUser', {
 				}
 			})
 		else
-			detailStore.detailSync()
-	},
-
-	getId: function() {
-		var ret;
-
-		panel.setLoading(true);
-
-		Ext.Ajax.request({
-			async: false,
-			url: '/renew_users/get_user_id',
-			success: function(response){
-				var response_json = Ext.JSON.decode(response.responseText, true);
-				ret = response_json.id;
-				panel.setLoading(false)
-			},
-			failure: function(response) {
-				Ext.Msg.alert('Ошибка', response.responseText);
-				ret = null;
-				panel.setLoading(false)
-			}
-		});
-		return ret;
-	},
-
+		{
+			detailStore.detailSync(
+				"renew_user_id",
+				panel.getSelectionModel().getLastSelected().get("id")
+			);
+		}
+	}
 });
