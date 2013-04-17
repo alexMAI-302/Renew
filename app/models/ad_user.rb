@@ -11,7 +11,7 @@ class AdUser
     make_ldap_query do |ldap, conf|
       name += conf["prefix"] if not name[conf["prefix"]]
       user = find({:userprincipalname => name}, ldap)
-      if RenewUser.find(:first, :conditions => ["name = ?", name]).nil?
+      if RenewUser.find(:first, :conditions => ["name = ?", name]).nil? && !(user.nil?)
         RenewUser.create(:name => name)
       end
       ldap.auth name, password
