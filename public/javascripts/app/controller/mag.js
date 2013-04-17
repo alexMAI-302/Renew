@@ -211,11 +211,12 @@ Ext.define('app.controller.mag', {
 	},
 	
 	palmSaleSelect: function(r, print){
-		var controller=this;
+		var controller=this,
+			palmSaleOrderItemsTable = Ext.getCmp('PalmSaleOrderItemsTable');
 		controller.palmSaleItemsStore.removeAll();
 					
 		if(r != null){
-			Ext.getCmp('palmSaleOrderItemsTable').setLoading(true);
+			palmSaleOrderItemsTable.setLoading(true);
 			if(r.get('id') < 0){
 				controller.palmSaleItemsLocalStore.data.each(function(record){
 					if(record.get('sale_id')==-r.get('id')){
@@ -224,9 +225,9 @@ Ext.define('app.controller.mag', {
 					return true;
 				});
 				if(print){
-					controller.print('palmSaleOrderItemsTable');
+					controller.print('PalmSaleOrderItemsTable');
 				}
-				Ext.getCmp('palmSaleOrderItemsTable').setLoading(false);
+				palmSaleOrderItemsTable.setLoading(false);
 			} else {
 				Ext.Ajax.request({
 					url: '/new_mag/palm_sale_items',
@@ -258,12 +259,12 @@ Ext.define('app.controller.mag', {
 							});
 							
 							if(print){
-								controller.print('palmSaleOrderItemsTable');
+								controller.print('PalmSaleOrderItemsTable');
 							}
 						} else {
 							controller.showServerError(response.responseText);
 						}
-						Ext.getCmp('palmSaleOrderItemsTable').setLoading(false);
+						Ext.getCmp('PalmSaleOrderItemsTable').setLoading(false);
 					}
 				});
 			}
@@ -272,8 +273,8 @@ Ext.define('app.controller.mag', {
 	
 	filterPalmSales: function(button, e, eOpts){
 		var controller = this,
-			palmSaleOrdersTable = Ext.getCmp('palmSaleOrdersTable'),
-			palmSaleOrderItemsTable = Ext.getCmp('palmSaleOrderItemsTable'),
+			palmSaleOrdersTable = Ext.getCmp('PalmSaleOrdersTable'),
+			palmSaleOrderItemsTable = Ext.getCmp('PalmSaleOrderItemsTable'),
 			ddateb=Ext.getCmp('ddatebPalmSales').getValue(),
 			ddatee=Ext.getCmp('ddateePalmSales').getValue(),
 			ddatee1=Ext.Date.add(ddatee, Ext.Date.DAY, 1);
@@ -431,7 +432,7 @@ Ext.define('app.controller.mag', {
 			},
 			'#savePrintCurrentPalmSale': {
 				click: function(button, e, eOpts){
-					controller.print('currentPalmSaleTable');
+					controller.print('CurrentPalmSaleTable');
 					
 					controller.saveCurrentPalmSale();
 					
@@ -441,7 +442,7 @@ Ext.define('app.controller.mag', {
 			'#filterPalmSales': {
 				click: controller.filterPalmSales
 			},
-			'#palmSaleOrdersTable': {
+			'#PalmSaleOrdersTable': {
 				selectionchange: function(sm, selected, eOpts){
 					var r=selected[0];
 					
@@ -483,7 +484,10 @@ Ext.define('app.controller.mag', {
 	
 	onLaunch: function(){
 		var controller = this,
-			cellEditingPalmSale = Ext.getCmp('currentPalmSaleTable').getPlugin('cellEditingPalmSale'),
+			currentPalmSaleTable = Ext.getCmp('CurrentPalmSaleTable'),
+			palmSaleOrdersTable = Ext.getCmp('PalmSaleOrdersTable'),
+			palmSaleOrderItemsTable = Ext.getCmp('PalmSaleOrderItemsTable'),
+			cellEditingPalmSale = currentPalmSaleTable.getPlugin('celleditingCurrentPalmSale'),
 			goodsData = eval('('+localStorage.getItem('unactmag-goods')+')');
 
 		Ext.tip.QuickTipManager.init();
@@ -514,7 +518,7 @@ Ext.define('app.controller.mag', {
 		);
 		
 		//ХАРДКОД НОМЕРА КОЛОНКИ!!! колонка удаления позиции в таблице текущего заказа
-		Ext.getCmp('currentPalmSaleTable').columns[6].handler=function(view, rowIndex, colIndex) {
+		currentPalmSaleTable.columns[6].handler=function(view, rowIndex, colIndex) {
 			var currentRecord=view.store.getAt(rowIndex);
 			cellEditingPalmSale.cancelEdit();
 			
@@ -525,22 +529,22 @@ Ext.define('app.controller.mag', {
 		};
 		
 		//ХАРДКОД НОМЕРА КОЛОНКИ!!! колонка печати заказа в таблице заказов
-		Ext.getCmp('palmSaleOrdersTable').columns[4].handler=function(view, rowIndex, colIndex) {
+		palmSaleOrdersTable.columns[4].handler=function(view, rowIndex, colIndex) {
 			var
-				sel=Ext.getCmp('palmSaleOrdersTable').getSelectionModel().getSelection(),
+				sel=Ext.getCmp('PalmSaleOrdersTable').getSelectionModel().getSelection(),
 				current=view.store.getAt(rowIndex);
 				
 			if(sel!=null && (sel[0]==null || sel[0].get('id')!=current.get('id')) ){
 				controller.palmSaleSelect(current, true);
 			} else {
-				controller.print('palmSaleOrderItemsTable');
+				controller.print('PalmSaleOrderItemsTable');
 			}
 		};
 		
 		//ХАРДКОД НОМЕРА КОЛОНКИ!!! колонка удаления заказа в таблице заказов
-		Ext.getCmp('palmSaleOrdersTable').columns[5].handler=function(view, rowIndex, colIndex) {
-			var
-				sel=Ext.getCmp('palmSaleOrdersTable').getSelectionModel().getSelection(),
+		palmSaleOrdersTable.columns[5].handler=function(view, rowIndex, colIndex) {
+			var palmSaleOrdersTable = Ext.getCmp('PalmSaleOrdersTable'),
+				sel=palmSaleOrdersTable.getSelectionModel().getSelection(),
 				current=view.store.getAt(rowIndex);
 			
 			//если заказ нельзя удалять, то не удалять
@@ -554,7 +558,7 @@ Ext.define('app.controller.mag', {
 				}
 				//иначе отправить запрос на уделение
 				else {
-					Ext.getCmp('palmSaleOrdersTable').setLoading(true);
+					palmSaleOrdersTable.setLoading(true);
 					Ext.Ajax.request({
 						url: '/new_mag/palm_sale',
 						timeout: 300000,
@@ -568,7 +572,7 @@ Ext.define('app.controller.mag', {
 							} else {
 								controller.showServerError(response.responseText);
 							}
-							Ext.getCmp('palmSaleOrdersTable').setLoading(false);
+							palmSaleOrdersTable.setLoading(false);
 						}
 					});
 				}
@@ -576,7 +580,7 @@ Ext.define('app.controller.mag', {
 				view.store.remove(current);
 				
 				if(view.store.getCount()>0){
-					Ext.getCmp('palmSaleOrdersTable').getSelectionModel().select(0);
+					palmSaleOrdersTable.getSelectionModel().select(0);
 				}
 			}
 		};
@@ -610,9 +614,9 @@ Ext.define('app.controller.mag', {
 		
 		controller.salesToSync=controller.palmSalesLocalStore.getCount();
 		
-		Ext.getCmp('currentPalmSaleTable').reconfigure(controller.currentPalmSaleItemsLocalStore);
-		Ext.getCmp('palmSaleOrdersTable').reconfigure(controller.palmSalesStore);
-		Ext.getCmp('palmSaleOrderItemsTable').reconfigure(controller.palmSaleItemsStore);
-		Ext.getCmp('goodsTable').reconfigure(controller.goodsStore);
+		currentPalmSaleTable.reconfigure(controller.currentPalmSaleItemsLocalStore);
+		palmSaleOrdersTable.reconfigure(controller.palmSalesStore);
+		palmSaleOrderItemsTable.reconfigure(controller.palmSaleItemsStore);
+		Ext.getCmp('GoodsTable').reconfigure(controller.goodsStore);
 	}
 });

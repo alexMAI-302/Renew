@@ -22,17 +22,13 @@ Ext.define('app.controller.DelordDelMisc', {
 			}
 		});
 	
-		panel = Ext.create('app.view.delordDelMisc.DelordDelMisc', {
-			renderTo: Ext.get('delord_del_misc_js'),
-			layut: 'fit',
-			store: store,
-		});
-
-		store       = panel.getStore()
-		cellEditing = panel.getPlugin('cellEditing')
+		panel = Ext.create('app.view.delordDelMisc.DelordDelMisc');
+		panel.reconfigure(store);
+		
+		cellEditing = panel.getPlugin('celleditingDelordDelMisc');
 		sm          = panel.getSelectionModel();
 		
-		panel.setLoading(true)
+		panel.setLoading(true);
 		
 		store.load(
 			function(records, operation, success){
@@ -42,16 +38,18 @@ Ext.define('app.controller.DelordDelMisc', {
 
 				panel.setLoading(false);
 			}
-		)
+		);
+		
+		Ext.getCmp('deleteDelordDelMisc').setDisabled(false);
 		
 		this.control({
-			'#add': {
+			'#addDelordDelMisc': {
 				click: this.onAdd
 			},
-			'#remove': {
+			'#deleteDelordDelMisc': {
 				click: this.onRemove
 			},
-			'#submit': {
+			'#saveDelordDelMisc': {
 				click: this.onSubmit
 			}
         });
@@ -64,12 +62,12 @@ Ext.define('app.controller.DelordDelMisc', {
 		cellEditing.cancelEdit();		
 		
 		store.insert(Math.max(index, 0), model);
-		sm.select(model)
+		sm.select(model);
 		cellEditing.startEdit(model, 0);
 	},
 	
 	onRemove: function(button) {
-		var index = store.indexOf(sm.getLastSelected())
+		var index = store.indexOf(sm.getLastSelected());
 
 		if (index>=0) {
 			cellEditing.cancelEdit();

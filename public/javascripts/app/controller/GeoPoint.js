@@ -119,8 +119,7 @@ Ext.define('app.controller.GeoPoint', {
 							r.point.events.add("click", function (mEvent) {
 								var table = Ext.getCmp('GeoPointTable');
 								
-								//table.getSelectionModel().select(r);
-								table.getPlugin('bufferedRendererGeoPoint').scrollTo(
+								table.getPlugin('bufferedrendererGeoPoint').scrollTo(
 									controller.masterStore.indexOf(r),
 									true
 								);

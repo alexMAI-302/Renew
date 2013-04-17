@@ -10,6 +10,7 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 		xtype: 'simpleGrid',
 		suffix: 'RenewPlanGoods',
 		disableDeleteColumn: true,
+		enableBuffering: true,
 		height: 300,
 		columnLines: true,
 		beforeButtons: [{
@@ -50,18 +51,6 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 				return record.get('row_class');
 			}
 		},
-		plugins: [
-			{
-				ptype: 'bufferedrenderer',
-				trailingBufferZone: 20,
-				leadingBufferZone: 50
-			},
-			{
-				ptype: 'cellediting',
-				clicksToEdit : 1,
-				pluginId : 'cellEditingRenewPlanGoods'
-			}
-		],
 		columns: [
 			{
 				width: 300,

@@ -415,7 +415,7 @@ Ext.define('app.controller.RenewPlan', {
 				k_rem: 0.5
 			}, 'app.model.RenewPlan.RenewPlanModel');
 		controller.masterStore.insert(0, r);
-		renewPlanTable.getPlugin('rowEditingRenewPlan').startEdit(r, 0);
+		renewPlanTable.getPlugin('roweditingRenewPlan').startEdit(r, 0);
 	},
 	
 	deleteRenewPlan: function(){
@@ -759,9 +759,10 @@ Ext.define('app.controller.RenewPlan', {
 			}
 		});
 		
-		var renewPlanPlugin = Ext.getCmp('RenewPlanTable').getPlugin('rowEditingRenewPlan'),
+		var renewPlanTable = Ext.getCmp('RenewPlanTable'),
+			renewPlanPlugin = renewPlanTable.getPlugin('roweditingRenewPlan'),
 			renewPlanGoodsTable = Ext.getCmp('RenewPlanGoodsTable'),
-			renewPlanGoodsPlugin = renewPlanGoodsTable.getPlugin('cellEditingRenewPlanGoods');
+			renewPlanGoodsPlugin = renewPlanGoodsTable.getPlugin('celleditingRenewPlanGoods');
 			
 		renewPlanGoodsTable.getView().addListener(
 			"itemkeydown",
@@ -1059,7 +1060,7 @@ Ext.define('app.controller.RenewPlan', {
 			if(key==e.UP || key==e.DOWN){
 				var direction = (key==e.UP)? -1 : (key==e.DOWN ? 1 : 0),
 					index = controller.detailStore.indexOf(r) + direction,
-					editingPlugin = renewPlanGoodsTable.getPlugin('cellEditingRenewPlanGoods');
+					editingPlugin = renewPlanGoodsTable.getPlugin('celleditingRenewPlanGoods');
 				
 				e.stopEvent();
 				if(index>=0 && index<controller.detailStore.getCount()){

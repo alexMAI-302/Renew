@@ -95,7 +95,7 @@ Ext.define('app.controller.Comp', {
 				click: function(){
 					var r = Ext.ModelManager.create({serial:'бн'}, 'app.model.Comp.ComponentModel');
 					controller.compStore.add(r);
-					Ext.getCmp('CompTable').getPlugin('rowEditingComp').startEdit(r, 0);
+					Ext.getCmp('CompTable').getPlugin('roweditingComp').startEdit(r, 0);
 					Ext.getCmp('addComp').setDisabled(true);
 				}
 			},
@@ -154,7 +154,7 @@ Ext.define('app.controller.Comp', {
 			}
 		});
 		
-		Ext.getCmp('CompTable').getPlugin('rowEditingComp').addListener(
+		Ext.getCmp('CompTable').getPlugin('roweditingComp').addListener(
 			"edit",
 			function(editor, e, eOpts){
 				controller.compStore.proxy.extraParams={};
@@ -172,7 +172,7 @@ Ext.define('app.controller.Comp', {
 				return true;
 			}
 		);
-		Ext.getCmp('CompTable').getPlugin('rowEditingComp').addListener(
+		Ext.getCmp('CompTable').getPlugin('roweditingComp').addListener(
 			"canceledit",
 			function(editor, e, eOpts){
 				if(e.record.phantom){
