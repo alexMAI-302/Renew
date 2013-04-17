@@ -156,11 +156,11 @@ Ext.define('app.controller.movementDiff', {
 				}
 			},
 			'#siteSrcAction, #siteDestAction, #ndocSOAction, #ndocSupAction': {
-				"show": controller.onActionComboEvent,
-				"change": controller.onActionComboEvent
+				show: controller.onActionComboEvent,
+				change: controller.onActionComboEvent
 			},
 			'#clearDiff': {
-				"click": function(button, e){
+				click: function(button, e){
 					var ids = [];
 					
 					switch(button.ownerCt.down('#actionType').value){
@@ -228,7 +228,7 @@ Ext.define('app.controller.movementDiff', {
 				}
 			},
 			'#filterDiffs': {
-				'click': controller.loadMovementDiff
+				click: controller.loadMovementDiff
 			}
 		});
 		

@@ -5,28 +5,35 @@ Ext.define('app.view.Lib.Grid.Panel', {
 	/**
 	 * Creates the Proxy
 	 * @param {Object} config Config object.
-	 * suffix - специальное имя для компонента. используется при построении идентификатора объектов
-	 * disable* - не использовать данную кнопку
+	 * suffix - специальное имя для компонента. используется при построении идентификатора объектов и плагинов
+	 * disable* - не использовать данную кнопку или функцию
 	 * beforeButtons - дополнительные элементы для панели, располагающиеся перед основными кнопками
 	 * afterButtons - дополнительные элементы для панели, располагающиеся после основных кнопок
 	 * disableEditing - таблица нередактируемая. По умолчанию используется редактирование ячеек
 	 * disableDeleteColumn - не добавлять колонку удаления позиций. По умолчанию добавляется
+	 * enableBuffering - использовать плагин для буферизованного вывода записей. когда записей больше 1000, это полезно.
+	 * extraPlugins - дополнительные плагины помимо плагинов редактирования и буферизованного вывода.
 	 */
 	constructor : function(currentConfig) {
-		var initConfig = this.getInitialConfig() || {};
+		var initConfig = this.getInitialConfig() || {},
+			plugins,
+			buttons = [],
+			i;
+		
 		currentConfig=currentConfig || {};
 		config = {};
-		for(var i in initConfig){
+		for(i in initConfig){
 			config[i]=initConfig[i];
 		}
 		
-		for(var i in currentConfig){
+		for(i in currentConfig){
 			config[i]=currentConfig[i];
 		}
 		
-		var buttons = [];
+		plugins = config.plugins || [];
+		
 		if(config.beforeButtons!=null){
-			for(var i=0; i<config.beforeButtons.length; i++){
+			for(i=0; i<config.beforeButtons.length; i++){
 				buttons.push(config.beforeButtons[i]);
 			}
 		}
@@ -70,7 +77,7 @@ Ext.define('app.view.Lib.Grid.Panel', {
 		}
 		
 		if(config.afterButtons!=null){
-			for(var i=0; i<config.afterButtons.length; i++){
+			for(i=0; i<config.afterButtons.length; i++){
 				buttons.push(config.afterButtons[i]);
 			}
 		}
@@ -86,18 +93,69 @@ Ext.define('app.view.Lib.Grid.Panel', {
 		};
 		
 		if(config.disableEditing!==true){
-			config.plugins = config.plugins || [
-				(config.editing=='row')?
-				Ext.create('Ext.grid.plugin.RowEditing', {
-					clicksToEdit : 2,
-					pluginId : 'rowEditing'+config.suffix
-				}):
-				Ext.create('Ext.grid.plugin.CellEditing', {
-					clicksToEdit : 1,
-					pluginId : 'cellEditing'+config.suffix
-				})
-			];
+			var hasEditingPlugin=false,
+				hasBufferPlugin=false;
+			
+			for(i=0; i<plugins.length; i++){
+				if(plugins[i].ptype == 'rowediting' || plugins[i].ptype == 'cellediting'){
+					hasEditingPlugin=true;
+					break;
+				}
+			}
+			if(!hasEditingPlugin){
+				plugins.push(
+					(config.editing=='row')?
+					{
+						ptype: 'rowediting',
+						clicksToEdit : 2
+					}:
+					{
+						ptype: 'cellediting',
+						clicksToEdit : 1
+					}
+				);
+			}
 		}
+		
+		if(config.enableBuffering===true){
+			var hasBufferPlugin=false;
+			
+			for(i=0; i<plugins.length; i++){
+				if(plugins[i].ptype == 'bufferedrenderer'){
+					hasBufferPlugin=true;
+					break
+				}
+			}
+			if(!hasBufferPlugin){
+				plugins.push(
+					{
+						ptype: 'bufferedrenderer',
+						trailingBufferZone: 20,
+						leadingBufferZone: 50
+					}
+				);
+			}
+		}
+		
+		if(config.extraPlugins!=null){
+			for(i=0; i<config.extraPlugins.length; i++){
+				if(
+					config.extraPlugins[i].ptype!='rowediting' &&
+					config.extraPlugins[i].ptype!='cellediting' &&
+					config.extraPlugins[i].ptype!='bufferedrenderer'
+				){
+					plugins.push(config.extraPlugins[i]);
+				}
+			}
+		}
+		
+		for(i=0; i<plugins.length; i++){
+			if(plugins[i].pluginId==null){
+				plugins[i].pluginId = plugins[i].ptype+config.suffix;
+			}
+		}
+		
+		config.plugins = plugins;
 		
 		config.id = config.suffix+'Table';
 		

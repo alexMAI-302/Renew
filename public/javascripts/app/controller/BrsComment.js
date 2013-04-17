@@ -22,17 +22,15 @@ Ext.define('app.controller.BrsComment', {
 			}
 		});
 	
-		panel = Ext.create('app.view.brsComment.BrsComment', {
-			renderTo: Ext.get('brs_comment_js'),
-			layut: 'fit',
-			store: store,
-		});
+		panel = Ext.create('app.view.brsComment.BrsComment');
+		panel.reconfigure(store);
 
-		store       = panel.getStore()
-		cellEditing = panel.getPlugin('cellEditing')
+		cellEditing = panel.getPlugin('celleditingBrsComment');
 		sm          = panel.getSelectionModel();
 		
-		panel.setLoading(true)
+		panel.setLoading(true);
+		
+		Ext.getCmp('deleteBrsComment').setDisabled(false);
 		
 		store.load(
 			function(records, operation, success){
@@ -45,13 +43,13 @@ Ext.define('app.controller.BrsComment', {
 		)
 		
 		this.control({
-			'#add': {
+			'#addBrsComment': {
 				click: this.onAdd
 			},
-			'#remove': {
+			'#deleteBrsComment': {
 				click: this.onRemove
 			},
-			'#submit': {
+			'#saveBrsComment': {
 				click: this.onSubmit
 			}
         });
@@ -64,7 +62,7 @@ Ext.define('app.controller.BrsComment', {
 		cellEditing.cancelEdit();		
 		
 		store.insert(Math.max(index, 0), model);
-		sm.select(model)
+		sm.select(model);
 		cellEditing.startEdit(model, 0);
 	},
 	

@@ -62,10 +62,6 @@ Ext.define('app.view.Comp.Container', {
 			selModel: {
 				mode: "MULTI"
 			},
-			plugins: [Ext.create('Ext.grid.plugin.RowEditing', {
-				clicksToEdit: 2,
-				pluginId: 'rowEditingComp'
-			})],
 			region: 'center',
 			flex: 1
 		},

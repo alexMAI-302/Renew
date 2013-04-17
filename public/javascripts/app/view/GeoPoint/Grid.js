@@ -8,6 +8,7 @@ Ext.define('app.view.GeoPoint.Grid', {
 		disableDelete: true,
 		disableAdd: true,
 		title: 'Терминалы',
+		enableBuffering: true,
 		columns: [
 			{
 				width: 100,
