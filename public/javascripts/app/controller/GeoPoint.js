@@ -24,7 +24,7 @@ Ext.define('app.controller.GeoPoint', {
 	mainCity: [],
 	map: null,
 	center: [55.7, 37.6],
-	pointCollection: null,
+	clusterer: null,
 	
 	storeHasChanges: function(store){
 		return (store.getNewRecords().length > 0) ||
@@ -63,9 +63,10 @@ Ext.define('app.controller.GeoPoint', {
 		
 		if(branch!=null && pointKind!=null){
 			controller.mainCity = [];
-			controller.map.geoObjects.each(function(o){
-				controller.map.geoObjects.remove(o);
-			});
+			// controller.map.geoObjects.each(function(o){
+				// controller.map.geoObjects.remove(o);
+			// });
+			controller.clusterer.removeAll();
 			
 			controller.mainContainer.setLoading(true);
 			
@@ -80,11 +81,14 @@ Ext.define('app.controller.GeoPoint', {
 					if(!success){
 						Ext.Msg.alert("Ошибка", "Ошибка при получении координат терминалов");
 					} else {
-						var cities={}, city, latitude, longitude, maxLatitude=-180, maxLongitude=-90, minLatitude=180, minLongitude=90;
+						var cities=new Ext.util.MixedCollection(),
+							points =[],
+							city,
+							latitude, longitude, maxLatitude=-180, maxLongitude=-90, minLatitude=180, minLongitude=90;
 						
 						controller.masterStore.each(function(r){
 							city = r.get('city');
-							cities[city] = city;
+							cities.add(city, city);
 							latitude = r.get('latitude');
 							longitude = r.get('longitude');
 							
@@ -97,7 +101,10 @@ Ext.define('app.controller.GeoPoint', {
 									draggable: false,
 									balloonMaxWidth: 100,
 									balloonAutoPan: true,
-									balloonContent: r.get('name') 
+									balloonContent: r.get('name'),
+									balloonContentBody: r.get('name'),
+									id: r.get('id'),
+									clusterCaption: r.get('terminalID')
 								},
 								{
 									preset: "twirl#shopIcon"
@@ -110,7 +117,13 @@ Ext.define('app.controller.GeoPoint', {
 								r.set('ismaunual', 1);
 							});
 							r.point.events.add("click", function (mEvent) {
-								Ext.getCmp('GeoPointTable').getSelectionModel().select(r);
+								var table = Ext.getCmp('GeoPointTable');
+								
+								//table.getSelectionModel().select(r);
+								table.getPlugin('bufferedRendererGeoPoint').scrollTo(
+									controller.masterStore.indexOf(r),
+									true
+								);
 							});
 							
 							latitude = (latitude!=null && latitude!="")? latitude : controller.center[0];
@@ -119,10 +132,12 @@ Ext.define('app.controller.GeoPoint', {
 							minLongitude = (minLongitude>longitude)?longitude:minLongitude;
 							maxLatitude = (maxLatitude<latitude)?latitude:maxLatitude;
 							maxLongitude = (maxLongitude<longitude)?longitude:maxLongitude;
-							controller.map.geoObjects.add(r.point);
+							points.push(r.point);
 							return true;
-						})
-						controller.mainCity = controller.masterStore.collect('city');
+						});
+						
+						controller.clusterer.add(points);
+						controller.mainCity = cities.collect('city');
 					}
 					
 					controller.map.setBounds([[minLatitude, minLongitude], [maxLatitude, maxLongitude]]);
@@ -132,6 +147,72 @@ Ext.define('app.controller.GeoPoint', {
 				}
 			);
 		}
+	},
+	
+	setPointCoords: function(currentId, point, coords){
+		if(currentId==point.properties.get('id')){
+			point.geometry.setCoordinates(coords);
+		}
+	},
+	
+	selectPoint: function(currentId, point, coords){
+		var controller = this;
+		if(currentId==point.properties.get('id')){
+			var clusterInfo = controller.clusterer.getObjectState(point);
+			if(clusterInfo.isClustered){
+				clusterInfo.cluster.balloon.open();
+			} else {
+				var latitude = (coords!=null)?coords[0]:null,
+					longitude = (coords!=null)?coords[1]:null;
+				
+				if(latitude==null || latitude=="" || longitude==null || longitude==""){
+					latitude = controller.center[0];
+					longitude = controller.center[1];
+				}
+				
+				point.options.set("preset", "twirl#workshopIcon");
+				point.options.set("draggable", true);
+				if(!point.balloon.isOpen()){
+					point.balloon.open([latitude, longitude]);
+				}
+			}
+		} else {
+			point.options.set("preset", "twirl#shopIcon");
+			point.options.set("draggable", false);
+		}
+	},
+	
+	iterateOverClusterPoints: function(currentId, fn, coords){
+		var controller = this,
+			iterator = controller.clusterer.getIterator(),
+			o = iterator.getNext(),
+			points,
+			i;
+		function iterate(){
+			while(o!=null){
+				if(o.getGeoObjects!=null){
+					points = o.getGeoObjects();
+					for(i=0; i<points.length; i++){
+						fn.call(controller, currentId, points[i], coords);
+					}
+				} else {
+					fn.call(controller, currentId, o, coords);
+				}
+				
+				o = iterator.getNext();
+			}
+		};
+		
+		if(o==null){
+			setTimeout(function(){
+				iterator = controller.clusterer.getIterator();
+				o = iterator.getNext();
+				iterate();
+			}, 1000);
+		} else {
+			iterate();
+		}
+		
 	},
 	
 	init: function() {
@@ -155,35 +236,28 @@ Ext.define('app.controller.GeoPoint', {
 			'#GeoPointTable': {
 				selectionchange: function(sm, selected, eOpts){
 					var current=(selected!=null)?selected[0]:null,
-						last = sm.getLastSelected();
+						currentId = (current!=null)?current.get('id'):null,
+						coords;
+					
 					if(current!=null){
-						var latitude = current.get('latitude'), longitude = current.get('longitude');
-							
-						if(latitude==null || latitude=="" || longitude==null || longitude==""){
-							latitude = controller.center[0];
-							longitude = controller.center[1];
-						}
-						
-						controller.map.geoObjects.each(function(o){
-							if(current.point==o){
-								o.options.set("preset", "twirl#workshopIcon");
-								o.options.set("draggable", true);
-								o.balloon.open([latitude, longitude]);
-							} else {
-								o.options.set("preset", "twirl#shopIcon");
-								o.options.set("draggable", false);
+						coords = [current.get('latitude'), current.get('longitude')];
+						controller.map.zoomRange.get(coords).then(
+							function(range){
+								controller.map.setCenter(coords, range[1]);
+								controller.iterateOverClusterPoints(currentId, controller.selectPoint, coords);
 							}
-						});
-						
-						controller.map.setCenter([latitude, longitude], 13, {checkZoomRange: true});
+						);
 					}
+					
 					return true;
 				},
 				edit: function(editor, e, eOpts){
 					function changePoint(coords){
-						e.record.point.geometry.setCoordinates(coords);
+						var currentId=e.record.get('id');
+						
+						controller.iterateOverClusterPoints(currentId, controller.setPointCoords, coords);
+						
 						e.record.set('ismanual', 1);
-						controller.map.setCenter(coords, 13, {checkZoomRange: true});
 					};
 					
 					switch(e.colIdx){
@@ -275,16 +349,23 @@ Ext.define('app.controller.GeoPoint', {
 			controller.map.controls.add("typeSelector");
 			
 			controller.map.events.add("click", function (mEvent) {
-				var s = Ext.getCmp('GeoPointTable').getSelectionModel().getSelection()[0],
-					coords=mEvent.get('coordPosition');
+				var s = Ext.getCmp('GeoPointTable').getSelectionModel().getSelection()[0];
 					
 				if(s!=null){
+					var currentId = (s!=null)?s.get('id'):null,
+						coords=mEvent.get('coordPosition');
+						
 					s.set('latitude', coords[0]);
 					s.set('longitude', coords[0]);
 					
-					s.point.geometry.setCoordinates(coords);
+					controller.iterateOverClusterPoints(currentId, controller.setPointCoords, coords);
 				}
 			});
+			
+			controller.clusterer = new ymaps.Clusterer({
+				maxZoom: 13
+			});
+			controller.map.geoObjects.add(controller.clusterer);
 			
 			controller.mainContainer.setLoading(false);
 		});
