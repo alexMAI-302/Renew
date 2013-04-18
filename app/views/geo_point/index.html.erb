@@ -13,5 +13,6 @@
 	}
 <% end %>
 <% content_for :content do %>
+	<input type="hidden" name="terminal_id" id="terminal_id" value="<%= params[:terminal_id] %>"/>
 	<div id="geo_point_js"></div>
 <%	end -%>

@@ -59,13 +59,11 @@ Ext.define('app.controller.GeoPoint', {
 	filterMaster: function(){
 		var controller=this,
 			branch = Ext.getCmp('filterBranchGeoPoint').getValue(),
-			pointKind = Ext.getCmp('filterPointsGeoPoint').getValue();
+			pointKind = Ext.getCmp('filterPointsGeoPoint').getValue(),
+			terminalId = Ext.getCmp('filterTerminalIdGeoPoint').getValue();
 		
-		if(branch!=null && pointKind!=null){
+		if((branch!=null && pointKind!=null) || terminalId!=null){
 			controller.mainCity = [];
-			// controller.map.geoObjects.each(function(o){
-				// controller.map.geoObjects.remove(o);
-			// });
 			controller.clusterer.removeAll();
 			
 			controller.mainContainer.setLoading(true);
@@ -74,7 +72,7 @@ Ext.define('app.controller.GeoPoint', {
 				branch: branch,
 				point_kind: pointKind,
 				filter_str: Ext.getCmp('filterTerminalStrGeoPoint').getValue(),
-				terminal_id: Ext.getCmp('filterTerminalIdGeoPoint').getValue()
+				terminal_id: terminalId
 			};
 			controller.masterStore.load(
 				function(records, operation, success){
@@ -366,8 +364,23 @@ Ext.define('app.controller.GeoPoint', {
 			});
 			controller.map.geoObjects.add(controller.clusterer);
 			
+			if(controller.masterStore!=null){
+				controller.initPageData();
+			}
 			controller.mainContainer.setLoading(false);
 		});
+	},
+	
+	initPageData: function(){
+		var controller=this,
+			terminalId = parseInt(Ext.get('terminal_id').getValue());
+		
+		if(terminalId>0){
+			Ext.getCmp('filterTerminalIdGeoPoint').setValue(terminalId);
+			Ext.getCmp('filterPointsGeoPoint').setValue(2);
+			
+			controller.filterMaster();
+		}
 	},
 	
 	initStores: function(){
@@ -398,10 +411,9 @@ Ext.define('app.controller.GeoPoint', {
 		geoPointKind.bindStore(controller.pointTypesStore);
 		geoPointKind.setValue(1);
 		branch.bindStore(controller.branchesStore);
-	},
-	
-	initTables: function(){
-		var controller=this;
+		if(controller.map!=null){
+			controller.initPageData();
+		}
 	},
 	
 	onLaunch: function(){
@@ -412,7 +424,5 @@ Ext.define('app.controller.GeoPoint', {
 		controller.initStores();
 		
 		controller.bindStores();
-		
-		controller.initTables();
 	}
 });
