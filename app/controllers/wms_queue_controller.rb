@@ -32,15 +32,17 @@ class WmsQueueController < ApplicationPageErrorController
     xid = params[:xid]
     res = nil
     success = false
-    if !xid.nil?
+    if !xid.nil? && xid!=''
+      xid=ActiveRecord::Base.connection.quote(xid)
       res = ActiveRecord::Base.connection.select_all("
       BEGIN
+        call process_wms_flashback(#{xid});
         SELECT
           *
         FROM
           wms_queue
         WHERE
-          xid = #{ActiveRecord::Base.connection.quote(xid)}
+          xid = #{xid};
       END
       ")
       success=true
