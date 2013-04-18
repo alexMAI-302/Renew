@@ -15,8 +15,20 @@ Ext.define('app.view.Lib.DateIntervalFilter', {
 	 * shiftEnd - величина сдвига относительно даты конца. По умолчанию 0
 	 * extraItems - дополнительные элементы. Передается "сырая" конфигурация
 	 */
-	constructor : function(config) {
-		config = config || {};
+	constructor : function(currentConfig) {
+		var initConfig = this.getInitialConfig() || {},
+			i;
+		
+		currentConfig=currentConfig || {};
+		config = {};
+		for(i in initConfig){
+			config[i]=initConfig[i];
+		}
+		
+		for(i in currentConfig){
+			config[i]=currentConfig[i];
+		};
+		
 		items = [{
 			id : 'ddateb' + config.suffix,
 			xtype : 'datefield',
@@ -28,8 +40,8 @@ Ext.define('app.view.Lib.DateIntervalFilter', {
 				Ext.Date.parse(config.beginDate || Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'),
 				(config.shiftInterval || Ext.Date.DAY),
 				(config.shiftBegin || 0)),
-			width : 125,
-			labelWidth : 25
+			width : 110,
+			labelWidth : 15
 		}, {
 			id : 'ddatee' + config.suffix,
 			xtype : 'datefield',
@@ -41,8 +53,8 @@ Ext.define('app.view.Lib.DateIntervalFilter', {
 				Ext.Date.parse(config.endDate || Ext.Date.format(new Date(), 'Y.m.d'), 'Y.m.d'),
 				(config.shiftInterval || Ext.Date.DAY),
 				(config.shiftEnd || 0)),
-			width : 125,
-			labelWidth : 25
+			width : 110,
+			labelWidth : 15
 		}];
 
 		if(config.filterItems != null) {

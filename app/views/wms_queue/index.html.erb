@@ -1,0 +1,27 @@
+<% content_for :stylesheets do %>
+	td.x-action-col-cell {
+		vertical-align: middle;
+	}
+	
+	.x-action-col-cell img.x-in_process {
+		background-image: url(/images/spinner.gif);
+	}
+	.x-action-col-cell img.x-ready_for_process {
+		background-image: url(/images/hammer.png);
+	}
+
+<% end -%>
+<% content_for :js_controller do %>
+,'WmsQueue' 
+<% end -%>
+﻿<% content_for :title do %>
+Очередь WMS
+<%	end -%>
+<% content_for :stylesheets do %>
+	.x-wrap_cells .x-grid-cell-inner {
+		white-space: normal;
+	}
+<% end %>
+<% content_for :content do %>
+	<div id="wms_queue_js"></div>
+<%	end -%>
