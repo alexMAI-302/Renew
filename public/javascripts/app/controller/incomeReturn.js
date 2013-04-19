@@ -9,6 +9,7 @@ Ext.define('app.controller.incomeReturn', {
 		'incomeReturn.goods',
 		'incomeReturn.measure',
 		'incomeReturn.mrs',
+		'incomeReturn.site',
 		'incomeReturn.incomeReturn'],
 	models: [
 		'app.model.valueModel',
@@ -31,6 +32,7 @@ Ext.define('app.controller.incomeReturn', {
 	measureStore: null,
 	currentMeasureStore: null,
 	mrsStore: null,
+	siteStore: null,
 	incomeReturnStore:null,
 	mainContainer: null,
 	showServerError: function(response, options) {
@@ -39,6 +41,28 @@ Ext.define('app.controller.incomeReturn', {
 		controller.mainContainer.setLoading(false);
 	},
 	
+	rowNavigation: function (field, e, eOpts){
+			var controller = this;
+			var irStore=field.up().up().store;
+			var key=e.getKey(),
+				sm=Ext.getCmp('IncomeReturnTable').getSelectionModel(),
+				r=sm.getSelection()[0];
+				
+			if(key==e.UP || key==e.DOWN || key==e.ENTER ){
+				var direction = (key==e.UP)? -1 : (key==e.DOWN || key==e.ENTER ? 1 : 0),
+					index = irStore.indexOf(r) + direction,
+					editingPlugin = Ext.getCmp('IncomeReturnTable').getPlugin('cellEditingIncomeReturn');
+				
+				e.stopEvent();
+				if(index>=0 && index<irStore.getCount()){
+					var newR = irStore.getAt(index);
+					sm.select(newR, true);
+					editingPlugin.startEdit(newR, 9);
+				}
+			}
+			
+			return true;
+		},
 	loadMeasureStore: 	function (goods,msrh_id){
 		var controller=this;
 		var currentMeasureData=[];
@@ -190,6 +214,9 @@ Ext.define('app.controller.incomeReturn', {
 			goodsColumn=IncomeReturnTable.columns[1],
 			docMeasureColumn=IncomeReturnTable.columns[3]
 			measureColumn=IncomeReturnTable.columns[11];
+			col2=IncomeReturnTable.columns[2];
+			col4=IncomeReturnTable.columns[4];
+			col6=IncomeReturnTable.columns[6];
 		
 		controller.goodsMakeComboColumn(goodsColumn, controller.goodsStore, controller.incomeReturnStore, 'goods');
 		
@@ -201,12 +228,24 @@ Ext.define('app.controller.incomeReturn', {
 			"change",
 			function(field, newValue, oldValue, options){
 				controller.incomeStore.proxy.extraParams={
-					ddate: Ext.Date.format(newValue, 'Y-m-d')
+					ddate: Ext.Date.format(newValue, 'Y-m-d'),
+					site: Ext.getCmp('siteCombo').getValue()
 				};
 				controller.incomeStore.load();
 				Ext.getCmp('incomeCombo').setValue(null);
 			}
 
+		);
+		Ext.getCmp('siteCombo').addListener(
+			"select",
+			function(field, value, options){
+				controller.incomeStore.proxy.extraParams={
+					ddate: Ext.Date.format(Ext.getCmp('ddate').getValue(), 'Y-m-d'),
+					site: value[0].data.id
+				};
+				controller.incomeStore.load();
+				Ext.getCmp('incomeCombo').setValue(null);
+			}
 		);
 		Ext.getCmp('incomeCombo').addListener(
 			"select",
@@ -223,7 +262,6 @@ Ext.define('app.controller.incomeReturn', {
 								Ext.Msg.alert('Ошибка', operation.error.responseText)							
 							}
 							var disabled=!records.length;
-							//controller.mainContainer.items.items[1].dockedItems.items[1].items.items[0].setDisabled(disabled);
 							controller.mainContainer.setLoading(false);
 						}
 					);
@@ -257,6 +295,8 @@ Ext.define('app.controller.incomeReturn', {
 						controller.sellerStore.load();
 				}
 		);
+		
+		
 		docMeasureColumn.field.addListener(
 			"select",
 			function(field, value, options){
@@ -278,9 +318,35 @@ Ext.define('app.controller.incomeReturn', {
 				return true;
 			}
 		);
+		
+	/*	col2.field.addListener(
+			"specialkey",
+			function(field, e, eOpts){
+				controller.rowNavigation(field,e,eOpts);
+				return true;
+			}
+		);
+		
+		col4.field.addListener(
+			"specialkey",
+			function(field, e, eOpts){
+				controller.rowNavigation(field,e,eOpts);
+				return true;
+			}
+		);
+		
+		col6.field.addListener(
+			"specialkey",
+			function(field, e, eOpts){
+				controller.rowNavigation(field,e,eOpts);
+				return true;
+			}
+		);*/
+		
 	},
 	initStores: function(){
 		var controller=this;
+		controller.siteStore=controller.getIncomeReturnSiteStore();
 		controller.incomeStore=controller.getIncomeReturnIncomeStore();
 		controller.innStore=controller.getIncomeReturnInnStore();
 		controller.prStore=controller.getIncomeReturnPrStore();
@@ -300,6 +366,7 @@ Ext.define('app.controller.incomeReturn', {
 	},
 	bindStores: function(){
 		var controller=this;
+		Ext.getCmp('siteCombo').bindStore(controller.siteStore);
 		Ext.getCmp('incomeCombo').bindStore(controller.incomeStore);
 		Ext.getCmp('innCombo').bindStore(controller.innStore);
 		Ext.getCmp('prCombo').bindStore(controller.prStore);
@@ -342,6 +409,7 @@ Ext.define('app.controller.incomeReturn', {
 		
 	},
 	goodsMakeComboColumn: function(column, storeCombo, tableStore, property, allowNull, onlyRenderer){
+		var controller=this;
 		function renderer(value, metaData, record){
 			var matching=null;
 			if(value!=null){
@@ -356,6 +424,29 @@ Ext.define('app.controller.incomeReturn', {
 			return (matching) ? matching : record.get('goods_name');
 		};
 		
+		
+		function rowNavigation2 (field, e, eOpts){
+			var irStore=tableStore;
+			var key=e.getKey(),
+				sm=Ext.getCmp('IncomeReturnTable').getSelectionModel(),
+				r=sm.getSelection()[0];
+				
+			if(key==e.UP || key==e.DOWN || key==e.ENTER ){
+				var direction = (key==e.UP)? -1 : (key==e.DOWN || key==e.ENTER ? 1 : 0),
+					index = irStore.indexOf(r) + direction,
+					editingPlugin = Ext.getCmp('IncomeReturnTable').getPlugin('cellEditingIncomeReturn');
+				
+				e.stopEvent();
+				if(index>=0 && index<irStore.getCount()){
+					var newR = irStore.getAt(index);
+					sm.select(newR, true);
+					editingPlugin.startEdit(newR, eOpts.colId);
+				}
+			}
+			
+			return true;
+		};
+		
 		column.field = Ext.create('Ext.form.ComboBox', {
 			displayField: 'name',
 			valueField: 'id',
@@ -363,14 +454,16 @@ Ext.define('app.controller.incomeReturn', {
 			selectOnFocus: true,
 			store: storeCombo,
 			listeners: {
-				"select": function(field, value, options){
+				"select": function(field, e, eOpts){
 					var r = Ext.getCmp('IncomeReturnTable').getSelectionModel().getSelection()[0];
 							r.set('goods_name', value[0].data.name);
 							r.set('msrh_id', value[0].data.msrh_id);
 							r.set('nds', value[0].data.nds);
 							r.set("nds_summ", r.get("summ")*r.get("nds")/(100+r.get("nds")));
 							return true;
-				}
+				},
+				"specialkey": {fn: controller.rowNavigation}
+
 			}
 		});
 		

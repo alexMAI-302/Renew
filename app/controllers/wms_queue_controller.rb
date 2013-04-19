@@ -22,7 +22,7 @@ class WmsQueueController < ApplicationPageErrorController
         #{extra_conditions}
       ORDER BY
         ts DESC"
-      logger.info query
+        
       res = ActiveRecord::Base.connection.select_all(query)
       render :text => res.to_json
     end

@@ -25,6 +25,7 @@ Ext.define('app.controller.GeoPoint', {
 	map: null,
 	center: [55.7, 37.6],
 	clusterer: null,
+	currentPoint: null,
 	
 	storeHasChanges: function(store){
 		return (store.getNewRecords().length > 0) ||
@@ -59,13 +60,11 @@ Ext.define('app.controller.GeoPoint', {
 	filterMaster: function(){
 		var controller=this,
 			branch = Ext.getCmp('filterBranchGeoPoint').getValue(),
-			pointKind = Ext.getCmp('filterPointsGeoPoint').getValue();
+			pointKind = Ext.getCmp('filterPointsGeoPoint').getValue(),
+			terminalId = Ext.getCmp('filterTerminalIdGeoPoint').getValue();
 		
-		if(branch!=null && pointKind!=null){
+		if((branch!=null && pointKind!=null) || terminalId!=null){
 			controller.mainCity = [];
-			// controller.map.geoObjects.each(function(o){
-				// controller.map.geoObjects.remove(o);
-			// });
 			controller.clusterer.removeAll();
 			
 			controller.mainContainer.setLoading(true);
@@ -74,7 +73,7 @@ Ext.define('app.controller.GeoPoint', {
 				branch: branch,
 				point_kind: pointKind,
 				filter_str: Ext.getCmp('filterTerminalStrGeoPoint').getValue(),
-				terminal_id: Ext.getCmp('filterTerminalIdGeoPoint').getValue()
+				terminal_id: terminalId
 			};
 			controller.masterStore.load(
 				function(records, operation, success){
@@ -82,7 +81,7 @@ Ext.define('app.controller.GeoPoint', {
 						Ext.Msg.alert("Ошибка", "Ошибка при получении координат терминалов");
 					} else {
 						var cities=new Ext.util.MixedCollection(),
-							points =[],
+							points = [],
 							city,
 							latitude, longitude, maxLatitude=-180, maxLongitude=-90, minLatitude=180, minLongitude=90;
 						
@@ -148,36 +147,32 @@ Ext.define('app.controller.GeoPoint', {
 		}
 	},
 	
-	setPointCoords: function(currentId, point, coords){
-		if(currentId==point.properties.get('id')){
-			point.geometry.setCoordinates(coords);
+	setPointCoords: function(coords){
+		var controller = this;
+		if(controller.currentPoint!=null){
+			controller.currentPoint.geometry.setCoordinates(coords);
 		}
 	},
 	
 	selectPoint: function(currentId, point, coords){
 		var controller = this;
 		if(currentId==point.properties.get('id')){
-			var clusterInfo = controller.clusterer.getObjectState(point);
-			if(clusterInfo.isClustered){
-				clusterInfo.cluster.balloon.open();
-			} else {
-				var latitude = (coords!=null)?coords[0]:null,
-					longitude = (coords!=null)?coords[1]:null;
-				
-				if(latitude==null || latitude=="" || longitude==null || longitude==""){
-					latitude = controller.center[0];
-					longitude = controller.center[1];
-				}
-				
-				point.options.set("preset", "twirl#workshopIcon");
-				point.options.set("draggable", true);
-				if(!point.balloon.isOpen()){
-					point.balloon.open([latitude, longitude]);
-				}
+			var latitude = (coords!=null)?coords[0]:null,
+				longitude = (coords!=null)?coords[1]:null;
+			
+			if(latitude==null || latitude=="" || longitude==null || longitude==""){
+				latitude = controller.center[0];
+				longitude = controller.center[1];
 			}
-		} else {
-			point.options.set("preset", "twirl#shopIcon");
-			point.options.set("draggable", false);
+			
+			controller.clusterer.remove(point);
+			controller.map.geoObjects.add(point);
+			
+			controller.currentPoint = point;
+			
+			point.options.set("preset", "twirl#workshopIcon");
+			point.options.set("draggable", true);
+			point.balloon.open([latitude, longitude]);
 		}
 	},
 	
@@ -187,6 +182,7 @@ Ext.define('app.controller.GeoPoint', {
 			o = iterator.getNext(),
 			points,
 			i;
+		
 		function iterate(){
 			while(o!=null){
 				if(o.getGeoObjects!=null){
@@ -238,6 +234,13 @@ Ext.define('app.controller.GeoPoint', {
 						currentId = (current!=null)?current.get('id'):null,
 						coords;
 					
+					if(controller.currentPoint!=null){
+						controller.currentPoint.options.set("preset", "twirl#shopIcon");
+						controller.currentPoint.options.set("draggable", false);
+						controller.currentPoint.balloon.close();
+						controller.map.geoObjects.remove(controller.currentPoint);
+						controller.clusterer.add(controller.currentPoint);
+					}
 					if(current!=null){
 						coords = [current.get('latitude'), current.get('longitude')];
 						controller.map.zoomRange.get(coords).then(
@@ -246,17 +249,24 @@ Ext.define('app.controller.GeoPoint', {
 								controller.iterateOverClusterPoints(currentId, controller.selectPoint, coords);
 							}
 						);
+					} else {
+						controller.currentPoint = null;
 					}
 					
 					return true;
 				},
 				edit: function(editor, e, eOpts){
-					function changePoint(coords){
-						var currentId=e.record.get('id');
+					function changePoint(coords, record){
+						var currentId=record.get('id');
 						
-						controller.iterateOverClusterPoints(currentId, controller.setPointCoords, coords);
+						controller.map.zoomRange.get(coords).then(
+							function(range){
+								controller.map.setCenter(coords, range[1]);
+								controller.setPointCoords(coords);
+							}
+						);
 						
-						e.record.set('ismanual', 1);
+						record.set('ismanual', 1);
 					};
 					
 					switch(e.colIdx){
@@ -296,7 +306,7 @@ Ext.define('app.controller.GeoPoint', {
 									e.record.set('longitude', geoResultPoint[1]);
 									e.record.set('fulladdress', geoResultInfo.text);
 									
-									changePoint(geoResultPoint);
+									changePoint(geoResultPoint, e.record);
 								},
 								function (error) {
 									Ext.Msg.alert("Ошибка", error);
@@ -304,10 +314,10 @@ Ext.define('app.controller.GeoPoint', {
 							);
 						break;
 						case 5:
-							changePoint([e.value, e.record.get('longitude')]);
+							changePoint([e.value, e.record.get('longitude')], e.record);
 						break;
 						case 6:
-							changePoint([e.record.get('latitude'), e.value]);
+							changePoint([e.record.get('latitude'), e.value], e.record);
 						break;
 					}
 					return true;
@@ -356,8 +366,7 @@ Ext.define('app.controller.GeoPoint', {
 						
 					s.set('latitude', coords[0]);
 					s.set('longitude', coords[0]);
-					
-					controller.iterateOverClusterPoints(currentId, controller.setPointCoords, coords);
+					controller.setPointCoords(coords);
 				}
 			});
 			
@@ -366,8 +375,23 @@ Ext.define('app.controller.GeoPoint', {
 			});
 			controller.map.geoObjects.add(controller.clusterer);
 			
+			if(controller.masterStore!=null){
+				controller.initPageData();
+			}
 			controller.mainContainer.setLoading(false);
 		});
+	},
+	
+	initPageData: function(){
+		var controller=this,
+			terminalId = parseInt(Ext.get('terminal_id').getValue());
+		
+		if(terminalId>0){
+			Ext.getCmp('filterTerminalIdGeoPoint').setValue(terminalId);
+			Ext.getCmp('filterPointsGeoPoint').setValue(2);
+			
+			controller.filterMaster();
+		}
 	},
 	
 	initStores: function(){
@@ -398,10 +422,9 @@ Ext.define('app.controller.GeoPoint', {
 		geoPointKind.bindStore(controller.pointTypesStore);
 		geoPointKind.setValue(1);
 		branch.bindStore(controller.branchesStore);
-	},
-	
-	initTables: function(){
-		var controller=this;
+		if(controller.map!=null){
+			controller.initPageData();
+		}
 	},
 	
 	onLaunch: function(){
@@ -412,7 +435,5 @@ Ext.define('app.controller.GeoPoint', {
 		controller.initStores();
 		
 		controller.bindStores();
-		
-		controller.initTables();
 	}
 });

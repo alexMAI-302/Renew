@@ -11,7 +11,7 @@ Ext.define('app.view.incomeReturn.container', {
 		type: 'anchor'
 	},
 	
-	width: 1300,
+	width: 1350,
 	renderTo: Ext.get('income_return_js'),
 	defaults: {
 		style: {
@@ -29,6 +29,77 @@ Ext.define('app.view.incomeReturn.container', {
 			disableRefresh: true,
 			region: 'center',
 			height: 400,
+			viewConfig: {
+				enableTextSelection: true,
+				//getRowClass: function(record, rowIndex, rowParams, store){
+				//	return record.get('row_class');
+				//},
+				listeners: {
+					itemkeydown: function(view, record, item, index, e, eOpts){
+						if(e.getKey()==e.ENTER){
+							var sm=Ext.getCmp('IncomeReturnTable').getSelectionModel(),
+								r=sm.getSelection()[0],
+								 store = Ext.getCmp('IncomeReturnTable').getStore(),
+								 cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('cellEditingIncomeReturn');
+							if (store.getCount() > index + 1 ) {
+								e.stopEvent();
+								cellEditingIncomeReturn.cancelEdit();
+								sm.select(index + 1, true,true);
+								cellEditingIncomeReturn.startEdit(index + 1, 9);
+							}
+						}
+						return true;
+					},
+					selectionchangehange: function(sm, selected, eOpts){
+						if(selected!=null && selected.length>0){
+							Ext.Msg.alert("selectionchangehange 1" );
+						} else {
+							Ext.Msg.alert("selectionchangehange 2" );
+						}
+						return true;
+					},
+					focuschange: function (sm, oldFocused, newFocused, eOpts) {
+						Ext.Msg.alert('oldFocused = ' + String(oldFocused) + '; newFocused = ' + String(newFocused));
+					}
+				}
+				
+			},
+
+			listeners: {
+				afterrender: function (grid) {
+					var lastFocus=0;
+					grid.getSelectionModel().on({
+						focuschange: function (sm, oldFocused, newFocused, eOpts) {
+							
+							if (oldFocused!=null) {
+								lastFocus=oldFocused;
+							}
+							if (newFocused!=null){
+								if (newFocused!=lastFocus) {
+									cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('cellEditingIncomeReturn');
+									cellEditingIncomeReturn.startEdit(newFocused.index, 9);								
+								}
+							}
+							//Ext.Msg.alert('oldFocused = ' + String(oldFocused) + '; newFocused = ' + String(newFocused));
+						}
+					});
+				}
+			},	
+		
+			/*listeners: {
+					selectionchangehange: function(sm, selected, eOpts){
+						if(selected!=null && selected.length>0){
+							Ext.Msg.alert("selectionchangehange 1" );
+						} else {
+							Ext.Msg.alert("selectionchangehange 2" );
+						}
+						return true;
+					},
+					focuschange: function (sm, oldFocused, newFocused, eOpts) {
+						Ext.Msg.alert('oldFocused = ' + String(oldFocused) + '; newFocused = ' + String(newFocused));
+					}
+			},*/
+				
 			columns: [
 				{
 					header: 'Идентификатор',
@@ -52,7 +123,9 @@ Ext.define('app.view.incomeReturn.container', {
 					renderer: Ext.util.Format.numberRenderer('0'),
 					field:{
 						xtype: 'numberfield',
+						decimalSeparator : ',',
 						minValue: 0,
+						selectOnFocus : true,
 						listeners:{
 							"change": function(t, newValue, oldValue, options){
 								var r = Ext.getCmp('IncomeReturnTable').getSelectionModel().getSelection()[0];
@@ -61,10 +134,21 @@ Ext.define('app.view.incomeReturn.container', {
 								r.set("nds_summ", r.get("summ")*r.get("nds")/(100+r.get("nds")));
 								r.endEdit(true);
 								return true;
+							},
+							"specialkey": function(field, e){
+								if(e.getKey()==e.ENTER){
+									var sm=Ext.getCmp('IncomeReturnTable').getSelectionModel(),
+										 store = Ext.getCmp('IncomeReturnTable').getStore(),
+										cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('cellEditingIncomeReturn');
+								 var index=sm.getCurrentPosition().row;
+									if (store.getCount() > index + 1 ) {
+										cellEditingIncomeReturn.cancelEdit();
+										cellEditingIncomeReturn.startEdit(index + 1, 9);
+									}
+								}
 							}
 						}
 					}
-					
 				},
 				
 				{
@@ -82,6 +166,8 @@ Ext.define('app.view.incomeReturn.container', {
 						xtype: 'numberfield',
 						minValue: 0,
 						decimalPrecision : 4,
+						decimalSeparator : ',',
+						selectOnFocus : true,
 						listeners:{
 							"change": function(t, newValue, oldValue, options){
 							var r = Ext.getCmp('IncomeReturnTable').getSelectionModel().getSelection()[0];
@@ -91,6 +177,18 @@ Ext.define('app.view.incomeReturn.container', {
 								r.set("measure_price", parseFloat(newValue)/r.get("vrel"));
 								r.endEdit(true);
 								return true;
+							},
+							"specialkey": function(field, e){
+								if(e.getKey()==e.ENTER){
+									var sm=Ext.getCmp('IncomeReturnTable').getSelectionModel(),
+										 store = Ext.getCmp('IncomeReturnTable').getStore(),
+										cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('cellEditingIncomeReturn');
+								 var index=sm.getCurrentPosition().row;
+									if (store.getCount() > index + 1 ) {
+										cellEditingIncomeReturn.cancelEdit();
+										cellEditingIncomeReturn.startEdit(index + 1, 9);
+									}
+								}
 							}
 						}
 					}
@@ -108,8 +206,10 @@ Ext.define('app.view.incomeReturn.container', {
 					renderer: Ext.util.Format.numberRenderer('0.0000'),
 					field:{
 						xtype: 'numberfield',
+						selectOnFocus : true,
 						minValue: 0,
 						decimalPrecision : 4,
+						decimalSeparator : ',',
 						listeners:{
 							"change": function(t, newValue, oldValue, options){
 							var r = Ext.getCmp('IncomeReturnTable').getSelectionModel().getSelection()[0];
@@ -119,6 +219,18 @@ Ext.define('app.view.incomeReturn.container', {
 								r.set("doc_price", parseFloat(newValue)*r.get("vrel"));
 								r.endEdit(true);
 								return true;
+							},
+							"specialkey": function(field, e){
+								if(e.getKey()==e.ENTER){
+									var sm=Ext.getCmp('IncomeReturnTable').getSelectionModel(),
+										 store = Ext.getCmp('IncomeReturnTable').getStore(),
+										cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('cellEditingIncomeReturn');
+								 var index=sm.getCurrentPosition().row;
+									if (store.getCount() > index + 1 ) {
+										cellEditingIncomeReturn.cancelEdit();
+										cellEditingIncomeReturn.startEdit(index + 1, 9);
+									}
+								}
 							}
 						}
 					}
@@ -146,6 +258,8 @@ Ext.define('app.view.incomeReturn.container', {
 					field:{
 						xtype: 'numberfield',
 						minValue: 0,
+						selectOnFocus : true,
+						decimalSeparator : ',',
 						listeners:{
 							"change": function(t, newValue, oldValue, options){
 							var r = Ext.getCmp('IncomeReturnTable').getSelectionModel().getSelection()[0];
@@ -155,6 +269,18 @@ Ext.define('app.view.incomeReturn.container', {
 								r.set("nds_summ", parseFloat(newValue)*r.get("nds")/(100+r.get("nds")));
 								r.endEdit(true);
 								return true;
+							},
+							"specialkey": function(field, e){
+								if(e.getKey()==e.ENTER){
+									var sm=Ext.getCmp('IncomeReturnTable').getSelectionModel(),
+										 store = Ext.getCmp('IncomeReturnTable').getStore(),
+										cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('cellEditingIncomeReturn');
+								 var index=sm.getCurrentPosition().row;
+									if (store.getCount() > index + 1 ) {
+										cellEditingIncomeReturn.cancelEdit();
+										cellEditingIncomeReturn.startEdit(index + 1, 9);
+									}
+								}
 							}
 						}
 					},
@@ -174,6 +300,10 @@ Ext.define('app.view.incomeReturn.container', {
 				}
 				
 			],
+			plugins: [Ext.create('Ext.grid.plugin.CellEditing', {
+				clicksToEdit: 1,
+				 pluginId: 'cellEditingIncomeReturn'
+			})],
 			features: [{
 				ftype: 'summary'
 			}]

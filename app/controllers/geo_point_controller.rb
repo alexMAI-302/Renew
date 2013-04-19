@@ -1,10 +1,13 @@
-class GeoPointController < ApplicationPageErrorController
+# encoding: utf-8
+
+class GeoPointController < ApplicationSimpleErrorController
   
   def geo_points
     method=request.method.to_s
     case method
     when "get"
-      str_cond = "pt.isdeleted = 0 AND ttp.enabled = 1 AND pt.main_subdealerID IN (SELECT subdealerid FROM branch WHERE branch.id=#{params[:branch]}) "
+      str_cond = "pt.isdeleted = 0 AND ttp.enabled = 1"
+      str_cond += " AND pt.main_subdealerID IN (SELECT subdealerid FROM branch WHERE branch.id=#{params[:branch].to_i}) " if !(params[:branch].nil?) && params[:branch]!=''
       str_cond += " and (g.latitude is not null) " if params[:point_kind].to_i == 3
       str_cond += " and (g.latitude is null) " if params[:point_kind].to_i == 1
       if !params[:filter_str].nil? && params[:filter_str].size > 0
