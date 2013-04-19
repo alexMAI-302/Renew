@@ -13,6 +13,17 @@ Ext.define('app.view.incomeReturn.filter', {
 	},
 	items: [
 		{
+			xtype: 'combobox',
+			fieldLabel: 'Площадка',
+			id : 'siteCombo',			
+			labelAlign: 'top',
+			displayField: 'name',
+			valueField: 'id',
+			allowBlank: false,
+			labelWidth: 120,
+			width: 120
+		},
+		{
 			id: 'ddate',
 			xtype: 'datefield',
 			name: 'ddate',
@@ -21,7 +32,7 @@ Ext.define('app.view.incomeReturn.filter', {
 			format: 'd.m.Y',
 			altFormat: 'd/m/Y|d m Y',
 			startDay: 1,
-			width: 100
+			width: 90
 		},
 		{
 			xtype: 'combobox',
@@ -31,8 +42,8 @@ Ext.define('app.view.incomeReturn.filter', {
 			displayField: 'name',
 			valueField: 'id',
 			allowBlank: false,
-			labelWidth: 150,
-			width: 150
+			labelWidth: 120,
+			width: 120
 		},
 		{
 			xtype: 'combobox',
@@ -42,8 +53,8 @@ Ext.define('app.view.incomeReturn.filter', {
 			displayField: 'name',
 			valueField: 'id',
 			allowBlank: false,
-			labelWidth: 180,
-			width: 180
+			labelWidth: 170,
+			width: 170
 		},
 		{
 			xtype: 'combobox',
@@ -53,8 +64,8 @@ Ext.define('app.view.incomeReturn.filter', {
 			displayField: 'name',
 			valueField: 'id',
 			allowBlank: false,
-			labelWidth: 200,
-			width: 200			
+			labelWidth: 180,
+			width: 180			
 		},
 		{
 			xtype: 'combobox',
@@ -64,8 +75,8 @@ Ext.define('app.view.incomeReturn.filter', {
 			displayField: 'name',
 			valueField: 'id',
 			allowBlank: false,
-			labelWidth: 200,
-			width: 200
+			labelWidth: 180,
+			width: 180
 
 		},
 		{
@@ -76,8 +87,8 @@ Ext.define('app.view.incomeReturn.filter', {
 			displayField: 'name',
 			valueField: 'id',
 			allowBlank: false,
-			labelWidth: 180,
-			width: 180
+			labelWidth: 170,
+			width: 170
 
 		},
 		{

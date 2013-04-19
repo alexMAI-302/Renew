@@ -19,7 +19,8 @@ class IncomeReturnController < ApplicationSimpleErrorController
 	def get_income
 		ddate=(params[:ddate].nil? || params[:ddate].to_s=='')?('1900-01-01'):params[:ddate]
 		query=(params[:query].nil?)?(''):params[:query]
-		income = ActiveRecord::Base.connection.select_all("select * from ask_income_return_income('#{ddate}','#{ActiveRecord::Base.connection.quote_string(query)}')")
+		site=(params[:site].nil?)?(-1):params[:site]
+		income = ActiveRecord::Base.connection.select_all("select * from ask_income_return_income('#{ddate}','#{ActiveRecord::Base.connection.quote_string(query)}',#{site})")
 		#logger.info(ddate)
 		render :json => income.to_json
 	end
@@ -71,6 +72,12 @@ class IncomeReturnController < ApplicationSimpleErrorController
 		rs = ActiveRecord::Base.connection.select_all("select number() id, ms_id, msrh_id, rel from ms_rel_sets")
 		render :json => rs.to_json	
 	end
+	
+	def get_site
+		rs = ActiveRecord::Base.connection.select_all("select s.id, s.name from my_site ms join site s on ms.id=s.id where iam=user_id('dbo') order by 1")
+		render :json => rs.to_json	
+	end
+
 	
 	def save_doc
 		rows=ActiveSupport::JSON.decode(request.body.gets)
