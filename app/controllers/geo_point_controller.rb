@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class GeoPointController < ApplicationPageErrorController
+class GeoPointController < ApplicationSimpleErrorController
   
   def geo_points
     method=request.method.to_s
