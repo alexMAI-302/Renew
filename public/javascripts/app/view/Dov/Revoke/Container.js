@@ -6,12 +6,18 @@ Ext.define('app.view.Dov.Revoke.Container', {
 		'app.view.Dov.Revoke.Filter'
 	],
 	
+	layout: {
+		type: 'border'
+	},
+	
 	title: 'Возврат доверенностей',
 	items: [
 		{
-			xtype: 'dovRevokeFilter'
+			xtype: 'dovRevokeFilter',
+			region: 'north'
 		},
 		{
+			region: 'center',
 			xtype: 'simpleGrid',
 			suffix: 'DovRevoke',
 			disableSave: true,
@@ -20,7 +26,6 @@ Ext.define('app.view.Dov.Revoke.Container', {
 			disableDeleteColumn: true,
 			disableRefresh: true,
 			title: 'Доверенности',
-			height: '100%',
 			viewConfig: {
 				markDirty:false,
 				enableTextSelection : true
