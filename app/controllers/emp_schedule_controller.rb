@@ -4,10 +4,10 @@ class EmpScheduleController < ApplicationSimpleErrorController
 
 	def emp_schedule
 	
-		dept_id=(params[:dept_id].nil?)?(-1):(params[:dept_id]=='')?(0):params[:dept_id]
-		person_id=(params[:person_id].nil?)?(-1):( (params[:person_id]=='')?(-1):params[:person_id] )
-		ddateb=(params[:ddateb].nil? || params[:ddateb].to_s=='')?('1900-01-01'):params[:ddateb]
-		ddatee=(params[:ddatee].nil? || params[:ddatee].to_s=='')?('9999-01-01'):params[:ddatee]
+		dept_id=(params[:dept_id].nil?)?(-1):(params[:dept_id]=='')?(0):params[:dept_id].to_i
+		person_id=(params[:person_id].nil?)?(-1):( (params[:person_id]=='')?(-1):params[:person_id].to_i )
+		ddateb=(params[:ddateb].nil? || params[:ddateb].to_s=='')?('1900-01-01'):Time.parse(params[:ddateb]).strftime('%F')
+		ddatee=(params[:ddatee].nil? || params[:ddatee].to_s=='')?('9999-01-01'):Time.parse(params[:ddatee]).strftime('%F')
 		case request.method.to_s
 			when "get"
 			begin
@@ -24,7 +24,7 @@ class EmpScheduleController < ApplicationSimpleErrorController
 	end
 	
 	def get_person
-		dept_id=(params[:dept_id].nil?)?(-1):params[:dept_id]
+		dept_id=(params[:dept_id].nil?)?(-1):params[:dept_id].to_i
 		rs = ActiveRecord::Base.connection.select_all("select * from ask_emp_schedule_person(#{dept_id})")
 		render :json => rs.to_json
 	end
