@@ -28,6 +28,9 @@ Ext.define('app.controller.Geotrack', {
 	trackLines: null,
 	terminalCollection: null,
 	
+	ArrowOverlay: null,
+	myFactory: null,
+	
 	showServerError: function(response, options) {
 		var controller=this;
 		Ext.Msg.alert('Ошибка', response.responseText);
@@ -55,15 +58,23 @@ Ext.define('app.controller.Geotrack', {
 						
 						for(var i=0; i<records.length; i++){
 							if(records[i].pointsArray!=null && records[i].pointsArray.length>0){
-								trackLine = new ymaps.Polyline(
-									records[i].pointsArray,
+								trackLine = new ymaps.GeoObject(
 									{
-										id: records[i].get('id'),
-										num: i+1,
-										start_time: Ext.Date.format(records[i].get('start_time'), 'H:i:s'),
-										finish_time: Ext.Date.format(records[i].get('finish_time'), 'H:i:s')
+										geometry:
+										{
+											type: 'LineString',
+											coordinates: records[i].pointsArray
+										},
+										properties: 
+										{
+											id: records[i].get('id'),
+											num: i+1,
+											start_time: Ext.Date.format(records[i].get('start_time'), 'H:i:s'),
+											finish_time: Ext.Date.format(records[i].get('finish_time'), 'H:i:s')
+										}
 									},
 									{
+										overlayFactory: controller.myFactory,
 										strokeWidth : 4,
 										opacity : 0.5,
 										strokeColor : '0000FF'
@@ -229,6 +240,80 @@ Ext.define('app.controller.Geotrack', {
 					)
 				}
 			);
+			
+			controller.ArrowOverlay = function(geometry, data, options) {
+				controller.ArrowOverlay.superclass.constructor.call(this, geometry, data, options);
+
+				var lastArrowOffset = 0;
+				//будем следить за этой опцией, вообще для этого есть option.Monitor, но можно и так
+				this.options.events.add('change', function() {
+					if(this._graphicsOverlay) {
+						if(lastArrowOffset != this.options.get('arrowOffset')) {
+							lastArrowOffset = this.options.get('arrowOffset');
+							this.applyGeometry();
+						}
+					}
+
+				}, this);
+			};
+			
+			ymaps.util.augment(controller.ArrowOverlay, ymaps.overlay.Base, {
+
+                setMap: function (map) {
+                    controller.ArrowOverlay.superclass.setMap.call(this, map);
+                    //заместо себя создадим графический оверлей и свяжем его с картой
+                    if (map) {
+                        this._graphicsOverlay = ymaps.geoObject.overlayFactory.staticGraphics.createOverlay(this.getArrowGeometry(), this._data);
+                        this._graphicsOverlay.options.setParent(this.options);
+                        this._graphicsOverlay.setMap(this._map);
+                    } else {
+                        if (this._graphicsOverlay) {
+                            this._graphicsOverlay.setMap(null);
+                            this._graphicsOverlay = null;
+                        }
+                    }
+                },
+
+                getArrowGeometry: function () {
+					//в данной функции используется закрытые модули graphics.Path и graphics.generator
+					//на самом деле их использовать очень сильно не рекомендуется
+					var lines = this.getGeometry().getCoordinates(),
+						strokeWidth = this.options.get('strokeWidth'),
+						arrowWidth = strokeWidth * 1.5,
+						result = [],
+						point, lastPoint,
+						vector, length, normal,
+						arrow1, arrow2;
+                    for (var i = 1; i < lines.length; ++i) {
+						point = lines[i];
+						lastPoint = lines[i - 1];
+						vector = [point[0] - lastPoint[0], point[1] - lastPoint[1]];
+						length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
+						
+						if(length>10*strokeWidth){
+							normal = [-arrowWidth * vector[0] / length, -arrowWidth * vector[1] / length];
+							arrow1 = [-normal[1], normal[0]];
+							arrow2 = [ normal[1], -normal[0]];
+							result.push([point[0] - arrow1[0] + normal[0] * 2, point[1] - arrow1[1] + normal[1] * 2]);
+							result.push(point);
+							result.push([point[0] - arrow2[0] + normal[0] * 2, point[1] - arrow2[1] + normal[1] * 2]);
+							result.push(0);
+						}
+						result.push(point);
+						result.push(lastPoint);
+						result.push(0);
+                    }
+                    return new ymaps.geometry.pixel.LineString(result, 'nonZero');
+                },
+
+                applyGeometry: function () {
+                    //пробрасываем геометрию
+                    this._graphicsOverlay.setGeometry(this.getArrowGeometry());
+                }
+            });
+            
+            controller.myFactory = new ymaps.geoObject.OverlayFactory();
+            controller.myFactory.add("LineString", controller.ArrowOverlay);
 			
 			controller.terminalCollection = new ymaps.GeoObjectCollection(
 				{},

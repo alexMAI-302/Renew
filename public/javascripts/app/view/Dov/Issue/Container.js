@@ -7,12 +7,18 @@ Ext.define('app.view.Dov.Issue.Container', {
 		'app.view.Dov.Issue.Form'
 	],
 	
+	layout: {
+		type: 'border'
+	},
+	
 	title: 'Выдача доверенностей',
 	items: [
 		{
-			xtype: 'dovIssueForm'
+			xtype: 'dovIssueForm',
+			region: 'north'
 		},
 		{
+			region: 'center',
 			xtype: 'simpleGrid',
 			suffix: 'DovIssue',
 			disableRefresh: true,
@@ -21,7 +27,6 @@ Ext.define('app.view.Dov.Issue.Container', {
 			disableDelete: true,
 			disableDeleteColumn: true,
 			title: 'Выданные торговому представителю доверенности за сегодня',
-			height: '100%',
 			columns: [
 				{
 					width: 350,
