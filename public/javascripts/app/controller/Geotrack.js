@@ -134,7 +134,7 @@ Ext.define('app.controller.Geotrack', {
 			ddate = Ext.getCmp('filterGeotrackDdate').getValue(),
 			agent = Ext.getCmp('GeoTrackAgentsTable').getSelectionModel().getSelection()[0];
 		
-		controller.refreshMapData(ddate, agent.get('id'));
+		controller.refreshMapData(ddate, (agent!=null)?agent.get('id'):null);
 	},
 
 	filterMaster: function(){
