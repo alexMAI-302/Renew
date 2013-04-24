@@ -85,7 +85,7 @@ Ext.define('app.controller.Geotrack', {
 						}
 						
 						if(controller.map.geoObjects.getBounds()!=null){
-							controller.map.setBounds(controller.map.geoObjects.getBounds());
+							controller.setBounds(controller.map.geoObjects.getBounds());
 						}
 					}
 					
@@ -121,7 +121,7 @@ Ext.define('app.controller.Geotrack', {
 						}
 						
 						if(controller.map.geoObjects.getBounds()!=null){
-							controller.map.setBounds(controller.map.geoObjects.getBounds());
+							controller.setBounds(controller.map.geoObjects.getBounds());
 						}
 					}
 				}
@@ -135,6 +135,20 @@ Ext.define('app.controller.Geotrack', {
 			agent = Ext.getCmp('GeoTrackAgentsTable').getSelectionModel().getSelection()[0];
 		
 		controller.refreshMapData(ddate, (agent!=null)?agent.get('id'):null);
+	},
+	
+	setBounds: function(bounds){
+		var controller = this;
+		
+		controller.map.setBounds(bounds);
+		ymaps.getZoomRange('yandex#map', controller.map.getCenter()).then(
+			function(zoomRange){
+				var currentZoom=controller.map.getZoom();
+				if(currentZoom>zoomRange[1]){
+					controller.map.setZoom(zoomRange[1]);
+				}
+			}
+		);
 	},
 
 	filterMaster: function(){
@@ -182,7 +196,15 @@ Ext.define('app.controller.Geotrack', {
 								o.options.set('strokeColor', '0000FF');
 								o.options.set('strokeWidth', '4');
 								o.options.set('opacity', '0.5');
-								controller.map.setBounds(o.geometry.getBounds());
+								controller.setBounds(o.geometry.getBounds());
+								ymaps.getZoomRange('yandex#map', controller.map.getCenter()).then(
+									function(zoomRange){
+										var currentZoom=controller.map.getZoom();
+										if(currentZoom>zoomRange[1]){
+											controller.map.setZoom(coords, zoomRange[1]);
+										}
+									}
+								);
 								o.balloon.open(o.geometry.get(0));
 							} else {
 								o.options.set('strokeColor', '555555');
