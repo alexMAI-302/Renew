@@ -29,6 +29,7 @@ Ext.define('app.view.Comp.Container', {
 			disableDelete: true,
 			disableDeleteColumn: true,
 			title: 'Комплектующие',
+			editing: 'row',
 			columns: [
 				{
 					width: 350,
