@@ -31,9 +31,6 @@ Ext.define('app.view.incomeReturn.container', {
 			height: 400,
 			viewConfig: {
 				enableTextSelection: true,
-				//getRowClass: function(record, rowIndex, rowParams, store){
-				//	return record.get('row_class');
-				//},
 				listeners: {
 					itemkeydown: function(view, record, item, index, e, eOpts){
 						if(e.getKey()==e.ENTER){
@@ -49,17 +46,6 @@ Ext.define('app.view.incomeReturn.container', {
 							}
 						}
 						return true;
-					},
-					selectionchangehange: function(sm, selected, eOpts){
-						if(selected!=null && selected.length>0){
-							Ext.Msg.alert("selectionchangehange 1" );
-						} else {
-							Ext.Msg.alert("selectionchangehange 2" );
-						}
-						return true;
-					},
-					focuschange: function (sm, oldFocused, newFocused, eOpts) {
-						Ext.Msg.alert('oldFocused = ' + String(oldFocused) + '; newFocused = ' + String(newFocused));
 					}
 				}
 				
@@ -80,25 +66,10 @@ Ext.define('app.view.incomeReturn.container', {
 									cellEditingIncomeReturn.startEdit(newFocused.index, 9);								
 								}
 							}
-							//Ext.Msg.alert('oldFocused = ' + String(oldFocused) + '; newFocused = ' + String(newFocused));
 						}
 					});
 				}
 			},	
-		
-			/*listeners: {
-					selectionchangehange: function(sm, selected, eOpts){
-						if(selected!=null && selected.length>0){
-							Ext.Msg.alert("selectionchangehange 1" );
-						} else {
-							Ext.Msg.alert("selectionchangehange 2" );
-						}
-						return true;
-					},
-					focuschange: function (sm, oldFocused, newFocused, eOpts) {
-						Ext.Msg.alert('oldFocused = ' + String(oldFocused) + '; newFocused = ' + String(newFocused));
-					}
-			},*/
 				
 			columns: [
 				{
@@ -300,10 +271,6 @@ Ext.define('app.view.incomeReturn.container', {
 				}
 				
 			],
-			plugins: [Ext.create('Ext.grid.plugin.CellEditing', {
-				clicksToEdit: 1,
-				 pluginId: 'cellEditingIncomeReturn'
-			})],
 			features: [{
 				ftype: 'summary'
 			}]
