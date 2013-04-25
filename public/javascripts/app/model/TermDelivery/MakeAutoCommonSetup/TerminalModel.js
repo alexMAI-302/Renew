@@ -11,6 +11,7 @@ Ext.define('app.model.TermDelivery.MakeAutoCommonSetup.TerminalModel', {
 	{name: 'thursday'	, type:'boolean'},
 	{name: 'friday'		, type:'boolean'},
 	{name: 'saturday'	, type:'boolean'},
-	{name: 'sunday'		, type:'boolean'}
+	{name: 'sunday'		, type:'boolean'},
+	{name: 'exclude'		, type:'boolean'}
 	]
 });
