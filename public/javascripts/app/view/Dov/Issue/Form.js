@@ -18,6 +18,7 @@ Ext.define('app.view.Dov.Issue.Form', {
 			id: 'palmSalesmanIssue',
 			xtype: 'combobox',
 			fieldLabel: 'Торг. пред.',
+			queryMode: 'local',
 			valueField: 'id',
 			displayField: 'name'
 		},

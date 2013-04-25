@@ -12,26 +12,8 @@ class DovController < ApplicationSimpleErrorController
   end
 
   def get_palm_salesmans
-    query=(params[:query].nil?) ? '' : params[:query]
     res=ActiveRecord::Base.connection.select_all(
-    "SELECT TOP #{params[:limit].to_i}
-      ps.salesman_id id,
-      ps.name
-    FROM
-      palm_salesman ps
-    WHERE
-      ps.name like '%'+'#{ActiveRecord::Base.connection.quote_string(query)}'+'%'
-      AND
-      ps.site = (
-      SELECT
-        ds.site
-      FROM
-        renew_web.renew_user_dov_site ds
-        JOIN renew_web.renew_users ru ON ds.renew_user_id=ru.id
-      WHERE
-        ru.name='#{ActiveRecord::Base.connection.quote_string(session[:user_id])}')
-      ORDER BY
-        name")
+    "call renew_web.dov_get_palm_salesmans('#{ActiveRecord::Base.connection.quote_string(session[:user_id])}')")
     render :text => res.to_json
   end
 

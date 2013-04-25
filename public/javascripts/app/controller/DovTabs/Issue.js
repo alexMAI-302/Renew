@@ -117,6 +117,8 @@ Ext.define('app.controller.DovTabs.Issue', {
 		
 		controller.dovStore=controller.getDovIssueDovStore();
 		controller.palmSalesmansStore=Ext.create('app.store.Dov.PalmSalesmans');
+		
+		controller.palmSalesmansStore.load();
 	},
 	
 	bindStores: function(){
