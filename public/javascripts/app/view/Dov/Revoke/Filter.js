@@ -22,6 +22,7 @@ Ext.define('app.view.Dov.Revoke.Filter', {
 					id: 'palmSalesmanRevoke',
 					xtype: 'combobox',
 					fieldLabel: 'Торг. пред.',
+					queryMode: 'local',
 					valueField: 'id',
 					displayField: 'name',
 					labelWidth: 80

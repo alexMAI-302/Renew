@@ -87,24 +87,24 @@ Ext.define('app.controller.DovTabs.Revoke', {
 		var controller=this;
 		
 		controller.dovStore=controller.getDovRevokeDovStore();
-		controller.palmSalesmansStore=controller.getDovPalmSalesmansStore();
+		controller.palmSalesmansStore=Ext.create('app.store.Dov.PalmSalesmans');
 		
+		controller.palmSalesmansStore.add({
+			id: -1,
+			name: 'ВСЕ'
+		});
+		Ext.getCmp('palmSalesmanRevoke').setValue(-1);
 		controller.palmSalesmansStore.addListener({
 			load: function(store, records, successful, eOpts){
-				if(successful===true){
-					var r=Ext.ModelManager.create({
-							id: -1,
-							name: 'ВСЕ'
-						}, 'app.model.valueModel');
-					store.insert(0, r);
-					Ext.getCmp('palmSalesmanRevoke').setValue(r);
-				} else {
+				if(successful!==true){
 					Ext.Msg.alert("Ошибка", "Ошибка при загрузке списка торговых представителей. Попробуйте обновить страницу.")
 				}
 			}
 		});
 		
-		controller.palmSalesmansStore.load();
+		controller.palmSalesmansStore.load({
+			addRecords: true
+		});
 	},
 	
 	bindStores: function(){

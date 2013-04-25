@@ -75,6 +75,13 @@ Ext.define('app.view.TermDelivery.MakeAutoCommonSetup.Grid', {
 				align: 'center',
 				dataIndex: 'sunday',
 				xtype: 'checkcolumn'
+			},
+			{
+				width: 130,
+				header: 'Исключить из маршрута',
+				align: 'center',
+				dataIndex: 'exclude',
+				xtype: 'checkcolumn'
 			}
 		]
     }

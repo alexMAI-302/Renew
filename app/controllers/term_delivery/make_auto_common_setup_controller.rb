@@ -38,7 +38,8 @@ class TermDelivery::MakeAutoCommonSetupController < ApplicationSimpleErrorContro
             GET_BIT(sd.week_days, 5) thursday,
             GET_BIT(sd.week_days, 6) friday,
             GET_BIT(sd.week_days, 7) saturday,
-            GET_BIT(sd.week_days, 1) sunday
+            GET_BIT(sd.week_days, 1) sunday,
+			exclude
           FROM
             pps_terminal pt
             LEFT JOIN pps_terminal_skip_days sd ON sd.terminal_id=pt.id
@@ -74,17 +75,19 @@ class TermDelivery::MakeAutoCommonSetupController < ApplicationSimpleErrorContro
       friday=params[:friday]? 1 : 0
       saturday=params[:saturday]? 1 : 0
       sunday=params[:sunday]? 1 : 0
-
-      if (monday+tuesday+wednesday+thursday+friday+saturday+sunday>=1)
+	  exclude=params[:exclude]? 1 : 0
+      if (monday+tuesday+wednesday+thursday+friday+saturday+sunday+exclude>=1)
         ActiveRecord::Base.connection.execute("
           INSERT INTO pps_terminal_skip_days(
             terminal_id,
-            week_days
+            week_days,
+			exclude
           )
           ON EXISTING UPDATE
           VALUES(
             #{id},
-            '#{sunday}#{monday}#{tuesday}#{wednesday}#{thursday}#{friday}#{saturday}'
+            '#{sunday}#{monday}#{tuesday}#{wednesday}#{thursday}#{friday}#{saturday}',
+			#{exclude}
           )")
       else
         ActiveRecord::Base.connection.execute("
