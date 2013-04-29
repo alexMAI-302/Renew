@@ -37,7 +37,7 @@ Ext.define('app.view.incomeReturn.container', {
 							var sm=Ext.getCmp('IncomeReturnTable').getSelectionModel(),
 								r=sm.getSelection()[0],
 								 store = Ext.getCmp('IncomeReturnTable').getStore(),
-								 cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('cellEditingIncomeReturn');
+								 cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('celleditingIncomeReturn');
 							if (store.getCount() > index + 1 ) {
 								e.stopEvent();
 								cellEditingIncomeReturn.cancelEdit();
@@ -50,26 +50,6 @@ Ext.define('app.view.incomeReturn.container', {
 				}
 				
 			},
-
-			listeners: {
-				afterrender: function (grid) {
-					var lastFocus=0;
-					grid.getSelectionModel().on({
-						focuschange: function (sm, oldFocused, newFocused, eOpts) {
-							
-							if (oldFocused!=null) {
-								lastFocus=oldFocused;
-							}
-							if (newFocused!=null){
-								if (newFocused!=lastFocus) {
-									cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('cellEditingIncomeReturn');
-									cellEditingIncomeReturn.startEdit(newFocused.index, 9);								
-								}
-							}
-						}
-					});
-				}
-			},	
 				
 			columns: [
 				{
@@ -110,8 +90,8 @@ Ext.define('app.view.incomeReturn.container', {
 								if(e.getKey()==e.ENTER){
 									var sm=Ext.getCmp('IncomeReturnTable').getSelectionModel(),
 										 store = Ext.getCmp('IncomeReturnTable').getStore(),
-										cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('cellEditingIncomeReturn');
-								 var index=sm.getCurrentPosition().row;
+										cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('celleditingIncomeReturn'),
+										index=sm.getSelection()[0].index;
 									if (store.getCount() > index + 1 ) {
 										cellEditingIncomeReturn.cancelEdit();
 										cellEditingIncomeReturn.startEdit(index + 1, 9);
@@ -153,8 +133,8 @@ Ext.define('app.view.incomeReturn.container', {
 								if(e.getKey()==e.ENTER){
 									var sm=Ext.getCmp('IncomeReturnTable').getSelectionModel(),
 										 store = Ext.getCmp('IncomeReturnTable').getStore(),
-										cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('cellEditingIncomeReturn');
-								 var index=sm.getCurrentPosition().row;
+										cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('celleditingIncomeReturn'),
+										index=sm.getSelection()[0].index;
 									if (store.getCount() > index + 1 ) {
 										cellEditingIncomeReturn.cancelEdit();
 										cellEditingIncomeReturn.startEdit(index + 1, 9);
@@ -195,8 +175,8 @@ Ext.define('app.view.incomeReturn.container', {
 								if(e.getKey()==e.ENTER){
 									var sm=Ext.getCmp('IncomeReturnTable').getSelectionModel(),
 										 store = Ext.getCmp('IncomeReturnTable').getStore(),
-										cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('cellEditingIncomeReturn');
-								 var index=sm.getCurrentPosition().row;
+										cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('celleditingIncomeReturn'),
+										index=sm.getSelection()[0].index;
 									if (store.getCount() > index + 1 ) {
 										cellEditingIncomeReturn.cancelEdit();
 										cellEditingIncomeReturn.startEdit(index + 1, 9);
@@ -245,8 +225,8 @@ Ext.define('app.view.incomeReturn.container', {
 								if(e.getKey()==e.ENTER){
 									var sm=Ext.getCmp('IncomeReturnTable').getSelectionModel(),
 										 store = Ext.getCmp('IncomeReturnTable').getStore(),
-										cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('cellEditingIncomeReturn');
-								 var index=sm.getCurrentPosition().row;
+										cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('celleditingIncomeReturn'),
+										index=sm.getSelection()[0].index;
 									if (store.getCount() > index + 1 ) {
 										cellEditingIncomeReturn.cancelEdit();
 										cellEditingIncomeReturn.startEdit(index + 1, 9);

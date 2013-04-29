@@ -27,6 +27,7 @@ Ext.define('app.view.WmsQueue.Filter', {
 				valueField: 'id',
 				displayField: 'name',
 				queryMode: 'local',
+				value: 0,
 				store: {
 					fields: ["id", "name"],
 					data: [

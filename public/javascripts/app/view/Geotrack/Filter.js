@@ -63,6 +63,12 @@ Ext.define('app.view.Geotrack.Filter', {
 					disableAdd: true,
 					disableSave: true,
 					title: 'Трэки',
+					afterButtons: [
+						{
+							xtype: 'text',
+							id: 'GeoTracksDistance'
+						}
+					],
 					disabled: true,
 					columns: [
 						{
@@ -75,7 +81,8 @@ Ext.define('app.view.Geotrack.Filter', {
 							renderer: function(v, metaData, r){
 								return "Начало: " + Ext.Date.format(r.get('start_time'), 'H:i:s') +
 								"<br/> Конец: " + Ext.Date.format(r.get('finish_time'), 'H:i:s') +
-								"<br/> Точек: " + r.get('points_quantity');
+								"<br/> Точек: " + r.get('points_quantity') +
+								"<br/> Длина: " + Ext.Number.toFixed(r.get('track_distance'), 0) + ' м';
 							},
 							disabled: true
 						}
