@@ -5,6 +5,7 @@ Ext.define('app.model.Geotrack.TrackModel', {
 	{name: 'start_time'		, type: 'date',		useNull: true, persists: false},
 	{name: 'finish_time'	, type: 'date',		useNull: true, persists: false},
 	{name: 'points_quantity', type: 'int',		useNull: true, persists: false},
+	{name: 'track_distance'	, type: 'float',	useNull: true, persists: false},
 	{
 		name: 'points',
 		type: 'string',

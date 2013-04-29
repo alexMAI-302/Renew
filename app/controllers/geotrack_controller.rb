@@ -1,13 +1,13 @@
 # encoding: utf-8
 
-class GeotrackController < ApplicationPageErrorController
+class GeotrackController < ApplicationSimpleErrorController
   def get_tracks
     ddate=Time.parse(params[:ddate]).strftime('%F')
     rst = ActiveRecord::Base.connection.select_all("
     call dbo.geotrack_get_routepoints(
       '#{ddate}',
       '#{ddate}',
-      '#{params[:agent_id].to_i}')")
+      #{params[:agent_id].to_i})")
 
     current_track = nil
     tracks=[]
@@ -17,7 +17,7 @@ class GeotrackController < ApplicationPageErrorController
           :id => point["track_id"],
           :start_time => Time.parse(point['start_time']),
           :finish_time => Time.parse(point['finish_time']),
-          :distance => point['distance'],
+          :track_distance => point['track_distance'],
           :points => []
         }
         tracks << current_track
@@ -43,10 +43,21 @@ class GeotrackController < ApplicationPageErrorController
   def get_terminals
     ddate=Time.parse(params[:ddate]).strftime('%F')
     rst = ActiveRecord::Base.connection.select_all("
-    call dbo.geotrack_get_terminals(
+    SELECT
+      terminal id,
+      code,
+      terminalid,
+      longitude,
+      latitude,
+      cts_ok,
+      ok_distance,
+      ok_longitude,
+      ok_latitude
+    FROM
+      dbo.geotrack_get_terminals_with_ok(
       '#{ddate}',
       '#{ddate}',
-      '#{params[:agent_id].to_i}')")
+      #{params[:agent_id].to_i})")
 
     render :text => rst.to_json
   end

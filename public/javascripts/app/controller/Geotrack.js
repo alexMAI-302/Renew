@@ -27,6 +27,7 @@ Ext.define('app.controller.Geotrack', {
 	center: [55.7, 37.6],
 	trackLines: null,
 	terminalCollection: null,
+	okPointsCollection: null,
 	
 	ArrowOverlay: null,
 	myFactory: null,
@@ -38,10 +39,13 @@ Ext.define('app.controller.Geotrack', {
 	},
 	
 	refreshMapData: function(ddate, agentId){
-		var controller = this;
+		var controller = this,
+			distanceText = Ext.getCmp('GeoTracksDistance');
 		
 		controller.trackLines.removeAll();
 		controller.terminalCollection.removeAll();
+		controller.okPointsCollection.removeAll();
+		distanceText.setText('');
 		
 		if(ddate!=null && ddate!="" && agentId>0){
 			controller.mainContainer.setLoading(true);
@@ -54,7 +58,7 @@ Ext.define('app.controller.Geotrack', {
 					if(success!==true){
 						Ext.Msg.alert("Ошибка", "Ошибка при получении трэков");
 					} else {
-						var trackLine;
+						var trackLine, distance=0;
 						
 						for(var i=0; i<records.length; i++){
 							if(records[i].pointsArray!=null && records[i].pointsArray.length>0){
@@ -82,7 +86,10 @@ Ext.define('app.controller.Geotrack', {
 								);
 								controller.trackLines.add(trackLine);
 							}
+							distance+=records[i].get('track_distance');
 						}
+						
+						distanceText.setText('Общая длина: ' + Ext.Number.toFixed(distance/1000, 2)+' км');
 						
 						if(controller.map.geoObjects.getBounds()!=null){
 							controller.setBounds(controller.map.geoObjects.getBounds());
@@ -102,7 +109,7 @@ Ext.define('app.controller.Geotrack', {
 					if(success!==true){
 						Ext.Msg.alert("Ошибка", "Ошибка при получении терминалов");
 					} else {
-						var terminal;
+						var terminal, okPoint;
 						
 						for(var i=0; i<records.length; i++){
 							
@@ -112,12 +119,23 @@ Ext.define('app.controller.Geotrack', {
 									id: records[i].get('id'),
 									code: records[i].get('code'),
 									terminalid: records[i].get('terminalid')
-								},
-								{
-									preset: "twirl#bankIcon"
 								}
 							);
 							controller.terminalCollection.add(terminal);
+							
+							if(records[i].get('ok_latitude')>0){
+								okPoint = new ymaps.Placemark(
+									[records[i].get('ok_latitude'), records[i].get('ok_longitude')],
+									{
+										id: records[i].get('id'),
+										code: records[i].get('code'),
+										terminalid: records[i].get('terminalid'),
+										ok_distance: records[i].get('ok_distance'),
+										cts_ok: Ext.Date.format(records[i].get('cts_ok'), 'c')
+									}
+								);
+								controller.okPointsCollection.add(okPoint);
+							}
 						}
 						
 						if(controller.map.geoObjects.getBounds()!=null){
@@ -340,6 +358,8 @@ Ext.define('app.controller.Geotrack', {
 			controller.terminalCollection = new ymaps.GeoObjectCollection(
 				{},
 				{
+					iconImageHref: '/images/terminal.png',
+					iconImageSize: [19, 26],
 					balloonContentLayout: ymaps.templateLayoutFactory.createClass(
 						'<p>Код: $[properties.code]</p>' +
 						'<p>TerminalID: $[properties.terminalid]</p>'
@@ -347,8 +367,23 @@ Ext.define('app.controller.Geotrack', {
 				}
 			);
 			
+			controller.okPointsCollection = new ymaps.GeoObjectCollection(
+				{},
+				{
+					iconImageHref: '/images/ok.png',
+					iconImageSize: [19, 26],
+					balloonContentLayout: ymaps.templateLayoutFactory.createClass(
+						'<p>Код: $[properties.code]</p>' +
+						'<p>TerminalID: $[properties.terminalid]</p>' +
+						'<p>Время: $[properties.cts_ok]</p>' +
+						'<p>$[properties.ok_distance] м до терминала</p>'
+					)
+				}
+			);
+			
 			controller.map.geoObjects.add(controller.trackLines);
 			controller.map.geoObjects.add(controller.terminalCollection);
+			controller.map.geoObjects.add(controller.okPointsCollection);
 			
 			controller.mainContainer.setLoading(false);
 		});
