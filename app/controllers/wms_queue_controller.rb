@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class WmsQueueController < ApplicationPageErrorController
+class WmsQueueController < ApplicationSimpleErrorController
   
   def wms_queue_entries
     method=request.method.to_s
