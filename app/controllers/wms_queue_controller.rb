@@ -11,7 +11,7 @@ class WmsQueueController < ApplicationPageErrorController
       extra_conditions+="AND reply LIKE '%'+#{ActiveRecord::Base.connection.quote(params[:reply])}+'%' " if !(params[:reply].nil?) && params[:reply]!=""
       extra_conditions+="AND result = #{params[:result].to_i} " if !(params[:result].nil?) && params[:result]!="" && params[:result].to_i!=-2 
       query = "
-      SELECT TOP 1000
+      SELECT TOP 50
         *
       FROM
         wms_queue
