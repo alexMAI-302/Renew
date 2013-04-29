@@ -51,7 +51,7 @@ Ext.define('app.controller.incomeReturn', {
 			if(key==e.UP || key==e.DOWN || key==e.ENTER ){
 				var direction = (key==e.UP)? -1 : (key==e.DOWN || key==e.ENTER ? 1 : 0),
 					index = irStore.indexOf(r) + direction,
-					editingPlugin = Ext.getCmp('IncomeReturnTable').getPlugin('cellEditingIncomeReturn');
+					editingPlugin = Ext.getCmp('IncomeReturnTable').getPlugin('celleditingIncomeReturn');
 				
 				e.stopEvent();
 				if(index>=0 && index<irStore.getCount()){
@@ -203,7 +203,19 @@ Ext.define('app.controller.incomeReturn', {
 						controller.incomeReturnStore.removeAll(true);
 					}
 				}
-			}
+			},
+			'#IncomeReturnTable': {
+				selectionchange: function(sm, selected, eOpts){
+					var s=(selected!=null)?selected[0]:null,
+						row=Ext.getCmp('IncomeReturnTable').getSelectionModel().getSelection()[0];
+					if (s!=null){
+						cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('celleditingIncomeReturn');
+						cellEditingIncomeReturn.startEdit(s.index, 9);								
+					}
+					return true;
+				}
+			},
+
 		});
 			
 	},
@@ -434,7 +446,7 @@ Ext.define('app.controller.incomeReturn', {
 			if(key==e.UP || key==e.DOWN || key==e.ENTER ){
 				var direction = (key==e.UP)? -1 : (key==e.DOWN || key==e.ENTER ? 1 : 0),
 					index = irStore.indexOf(r) + direction,
-					editingPlugin = Ext.getCmp('IncomeReturnTable').getPlugin('cellEditingIncomeReturn');
+					editingPlugin = Ext.getCmp('IncomeReturnTable').getPlugin('celleditingIncomeReturn');
 				
 				e.stopEvent();
 				if(index>=0 && index<irStore.getCount()){
