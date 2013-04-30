@@ -21,19 +21,11 @@ Ext.define('app.model.WmsQueue.WmsQueueEntryModel', {
 		{
 			name: "request",
 			type: "string",
-			convert: function(v){
-				v=Ext.String.htmlEncode(v);
-				return v.replace(/\n/g, '<br/>');
-			},
 			persist: false
 		},
 		{
 			name: "reply",
 			type: "string",
-			convert: function(v){
-				v=Ext.String.htmlEncode(v);
-				return v.replace(/\n/g, '<br/>');
-			},
 			persist: false
 		},
 		{
