@@ -1,0 +1,9 @@
+<% content_for :title do %>
+О программе
+<% end %>
+
+<% content_for :content do %>
+	<div id="main">
+		Приложение соответствует <%= link_to "коммиту", @commit %> от <%= @ddate.strftime("%d.%m.%Y %H:%M:%S") %>
+	</div>
+<% end %>
