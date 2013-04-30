@@ -2,7 +2,7 @@
 class AboutController < ApplicationSimpleErrorController
 
 	def index	
-		f = IO.popen("cd /var/www/renew\ngit log -1 --pretty=format:'%H %ci'") 
+		f = IO.popen("cd #{RAILS_ROOT}\ngit log -1 --pretty=format:'%H %ci'") 
 		gitlog = f.readlines #возвращает массив строк (в нашем случае всего одна строка)
 		f.close
 
