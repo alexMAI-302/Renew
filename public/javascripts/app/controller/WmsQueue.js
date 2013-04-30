@@ -21,7 +21,7 @@ Ext.define('app.controller.WmsQueue', {
 			request: Ext.getCmp('filterRequestWmsQueue').getValue(),
 			reply: Ext.getCmp('filterReplyWmsQueue').getValue(),
 			result: Ext.getCmp('filterResultWmsQueue').getValue(),
-			trans_id: Ext.getCmp('filterTransId').getValue()
+			trans_id: Ext.getCmp('filterTransIdWmsQueue').getValue()
 		};
 		
 		controller.masterStore.load(
