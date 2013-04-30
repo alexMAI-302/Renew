@@ -75,12 +75,26 @@ Ext.define('app.view.WmsQueue.Container', {
 			{
 				width: 200,
 				header: 'Запрос',
-				dataIndex: 'request'
+				dataIndex: 'request',
+				renderer: function(v){
+					v=Ext.String.htmlEncode(v);
+					return v.substr(0, 255);
+				},
+				editor: {
+					xtype: 'textarea'
+				}
 			},
 			{
 				width: 200,
 				header: 'Ответ',
-				dataIndex: 'reply'
+				dataIndex: 'reply',
+				renderer: function(v){
+					v=Ext.String.htmlEncode(v);
+					return v.substr(0, 255);
+				},
+				editor: {
+					xtype: 'textarea'
+				}
 			},
 			{
 				width: 50,

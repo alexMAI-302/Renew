@@ -6,20 +6,22 @@ class WmsQueueController < ApplicationSimpleErrorController
     method=request.method.to_s
     case method
     when "get"
-      extra_conditions=""
+      extra_conditions="ts>='#{Time.parse(params[:ddateb]).strftime('%F %T')}'
+        AND
+        ts< DATEADD(day, 1, '#{Time.parse(params[:ddatee]).strftime('%F %T')}')"
       extra_conditions+="AND request LIKE '%'+#{ActiveRecord::Base.connection.quote(params[:request])}+'%' " if !(params[:request].nil?) && params[:request]!=""
       extra_conditions+="AND reply LIKE '%'+#{ActiveRecord::Base.connection.quote(params[:reply])}+'%' " if !(params[:reply].nil?) && params[:reply]!=""
-      extra_conditions+="AND result = #{params[:result].to_i} " if !(params[:result].nil?) && params[:result]!="" && params[:result].to_i!=-2 
+      extra_conditions+="AND result = #{params[:result].to_i} " if !(params[:result].nil?) && params[:result]!="" && params[:result].to_i!=-2
+      
+      trans_condition = (params[:trans_id].to_i>0)? "trans_id = #{params[:trans_id].to_i}" : nil
+      
       query = "
       SELECT TOP 50
         *
       FROM
         wms_queue
       WHERE
-        ts>='#{Time.parse(params[:ddateb]).strftime('%F %T')}'
-        AND
-        ts< DATEADD(day, 1, '#{Time.parse(params[:ddatee]).strftime('%F %T')}')
-        #{extra_conditions}
+        #{(trans_condition.nil?)?extra_conditions:trans_condition}
       ORDER BY
         ts DESC"
         
@@ -36,7 +38,7 @@ class WmsQueueController < ApplicationSimpleErrorController
       xid=ActiveRecord::Base.connection.quote(xid)
       res = ActiveRecord::Base.connection.select_all("
       BEGIN
-        call process_wms_flashback(#{xid});
+        call process_wms_flashback(#{xid}, 1);
         SELECT
           *
         FROM

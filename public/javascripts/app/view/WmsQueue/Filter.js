@@ -7,6 +7,13 @@ Ext.define('app.view.WmsQueue.Filter', {
 		shiftBegin: -1,
 		filterItems: [
 			{
+				id: 'filterTransId',
+				xtype: 'textfield',
+				fieldLabel: 'trans_id',
+				width: 100,
+				labelWidth: 40
+			},
+			{
 				id: 'filterRequest',
 				xtype: 'textfield',
 				fieldLabel: 'Запрос',
