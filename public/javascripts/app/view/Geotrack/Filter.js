@@ -65,7 +65,6 @@ Ext.define('app.view.Geotrack.Filter', {
 					title: 'Трэки',
 					afterButtons: [
 						{
-							xtype: 'text',
 							id: 'GeoTracksDistance'
 						}
 					],
