@@ -10,9 +10,6 @@ Ext.define('app.view.empSchedule.container', {
 	width: '100%',
 	height: 700,
 	
-	layout: {
-		type: 'border'
-	},
 	
 	items: [
 		{
