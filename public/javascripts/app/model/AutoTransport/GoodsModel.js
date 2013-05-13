@@ -12,7 +12,7 @@ Ext.define('app.model.AutoTransport.GoodsModel', {
 		name: 'sum',
 		type:'float',
 		convert: function(value, record){
-			return record.get('vol')*record.get('price');
+			return (value>0)?value:record.get('vol')*record.get('price');
 		},
 		persist: false
 	}]

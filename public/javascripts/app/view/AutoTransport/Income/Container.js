@@ -4,7 +4,8 @@ Ext.define('app.view.AutoTransport.Income.Container', {
 	
 	requires: [
 		'app.view.Lib.DateIntervalFilter',
-		'app.view.Lib.Grid.Panel'
+		'app.view.AutoTransport.Income.Grid',
+		'app.view.AutoTransport.Income.ItemsGrid'
 	],
 	
 	layout: {
@@ -30,117 +31,13 @@ Ext.define('app.view.AutoTransport.Income.Container', {
 			region: 'north'
 		},
 		{
-			xtype: 'simpleGrid',
-			suffix: 'Income',
-			title: 'Приход',
-			disableSave: true,
-			disableDeleteColumn: true,
-			disableRefresh: true,
-			columns: [
-				{
-					width: 120,
-					header: 'Дата',
-					dataIndex: 'ddate',
-					xtype: 'datecolumn',
-					format: 'd.m.Y H:i',
-					field: {
-						xtype: 'datefield',
-						format: 'd.m.Y H:i',
-						value: Ext.Date.parse(Ext.Date.format(new Date(), 'd.m.Y H:i'), 'd.m.Y H:i')
-					}
-				},
-				{
-					width: 70,
-					header: 'Тип',
-					dataIndex: 'type',
-					field: {
-						xtype: 'combo',
-						displayField: 'name',
-						valueField: 'id'
-					}
-				},
-				{
-					width: 170,
-					header: 'Поставщик',
-					dataIndex: 'at_seller'
-				},
-				{
-					width: 70,
-					xtype: 'numbercolumn',
-					format: '0,00',
-					header: 'Сумма',
-					dataIndex: 'sum'
-				}
-			],
+			xtype: 'incomeGrid',
 			region: 'center',
 			split: true,
 			flex: 1
 		},
 		{
-			xtype: 'simpleGrid',
-			suffix: 'IncGoods',
-		    disabled: true,
-		    disableSave: true,
-		    disableDeleteColumn: true,
-			columns: [
-				{
-					width: 170,
-					header: 'Группа',
-					dataIndex: 'at_ggroup'
-				},
-				{
-					width: 400,
-					header: 'Наименование',
-					dataIndex: 'at_goods'
-				},
-				{
-					width: 80,
-					header: 'Количество',
-					dataIndex: 'vol',
-					field: {
-						xtype: 'numberfield',
-						minValue: 0.0001
-					}
-				},
-				{
-					width: 120,
-					header: 'Единица измерения',
-					dataIndex: 'measure'
-				},
-				{
-					width: 80,
-					header: 'Цена',
-					dataIndex: 'price',
-					field: {
-						xtype: 'numberfield',
-						minValue: 0
-					}
-				},
-				{
-					width: 80,
-					header: 'Сумма',
-					dataIndex: 'sum',
-					summaryType: 'sum'
-				}
-			],
-			plugins: [Ext.create('Ext.grid.plugin.CellEditing', {
-				clicksToEdit: 1,
-				pluginId: 'cellEditingIncomeGoods',
-				listeners:{
-					edit: function(editor, e){
-						var r=e.record;
-						r.set('sum', r.get('vol')*r.get('price'));
-						e.grid.view.refresh();
-						e.grid.view.saveScrollState();
-						e.grid.view.refresh();
-						e.grid.view.restoreScrollState();
-						return true;
-					}
-				}
-			})],
-			features: [{
-				ftype: 'summary'
-			}],
+			xtype: 'incGoodsGrid',
 			region: 'south',
 			flex: 1
 		}

@@ -3,7 +3,6 @@ Ext.define('app.view.Lib.Grid.Panel', {
 	alias : 'widget.simpleGrid',
 
 	/**
-	 * Creates the Proxy
 	 * @param {Object} config Config object.
 	 * suffix - специальное имя для компонента. используется при построении идентификатора объектов и плагинов
 	 * disable* - не использовать данную кнопку или функцию
@@ -174,5 +173,40 @@ Ext.define('app.view.Lib.Grid.Panel', {
 		Ext.apply(this, config);
 
 		this.callParent(arguments);
+	},
+	
+	makeComboColumn: function(column, storeCombo, allowNull, onlyRenderer){
+		function renderer(value){
+			var matching = null,
+				data=storeCombo.snapshot || storeCombo.data;
+			data.each(function(record){
+				if(record.get('id')==value){
+					matching=record.get('name');
+				}
+				return matching==null;
+			});
+			return matching;
+		};
+		
+		if(!onlyRenderer){
+			column.field = Ext.create('Ext.form.ComboBox', {
+				store: storeCombo,
+				queryMode: 'local',
+				displayField: 'name',
+				valueField: 'id',
+				value: "",
+				autoSelect: (allowNull!==true)
+			});
+		}
+		column.renderer=renderer;
+		
+		column.doSort = function(state){
+			this.store.sort({
+				property: column.dataIndex,
+				transform: renderer,
+				direction: state
+			});
+			return true;
+		};
 	}
 });

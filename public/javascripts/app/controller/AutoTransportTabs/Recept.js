@@ -238,43 +238,8 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 		var controller=this,
 			receptTable=Ext.getCmp('ReceptTable');
 		
-		Ext.getCmp('RecGoodsTable').reconfigure(controller.detailStore);
-		receptTable.reconfigure(controller.masterStore);
-	},
-	
-	makeComboColumn: function(column, storeCombo, tableStore, property, allowNull, onlyRenderer){
-		function renderer(value){
-			var matching = null,
-				data=storeCombo.snapshot || storeCombo.data;
-			data.each(function(record){
-				if(record.get('id')==value){
-					matching=record.get('name');
-				}
-				return matching==null;
-			});
-			return matching;
-		};
-		
-		if(!onlyRenderer){
-			column.field = Ext.create('Ext.form.ComboBox', {
-				store: storeCombo,
-				queryMode: 'local',
-				displayField: 'name',
-				valueField: 'id',
-				value: "",
-				autoSelect: (allowNull!==true)
-			});
-		}
-		column.renderer=renderer;
-		
-		column.doSort = function(state){
-			tableStore.sort({
-				property: property,
-				transform: renderer,
-				direction: state
-			});
-			return true;
-		};
+		Ext.getCmp('RecGoodsTable').bindStore(controller.detailStore);
+		receptTable.bindStore(controller.masterStore);
 	},
 	
 	initTables: function(){
@@ -286,10 +251,10 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 			goodsColumn = recGoodsTable.columns[1],
 			measureColumn = recGoodsTable.columns[3];
 		
-		controller.makeComboColumn(truckColumn, controller.truckStore, controller.masterStore, 'truck_id', true);
-		controller.makeComboColumn(groupColumn, controller.ggroupStore, controller.detailStore, 'at_ggroup');
-		controller.makeComboColumn(goodsColumn, controller.goodsStore, controller.detailStore, 'at_goods');
-		controller.makeComboColumn(measureColumn, controller.measureStore, controller.detailStore, 'measure', true);
+		receptTable.makeComboColumn(truckColumn, controller.truckStore, true);
+		recGoodsTable.makeComboColumn(groupColumn, controller.ggroupStore);
+		recGoodsTable.makeComboColumn(goodsColumn, controller.goodsStore);
+		recGoodsTable.makeComboColumn(measureColumn, controller.measureStore, true);
 		
 		goodsColumn.field.addListener(
 			"select",
