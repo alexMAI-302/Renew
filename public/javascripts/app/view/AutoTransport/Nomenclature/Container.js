@@ -3,7 +3,8 @@ Ext.define('app.view.AutoTransport.Nomenclature.Container', {
 	alias: 'widget.nomenclatureTab',
 	
 	requires: [
-		'app.view.Lib.Grid.Panel'
+		'app.view.AutoTransport.Nomenclature.Grid',
+		'app.view.AutoTransport.Nomenclature.ItemsGrid'
 	],
 	
 	layout: {
@@ -30,72 +31,13 @@ Ext.define('app.view.AutoTransport.Nomenclature.Container', {
 			]
 		},
 		{
-			xtype: 'simpleGrid',
-			suffix: 'NomenclatureGroup',
-			disableSave: true,
-			disableRefresh: true,
-			disableDeleteColumn: true,
-			features: [
-				{
-					id: 'nomenclatureGroupsFeature',
-					ftype:'grouping',
-					groupHeaderTpl: '{name}'
-				}
-			],
-			title: 'Группы',
-			header: false,
-			columns: [
-				{
-					width: 200,
-					header: 'Наименование',
-					dataIndex: 'name',
-					field: {
-						xtype: 'textfield'
-					}
-				},
-				{
-					width: 90,
-					header: 'Тип',
-					dataIndex: 'at_ggtype',
-					hidden: true
-				}
-			],
-			width: 210,
+			xtype: 'nomenclatureGroupsGrid',
+			width: 220,
 			region: 'west',
 			split: true,
 		},
 		{
-			xtype: 'simpleGrid',
-			suffix: 'Nomenclature',
-			disableSave: true,
-			disableRefresh: true,
-			disableDeleteColumn: true,
-			disabled: true,
-			columns: [
-				{
-					width: 400,
-					header: 'Наименование',
-					dataIndex: 'name',
-					field: {
-						xtype: 'textfield'
-					}
-				},
-				{
-					width: 110,
-					header: 'Единица измерения',
-					dataIndex: 'measure'
-				},
-				{
-					width: 200,
-					header: 'Группа',
-					dataIndex: 'at_ggroup'
-				},
-				{
-					width: 60,
-					header: 'Остаток',
-					dataIndex: 'cnt'
-				}
-			],
+			xtype: 'nomenclatureGrid',
 			region: 'center'
 		}
 	]

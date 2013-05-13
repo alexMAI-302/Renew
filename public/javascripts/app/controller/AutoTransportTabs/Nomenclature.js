@@ -26,7 +26,7 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 	nomenclatureGroupTypeStore: null,
 	measureStore: null,
 	
-	refreshNomenclatureGroup: function(){
+	refreshNomenclatureGroupType: function(){
 		var controller=this;
 		
 		controller.nomenclatureGroupTypeStore.load(
@@ -34,29 +34,35 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 				if(!success){
 					Ext.Msg.alert("Ошибка", "Ошибка при загрузке типов групп номенклатуры");
 				} else {
-					controller.masterStore.load(
-						function(records1, operation1, success1){
-							if(!success1){
-								Ext.Msg.alert("Ошибка", "Ошибка при загрузке групп номенклатуры");
-							} else {
-								var r=Ext.getCmp('NomenclatureGroupTable').getSelectionModel().getSelection()[0];
-								if(r!=null) {
-									controller.detailStore.extraParams={
-										group_id: r.get('id')
-									};
-									controller.detailStore.load(
-										function(records2, operation2, success2){
-											if(!success2){
-												Ext.Msg.alert("Ошибка", "Ошибка при загрузке номенклатуры");
-											} else {
-												controller.nomenclatureContainer.setLoading(false);
-											}
-										}
-									);
+					controller.refreshNomenclatureGroup();
+				}
+			}
+		);
+	},
+	
+	refreshNomenclatureGroup: function(){
+		var controller=this;
+		
+		controller.masterStore.load(
+			function(records1, operation1, success1){
+				if(!success1){
+					Ext.Msg.alert("Ошибка", "Ошибка при загрузке групп номенклатуры");
+				} else {
+					var r=Ext.getCmp('NomenclatureGroupTable').getSelectionModel().getSelection()[0];
+					if(r!=null) {
+						controller.detailStore.extraParams={
+							group_id: r.get('id')
+						};
+						controller.detailStore.load(
+							function(records2, operation2, success2){
+								if(!success2){
+									Ext.Msg.alert("Ошибка", "Ошибка при загрузке номенклатуры");
+								} else {
+									controller.nomenclatureContainer.setLoading(false);
 								}
 							}
-						}
-					);
+						);
+					}
 				}
 			}
 		);
@@ -214,45 +220,15 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 		controller.measureStore=controller.getAutoTransportMeasureStore();
 		
 		controller.measureStore.load();
-		controller.refreshNomenclatureGroup();
+		controller.refreshNomenclatureGroupType();
 	},
 	
 	bindStores: function(){
 		var controller=this,
 			groupsTable=Ext.getCmp('NomenclatureGroupTable');
 		
-		Ext.getCmp('NomenclatureTable').reconfigure(controller.detailStore);
-		groupsTable.reconfigure(controller.masterStore);
-	},
-	
-	makeComboColumn: function(column, storeCombo, tableStore, property){
-		function renderer(value){
-			var matching = null;
-			storeCombo.each(function(record){
-				if(record.get('id')==value){
-					matching=record.get('name');
-				}
-				return matching==null;
-			});
-			return matching;
-		};
-		
-		column.field = Ext.create('Ext.form.ComboBox', {
-			store: storeCombo,
-			queryMode: 'local',
-			displayField: 'name',
-			valueField: 'id'
-		});
-		column.renderer=renderer;
-		
-		column.doSort = function(state){
-			tableStore.sort({
-				property: property,
-				transform: renderer,
-				direction: state
-			});
-			return true;
-		};
+		Ext.getCmp('NomenclatureTable').bindStore(controller.detailStore);
+		groupsTable.bindStore(controller.masterStore);
 	},
 	
 	initTables: function(){
@@ -263,9 +239,9 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 			measureColumn = nomenclatureTable.columns[1],
 			groupColumn = nomenclatureTable.columns[2];
 		
-		controller.makeComboColumn(columnGroupType, controller.nomenclatureGroupTypeStore, controller.masterStore, 'at_ggtype');
-		controller.makeComboColumn(groupColumn, controller.masterStore, controller.detailStore, 'at_ggroup');
-		controller.makeComboColumn(measureColumn, controller.measureStore, controller.detailStore, 'measure');
+		groupsTable.makeComboColumn(columnGroupType, controller.nomenclatureGroupTypeStore);
+		nomenclatureTable.makeComboColumn(groupColumn, controller.masterStore);
+		nomenclatureTable.makeComboColumn(measureColumn, controller.measureStore);
 	},
 	
 	onLaunch: function(){

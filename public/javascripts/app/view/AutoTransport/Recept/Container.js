@@ -4,7 +4,8 @@ Ext.define('app.view.AutoTransport.Recept.Container', {
 	
 	requires: [
 		'app.view.Lib.DateIntervalFilter',
-		'app.view.Lib.Grid.Panel'
+		'app.view.AutoTransport.Recept.Grid',
+		'app.view.AutoTransport.Recept.ItemsGrid'
 	],
 	
 	layout: {
@@ -30,71 +31,13 @@ Ext.define('app.view.AutoTransport.Recept.Container', {
 			region: 'north'
 		},
 		{
-			xtype: 'simpleGrid',
-			title: 'Расход',
-			disableSave: true,
-			disableDeleteColumn: true,
-			disableRefresh: true,
-			suffix: 'Recept',
-			columns: [
-				{
-					width: 120,
-					header: 'Дата',
-					dataIndex: 'ddate',
-					xtype: 'datecolumn',
-					format: 'd.m.Y H:i',
-					field: {
-						xtype: 'datefield',
-						format: 'd.m.Y H:i',
-						value: Ext.Date.parse(Ext.Date.format(new Date(), 'd.m.Y H:i'), 'd.m.Y H:i')
-					}
-				},
-				{
-					width: 240,
-					header: 'Машина',
-					dataIndex: 'truck_id'
-				}
-			],
+			xtype: 'receptGrid',
 			region: 'center',
 			split: true,
 			flex: 1
 		},
 		{
-			xtype: 'simpleGrid',
-			suffix: 'RecGoods',
-		    disabled: true,
-		    disableSave: true,
-		    disableDeleteColumn: true,
-			disabled: true,
-			columns: [
-				{
-					width: 170,
-					header: 'Группа',
-					dataIndex: 'at_ggroup'
-				},
-				{
-					width: 400,
-					header: 'Наименование',
-					dataIndex: 'at_goods'
-				},
-				{
-					width: 80,
-					header: 'Количество',
-					dataIndex: 'vol',
-					field: {
-						xtype: 'numberfield',
-						minValue: 0.0001
-					}
-				},
-				{
-					width: 120,
-					header: 'Единица измерения',
-					dataIndex: 'measure'
-				}
-			],
-			features: [{
-				ftype: 'summary'
-			}],
+			xtype: 'recGoodsGrid',
 			region: 'south',
 			flex: 1
 		}
