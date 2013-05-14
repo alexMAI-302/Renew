@@ -12,8 +12,16 @@ Ext.define('app.model.AutoTransport.GoodsModel', {
 		name: 'sum',
 		type:'float',
 		convert: function(value, record){
-			return (value>0)?value:record.get('vol')*record.get('price');
-		},
-		persist: false
+			if(!isNaN(value) && value>0){
+				return value;
+			} else {
+				var sum=record.get('sum');
+				if(!isNaN(sum) && sum>0){
+					return sum;
+				} else {
+					return record.get('vol')*record.get('price')
+				}
+			}
+		}
 	}]
 });
