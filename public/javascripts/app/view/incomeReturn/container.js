@@ -40,8 +40,7 @@ Ext.define('app.view.incomeReturn.container', {
 								 cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('celleditingIncomeReturn');
 							if (store.getCount() > index + 1 ) {
 								e.stopEvent();
-								cellEditingIncomeReturn.cancelEdit();
-								sm.select(index + 1, true,true);
+									sm.select(index + 1, true,true);
 								cellEditingIncomeReturn.startEdit(index + 1, 9);
 							}
 						}
@@ -93,7 +92,6 @@ Ext.define('app.view.incomeReturn.container', {
 										cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('celleditingIncomeReturn'),
 										index=sm.getSelection()[0].index;
 									if (store.getCount() > index + 1 ) {
-										cellEditingIncomeReturn.cancelEdit();
 										cellEditingIncomeReturn.startEdit(index + 1, 9);
 									}
 								}
@@ -136,7 +134,6 @@ Ext.define('app.view.incomeReturn.container', {
 										cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('celleditingIncomeReturn'),
 										index=sm.getSelection()[0].index;
 									if (store.getCount() > index + 1 ) {
-										cellEditingIncomeReturn.cancelEdit();
 										cellEditingIncomeReturn.startEdit(index + 1, 9);
 									}
 								}
@@ -178,7 +175,6 @@ Ext.define('app.view.incomeReturn.container', {
 										cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('celleditingIncomeReturn'),
 										index=sm.getSelection()[0].index;
 									if (store.getCount() > index + 1 ) {
-										cellEditingIncomeReturn.cancelEdit();
 										cellEditingIncomeReturn.startEdit(index + 1, 9);
 									}
 								}
@@ -228,7 +224,6 @@ Ext.define('app.view.incomeReturn.container', {
 										cellEditingIncomeReturn = Ext.getCmp('IncomeReturnTable').getPlugin('celleditingIncomeReturn'),
 										index=sm.getSelection()[0].index;
 									if (store.getCount() > index + 1 ) {
-										cellEditingIncomeReturn.cancelEdit();
 										cellEditingIncomeReturn.startEdit(index + 1, 9);
 									}
 								}
@@ -248,8 +243,14 @@ Ext.define('app.view.incomeReturn.container', {
 					width: 100,
 					header: 'Единица</br>измерения факта',
 					dataIndex: 'measure'
-				}
-				
+				},
+				{
+					header: 'Товар название',
+					dataIndex: 'goods_name',
+					id: 'goods_name',
+					disabled: true,
+					width: 350
+				}				
 			],
 			features: [{
 				ftype: 'summary'

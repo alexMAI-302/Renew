@@ -8,4 +8,6 @@ Ext.define('app.store.incomeReturn.site', {
 					type: 'json'
 				}
 			}
+			,
+	autoLoad: true
 });
