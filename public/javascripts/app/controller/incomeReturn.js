@@ -330,6 +330,17 @@ Ext.define('app.controller.incomeReturn', {
 				return true;
 			}
 		);
+		docMeasureColumn.field.addListener(
+			"focus",
+			function(field, e, eOpts){
+				var r = Ext.getCmp('IncomeReturnTable').getSelectionModel().getSelection()[0],
+						cellEditing = Ext.getCmp('IncomeReturnTable').getPlugin('celleditingIncomeReturn'),
+						index=r.index
+				controller.loadMeasureStore(r.get('goods'),r.get('msrh_id'));
+				cellEditing.startEdit(index,3);
+				return true;
+				}
+		);
 		
 	/*	col2.field.addListener(
 			"specialkey",
@@ -423,17 +434,7 @@ Ext.define('app.controller.incomeReturn', {
 	goodsMakeComboColumn: function(column, storeCombo, tableStore, property, allowNull, onlyRenderer){
 		var controller=this;
 		function renderer(value, metaData, record){
-			var matching=null;
-			if(value!=null){
-				storeCombo.each(
-				function(storeRecord){
-					if(storeRecord.get('id') == value){
-					matching=storeRecord.get('name');
-				}
-				return matching==null;
-				});
-			}
-			return (matching) ? matching : record.get('goods_name');
+			return record.get('goods_name');
 		};
 		
 		
@@ -473,6 +474,20 @@ Ext.define('app.controller.incomeReturn', {
 							r.set('nds', value[0].data.nds);
 							r.set("nds_summ", r.get("summ")*r.get("nds")/(100+r.get("nds")));
 							return true;
+				},
+				"focus": function(field, e, eOpts){
+					var store=field.store,
+						r = Ext.getCmp('IncomeReturnTable').getSelectionModel().getSelection()[0],
+						cellEditing = Ext.getCmp('IncomeReturnTable').getPlugin('celleditingIncomeReturn'),
+						index=r.index
+					l_name = r.get('goods_name');
+					l_id=	r.get('goods');
+					if (store.find("name",l_name)==-1)
+					{
+						store.add({id: l_id, name: l_name, nds: r.get('nds'), msrh_id: r.get('msrh_id')});
+						cellEditing.startEdit(index,1);
+					}
+					return true;
 				},
 				"specialkey": {fn: controller.rowNavigation}
 
