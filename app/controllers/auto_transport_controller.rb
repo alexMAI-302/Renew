@@ -172,7 +172,7 @@ class AutoTransportController < ApplicationSimpleErrorController
           SELECT @id;
         END")
         
-        render :text => {"success" => true, "id" => id}.to_json
+        render :text => {"success" => true, "id" => id, "sum" => params[:sum]}.to_json
       when "put"
         ActiveRecord::Base.connection.update("
         UPDATE dbo.at_incgoods SET
