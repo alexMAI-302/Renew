@@ -87,7 +87,7 @@ Ext.define('app.controller.BuyersRoute', {
 		
 		if(site>0 && spvId>0){
 			controller.mainContainer.setLoading(true);
-			
+			controller.currentZone = null;
 			controller.routesCollection.removeAll();
 		
 			controller.masterStore.proxy.extraParams = {
@@ -121,19 +121,21 @@ Ext.define('app.controller.BuyersRoute', {
 							p.events.add(
 								"geometrychange",
 								function(e){
-									var r = controller.masterStore.getById(controller.currentZone.properties.get('id')),
-										str='',
-										geometry = e.originalEvent.target.geometry,
-										coords = geometry.getCoordinates()[0];
-									r.set(
-										'points',
-										ymaps.geometry.Polygon.toEncodedCoordinates(geometry)
-									);
-									for(var j=0; coords.length>1 && j<coords.length; j++){
-										str+=j+", "+coords[j][0]+", "+coords[j][1]+";";
+									if(controller.currentZone!=null){
+										var r = controller.masterStore.getById(controller.currentZone.properties.get('id')),
+											str='',
+											geometry = e.originalEvent.target.geometry,
+											coords = geometry.getCoordinates()[0];
+										r.set(
+											'points',
+											ymaps.geometry.Polygon.toEncodedCoordinates(geometry)
+										);
+										for(var j=0; coords.length>1 && j<coords.length; j++){
+											str+=j+", "+coords[j][0]+", "+coords[j][1]+";";
+										}
+										r.set('point_str', str);
+										controller.computeZonePoints(geometry);
 									}
-									r.set('point_str', str);
-									controller.computeZonePoints(geometry);
 								}
 							);
 							
@@ -263,7 +265,9 @@ Ext.define('app.controller.BuyersRoute', {
 							}
 						}
 					);
-					controller.computeZonePoints(controller.currentZone.geometry);
+					if(controller.currentZone!=null){
+						controller.computeZonePoints(controller.currentZone.geometry);
+					}
 				}
 			},
 			'#saveBuyersRoute': {

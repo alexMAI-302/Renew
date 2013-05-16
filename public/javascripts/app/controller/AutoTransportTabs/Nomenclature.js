@@ -4,14 +4,12 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 	stores: [
 		'AutoTransport.Nomenclature.Nomenclature',
 		'AutoTransport.Nomenclature.NomenclatureGroup',
-		'AutoTransport.Nomenclature.NomenclatureGroupType',
 		'AutoTransport.Measure'
 	],
 	
 	models: [
 		'valueModel',
-		'AutoTransport.NomenclatureModel',
-		'AutoTransport.NomenclatureGroupModel'
+		'AutoTransport.NomenclatureModel'
 	],
 	
 	views: [
@@ -23,49 +21,13 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 	
 	detailStore: null,
 	masterStore: null,
-	nomenclatureGroupTypeStore: null,
 	measureStore: null,
-	
-	refreshNomenclatureGroupType: function(){
-		var controller=this;
-		
-		controller.nomenclatureGroupTypeStore.load(
-			function(records, operation, success){
-				if(!success){
-					Ext.Msg.alert("Ошибка", "Ошибка при загрузке типов групп номенклатуры");
-				} else {
-					controller.refreshNomenclatureGroup();
-				}
-			}
-		);
-	},
+	comboStore: null,
 	
 	refreshNomenclatureGroup: function(){
 		var controller=this;
 		
-		controller.masterStore.load(
-			function(records1, operation1, success1){
-				if(!success1){
-					Ext.Msg.alert("Ошибка", "Ошибка при загрузке групп номенклатуры");
-				} else {
-					var r=Ext.getCmp('NomenclatureGroupTable').getSelectionModel().getSelection()[0];
-					if(r!=null) {
-						controller.detailStore.extraParams={
-							group_id: r.get('id')
-						};
-						controller.detailStore.load(
-							function(records2, operation2, success2){
-								if(!success2){
-									Ext.Msg.alert("Ошибка", "Ошибка при загрузке номенклатуры");
-								} else {
-									controller.nomenclatureContainer.setLoading(false);
-								}
-							}
-						);
-					}
-				}
-			}
-		);
+		controller.masterStore.load();
 	},
 	
 	syncMaster: function(container, selectedMasterId){
@@ -131,7 +93,7 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 		controller.control({
 			'#NomenclatureGroupTable': {
 				selectionchange: function(sm, selected, eOpts){
-					if(selected!=null && selected.length>0){
+					if(selected!=null && selected.length>0 && selected[0].isLeaf()){
 						controller.detailStore.proxy.extraParams={
 							master_id: selected[0].get('id')
 						};
@@ -179,9 +141,12 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 					var groupsTable = Ext.getCmp('NomenclatureGroupTable'),
 						sm=groupsTable.getSelectionModel(),
 						selected=sm.getSelection()[0],
-						at_ggtype=(selected!=null)?selected.get('at_ggtype'):null,
-						r = Ext.ModelManager.create({at_ggtype: at_ggtype}, 'app.model.AutoTransport.NomenclatureGroupModel');
-					controller.masterStore.add(r);
+						at_ggtype=(selected!=null)?(selected.isLeaf()?selected.parentNode:selected):null,
+						r;
+					if(at_ggtype==null){
+						at_ggtype = controller.masterStore.getRootNode().firstChild;
+					}
+					r = at_ggtype.insertChild(0, {leaf: true});
 					sm.select(r);
 				}
 			},
@@ -190,11 +155,15 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 			},
 			'#deleteNomenclatureGroup': {
 				click: function(button){
-					var sm = Ext.getCmp('NomenclatureGroupTable').getSelectionModel();
+					var sm = Ext.getCmp('NomenclatureGroupTable').getSelectionModel(),
+						selected = sm.getSelection();
 					
-					controller.masterStore.remove(sm.getSelection());
-					if (controller.masterStore.getCount() > 0) {
-						sm.select(0);
+					if(selected[0].isLeaf()){
+						var parent = selected[0].parentNode;
+						parent.removeChild(selected[0]);
+						if (parent.firstChild != null) {
+							sm.select(parent.firstChild);
+						}
 					}
 				}
 			},
@@ -215,32 +184,55 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 		var controller=this;
 		
 		controller.detailStore=controller.getAutoTransportNomenclatureNomenclatureStore();
-		controller.masterStore=controller.getAutoTransportNomenclatureNomenclatureGroupStore();
-		controller.nomenclatureGroupTypeStore=controller.getAutoTransportNomenclatureNomenclatureGroupTypeStore();
+		controller.masterStore=Ext.getCmp('NomenclatureGroupTable').getStore();
 		controller.measureStore=controller.getAutoTransportMeasureStore();
+		controller.comboStore = Ext.create('Ext.data.Store', {
+			model: 'app.model.valueModel',
+			proxy: {
+				type: 'memory'
+			}
+		});
+		
+		controller.masterStore.addListener(
+			"datachanged",
+			function(store, eOpts){
+				var root=store.getRootNode();
+				controller.comboStore.removeAll();
+				if(root!=null && root.firstChild!=null){
+					root.eachChild(
+						function(type){
+							if(type!=null && type.firstChild!=null){
+								type.eachChild(
+									function(group){
+										controller.comboStore.add({
+											id: group.get("id"),
+											name: group.get("name")
+										});
+									}
+								)
+							}
+						}
+					)
+				}
+			}
+		);
 		
 		controller.measureStore.load();
-		controller.refreshNomenclatureGroupType();
 	},
 	
 	bindStores: function(){
-		var controller=this,
-			groupsTable=Ext.getCmp('NomenclatureGroupTable');
+		var controller=this;
 		
 		Ext.getCmp('NomenclatureTable').bindStore(controller.detailStore);
-		groupsTable.bindStore(controller.masterStore);
 	},
 	
 	initTables: function(){
 		var controller=this,
-			groupsTable = Ext.getCmp('NomenclatureGroupTable'),
 			nomenclatureTable = Ext.getCmp('NomenclatureTable'),
-			columnGroupType = groupsTable.columns[1],
 			measureColumn = nomenclatureTable.columns[1],
 			groupColumn = nomenclatureTable.columns[2];
 		
-		groupsTable.makeComboColumn(columnGroupType, controller.nomenclatureGroupTypeStore);
-		nomenclatureTable.makeComboColumn(groupColumn, controller.masterStore);
+		nomenclatureTable.makeComboColumn(groupColumn, controller.comboStore);
 		nomenclatureTable.makeComboColumn(measureColumn, controller.measureStore);
 	},
 	

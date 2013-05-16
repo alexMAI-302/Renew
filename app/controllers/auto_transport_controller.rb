@@ -2,40 +2,80 @@
 class AutoTransportController < ApplicationSimpleErrorController
   def index
   end
+  
+  def get_flat_nomenclature_groups
+    res=ActiveRecord::Base.connection.select_all("
+      SELECT
+        gg.id,
+        gg.name
+      FROM
+        dbo.at_ggroup gg
+      ORDER BY
+        gg.name")
+    
+      render :text => res.to_json
+  end
 
   def nomenclature_groups
     case request.method.to_s
       when "get"
-        res=ActiveRecord::Base.connection.select_all("
+        tree = []
+        indexes = {}
+        i=0
+        data=ActiveRecord::Base.connection.select_all("
         SELECT
           gg.id,
           gg.name,
-          gg.at_ggtype
+          ggt.id parent_id,
+          ggt.name parent_name
         FROM
           dbo.at_ggroup gg
           JOIN dbo.at_ggtype ggt ON gg.at_ggtype=ggt.id
         ORDER BY
           ggt.name,
           gg.name")
-        
-        render :text => res.to_json
+          
+        data.each do |d|
+          if indexes[d["parent_id"]].nil?
+            tree << {
+              "id" => d["parent_id"],
+              "name" => d["parent_name"],
+              "children" => [],
+              "expanded" => true
+            }
+            indexes[d["parent_id"]] = i
+            i=i+1
+          end
+          tree[indexes[d["parent_id"]]]["children"]<< {
+            "id" => d["id"],
+            "name" => d["name"],
+            "leaf" => true,
+            "parentId" => d["parent_id"]
+          }
+        end
+        logger.info tree
+        result = {"success" => true, "children" => tree}
+      
+        render :text => result.to_json
       when "post"
+        at_ggtype=ActiveSupport::JSON.decode(request.body.gets)["parentId"].to_i
         id=ActiveRecord::Base.connection.select_value("
         BEGIN
           DECLARE @id INT;
           SET @id=idgenerator('at_ggroup');
           INSERT INTO dbo.at_ggroup(id, name, at_ggtype)
-          VALUES(@id, #{ActiveRecord::Base.connection.quote(params[:name])}, #{params[:at_ggtype].to_i});
+          VALUES(@id, #{ActiveRecord::Base.connection.quote(params[:name])}, #{at_ggtype});
           
           SELECT @id;
         END")
         
         render :text => {"success" => true, "id" => id}.to_json
       when "put"
+        at_ggtype=ActiveSupport::JSON.decode(request.body.gets)["parentId"].to_i
         ActiveRecord::Base.connection.update("
         UPDATE dbo.at_ggroup SET
           name=#{ActiveRecord::Base.connection.quote(params[:name])},
-          at_ggtype=#{params[:at_ggtype].to_i}
+          at_ggtype=#{at_ggtype}
         WHERE id=#{params[:id].to_i}")
         
         render :text => {"success" => true, "id" => params[:id]}.to_json

@@ -1,8 +1,8 @@
-//хранилище отделений банка
 Ext.define('app.store.AutoTransport.Nomenclature.NomenclatureGroup', {
-	extend: 'Ext.data.Store',
-	model: 'app.model.AutoTransport.NomenclatureGroupModel',
-	groupField: 'at_ggtype',
+	extend: 'Ext.data.TreeStore',
+	model: 'app.model.valueModel',
+	folderSort: true,
+	storeId: 'NomenclatureGroupStore',
 	proxy: {
 		type: 'rest',
 		url : '/auto_transport/nomenclature_groups',
