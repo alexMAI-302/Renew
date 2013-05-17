@@ -5,6 +5,7 @@ Ext.define('app.controller.empSchedule', {
 		'empSchedule.person',
 		'empSchedule.personAll',
 		'empSchedule.manager',
+		'empSchedule.managerFilter',
 		'empSchedule.scheduleType',
 		'empSchedule.empSchedule'],
 	models: [
@@ -20,6 +21,7 @@ Ext.define('app.controller.empSchedule', {
 	personStore:null,	
 	personAllStore:null,
 	managerStore:null,
+	managerFilterStore:null,
 	empScheduleStore:null,
 	scheduleTypeStore:null,
 	mainContainer: null,
@@ -47,7 +49,8 @@ Ext.define('app.controller.empSchedule', {
 			dept_id: Ext.getCmp('deptComboFilter').getValue(),
 			person_id: Ext.getCmp('personComboFilter').getValue(),
 			ddateb:		Ext.Date.format(Ext.getCmp('ddatebFilter').getValue(), 'Y-m-d'),
-			ddatee:		Ext.Date.format(Ext.getCmp('ddateeFilter').getValue(), 'Y-m-d')						
+			ddatee:		Ext.Date.format(Ext.getCmp('ddateeFilter').getValue(), 'Y-m-d'),
+			manager: 	Ext.getCmp('managerComboFilter').getValue()
 		};
 		controller.mainContainer.setLoading(true);
 		controller.empScheduleStore.load();
@@ -119,18 +122,18 @@ Ext.define('app.controller.empSchedule', {
 			 success: function(response, opts) {
 					if (response.responseText=="ok") 
 					{
-						Ext.Msg.alert('Сообщение', 'Данные сохранены');
+						//Ext.Msg.alert("Сообщение", "Данные сохранены");
 						controller.refreshEmpSchedule();
 						controller.mainContainer.setLoading(false);
 					}
 					else
 					{
-						Ext.Msg.alert('Ошибка cохранения', response.responseText);
+						Ext.Msg.alert("Ошибка cохранения", response.responseText);
 						controller.mainContainer.setLoading(false);
 					}
 				},
 				failure: function(response, options) {
-					Ext.Msg.alert('Ошибка', response.responseText);
+					Ext.Msg.alert("Ошибка", response.responseText);
 					controller.mainContainer.setLoading(false);
 				}
 		});
@@ -163,6 +166,9 @@ Ext.define('app.controller.empSchedule', {
 						}, 'app.model.empSchedule.empScheduleModel');
 					controller.empScheduleStore.insert(0, r);
 					r.set("priority","1");
+					r.set("time_start","09:00");
+					r.set("time_end","18:00");
+					r.set("manager",Ext.getCmp('managerComboFilter').getValue());
 				}
 			},
 			'#deleteempSchedule': {
@@ -221,6 +227,8 @@ Ext.define('app.controller.empSchedule', {
 					dept_id: 0
 				};
 		controller.managerStore.load();
+		controller.managerFilterStore=controller.getEmpScheduleManagerFilterStore();
+
 		controller.scheduleTypeStore=controller.getEmpScheduleScheduleTypeStore();
 		controller.empScheduleStore=controller.getEmpScheduleEmpScheduleStore();
 
@@ -229,6 +237,7 @@ Ext.define('app.controller.empSchedule', {
 		var controller=this;
 		Ext.getCmp('deptComboFilter').bindStore(controller.deptStore);
 		Ext.getCmp('personComboFilter').bindStore(controller.personStore);
+		Ext.getCmp('managerComboFilter').bindStore(controller.managerFilterStore);
 		Ext.getCmp('EmpScheduleTable').reconfigure(controller.empScheduleStore);
 	},
 	onLaunch: function(){

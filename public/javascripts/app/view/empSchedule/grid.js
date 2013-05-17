@@ -39,6 +39,17 @@ Ext.define('app.view.empSchedule.grid', {
 						fieldLabel: 'Сотрудник',
 						width: 300,
 						labelWidth: 75
+					},
+					{
+						id: 'managerCombo',
+						xtype: 'combobox',
+						queryMode: 'local',
+						displayField: 'name',
+						valueField: 'id',
+						name: 'managerCombo',
+						fieldLabel: 'Руководитель',
+						width: 300,
+						labelWidth: 75
 					}
 				]
 			}
@@ -65,6 +76,7 @@ Ext.define('app.view.empSchedule.grid', {
 				width: 85,
 				header: 'Начало',
 				dataIndex: 'ddateb',
+				name: 'ddateb',
 				format: 'd.m.Y',
 				field: {
 					xtype: 'datefield'
@@ -75,6 +87,7 @@ Ext.define('app.view.empSchedule.grid', {
 				width: 85,
 				header: 'Конец',
 				dataIndex: 'ddatee',
+				name: 'ddatee',
 				format: 'd.m.Y',
 				field: {
 					xtype: 'datefield'
@@ -89,6 +102,7 @@ Ext.define('app.view.empSchedule.grid', {
 				width: 100,
 				header: 'Приоритет',
 				dataIndex: 'priority',
+				hidden: true,
 				field:{
 					xtype: 'numberfield'
 				}
@@ -100,10 +114,20 @@ Ext.define('app.view.empSchedule.grid', {
 				header: 'Приход',
 				dataIndex: 'time_start',
 				format: 'H:i',
+				//valueField: 'time_start',
+				id: 'time_start',
 				field: {
 					xtype: 'timefield',
+					defalutValue: '09:00',
+					//valueField: 'time_start',
+					name: 'time_start',
 					format: 'H:i',
-					minValue: '6:00 AM'
+					minValue: '6:00',
+					submitValue: false,
+					anchor: '100%',
+					validator: function(v){
+							return (v.length > 0);
+					}
 				}
 			},
 			{
@@ -111,17 +135,26 @@ Ext.define('app.view.empSchedule.grid', {
 				width: 85,
 				header: 'Уход',
 				dataIndex: 'time_end',
+				
 				format: 'H:i',
 				field: {
 					xtype: 'timefield',
+					defalutValue: '18:00',
+					name: 'time_end',
 					format: 'H:i',
-					minValue: '6:00 AM'
+					minValue: '6:00',
+					submitValue: false,
+					anchor: '100%',
+					validator: function(v){
+							return (v.length > 0);
+					}
 				}
 			},
 			{
 				width: 100,
 				header: 'Норма, мин.',
 				dataIndex: 'min_worktime',
+				hidden: true,
 				field:{
 					xtype: 'numberfield'
 				}
@@ -132,11 +165,11 @@ Ext.define('app.view.empSchedule.grid', {
 				header: 'Руководитель',
 				dataIndex: 'manager'
 			}
-		],
+		]/*,
 		plugins: [Ext.create('Ext.grid.plugin.CellEditing', {
 				clicksToEdit: 1,
 				 pluginId: 'cellEditingEmpSchedule'
-			})]
+			})]*/
 
 	}
 });
