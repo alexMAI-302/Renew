@@ -3,7 +3,7 @@ Ext.define('app.model.empSchedule.empScheduleModel', {
 	fields: [
 		{name: 'id'				, type: 'int'},
 		{name: 'dept_name'		, type: 'string'},
-		{name: 'person_id'		, type: 'int'},
+		{name: 'person_id'		, type: 'int', useNull: true},
 		{name: 'ddateb',
 			type:'date',
 			convert: function(v, record){
@@ -36,6 +36,7 @@ Ext.define('app.model.empSchedule.empScheduleModel', {
 		{
 			name: 'time_start',
 			type: 'time',
+			useNull: false,
 			dateFormat: 'H:i',
 			convert: function(v, record){
 				if(Ext.isDate(v)){
@@ -50,6 +51,7 @@ Ext.define('app.model.empSchedule.empScheduleModel', {
 			name: 'time_end',
 			type: 'time',
 			dateFormat: 'H:i',
+			useNull: false,
 			convert: function(v, record){
 				if(Ext.isDate(v)){
 					return v
