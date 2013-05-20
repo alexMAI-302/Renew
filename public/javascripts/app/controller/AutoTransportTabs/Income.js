@@ -14,8 +14,7 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 	models: [
 		'valueModel',
 		'AutoTransport.IncomeModel',
-		'AutoTransport.GoodsModel',
-		'AutoTransport.NomenclatureGroupModel'
+		'AutoTransport.GoodsModel'
 	],
 	
 	views: [
