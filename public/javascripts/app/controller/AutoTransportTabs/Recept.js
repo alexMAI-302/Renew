@@ -13,8 +13,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 	models: [
 		'valueModel',
 		'AutoTransport.ReceptModel',
-		'AutoTransport.GoodsModel',
-		'AutoTransport.NomenclatureGroupModel'
+		'AutoTransport.GoodsModel'
 	],
 	
 	views: [
