@@ -1,20 +1,18 @@
-Ext.define('app.model.placeunloadSchedule.scheduleModel', {
+Ext.define('app.model.placeunloadSchedule.ScheduleModel', {
 	extend: 'Ext.data.Model',
 	fields: [
 		{name: 'id'			, type:'int'},
 		{name: 'name'		, type:'string'},
 		{name: 'address'	, type:'string'},
-		{name: 'day_of_week', type:'int', useNull: true},
 		{
-			name: 'monday',
-			type:'boolean',
-			convert: function(value, record){
-				return record.get("day_of_week")==1;
-			}
+			name: 'day_of_week',
+			type:'int',
+			useNull: true
 		},
 		{
 			name: 'monday',
 			type:'boolean',
+			persists: false,
 			convert: function(value, record){
 				return record.get("day_of_week")==1;
 			}
@@ -22,6 +20,7 @@ Ext.define('app.model.placeunloadSchedule.scheduleModel', {
 		{
 			name: 'tuesday',
 			type:'boolean',
+			persists: false,
 			convert: function(value, record){
 				return record.get("day_of_week")==2;
 			}
@@ -29,6 +28,7 @@ Ext.define('app.model.placeunloadSchedule.scheduleModel', {
 		{
 			name: 'wednesday',
 			type:'boolean',
+			persists: false,
 			convert: function(value, record){
 				return record.get("day_of_week")==3;
 			}
@@ -36,6 +36,7 @@ Ext.define('app.model.placeunloadSchedule.scheduleModel', {
 		{
 			name: 'thursday',
 			type:'boolean',
+			persists: false,
 			convert: function(value, record){
 				return record.get("day_of_week")==4;
 			}
@@ -43,6 +44,7 @@ Ext.define('app.model.placeunloadSchedule.scheduleModel', {
 		{
 			name: 'friday',
 			type:'boolean',
+			persists: false,
 			convert: function(value, record){
 				return record.get("day_of_week")==5;
 			}
