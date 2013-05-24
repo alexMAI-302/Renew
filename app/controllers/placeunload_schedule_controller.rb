@@ -35,8 +35,20 @@ class PlaceunloadScheduleController < ApplicationSimpleErrorController
     day_of_week=params[:day_of_week].to_i
     if day_of_week>=1 && day_of_week<=5
       ActiveRecord::Base.connection.execute("
-      INSERT INTO placeunload_schedule (id, placeunload_id, day_of_week, ddateb)
-      VALUES(idgenerator('placeunload_schedule'), #{params[:id].to_i}, #{params[:day_of_week].to_i}, '#{Time.parse(params[:ddate]).strftime('%F')}');")
+      BEGIN
+        IF EXISTS(SELECT * FROM placeunload_schedule WHERE placeunload_id=#{params[:id].to_i} and ddateb='#{Time.parse(params[:ddate]).strftime('%F')}') THEN
+          UPDATE placeunload_schedule
+          SET day_of_week = #{params[:day_of_week].to_i}
+          WHERE
+            placeunload_id=#{params[:id].to_i} and ddateb='#{Time.parse(params[:ddate]).strftime('%F')}'
+        ELSE
+          INSERT INTO placeunload_schedule (id, placeunload_id, day_of_week, ddateb)
+          VALUES(idgenerator('placeunload_schedule'), #{params[:id].to_i}, #{params[:day_of_week].to_i}, '#{Time.parse(params[:ddate]).strftime('%F')}');
+        END IF;
+      END")
+    else
+      ActiveRecord::Base.connection.execute("
+      DELETE FROM placeunload_schedule WHERE placeunload_id=#{params[:id].to_i} and ddateb='#{Time.parse(params[:ddate]).strftime('%F')}';")
     end
 
     render :text => {"success" => true}.to_json
