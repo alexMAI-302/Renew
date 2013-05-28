@@ -17,6 +17,10 @@ Ext.define('app.view.empSchedule.grid', {
 				shiftBegin: -30,
 				shiftEnd: 30,
 				filterButton: true,
+				layout: {
+					type : 'table',
+					columns: 4
+				},
 				filterItems: [
 					{
 						id: 'deptCombo',
@@ -49,7 +53,8 @@ Ext.define('app.view.empSchedule.grid', {
 						name: 'managerCombo',
 						fieldLabel: 'Руководитель',
 						width: 300,
-						labelWidth: 75
+						labelWidth: 75,
+						colspan : 3
 					}
 				]
 			}
