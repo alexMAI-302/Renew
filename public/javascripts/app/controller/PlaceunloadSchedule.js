@@ -27,7 +27,8 @@ Ext.define('app.controller.PlaceunloadSchedule', {
 		var controller = this;
 		controller.masterStore.proxy.extraParams={
 			salesman_id: Ext.getCmp('salesmansSchedulesFilter').getValue(),
-			ddate: Ext.getCmp('ddateSchedulesFilter').getValue()
+			ddate: Ext.getCmp('ddateSchedulesFilter').getValue(),
+			only_without_schedule: Ext.getCmp('onlyWithoutSchedule').getValue()
 		};
 		controller.masterStore.load();
 	},

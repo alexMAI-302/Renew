@@ -4,27 +4,31 @@ class PlaceunloadScheduleController < ApplicationSimpleErrorController
   end
 
   def get
+    only_without_schedule = params[:only_without_schedule]=='true'? 1 : 0
     res=ActiveRecord::Base.connection.select_all("
     SELECT
       pl.id,
       ISNULL(pl.name, b.name) name,
       pl.address,
-      (SELECT
-        ps.day_of_week
-      FROM
-        placeunload_schedule ps
-      WHERE
-        ps.placeunload_id=pl.id
-        AND
-       '#{Time.parse(params[:ddate]).strftime('%F')}' BETWEEN ps.ddateb AND ps.ddatee
-      ) day_of_week
+      ps.day_of_week
     FROM
       placeunload pl
       JOIN buyers b ON b.placeunload_id=pl.id
       JOIN partners p ON p.id=b.partner
       JOIN partners_groups_tree pgt ON pgt.id=p.parent
+      LEFT JOIN placeunload_schedule ps ON ps.placeunload_id=pl.id
     WHERE
       pgt.parent = #{params[:salesman_id].to_i}
+      AND
+      (ps.id IS NOT NULL AND '#{Time.parse(params[:ddate]).strftime('%F')}' BETWEEN ps.ddateb AND ps.ddatee
+      OR
+      ps.id IS NULL)
+      AND
+      (
+        (#{only_without_schedule}=0)
+        OR
+        (#{only_without_schedule}=1 AND ps.day_of_week IS NULL)
+      )
     ORDER BY
       2")
 
@@ -67,7 +71,7 @@ class PlaceunloadScheduleController < ApplicationSimpleErrorController
       pref_concept.type = 1 AND 
       pref_concept.name = 'Хр: Партнеры - Торг.предст.'
       AND
-      partners_groups.name LIKE '%'+'#{ActiveRecord::Base.connection.quote_string(params[:query])}'+'%'
+      partners_groups.name LIKE 'Актив_%'+'#{ActiveRecord::Base.connection.quote_string(params[:query])}'+'%'
     ORDER BY
       partners_groups.name")
 

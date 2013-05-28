@@ -32,6 +32,13 @@ Ext.define('app.view.placeunloadSchedule.Container', {
 				altFormat: 'd/m/Y|d m Y',
 				startDay: 1,
 				value: new Date(Ext.Date.now())
+			},
+			{
+				id: 'onlyWithoutSchedule',
+				xtype: 'checkbox',
+				fieldLabel: 'Точки без графика',
+				width: 130,
+				labelWidth: 100
 			}
 		],
 		afterButtons: [
