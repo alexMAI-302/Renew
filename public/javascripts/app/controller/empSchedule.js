@@ -99,6 +99,7 @@ Ext.define('app.controller.empSchedule', {
 				};
 			
 				rows.push({
+					oper	: 'update',
 					id		: r.get('id'),
 					person_id:	r.get('person_id'),
 					ddateb:		Ext.Date.format(r.get('ddateb'), 'Y-m-d'),
@@ -112,6 +113,23 @@ Ext.define('app.controller.empSchedule', {
 				});
 			}
 		});	
+		
+		for(var i=0; i<controller.empScheduleStore.getRemovedRecords().length; i++){
+			r=controller.empScheduleStore.getRemovedRecords()[i];
+			rows.push({
+					oper : 'delete',
+					id		: r.get('id'),
+					person_id:	r.get('person_id'),
+					ddateb:		Ext.Date.format(r.get('ddateb'), 'Y-m-d'),
+					ddatee:		Ext.Date.format(r.get('ddatee'), 'Y-m-d'),
+					schedule_type_id:		r.get('schedule_type_id'),
+					priority:	r.get('priority'),
+					time_start: (r.get('time_start')==null)? null:r.get('time_start').getHours()*60+r.get('time_start').getMinutes(),
+					time_end: (r.get('time_end')==null)? null:r.get('time_end').getHours()*60+r.get('time_end').getMinutes(),
+					min_worktime:		r.get('min_worktime'),
+					manager: r.get('manager')
+				});
+		}
 		
 		Ext.Ajax.request({
 			url: '/emp_schedule/save_doc',
@@ -171,7 +189,7 @@ Ext.define('app.controller.empSchedule', {
 					r.set("manager",Ext.getCmp('managerComboFilter').getValue());
 				}
 			},
-			'#deleteempSchedule': {
+			'#deleteEmpSchedule': {
 				click: function() {
 					var sm = Ext.getCmp('EmpScheduleTable').getSelectionModel();
 					controller.empScheduleStore.remove(sm.getSelection());
