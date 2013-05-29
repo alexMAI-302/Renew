@@ -16,6 +16,7 @@ class PlaceunloadScheduleController < ApplicationSimpleErrorController
       JOIN buyers b ON b.placeunload_id=pl.id
       JOIN partners p ON p.id=b.partner
       JOIN partners_groups_tree pgt ON pgt.id=p.parent
+      JOIN partners_groups pg ON pg.id=pgt.id
       LEFT JOIN placeunload_schedule ps ON ps.placeunload_id=pl.id
     WHERE
       pgt.parent = #{params[:salesman_id].to_i}
@@ -61,17 +62,14 @@ class PlaceunloadScheduleController < ApplicationSimpleErrorController
   def get_salesman
     res = ActiveRecord::Base.connection.select_all("
     SELECT TOP 50
-      partners_groups.id,
-      partners_groups.name
-    FROM 
-      pref_concept 
-      JOIN prefs ON pref_concept.id = prefs.concept AND pref_concept.type = prefs.type
-      JOIN partners_groups ON prefs.id = partners_groups.id
-    WHERE 
-      pref_concept.type = 1 AND 
-      pref_concept.name = 'Хр: Партнеры - Торг.предст.'
+      id,
+      name
+    FROM
+      partners_groups
+    WHERE
+      partners_groups.name LIKE '%'+'#{ActiveRecord::Base.connection.quote_string(params[:query])}'+'%'
       AND
-      partners_groups.name LIKE 'Актив_%'+'#{ActiveRecord::Base.connection.quote_string(params[:query])}'+'%'
+      EXISTS (SELECT * FROM partners WHERE partners.parent=partners_groups.id)
     ORDER BY
       partners_groups.name")
 
