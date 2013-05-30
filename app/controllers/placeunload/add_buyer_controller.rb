@@ -90,7 +90,7 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
   end
 
   def get_placecategories
-    res = ActiveRecord::Base.connection.select_all("select id, name from placecategory order by name")
+    res = ActiveRecord::Base.connection.select_all("select id, name from placecategory order by name where id<>-1")
 
     render :text => res.to_json
   end
