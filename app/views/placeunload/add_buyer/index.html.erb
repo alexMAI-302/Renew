@@ -1,0 +1,39 @@
+<% content_for :js do %>
+   <script src="//api-maps.yandex.ru/2.0/?load=package.full&mode=debug&lang=ru-RU" type="text/javascript"></script>
+<%	end -%>
+
+<% content_for :js_controller do %>
+,'Placeunload.AddBuyer'
+<% end -%>
+
+<% content_for :stylesheets do %>
+	.x-wrap_cells .x-grid-cell-inner {
+		white-space: normal;
+	}
+<% end %>
+
+<% content_for :title do %>
+Добавить покупателя
+<%	end -%>
+
+<% content_for :content do %>
+	<input type="hidden" name="placeunload_id" id="placeunload_id" value="<%= @placeunload_id %>"/>
+	<input type="hidden" name="placeunload_name" id="placeunload_name" value="<%= @placeunload_name %>"/>
+	<input type="hidden" name="buyer_id" id="buyer_id" value="<%= @buyer_id %>"/>
+	<input type="hidden" name="buyer_name" id="buyer_name" value="<%= @buyer_name %>"/>
+	<input type="hidden" name="partner_id" id="partner_id" value="<%= @partner_id %>"/>
+	<input type="hidden" name="partner_name" id="partner_name" value="<%= @partner_name %>"/>
+	<input type="hidden" name="partner_group_id" id="partner_group_id" value="<%= @partner_group_id %>"/>
+	<input type="hidden" name="partner_group_name" id="partner_group_name" value="<%= @partner_group_name %>"/>
+	
+	<input type="hidden" name="latitude" id="latitude" value="<%= @latitude %>"/>
+	<input type="hidden" name="longitude" id="longitude" value="<%= @longitude %>"/>
+	<input type="hidden" name="tp" id="tp" value="<%= @tp %>"/>
+	<input type="hidden" name="descr" id="descr" value="<%= @descr %>"/>
+	<input type="hidden" name="fulladdress" id="fulladdress" value="<%= @fulladdress %>"/>
+	<input type="hidden" name="loadto" id="loadto" value="<%= @loadto %>"/>
+	
+	<input type="hidden" name="unloading" id="unloading" value="<%= @unloading %>"/>
+	
+	<div id="placeunload_add_buyer_js"></div>
+<%	end -%>
