@@ -13,7 +13,7 @@ class DovController < ApplicationSimpleErrorController
 
   def get_palm_salesmans
     res=ActiveRecord::Base.connection.select_all(
-    "call renew_web.dov_get_palm_salesmans('#{ActiveRecord::Base.connection.quote_string(session[:user_id])}')")
+    "call renew_web.dov_get_agents('#{ActiveRecord::Base.connection.quote_string(session[:user_id])}')")
     render :text => res.to_json
   end
 
@@ -53,7 +53,7 @@ class DovController < ApplicationSimpleErrorController
       (
         #{params[:salesman_id].to_i}=-1
         OR
-        d.salesman_id = #{params[:salesman_id].to_i}
+        d.agent = #{params[:salesman_id].to_i}
       )
       AND
       (
