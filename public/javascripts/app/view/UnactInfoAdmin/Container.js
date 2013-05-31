@@ -8,7 +8,7 @@ Ext.define('app.view.UnactInfoAdmin.Container', {
 		title: 'Информационные материалы',
 		suffix: 'Actions',
 		disableDelete: true,
-		height: 600,
+		height: Ext.getBody().getViewSize().height - 120,
 		columns: [
 			{
 				header: 'Описание',

@@ -13,7 +13,7 @@ Ext.define('app.view.Comp.Container', {
 	},
 	
 	renderTo: 'comp_js',
-	height: 600,
+	height: Ext.getBody().getViewSize().height - 120,
 	resizable: true,
 	
 	items: [

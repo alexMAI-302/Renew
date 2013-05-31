@@ -8,7 +8,7 @@ Ext.define('app.view.TermDelivery.MakeAutoIncSetup.Container', {
 	],
 	
 	renderTo: 'term_delivery_auto_inc_js',
-	height: 700,
+	height: Ext.getBody().getViewSize().height - 120,
 	
 	items: [
 		{

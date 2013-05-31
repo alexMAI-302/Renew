@@ -11,7 +11,7 @@ Ext.define('app.view.RenewPlan.Container', {
 	
 	renderTo: 'renew_plan_js',
 	width: '100%',
-	height: 700,
+	height: Ext.getBody().getViewSize().height - 120,
 	
 	layout: {
 		type: 'border'

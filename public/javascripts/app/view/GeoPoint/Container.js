@@ -8,7 +8,7 @@ Ext.define('app.view.GeoPoint.Container', {
 	
 	renderTo: 'geo_point_js',
 	width: '100%',
-	height: 700,
+	height: Ext.getBody().getViewSize().height - 120,
 	
 	layout: {
 		type: 'border'

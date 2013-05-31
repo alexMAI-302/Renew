@@ -6,7 +6,7 @@ Ext.define('app.view.SalesmanRoutes.Container', {
 		'app.view.SalesmanRoutes.Grid'
 	],
 	
-	height: 600,
+	height: Ext.getBody().getViewSize().height - 120,
 	id: 'mainContainer',
 	renderTo: Ext.get('salesman_routes_js'),
 	

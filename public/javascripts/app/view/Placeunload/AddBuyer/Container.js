@@ -10,7 +10,7 @@ Ext.define('app.view.Placeunload.AddBuyer.Container', {
 	
 	renderTo: 'placeunload_add_buyer_js',
 	width: '100%',
-	height: 700,
+	height: Ext.getBody().getViewSize().height - 120,
 	resizable: true,
 	
 	layout: {

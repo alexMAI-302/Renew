@@ -8,7 +8,7 @@ Ext.define('app.view.BuyersRoute.Container', {
 	
 	renderTo: 'buyers_route_js',
 	width: '100%',
-	height: 700,
+	height: Ext.getBody().getViewSize().height - 120,
 	resizable: true,
 	
 	layout: {

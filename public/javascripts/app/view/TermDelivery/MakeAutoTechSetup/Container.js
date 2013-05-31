@@ -13,7 +13,7 @@ Ext.define('app.view.TermDelivery.MakeAutoTechSetup.Container', {
 	
 	renderTo: 'term_delivery_auto_tech_js',
 	
-	height: 600,
+	height: Ext.getBody().getViewSize().height - 120,
 	
 	items: [
 		{

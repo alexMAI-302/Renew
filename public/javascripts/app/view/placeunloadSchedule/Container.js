@@ -3,7 +3,7 @@ Ext.define('app.view.placeunloadSchedule.Container', {
 	
 	resizable: true,
 	renderTo: 'placeunload_schedule_js',
-	height: 700,
+	height: Ext.getBody().getViewSize().height - 120,
 	
 	config: {
 		suffix: 'Schedules',

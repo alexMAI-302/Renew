@@ -12,7 +12,7 @@ Ext.define('app.view.TermDelivery.MakeAutoCommonSetup.Container', {
 	},
 	
 	renderTo: 'term_delivery_auto_common_js',
-	height: 700,
+	height: Ext.getBody().getViewSize().height - 120,
 	
 	items: [
 		{
