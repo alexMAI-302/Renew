@@ -7,7 +7,7 @@ Ext.define('app.view.Geotrack.Container', {
 	
 	renderTo: 'geotrack_js',
 	width: '100%',
-	height: 700,
+	height: Ext.getBody().getViewSize().height - 120,
 	resizable: true,
 	
 	layout: {

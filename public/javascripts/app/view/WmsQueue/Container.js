@@ -6,7 +6,7 @@ Ext.define('app.view.WmsQueue.Container', {
 	],
 	
 	renderTo: 'wms_queue_js',
-	height: 700,
+	height: Ext.getBody().getViewSize().height - 120,
 	
 	config: {
 		suffix: 'WmsQueue',

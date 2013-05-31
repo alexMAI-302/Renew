@@ -5,7 +5,7 @@ Ext.define('app.view.Dov.Container', {
 		type: 'fit'
 	},
 	
-	height: 650,
+	height: Ext.getBody().getViewSize().height - 120,
 	id: 'DovMain',
 	renderTo: Ext.get('dov_js'),
 	

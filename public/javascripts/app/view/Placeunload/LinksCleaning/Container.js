@@ -11,7 +11,7 @@ Ext.define('app.view.Placeunload.LinksCleaning.Container', {
 		type: 'border'
 	},
 	
-	height: 700,
+	height: Ext.getBody().getViewSize().height - 120,
 	renderTo: 'placeunload_links_cleaning_js',
 	
 	items: [

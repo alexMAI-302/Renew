@@ -7,7 +7,7 @@ Ext.define('app.view.gitSearch.Container', {
 	],
 	
 	width: '100%',
-	height: 400,
+	height: Ext.getBody().getViewSize().height - 120,
 	
 	layout: {
 		type: 'border'

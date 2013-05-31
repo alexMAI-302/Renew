@@ -8,7 +8,7 @@ Ext.define('app.view.empSchedule.container', {
 	
 	renderTo: 'emp_schedule_js',
 	width: '100%',
-	height: 700,
+	height: Ext.getBody().getViewSize().height - 120,
 	
 	
 	items: [
