@@ -90,7 +90,7 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
   end
 
   def get_placecategories
-    res = ActiveRecord::Base.connection.select_all("select id, name from placecategory order by name where id<>-1")
+    res = ActiveRecord::Base.connection.select_all("select id, name from placecategory where id<>-1 order by name")
 
     render :text => res.to_json
   end
@@ -152,7 +152,11 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
       latitude,
       longitude
     FROM
-      site")
+      site
+    WHERE
+      latitude IS NOT NULL
+      AND
+      longitude IS NOT NULL")
     render :text => sites.to_json
   end
 
