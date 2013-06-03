@@ -31,7 +31,7 @@ class DovController < ApplicationSimpleErrorController
     WHERE
       (ddate >= today() and ddate < DATEADD(day, 1, TODAY()))
       and
-      salesman_id = #{params[:salesman_id].to_i}
+      agent = #{params[:salesman_id].to_i}
     ORDER BY
       1")
     render :text => res.to_json
@@ -41,14 +41,14 @@ class DovController < ApplicationSimpleErrorController
     res=ActiveRecord::Base.connection.select_all("
     SELECT
       d.id,
-      ps.name salesman_name,
+      a.name salesman_name,
       d.ndoc,
       d.ddate,
       d.status,
       d.unused
     FROM
       dov d
-      JOIN palm_salesman ps ON ps.salesman_id=d.salesman_id
+      JOIN agents a ON a.id=d.agent
     WHERE
       (
         #{params[:salesman_id].to_i}=-1
