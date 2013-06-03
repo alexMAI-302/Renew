@@ -260,7 +260,9 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
         #{data["placeunload_delscheduleid"].to_i},
         #{data["placeunload_incscheduleid"].to_i},
         #{data["placeunload_buyers_route_id"]=="-1" ? 'null' : data["placeunload_buyers_route_id"].to_i},
-        #{data["placeunload_placecategory_id"].to_i})
+        #{data["placeunload_placecategory_id"].to_i},
+        #{data["dow"].to_i}
+        )
     ")
 
     if !serr.nil? && serr.size==0

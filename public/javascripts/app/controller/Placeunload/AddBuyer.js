@@ -274,7 +274,8 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 					        placeunload_delscheduleid: Ext.getCmp('newPlaceunloadDelschedule').getValue(),
 					        placeunload_incscheduleid: Ext.getCmp('newPlaceunloadIncschedule').getValue(),
 					        placeunload_buyers_route_id: Ext.getCmp('newPlaceunloadRoute').getValue(),
-					        placeunload_placecategory_id: Ext.getCmp('newPlaceunloadPlacecategory').getValue()
+					        placeunload_placecategory_id: Ext.getCmp('newPlaceunloadPlacecategory').getValue(),
+					        dow: Ext.getCmp('dow').getValue()
 						},
 						method: "POST",
 						callback: function(options, success, response){
