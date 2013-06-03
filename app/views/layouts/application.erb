@@ -4,14 +4,15 @@
 		<title><%= yield(:title)%></title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<%= yield :meta %>
-		<%= stylesheet_link_tag "main", :media=>"screen" %>
-		<%= stylesheet_link_tag "print", :media=>"print" %>
 		<link rel="shortcut icon" href="/images/unact-ico.ico" type="image/x-icon" />
 		<link rel="apple-touch-icon" href="/images/unact-touch-icon.png" />
 		<%= yield :stylesheets_links %>
+		<link type="text/css" rel="stylesheet" media="screen" href="/stylesheets/logo.css">
 		<link type="text/css" rel="stylesheet" media="screen" href="/ext/resources/css/ext-all.css">
 		<link type="text/css" rel="stylesheet" media="screen" href="/ext/examples/ux/grid/gridPrinterCss/print.css">
-		<style type="text/css"><%= yield :stylesheets %></style>
+		<style type="text/css">
+			<%= yield :stylesheets %>
+		</style>
 		<script type="text/javascript" src="/ext/ext-all-dev.js"></script>
 		<script type="text/javascript" src="/ext/locale/ext-lang-ru.js"></script>
 		<script type="text/javascript" src="/javascripts/lang-ru.js"></script>
