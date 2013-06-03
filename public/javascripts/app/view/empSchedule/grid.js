@@ -10,6 +10,8 @@ Ext.define('app.view.empSchedule.grid', {
 		suffix: 'EmpSchedule',
 		disableDeleteColumn: true,
 		title: 'Графики сотрудников',
+		autoScroll: true,
+		height: 500,
 		beforeButtons: [
 			{
 				xtype: 'dateIntervalFilter',
@@ -67,12 +69,12 @@ Ext.define('app.view.empSchedule.grid', {
 				disabled: true
 			},
 			{
-				width: 300,
+				width: 200,
 				header: 'Отдел',
 				dataIndex: 'dept_name'
 			},
 			{
-				width: 200,
+				width: 150,
 				header: 'Сотрудник',
 				dataIndex: 'person_id'
 			},
@@ -99,7 +101,7 @@ Ext.define('app.view.empSchedule.grid', {
 				}
 			},
 			{
-				width: 100,
+				width: 75,
 				header: 'График',
 				dataIndex: 'schedule_type_id'
 			},
@@ -166,9 +168,14 @@ Ext.define('app.view.empSchedule.grid', {
 					
 			},
 			{
-				width: 200,
+				width: 150,
 				header: 'Руководитель',
 				dataIndex: 'manager'
+			},
+			{
+				width: 100,
+				header: 'Прчина изм.',
+				dataIndex: 'reason'
 			}
 		]/*,
 		plugins: [Ext.create('Ext.grid.plugin.CellEditing', {

@@ -62,6 +62,7 @@ Ext.define('app.model.empSchedule.empScheduleModel', {
 			}
 		},
 		{name: 'min_worktime'		, type: 'int'},
-		{name: 'manager'		, type: 'int'}
+		{name: 'manager'		, type: 'int'},
+		{name: 'reason'		, type: 'int'}
 	]
 });
