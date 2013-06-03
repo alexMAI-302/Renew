@@ -7,6 +7,7 @@ Ext.define('app.controller.empSchedule', {
 		'empSchedule.manager',
 		'empSchedule.managerFilter',
 		'empSchedule.scheduleType',
+		'empSchedule.reason',
 		'empSchedule.empSchedule'],
 	models: [
 		'app.model.valueModel',
@@ -24,6 +25,7 @@ Ext.define('app.controller.empSchedule', {
 	managerFilterStore:null,
 	empScheduleStore:null,
 	scheduleTypeStore:null,
+	reasonStore:null,
 	mainContainer: null,
 	showServerError: function(response, options) {
 		var controller=this;
@@ -53,8 +55,16 @@ Ext.define('app.controller.empSchedule', {
 			manager: 	Ext.getCmp('managerComboFilter').getValue()
 		};
 		controller.mainContainer.setLoading(true);
-		controller.empScheduleStore.load();
-		controller.mainContainer.setLoading(false);
+		controller.empScheduleStore.load(
+			function(records, operation, success){
+							controller.mainContainer.setLoading(false);
+							if(!success){
+								Ext.Msg.alert("Ошибка выборки данных");
+							};							
+							return true;
+						}
+		);
+		
 	},
 	saveEmpSchedule: function(){
 		var controller=this;
@@ -109,7 +119,8 @@ Ext.define('app.controller.empSchedule', {
 					time_start: (r.get('time_start')==null)? null:r.get('time_start').getHours()*60+r.get('time_start').getMinutes(),
 					time_end: (r.get('time_end')==null)? null:r.get('time_end').getHours()*60+r.get('time_end').getMinutes(),
 					min_worktime:		r.get('min_worktime'),
-					manager: r.get('manager')
+					manager: r.get('manager'),
+					reason: r.get('reason')
 				});
 			}
 		});	
@@ -127,7 +138,8 @@ Ext.define('app.controller.empSchedule', {
 					time_start: (r.get('time_start')==null)? null:r.get('time_start').getHours()*60+r.get('time_start').getMinutes(),
 					time_end: (r.get('time_end')==null)? null:r.get('time_end').getHours()*60+r.get('time_end').getMinutes(),
 					min_worktime:		r.get('min_worktime'),
-					manager: r.get('manager')
+					manager: r.get('manager'),
+					reason: r.get('reason')
 				});
 		}
 		
@@ -209,11 +221,13 @@ Ext.define('app.controller.empSchedule', {
 			EmpScheduleTable = Ext.getCmp('EmpScheduleTable'),
 			personColumn=EmpScheduleTable.columns[2],
 			scheduleTypeColumn=EmpScheduleTable.columns[5],
-			managerColumn=EmpScheduleTable.columns[10];
-		
+			managerColumn=EmpScheduleTable.columns[10],
+			reasonColumn=EmpScheduleTable.columns[11];		
+			
 		controller.makeComboColumn(personColumn, controller.personAllStore, controller.empScheduleStore, 'person_id');
 		controller.makeComboColumn(scheduleTypeColumn, controller.scheduleTypeStore, controller.empScheduleStore, 'schedule_type_id');
 		controller.makeComboColumn(managerColumn, controller.managerStore, controller.empScheduleStore, 'manager');
+		controller.makeComboColumn(reasonColumn, controller.reasonStore, controller.empScheduleStore, 'reason');
 		
 			
 		Ext.getCmp('deptComboFilter').addListener(
@@ -248,6 +262,7 @@ Ext.define('app.controller.empSchedule', {
 		controller.managerFilterStore=controller.getEmpScheduleManagerFilterStore();
 
 		controller.scheduleTypeStore=controller.getEmpScheduleScheduleTypeStore();
+		controller.reasonStore=controller.getEmpScheduleReasonStore();
 		controller.empScheduleStore=controller.getEmpScheduleEmpScheduleStore();
 
 	},
