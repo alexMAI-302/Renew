@@ -108,7 +108,7 @@ Ext.define('app.view.Placeunload.AddBuyer.PlaceunloadPropertiesGrid', {
         		]
 			},
 			queryMode: 'local',
-			fieldLabel: "День разгрузки",
+			fieldLabel: "День доставки",
 			width: '100%',
 			labelWidth: 110,
 			allowBlank: false
