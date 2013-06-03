@@ -91,6 +91,27 @@ Ext.define('app.view.Placeunload.AddBuyer.PlaceunloadPropertiesGrid', {
 			fieldLabel: "Примечание",
 			width: '100%',
 			labelWidth: 110
+		},
+		{
+			xtype: 'combobox',
+			valueField: 'id',
+			displayField: 'name',
+			id: 'dow',
+			store: {
+  				fields: ['id', 'name'],
+    			data : [
+					{"id":1, "name":"Понедельник"},
+					{"id":2, "name":"Вторник"},
+					{"id":3, "name":"Среда"},
+					{"id":4, "name":"Четверг"},
+					{"id":5, "name":"Пятница"},
+        		]
+			},
+			queryMode: 'local',
+			fieldLabel: "День разгрузки",
+			width: '100%',
+			labelWidth: 110,
+			allowBlank: false
 		}
 	]
 });
