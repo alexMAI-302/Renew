@@ -1,0 +1,57 @@
+.logobg 
+{
+	background: url('./../../images/logobg.png') bottom repeat-x;
+}
+
+.logodecor 
+{
+	background: url('./../../images/logodecor.png') right no-repeat;
+}
+
+#header 
+{  
+	width:100%;
+	position: relative;
+    padding: 0px;
+	margin:0 -1px;
+	background-color: #ED1C24;
+} 
+
+#header #logo 
+{
+	position: relative;
+	float:left;
+	top: 0px;
+	left: 0px;
+}
+
+#header .title
+{
+	padding-left: 45px;
+	font: 21px tahoma;
+	color: white;
+	text-transform: uppercase;
+	padding-bottom: 28px;
+}
+
+#header .user a
+{
+	font: bold 12px tahoma;
+	color: #FFF;
+}
+
+#header .user div
+{
+	padding-right: 10px;
+	margin-top: 35px;
+}
+
+#header .user span
+{
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-bottom: 1px;
+	font: bold 12px tahoma;
+	background-color: #E11018;
+	color: #EEE;
+}

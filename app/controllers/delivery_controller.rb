@@ -1,3 +1,4 @@
+# encoding: utf-8
 class DeliveryController < ApplicationPageErrorController  
   def index
 	set_conditions	
@@ -23,9 +24,7 @@ class DeliveryController < ApplicationPageErrorController
 		end
 		params[:r] = ar
 		s = "begin declare @r int;  @r = call prc_delivery('#{params.to_xml}'); commit; select @r r; end;"
-		logger.info s
 		r = ActiveRecord::Base.connection.select_value(s)
-		logger.info "------------------- #{r}  -----------------------"
 	end
 	redirect_to :action => "index"
   end
