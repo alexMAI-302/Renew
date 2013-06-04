@@ -184,7 +184,8 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
       WHERE
         p.id = #{@partner_id}")
 
-      @partner_group_id    = pa["pgroup_id"]
+      @partner_group_id   = pa["pgroup_id"].to_i
+      @partner_group_name = pa["pgroup_name"]
       @partner_name = pa["partner_name"]
       @buyer_name   = @partner_name
       @placeunload_name = @partner_name

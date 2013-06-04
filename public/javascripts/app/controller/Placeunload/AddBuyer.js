@@ -284,6 +284,8 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 							} else {
 								if(response.responseText!="ok"){
 									Ext.Msg.alert('Ошибка', response.responseText);
+								} else {
+									Ext.Msg.alert('', 'Данные успешно сохранены');
 								}
 							}
 							controller.mainContainer.setLoading(false);
