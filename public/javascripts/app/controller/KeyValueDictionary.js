@@ -1,9 +1,7 @@
-Ext.define('app.controller.Dictionary', {
+Ext.define('app.controller.KeyValueDictionary', {
     extend: 'Ext.app.Controller',
 	stores: [
-		'dictionary.DictionaryEntries',
-		'dictionary.Properties1',
-		'dictionary.Properties2'
+		'keyValueDictionary.DictionaryEntries'
 	],
 	
 	models: [
@@ -11,23 +9,14 @@ Ext.define('app.controller.Dictionary', {
 	],
 	
 	views: [
-		'dictionary.Container'
+		'keyValueDictionary.Container'
 	],
 	
 	mainContainer: null,
 	masterStore: null,
 	
 	load: function(){
-		var controller=this,
-			property1Name = Ext.get('property1_name').getValue(),
-			property2Name = Ext.get('property2_name').getValue();
-		
-		controller.masterStore.proxy.extraParams = {
-			property1_name: property1Name,
-			property2_name: property2Name
-		};
-		controller.masterStore.proxy.extraParams[property1Name] = Ext.getCmp('DictionaryFilter'+property1Name).getValue();
-		controller.masterStore.proxy.extraParams[property2Name] = Ext.getCmp('DictionaryFilter'+property2Name).getValue();
+		var controller=this;
 		
 		controller.masterStore.load(
 			function(records, operation, success){
@@ -46,10 +35,6 @@ Ext.define('app.controller.Dictionary', {
 			(masterStore.getRemovedRecords().length > 0)){
 				
 			container.setLoading(true);
-			masterStore.proxy.extraParams = {
-				property1_name: Ext.get('property1_name').getValue(),
-				property2_name: Ext.get('property2_name').getValue()
-			};
 			masterStore.sync({
 				callback: function(batch){
 					if(batch.exceptions.length>0){
@@ -65,7 +50,7 @@ Ext.define('app.controller.Dictionary', {
 		var controller = this,
 			itemsToControl={};
 		
-		controller.mainContainer=Ext.create('app.view.dictionary.Container');
+		controller.mainContainer=Ext.create('app.view.keyValueDictionary.Container');
 		
 		itemsToControl['#saveDictionary'] = {
 			click: function(){
@@ -85,7 +70,7 @@ Ext.define('app.controller.Dictionary', {
 		
 		itemsToControl['#addDictionary'] = {
 			click: function(){
-				var r = Ext.ModelManager.create({}, 'app.model.dictionary.DictionaryModel');
+				var r = Ext.ModelManager.create({}, 'app.model.valueModel');
 				controller.masterStore.add(r);
 			}
 		};
@@ -111,7 +96,7 @@ Ext.define('app.controller.Dictionary', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.masterStore=controller.getDictionaryDictionaryEntriesStore();
+		controller.masterStore=controller.getKeyValueDictionaryDictionaryEntriesStore();
 	},
 	
 	onLaunch: function(){

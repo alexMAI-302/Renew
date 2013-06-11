@@ -1,14 +1,8 @@
 # encoding: utf-8
 require 'nokogiri'
-class UserDictionariesController < ApplicationSimpleErrorController
+class KeyKeyDictionariesController < ApplicationSimpleErrorController
   def index
     render :text => 'Словари'
-  end
-
-  def get_users
-    users=RenewUser.find(:all, :select => "id, name", :order => "name")
-    users.unshift({:id => -1, :name => "ВСЕ"})
-    render :text => users.to_json
   end
   
   def method_missing(meth, *args, &block)
@@ -56,7 +50,7 @@ class UserDictionariesController < ApplicationSimpleErrorController
         @property2_name = properties[1].get_attribute("name")
         @property2_display_name = properties[1].get_attribute("display_name")
         @property2_table = properties[1].get_attribute("table")
-        render :template => "user_dictionaries/index"
+        render :template => "key_key_dictionaries/index"
       end
     end
   end

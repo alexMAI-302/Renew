@@ -1,4 +1,4 @@
-Ext.define('app.model.dictionary.DictionaryModel', {
+Ext.define('app.model.keyKeyDictionary.DictionaryModel', {
 	extend: 'Ext.data.Model',
 	fields: [
 	{name: 'id'									, type:'string'}, //идентификатор составной

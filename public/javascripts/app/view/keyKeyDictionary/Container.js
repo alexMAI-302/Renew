@@ -1,4 +1,4 @@
-Ext.define('app.view.dictionary.Container', {
+Ext.define('app.view.keyKeyDictionary.Container', {
     extend: 'app.view.Lib.Grid.Panel',
     requires: 'app.view.Lib.Grid.column.ComboColumn',
 	
@@ -9,13 +9,13 @@ Ext.define('app.view.dictionary.Container', {
 	{
 		xtype: 'simpleGrid',
 		suffix: 'Dictionary',
-		store: 'dictionary.DictionaryEntries',
+		store: 'keyKeyDictionary.DictionaryEntries',
 		beforeButtons: [
 			{
 				id: 'DictionaryFilter'+Ext.get('property1_name').getValue(),
 				xtype: 'combobox',
 				fieldLabel: Ext.get('property1_display_name').getValue(),
-				store: 'dictionary.Properties1',
+				store: 'keyKeyDictionary.Properties1',
 				displayField: 'name',
 				valueField: 'id',
 				allowBlank: false,
@@ -33,7 +33,7 @@ Ext.define('app.view.dictionary.Container', {
 				id: 'DictionaryFilter'+Ext.get('property2_name').getValue(),
 				xtype: 'combobox',
 				fieldLabel: Ext.get('property2_display_name').getValue(),
-				store: 'dictionary.Properties2',
+				store: 'keyKeyDictionary.Properties2',
 				displayField: 'name',
 				valueField: 'id',
 				allowBlank: false,
@@ -55,14 +55,14 @@ Ext.define('app.view.dictionary.Container', {
 				xtype: 'combocolumn',
 				header : Ext.get('property1_display_name').getValue(),
 				dataIndex : Ext.get('property1_name').getValue(),
-				store: 'dictionary.Properties1'
+				store: 'keyKeyDictionary.Properties1'
 			},
 			{
 				width : 200,
 				xtype: 'combocolumn',
 				header : Ext.get('property2_display_name').getValue(),
 				dataIndex : Ext.get('property2_name').getValue(),
-				store: 'dictionary.Properties2'
+				store: 'keyKeyDictionary.Properties2'
 			}
 		]
 	}
