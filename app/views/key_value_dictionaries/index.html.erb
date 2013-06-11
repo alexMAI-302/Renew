@@ -1,0 +1,14 @@
+<% content_for :js_controller do %>
+,'KeyValueDictionary'
+<% end -%>
+<% content_for :title do %>
+<%= @title %>
+<%	end -%>
+
+<% content_for :content do %>
+	<div id="dictionary_js">
+	</div>
+	
+	<input type="hidden" name="dictionary" id="dictionary" value="<%= @dictionary %>"/>
+	<input type="hidden" name="property_display_name" id="property_display_name" value="<%= @property_display_name %>"/>
+<% end %>
