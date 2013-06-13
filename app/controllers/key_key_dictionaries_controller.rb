@@ -30,7 +30,7 @@ class KeyKeyDictionariesController < ApplicationSimpleErrorController
   
   private
   def create_index_page(table_name)
-    res = ActiveRecord::Base.connection.select_one("call renew_web.user_dictionaries_get_info('#{table_name}')")
+    res = ActiveRecord::Base.connection.select_one("call renew_web.key_key_dictionaries_get_info('#{table_name}')")
     if res.nil? || res.size!=1
       render :text => "Не найдена таблица или колонки"
     else
