@@ -77,7 +77,7 @@ class KeyValueDictionariesController < ApplicationSimpleErrorController
             t.table_name='#{table_name}'));
         SET @id=idgenerator('#{table_name}', 'id', @user_name);
         
-        INSERT INTO #{table_name}(id, name) VALUES (@id, #{property_value});
+        INSERT INTO #{table_name}(id, name) VALUES (@id, '#{property_value}');
         SELECT @id;
       END")
 
