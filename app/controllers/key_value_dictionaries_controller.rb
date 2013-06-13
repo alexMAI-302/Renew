@@ -74,7 +74,7 @@ class KeyValueDictionariesController < ApplicationSimpleErrorController
           FROM
             systable t
           WHERE
-            t.table_name='renew_users'));
+            t.table_name='#{table_name}'));
         SET @id=idgenerator('#{table_name}', 'id', @user_name);
         
         INSERT INTO #{table_name}(id, name) VALUES (@id, #{property_value});

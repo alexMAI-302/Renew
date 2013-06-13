@@ -85,8 +85,7 @@ Ext.define('app.controller.KeyKeyDictionary', {
 		
 		itemsToControl['#addDictionary'] = {
 			click: function(){
-				var r = Ext.ModelManager.create({}, 'app.model.dictionary.DictionaryModel');
-				controller.masterStore.add(r);
+				controller.masterStore.insert(0, {});
 			}
 		};
 		
