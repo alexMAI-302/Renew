@@ -49,6 +49,11 @@ Ext.define('app.view.Dov.Revoke.Container', {
 					format: 'Y-m-d'
 				},
 				{
+					width: 150,
+					header: 'Почта пользователя',
+					dataIndex: 'renew_user'
+				},
+				{
 					xtype: 'actioncolumn',
 					width: 60,
 					header: 'Возврат',

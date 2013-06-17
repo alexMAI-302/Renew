@@ -117,8 +117,8 @@ Ext.define('app.controller.DovTabs.Revoke', {
 	initTables: function(){
 		var controller=this,
 			dovTable=Ext.getCmp('DovRevokeTable'),
-			revokeColumn=dovTable.columns[3],
-			unusedColumn=dovTable.columns[4];
+			revokeColumn=dovTable.columns[4],
+			unusedColumn=dovTable.columns[5];
 		
 		function getClass(v){
 			switch(v){
@@ -163,6 +163,7 @@ Ext.define('app.controller.DovTabs.Revoke', {
 							r.set('message', '');
 							r.set('unused', 0);
 						}
+						r.set('renew_user', data.renew_user);
 						dovTable.updateLayout();
 					},
 					failure: function(response, e){
@@ -202,6 +203,7 @@ Ext.define('app.controller.DovTabs.Revoke', {
 							r.set('message', '');
 							r.set('status', status);
 						}
+						r.set('renew_user', data.renew_user);
 						dovTable.updateLayout();
 					},
 					failure: function(response, e){

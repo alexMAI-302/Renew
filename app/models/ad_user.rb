@@ -40,7 +40,6 @@ class AdUser
     options.each_pair do |key, value|
       s+="#{key}=#{value} "
     end
-    Rails.logger.info s
     user=nil
     filter = Net::LDAP::Filter.construct(s)
     ldap.search( :base => "dc=unact,dc=ru", :filter => filter ) do |entry|

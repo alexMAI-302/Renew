@@ -25,7 +25,8 @@ class DovController < ApplicationSimpleErrorController
   def get_dov_issue
     res=ActiveRecord::Base.connection.select_all("
     SELECT
-      ndoc id, ndoc name
+      ndoc id,
+      ndoc name
     FROM
       dov
     WHERE
@@ -45,10 +46,12 @@ class DovController < ApplicationSimpleErrorController
       d.ndoc,
       d.ddate,
       d.status,
-      d.unused
+      d.unused,
+      ru.name renew_user
     FROM
       dov d
       JOIN agents a ON a.id=d.agent
+      LEFT JOIN renew_users ru ON ru.id=d.renew_user
     WHERE
       (
         #{params[:salesman_id].to_i}=-1
@@ -79,10 +82,11 @@ class DovController < ApplicationSimpleErrorController
     ActiveRecord::Base.connection.execute("
     UPDATE dov SET
       status=#{status},
-      unused=IF #{unused} = 0 THEN 0 ELSE unused END IF
+      unused=IF #{unused} = 0 THEN 0 ELSE unused END IF,
+      renew_user = (SELECT id FROM renew_users WHERE name = '#{ActiveRecord::Base.connection.quote_string(session[:user_id])}')
     WHERE
       id=#{params[:id].to_i}")
-    render :text => {"success" => true, "status" => status}.to_json
+    render :text => {"success" => true, "status" => status, "renew_user" => session[:user_id]}.to_json
   end
 
   def set_dov_unused
@@ -90,9 +94,10 @@ class DovController < ApplicationSimpleErrorController
     ActiveRecord::Base.connection.execute("
     UPDATE dov SET
       status=IF #{unused} = 1 THEN 1 ELSE status END IF,
-      unused=#{unused}
+      unused=#{unused},
+      renew_user = (SELECT id FROM renew_users WHERE name = '#{ActiveRecord::Base.connection.quote_string(session[:user_id])}')
     WHERE
       id=#{params[:id].to_i}")
-    render :text => {"success" => true, "unused" => unused}.to_json
+    render :text => {"success" => true, "unused" => unused, "renew_user" => session[:user_id]}.to_json
   end
 end
