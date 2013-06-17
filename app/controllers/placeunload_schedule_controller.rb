@@ -38,7 +38,7 @@ class PlaceunloadScheduleController < ApplicationSimpleErrorController
 
   def save
     day_of_week=params[:day_of_week].to_i
-    if day_of_week>=1 && day_of_week<=5
+    if day_of_week>=1 && day_of_week<32
       ActiveRecord::Base.connection.execute("
       BEGIN
         IF EXISTS(SELECT * FROM placeunload_schedule WHERE placeunload_id=#{params[:id].to_i} and ddateb='#{Time.parse(params[:ddate]).strftime('%F')}') THEN

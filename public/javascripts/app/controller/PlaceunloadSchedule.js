@@ -80,7 +80,12 @@ Ext.define('app.controller.PlaceunloadSchedule', {
 		
 		function selectDayOfWeek(dayIndex, rowIndex, checked){
 			var r=controller.masterStore.getAt(rowIndex);
-			r.set("day_of_week", checked?dayIndex:0);
+			
+			if(checked){
+				r.set("day_of_week", r.get("day_of_week") | (1 << (dayIndex-1)));
+			} else {
+				r.set("day_of_week", r.get("day_of_week") & (~(1 << (dayIndex-1))));
+			}
 			r.set("monday", false);
 			r.set("tuesday", false);
 			r.set("wednesday", false);
