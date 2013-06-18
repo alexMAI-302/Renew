@@ -97,6 +97,7 @@ Ext.define('app.view.Placeunload.AddBuyer.PlaceunloadPropertiesGrid', {
 			valueField: 'id',
 			displayField: 'name',
 			id: 'dow',
+			multiSelect: true,
 			store: {
   				fields: ['id', 'name'],
     			data : [

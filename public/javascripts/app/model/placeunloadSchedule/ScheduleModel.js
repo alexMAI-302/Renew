@@ -14,7 +14,7 @@ Ext.define('app.model.placeunloadSchedule.ScheduleModel', {
 			type:'boolean',
 			persists: false,
 			convert: function(value, record){
-				return record.get("day_of_week")==1;
+				return record.get("day_of_week") & 1;
 			}
 		},
 		{
@@ -22,7 +22,7 @@ Ext.define('app.model.placeunloadSchedule.ScheduleModel', {
 			type:'boolean',
 			persists: false,
 			convert: function(value, record){
-				return record.get("day_of_week")==2;
+				return record.get("day_of_week") & 2;
 			}
 		},
 		{
@@ -30,7 +30,7 @@ Ext.define('app.model.placeunloadSchedule.ScheduleModel', {
 			type:'boolean',
 			persists: false,
 			convert: function(value, record){
-				return record.get("day_of_week")==3;
+				return record.get("day_of_week") & 4;
 			}
 		},
 		{
@@ -38,7 +38,7 @@ Ext.define('app.model.placeunloadSchedule.ScheduleModel', {
 			type:'boolean',
 			persists: false,
 			convert: function(value, record){
-				return record.get("day_of_week")==4;
+				return record.get("day_of_week") & 8;
 			}
 		},
 		{
@@ -46,7 +46,7 @@ Ext.define('app.model.placeunloadSchedule.ScheduleModel', {
 			type:'boolean',
 			persists: false,
 			convert: function(value, record){
-				return record.get("day_of_week")==5;
+				return record.get("day_of_week") & 16;
 			}
 		}
 	]

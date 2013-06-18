@@ -242,6 +242,10 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
 
   def save_buyer
     data=ActiveSupport::JSON.decode(request.body.gets)
+    dow = 0
+    data["dow"].each do |day|
+      dow+=day.to_i
+    end
     
     serr = ActiveRecord::Base.connection.select_value("
       SELECT * FROM renew_web.placeunload_save_buyer(
@@ -262,7 +266,7 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
         #{data["placeunload_incscheduleid"].to_i},
         #{data["placeunload_buyers_route_id"]=="-1" ? 'null' : data["placeunload_buyers_route_id"].to_i},
         #{data["placeunload_placecategory_id"].to_i},
-        #{data["dow"].to_i}
+        #{dow}
         )
     ")
 

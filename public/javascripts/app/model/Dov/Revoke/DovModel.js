@@ -20,5 +20,6 @@ Ext.define('app.model.Dov.Revoke.DovModel', {
 	},
 	{name: 'status'		, type:'int'},
 	{name: 'unused'		, type:'int'},
+	{name: 'renew_user'	, type:'string'},
 	{name: 'message'	, type:'string', persits: 'false'}]
 });
