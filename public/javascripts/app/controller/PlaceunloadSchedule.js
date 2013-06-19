@@ -86,6 +86,9 @@ Ext.define('app.controller.PlaceunloadSchedule', {
 			} else {
 				r.set("day_of_week", r.get("day_of_week") & (~(1 << (dayIndex-1))));
 			}
+			if(r.get("day_of_week")==0){
+				r.set("day_of_week", r.get("day_of_week") | (1 << (dayIndex-1)));
+			}
 			r.set("monday", false);
 			r.set("tuesday", false);
 			r.set("wednesday", false);
@@ -98,7 +101,7 @@ Ext.define('app.controller.PlaceunloadSchedule', {
 			columns[i].addListener(
 				"checkchange",
 				function(column, rowIndex, checked, eOpts){
-					selectDayOfWeek(column.getIndex()-1, rowIndex, checked);
+					return selectDayOfWeek(column.getIndex()-1, rowIndex, checked);
 				}
 			);
 		}
