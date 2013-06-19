@@ -101,7 +101,7 @@ Ext.define('app.controller.PlaceunloadSchedule', {
 			columns[i].addListener(
 				"checkchange",
 				function(column, rowIndex, checked, eOpts){
-					return selectDayOfWeek(column.getIndex()-1, rowIndex, checked);
+					selectDayOfWeek(column.getIndex()-1, rowIndex, checked);
 				}
 			);
 		}
