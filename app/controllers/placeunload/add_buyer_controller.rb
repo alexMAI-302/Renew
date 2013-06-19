@@ -244,7 +244,7 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
     data=ActiveSupport::JSON.decode(request.body.gets)
     dow = 0
     data["dow"].each do |day|
-      dow+=day.to_i
+      dow+=1<<(day.to_i-1)
     end
     
     serr = ActiveRecord::Base.connection.select_value("
