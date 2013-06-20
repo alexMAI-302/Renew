@@ -93,7 +93,16 @@ Ext.define('app.view.placeunloadSchedule.Container', {
 				align: 'center',
 				dataIndex: 'friday',
 				xtype: 'checkcolumn'
-			}
+			},
+			{
+				width: 300,
+				header: 'Подразделение (ТП)',
+				dataIndex: 'podr',
+				renderer: function (value, meta, record) {
+					meta.tdAttr = 'data-qtip="' + record.get("podr_tooltip") + '"'; //Всплывающее окно
+					return value;
+                }
+			},
 		]
 	}
 });

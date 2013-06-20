@@ -36,6 +36,8 @@ Ext.define('app.controller.PlaceunloadSchedule', {
     init: function() {
 		var controller = this;
 		
+		Ext.tip.QuickTipManager.init();
+		
 		controller.mainContainer=Ext.create('app.view.placeunloadSchedule.Container');
 		
 		controller.control({
@@ -86,6 +88,9 @@ Ext.define('app.controller.PlaceunloadSchedule', {
 			} else {
 				r.set("day_of_week", r.get("day_of_week") & (~(1 << (dayIndex-1))));
 			}
+			if(r.get("day_of_week")==0){
+				r.set("day_of_week", r.get("day_of_week") | (1 << (dayIndex-1)));
+			}
 			r.set("monday", false);
 			r.set("tuesday", false);
 			r.set("wednesday", false);
@@ -93,8 +98,8 @@ Ext.define('app.controller.PlaceunloadSchedule', {
 			r.set("friday", false);
 		};
 		
-		var columns=Ext.getCmp('SchedulesTable').columns;
-		for(var i=2; i<columns.length; i++){
+		var columns=Ext.getCmp('SchedulesTable').columns.slice(2, 7); //Возьмете только колонки с днями недели
+		for(var i=0, len=columns.length; i<len; i++){
 			columns[i].addListener(
 				"checkchange",
 				function(column, rowIndex, checked, eOpts){
