@@ -38,6 +38,11 @@ Ext.define('app.controller.PlaceunloadSchedule', {
 		
 		Ext.tip.QuickTipManager.init();
 		
+		//В Хроме подсказа появляется очень узкой, из-за что не видно текста. Указем мин. шиниру подсказки. в FF все работает нормально
+		Ext.apply(Ext.tip.QuickTipManager.getQuickTip(), {
+		    minWidth: 200
+		});
+		
 		controller.mainContainer=Ext.create('app.view.placeunloadSchedule.Container');
 		
 		controller.control({
