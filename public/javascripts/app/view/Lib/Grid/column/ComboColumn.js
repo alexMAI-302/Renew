@@ -2,6 +2,15 @@ Ext.define('app.view.Lib.Grid.column.ComboColumn', {
 	extend : 'Ext.grid.column.Column',
 	alias : 'widget.combocolumn',
 	
+	/**
+	 * @param {Object} config Config object.
+	 * store - хранилище или идентификатор или полное имя класса
+	 * queryMode - режим запроса. по умолчанию локальный
+	 * displayField - отображаемое поле. по умолчанию 'name'
+	 * valueField - отображаемое поле. по умолчанию 'id'
+	 * onlyRenderer - не создавать элемент для редактирования
+	 * fieldListeners - слушатели событий элемента редактирования
+	 */
 	constructor: function(config){
 		var me=this;
 		
