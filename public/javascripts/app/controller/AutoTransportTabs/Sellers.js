@@ -100,17 +100,9 @@ Ext.define('app.controller.AutoTransportTabs.Sellers', {
 		controller.refreshSellers();
 	},
 	
-	bindStores: function(){
-		var controller=this;
-		
-		Ext.getCmp('SellersTable').reconfigure(controller.masterStore);
-	},
-	
 	onLaunch: function(){
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
 	}
 });

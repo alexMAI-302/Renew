@@ -19,7 +19,8 @@ Ext.define('app.view.rescheduling.rescheduling' ,{
 			name: 'personCombo',
 			fieldLabel: 'Сотрудник',
 			width: 300,
-			labelWidth: 75
+			labelWidth: 75,
+			store: 'rescheduling.person'
 		
 	},{
 		xtype: 'radiogroup',
@@ -70,7 +71,8 @@ Ext.define('app.view.rescheduling.rescheduling' ,{
 			fieldLabel: 'Вместо него отработает сменщик ',
 			width: 600,
 			labelWidth: 300,
-			hidden: true
+			hidden: true,
+			store: 'rescheduling.shiftWorker'
 		
 	},
 	{

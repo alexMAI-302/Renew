@@ -23,7 +23,8 @@ Ext.define('app.view.ContentEditor.Container', {
 					displayField: 'name',
 					queryMode: 'local',
 					labelWidth: 70,
-					width: 500
+					width: 500,
+					store: 'ContentEditor.Urls'
 				},
 				{
 					id: 'filterContentEditor',

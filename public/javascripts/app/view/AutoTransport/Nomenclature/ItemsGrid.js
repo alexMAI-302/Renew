@@ -1,6 +1,7 @@
 Ext.define('app.view.AutoTransport.Nomenclature.ItemsGrid', {
     extend: 'app.view.Lib.Grid.Panel',
 	alias: 'widget.nomenclatureGrid',
+	requires: 'app.view.Lib.Grid.column.ComboColumn',
 	
 	config: {
 		suffix: 'Nomenclature',
@@ -8,6 +9,7 @@ Ext.define('app.view.AutoTransport.Nomenclature.ItemsGrid', {
 		disableRefresh: true,
 		disableDeleteColumn: true,
 		disabled: true,
+		store: 'AutoTransport.Nomenclature.Nomenclature',
 		columns: [
 			{
 				width: 400,
@@ -20,7 +22,9 @@ Ext.define('app.view.AutoTransport.Nomenclature.ItemsGrid', {
 			{
 				width: 110,
 				header: 'Единица измерения',
-				dataIndex: 'measure'
+				dataIndex: 'measure',
+				xtype: 'combocolumn',
+				store: 'app.store.AutoTransport.Measure'
 			},
 			{
 				width: 200,

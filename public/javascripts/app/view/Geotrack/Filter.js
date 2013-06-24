@@ -36,6 +36,7 @@ Ext.define('app.view.Geotrack.Filter', {
 				{
 					region: 'north',
 					split: true,
+					store: 'Geotrack.Agents',
 					xtype: 'simpleGrid',
 					suffix: 'GeoTrackAgents',
 					disableDeleteColumn: true,
@@ -57,6 +58,7 @@ Ext.define('app.view.Geotrack.Filter', {
 					region: 'center',
 					flex: 1,
 					xtype: 'simpleGrid',
+					store: 'Geotrack.Tracks',
 					suffix: 'GeoTracks',
 					disableDeleteColumn: true,
 					disableDelete: true,

@@ -4,6 +4,7 @@ Ext.define('app.view.BuyersRoute.Grid', {
 	
 	config: {
 		suffix: 'BuyersRoutes',
+		store: 'BuyersRoute.BuyersRoutes',
 		disableDeleteColumn: true,
 		disableDelete: true,
 		disableAdd: true,

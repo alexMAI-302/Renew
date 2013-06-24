@@ -222,103 +222,22 @@ Ext.define('app.controller.Comp', {
 	},
 	
 	initStores: function(){
-		var controller=this;
-		
-		controller.compLocationsStore=controller.getCompCompLocationsStore();
-		controller.compStore=controller.getCompComponentsStore();
-		controller.typesStore=controller.getCompTypesStore();
-		controller.terminalsStore=controller.getCompTerminalsStore();
-		controller.operationsStore=controller.getCompOperationsStore();
-		controller.personsStore=controller.getCompPersonsStore();
-		
-		controller.loadDictionaries();
-	},
-	
-	bindStores: function(){
 		var controller=this,
 			compTable=Ext.getCmp('CompTable');
 		
-		Ext.getCmp('OperationsTable').reconfigure(controller.operationsStore);
-		compTable.reconfigure(controller.compStore);
+		controller.compLocationsStore=Ext.getCmp('filterCompLocationComp').getStore();
+		controller.compStore=compTable.getStore();
+		controller.typesStore=Ext.getCmp('filterTypeComp').getStore();
+		controller.terminalsStore=Ext.getCmp('filterTerminalComp').getStore();
+		controller.operationsStore=Ext.getCmp('OperationsTable').getStore();
+		controller.personsStore=Ext.getCmp('filterPersonComp').getStore();
 		
-		Ext.getCmp('filterTypeComp').bindStore(controller.typesStore);
-		Ext.getCmp('filterCompLocationComp').bindStore(controller.compLocationsStore);
-		Ext.getCmp('filterTerminalComp').bindStore(controller.terminalsStore);
-		Ext.getCmp('filterPersonComp').bindStore(controller.personsStore);
-		
-		Ext.getCmp('actionDestinationComp').bindStore(controller.compLocationsStore);
-		Ext.getCmp('actionPersonComp').bindStore(controller.personsStore);
-		Ext.getCmp('actionTerminalComp').bindStore(controller.terminalsStore);
-	},
-	
-	makeComboColumn: function(column, storeCombo, tableStore, property, onlyRenderer){
-		function renderer(value){
-			var matching = null;
-			storeCombo.each(function(record){
-				if(record.get('id')==value){
-					matching=record.get('name');
-				}
-				return matching==null;
-			});
-			return matching;
-		};
-		
-		if(!onlyRenderer){
-			column.field = Ext.create('Ext.form.ComboBox', {
-				store: storeCombo,
-				queryMode: 'local',
-				displayField: 'name',
-				valueField: 'id',
-				value: "",
-				listeners: {
-					select: function(field){
-						field.getStore().clearFilter(true);
-						return true;
-					}
-				}
-			});
-		}
-		column.renderer=renderer;
-		
-		column.doSort = function(state){
-			tableStore.sort({
-				property: property,
-				transform: renderer,
-				direction: state
-			});
-			return true;
-		};
-	},
-	
-	initTables: function(){
-		var controller=this,
-			compTable = Ext.getCmp('CompTable'),
-			operationsTable = Ext.getCmp('OperationsTable'),
-			typeColumn = compTable.columns[0],
-			stateColumn = compTable.columns[2],
-			compPersonColumn = compTable.columns[3];
-			sourceColumn = operationsTable.columns[2],
-			destinationColumn = operationsTable.columns[3],
-			terminalColumn = operationsTable.columns[4],
-			personColumn = operationsTable.columns[5];
-		
-		controller.makeComboColumn(typeColumn, controller.typesStore, controller.compStore, 'type');
-		controller.makeComboColumn(stateColumn, controller.compLocationsStore, controller.compStore, 'state');
-		controller.makeComboColumn(compPersonColumn, controller.personsStore, controller.operationsStore, 'person');
-		
-		controller.makeComboColumn(sourceColumn, controller.compLocationsStore, controller.operationsStore, 'source', true);
-		controller.makeComboColumn(destinationColumn, controller.compLocationsStore, controller.operationsStore, 'destination', true);
-		controller.makeComboColumn(terminalColumn, controller.terminalsStore, controller.operationsStore, 'terminal', true);
-		controller.makeComboColumn(personColumn, controller.personsStore, controller.operationsStore, 'person', true);
+		controller.loadDictionaries();
 	},
 	
 	onLaunch: function(){
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
-		
-		controller.initTables();
 	}
 });

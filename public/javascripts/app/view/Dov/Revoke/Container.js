@@ -26,6 +26,7 @@ Ext.define('app.view.Dov.Revoke.Container', {
 			disableDeleteColumn: true,
 			disableRefresh: true,
 			title: 'Доверенности',
+			store: 'Dov.Revoke.Dov',
 			viewConfig: {
 				markDirty:false,
 				enableTextSelection : true

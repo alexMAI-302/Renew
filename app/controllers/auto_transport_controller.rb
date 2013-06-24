@@ -221,7 +221,7 @@ class AutoTransportController < ApplicationSimpleErrorController
           price= #{params[:price].to_i}
         WHERE id=#{params[:id].to_i}")
         
-        render :text => {"success" => true, "id" => params[:id]}.to_json
+        render :text => {"success" => true, "id" => params[:id], "sum" => params[:sum]}.to_json
       when "delete"
         ActiveRecord::Base.connection.delete("DELETE FROM dbo.at_incgoods WHERE id=#{params[:id].to_i}")
         

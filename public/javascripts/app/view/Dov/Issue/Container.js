@@ -27,6 +27,7 @@ Ext.define('app.view.Dov.Issue.Container', {
 			disableDelete: true,
 			disableDeleteColumn: true,
 			title: 'Выданные торговому представителю доверенности за сегодня',
+			store: 'Dov.Issue.Dov',
 			columns: [
 				{
 					width: 350,

@@ -2,17 +2,17 @@ Ext.define('app.controller.OutsideUsers', {
     extend: 'Ext.app.Controller',
 	
 	stores: [
-		'OutsideUsers.RenewUsers',
-		'OutsideUsers.OutsideUsers'
+		'outsideUsers.RenewUsers',
+		'outsideUsers.OutsideUsers'
 	],
 	
 	models: [
 		'valueModel',
-		'OutsideUsers.UserModel'
+		'outsideUsers.UserModel'
 	],
 	
 	views: [
-		'OutsideUsers.Container'
+		'outsideUsers.Container'
 	],
 	
 	mainContainer: null,
@@ -53,7 +53,7 @@ Ext.define('app.controller.OutsideUsers', {
 	init: function() {
 		var controller = this;
 		
-		controller.mainContainer=Ext.create('app.view.OutsideUsers.Container');
+		controller.mainContainer=Ext.create('app.view.outsideUsers.Container');
 		
 		controller.control({
 			'#refreshOutsideUsers': {
@@ -94,71 +94,18 @@ Ext.define('app.controller.OutsideUsers', {
 	},
 	
 	initStores: function(){
-		var controller=this;
+		var controller=this,
+			outsideUsersTable = Ext.getCmp('OutsideUsersTable');
 		
-		controller.masterStore = controller.getOutsideUsersOutsideUsersStore();
-		controller.renewUsersStore = controller.getOutsideUsersRenewUsersStore();
+		controller.masterStore = outsideUsersTable.getStore();
+		controller.renewUsersStore = outsideUsersTable.columns[0].store;
 		
 		controller.loadDictionaries();
-	},
-	
-	bindStores: function(){
-		var controller=this,
-			outsideUsersTable=Ext.getCmp('OutsideUsersTable');
-		
-		outsideUsersTable.reconfigure(controller.masterStore);
-	},
-	
-	makeComboColumn: function(column, storeCombo, tableStore, property, allowNull, onlyRenderer){
-		function renderer(value){
-			var matching = null,
-				data=storeCombo.snapshot || storeCombo.data;
-			data.each(function(record){
-				if(record.get('id')==value){
-					matching=record.get('name');
-				}
-				return matching==null;
-			});
-			return matching;
-		};
-		
-		if(!onlyRenderer){
-			column.field = Ext.create('Ext.form.ComboBox', {
-				store: storeCombo,
-				queryMode: 'local',
-				displayField: 'name',
-				valueField: 'id',
-				value: "",
-				autoSelect: (allowNull!==true)
-			});
-		}
-		column.renderer=renderer;
-		
-		column.doSort = function(state){
-			tableStore.sort({
-				property: property,
-				transform: renderer,
-				direction: state
-			});
-			return true;
-		};
-	},
-	
-	initTables: function(){
-		var controller=this,
-			outsideUsersTable = Ext.getCmp('OutsideUsersTable'),
-			userColumn=outsideUsersTable.columns[0];
-		
-		controller.makeComboColumn(userColumn, controller.renewUsersStore, controller.masterStore, 'renew_user_id');
 	},
 	
 	onLaunch: function(){
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
-		
-		controller.initTables();
 	}
 });

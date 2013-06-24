@@ -1,9 +1,11 @@
 Ext.define('app.view.AutoTransport.Recept.ItemsGrid', {
     extend: 'app.view.Lib.Grid.Panel',
 	alias: 'widget.recGoodsGrid',
+	requires: 'app.view.Lib.Grid.column.ComboColumn',
 	
 	config: {
 		suffix: 'RecGoods',
+		store: 'AutoTransport.Recept.RecGoods',
 		disabled: true,
 		disableSave: true,
 		disableDeleteColumn: true,
@@ -12,12 +14,16 @@ Ext.define('app.view.AutoTransport.Recept.ItemsGrid', {
 			{
 				width: 170,
 				header: 'Группа',
-				dataIndex: 'at_ggroup'
+				dataIndex: 'at_ggroup',
+				xtype: 'combocolumn',
+				store: 'app.store.AutoTransport.Ggroup'
 			},
 			{
 				width: 400,
 				header: 'Наименование',
-				dataIndex: 'at_goods'
+				dataIndex: 'at_goods',
+				xtype: 'combocolumn',
+				store: 'app.store.AutoTransport.Goods'
 			},
 			{
 				width: 80,
@@ -31,7 +37,10 @@ Ext.define('app.view.AutoTransport.Recept.ItemsGrid', {
 			{
 				width: 120,
 				header: 'Единица измерения',
-				dataIndex: 'measure'
+				dataIndex: 'measure',
+				xtype: 'combocolumn',
+				store: 'app.store.AutoTransport.Measure',
+				onlyRenderer: true
 			}
 		],
 		features:[

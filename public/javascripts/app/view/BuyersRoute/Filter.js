@@ -23,7 +23,8 @@ Ext.define('app.view.BuyersRoute.Filter', {
 			queryMode: 'local',
 			allowNull: false,
 			width: 170,
-			labelWidth: 60
+			labelWidth: 60,
+			store: 'BuyersRoute.Sites'
 		},
 		{
 			id: 'filterTariffBuyersRoute',
@@ -34,7 +35,8 @@ Ext.define('app.view.BuyersRoute.Filter', {
 			queryMode: 'local',
 			allowNull: false,
 			width: 170,
-			labelWidth: 40
+			labelWidth: 40,
+			store: 'BuyersRoute.Tariffs'
 		},
 		{
 			id: 'filterBuyersRoute',

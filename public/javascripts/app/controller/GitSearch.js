@@ -5,20 +5,10 @@ Ext.define('app.controller.GitSearch', {
     
     models: ['app.model.gitSearch.SearchResult'],
     
+    stores: ['gitSearch.Search'],
+    
 	init: function() {
-		/*
-		 * Store создается в app.view.gitSearch.Grid, а не тут, 
-		 * потому что если его создать тут (в контроллере), а потом выполнить  
-		 * onLaunch: function(){
-		 *   Ext.getCmp("gitSearchGrid").reconfigure(store);
-		 * },
-		 * 
-		 * то группа хоть и появится, но сворачивание/разворачивание групп рабтать не будет. 
-		 */
-		
-		panel = Ext.create('app.view.gitSearch.Container', {
-			renderTo: Ext.get('main_js'),
-		});
+		panel = Ext.create('app.view.gitSearch.Container');
 
 		this.control({
 			'#searchButton':{

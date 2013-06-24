@@ -392,17 +392,9 @@ Ext.define('app.controller.Geotrack', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.masterStore = controller.getGeotrackAgentsStore();
-		controller.detailStore = controller.getGeotrackTracksStore();
+		controller.masterStore = Ext.getCmp('GeoTrackAgentsTable').getStore();
+		controller.detailStore = Ext.getCmp('GeoTracksTable').getStore();
 		controller.terminalsStore = controller.getGeotrackTerminalsStore();
-	},
-	
-	bindStores: function(){
-		var controller=this,
-			agentTable = Ext.getCmp('GeoTrackAgentsTable');
-		
-		agentTable.reconfigure(controller.masterStore);
-		Ext.getCmp('GeoTracksTable').reconfigure(controller.detailStore);
 	},
 	
 	loadDictionaries: function(){
@@ -454,8 +446,6 @@ Ext.define('app.controller.Geotrack', {
 		controller.initMap();
 		
 		controller.initStores();
-		
-		controller.bindStores();
 		
 		controller.loadDictionaries();
 	}

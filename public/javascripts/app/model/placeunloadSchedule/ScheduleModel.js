@@ -14,8 +14,7 @@ Ext.define('app.model.placeunloadSchedule.ScheduleModel', {
 		},
 		{
 			name: 'day_of_week',
-			type:'int',
-			useNull: true
+			type:'int'
 		},
 		{
 			name: 'monday',

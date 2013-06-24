@@ -25,9 +25,11 @@ Ext.define('app.view.Comp.Action', {
 			valueField: 'id',
 			displayField: 'name',
 			queryMode: 'local',
+			store: 'Comp.CompLocations',
 			listeners: {
-				select: function(field){
-					field.getStore().clearFilter(true);
+				beforequery: function(queryEvent){
+					queryEvent.combo.store.clearFilter();
+					queryEvent.combo.store.filter(queryEvent.combo.displayField, queryEvent.query);
 					return true;
 				}
 			}
@@ -39,9 +41,11 @@ Ext.define('app.view.Comp.Action', {
 			valueField: 'id',
 			displayField: 'name',
 			queryMode: 'local',
+			store: 'Comp.Persons',
 			listeners: {
-				select: function(field){
-					field.getStore().clearFilter(true);
+				beforequery: function(queryEvent){
+					queryEvent.combo.store.clearFilter();
+					queryEvent.combo.store.filter(queryEvent.combo.displayField, queryEvent.query);
 					return true;
 				}
 			}
@@ -54,9 +58,11 @@ Ext.define('app.view.Comp.Action', {
 			displayField: 'name',
 			queryMode: 'local',
 			allowNull: true,
+			store: 'Comp.Terminals',
 			listeners: {
-				select: function(field){
-					field.getStore().clearFilter(true);
+				beforequery: function(queryEvent){
+					queryEvent.combo.store.clearFilter();
+					queryEvent.combo.store.filter(queryEvent.combo.displayField, queryEvent.query);
 					return true;
 				}
 			}

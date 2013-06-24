@@ -221,39 +221,27 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 	},
 	
 	initStores: function(){
-		var controller=this;
+		var controller=this,
+			receptTable = Ext.getCmp('ReceptTable'),
+			recGoodsTable = Ext.getCmp('RecGoodsTable');
 		
-		controller.detailStore=controller.getAutoTransportReceptRecGoodsStore();
-		controller.masterStore=controller.getAutoTransportReceptReceptStore();
-		controller.ggroupStore=controller.getAutoTransportGgroupStore();
-		controller.goodsStore=controller.getAutoTransportGoodsStore();
-		controller.truckStore=controller.getAutoTransportReceptTruckStore();
-		controller.measureStore=controller.getAutoTransportMeasureStore();
+		controller.masterStore=receptTable.store;
+		controller.truckStore=receptTable.columns[1].store;
+		
+		controller.detailStore=recGoodsTable.store;
+		controller.ggroupStore=recGoodsTable.columns[0].store;
+		controller.goodsStore=recGoodsTable.columns[1].store;
+		controller.measureStore=recGoodsTable.columns[3].store;
 		
 		controller.loadDictionaries();
 	},
 	
-	bindStores: function(){
-		var controller=this,
-			receptTable=Ext.getCmp('ReceptTable');
-		
-		Ext.getCmp('RecGoodsTable').bindStore(controller.detailStore);
-		receptTable.bindStore(controller.masterStore);
-	},
-	
 	initTables: function(){
 		var controller=this,
-			receptTable = Ext.getCmp('ReceptTable'),
 			recGoodsTable = Ext.getCmp('RecGoodsTable'),
-			truckColumn = receptTable.columns[1],
 			groupColumn = recGoodsTable.columns[0],
 			goodsColumn = recGoodsTable.columns[1],
 			measureColumn = recGoodsTable.columns[3];
-		
-		receptTable.makeComboColumn(truckColumn, controller.truckStore, true);
-		recGoodsTable.makeComboColumn(groupColumn, controller.ggroupStore);
-		recGoodsTable.makeComboColumn(goodsColumn, controller.goodsStore);
-		recGoodsTable.makeComboColumn(measureColumn, controller.measureStore, true);
 		
 		goodsColumn.field.addListener(
 			"select",
@@ -284,8 +272,6 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
 		
 		controller.initTables();
 	}

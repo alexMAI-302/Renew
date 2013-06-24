@@ -35,9 +35,11 @@ Ext.define('app.view.Comp.Filter', {
 							allowNull: true,
 							width: 410,
 							labelWidth: 25,
+							store: 'Comp.Types',
 							listeners: {
-								select: function(field){
-									field.getStore().clearFilter(true);
+								beforequery: function(queryEvent){
+									queryEvent.combo.store.clearFilter();
+									queryEvent.combo.store.filter(queryEvent.combo.displayField, queryEvent.query);
 									return true;
 								}
 							}
@@ -64,9 +66,11 @@ Ext.define('app.view.Comp.Filter', {
 							allowNull: true,
 							width: 250,
 							labelWidth: 110,
+							store: 'Comp.CompLocations',
 							listeners: {
-								select: function(field){
-									field.getStore().clearFilter(true);
+								beforequery: function(queryEvent){
+									queryEvent.combo.store.clearFilter();
+									queryEvent.combo.store.filter(queryEvent.combo.displayField, queryEvent.query);
 									return true;
 								}
 							}
@@ -81,9 +85,11 @@ Ext.define('app.view.Comp.Filter', {
 							allowNull: true,
 							width: 160,
 							labelWidth: 60,
+							store: 'Comp.Terminals',
 							listeners: {
-								select: function(field){
-									field.getStore().clearFilter(true);
+								beforequery: function(queryEvent){
+									queryEvent.combo.store.clearFilter();
+									queryEvent.combo.store.filter(queryEvent.combo.displayField, queryEvent.query);
 									return true;
 								}
 							}
@@ -98,9 +104,11 @@ Ext.define('app.view.Comp.Filter', {
 							allowNull: true,
 							width: 200,
 							labelWidth: 65,
+							store: 'Comp.Persons',
 							listeners: {
-								select: function(field){
-									field.getStore().clearFilter(true);
+								beforequery: function(queryEvent){
+									queryEvent.combo.store.clearFilter();
+									queryEvent.combo.store.filter(queryEvent.combo.displayField, queryEvent.query);
 									return true;
 								}
 							}

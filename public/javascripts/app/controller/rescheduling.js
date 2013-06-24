@@ -14,7 +14,6 @@ Ext.define('app.controller.rescheduling', {
 	
 	personStore:null,	
 	shiftWorkerStore:null,
-	empScheduleStore:null,
 	mainContainer: null,
 	array1: null,
 	array2: null,
@@ -265,20 +264,13 @@ Ext.define('app.controller.rescheduling', {
 	},
 	initStores: function(){
 		var controller=this;
-		controller.personStore=controller.getReschedulingPersonStore();
-		controller.shiftWorkerStore=controller.getReschedulingShiftWorkerStore();
-		controller.empScheduleStore=controller.getEmpScheduleEmpScheduleStore();
+		controller.personStore=Ext.getCmp('personCombo').getStore();
+		controller.shiftWorkerStore=Ext.getCmp('shiftWorkerCombo').getStore();
 		
-	},
-	bindStores: function(){
-		var controller=this;
-		Ext.getCmp('personCombo').bindStore(controller.personStore);
-		Ext.getCmp('shiftWorkerCombo').bindStore(controller.shiftWorkerStore);
 	},
 	onLaunch: function(){
 		var controller = this;
 		controller.initStores();
-		controller.bindStores();
 		controller.initTables();
 	}
 });

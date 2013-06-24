@@ -1,8 +1,10 @@
 Ext.define('app.view.AutoTransport.Income.Grid', {
     extend: 'app.view.Lib.Grid.Panel',
 	alias: 'widget.incomeGrid',
+	requires: 'app.view.Lib.Grid.column.ComboColumn',
 	
 	config: {
+		store: 'AutoTransport.Income.Income',
 		suffix: 'Income',
 		title: 'Приход',
 		disableSave: true,
@@ -25,16 +27,16 @@ Ext.define('app.view.AutoTransport.Income.Grid', {
 				width: 70,
 				header: 'Тип',
 				dataIndex: 'type',
-				field: {
-					xtype: 'combo',
-					displayField: 'name',
-					valueField: 'id'
-				}
+				xtype: 'combocolumn',
+				store: 'app.store.AutoTransport.Income.IncType'
 			},
 			{
 				width: 170,
 				header: 'Поставщик',
-				dataIndex: 'at_seller'
+				dataIndex: 'at_seller',
+				xtype: 'combocolumn',
+				store: 'app.store.AutoTransport.Sellers',
+				allowNull: true
 			},
 			{
 				width: 70,

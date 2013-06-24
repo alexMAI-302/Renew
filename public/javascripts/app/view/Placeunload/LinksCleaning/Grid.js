@@ -9,6 +9,7 @@ Ext.define('app.view.Placeunload.LinksCleaning.Grid', {
 		disableDelete: true,
 		disableDeleteColumn: true,
 		disableRefresh: true,
+		store: 'Placeunload.LinksCleaning.Buyers',
 		beforeButtons: [
 			{
 				xtype: 'dateIntervalFilter',
@@ -24,7 +25,8 @@ Ext.define('app.view.Placeunload.LinksCleaning.Grid', {
 						displayField: 'name',
 						queryMode: 'local',
 						width: 200,
-						labelWidth: 60
+						labelWidth: 60,
+						store: 'Placeunload.LinksCleaning.Sites'
 					}
 				],
 				region: 'north'

@@ -84,13 +84,7 @@ Ext.define('app.controller.UnactInfoAdmin', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.actionsStore=controller.getUnactInfoAdminActionsStore();
-	},
-	
-	bindStores: function(){
-		var controller=this;
-		
-		Ext.getCmp('ActionsTable').reconfigure(controller.actionsStore);
+		controller.actionsStore=Ext.getCmp('ActionsTable').getStore();
 	},
 	
 	initTables: function(){
@@ -116,8 +110,6 @@ Ext.define('app.controller.UnactInfoAdmin', {
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
 		
 		controller.initTables();
 	}

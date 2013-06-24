@@ -9,11 +9,7 @@ Ext.define('app.view.gitSearch.Grid' ,{
     
 	id: 'gitSearchGrid',
 	
-	//store: Ext.create('app.store.gitSearch.Search'),
-	initComponent: function() {
-		this.store = Ext.create('app.store.gitSearch.Search');
-		this.callParent();
-	},
+	store: 'gitSearch.Search',
 
 	height: 400,
 

@@ -9,6 +9,7 @@ Ext.define('app.view.Placeunload.LinksCleaning.ItemsGrid', {
 		disableAdd: true,
 		disableDelete: true,
 		disableDeleteColumn: true,
+		store: 'Placeunload.LinksCleaning.Placeunloads',
 		afterButtons: [
 			{
 				id: 'makeMainPlaceunloads',

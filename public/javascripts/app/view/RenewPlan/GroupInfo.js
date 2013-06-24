@@ -4,6 +4,12 @@ Ext.define('app.view.RenewPlan.GroupInfo', {
 	
 	height: 91,
 	id: 'RenewPlanGoodsInfoTable',
+	store: {
+		model: 'app.model.RenewPlan.InfoTableModel',
+		proxy: {
+			type: 'memory'
+		}
+	},
 	columns: [
 		{
 			dataIndex: 'name',

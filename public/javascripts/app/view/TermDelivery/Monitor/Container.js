@@ -12,8 +12,7 @@ Ext.define('app.view.TermDelivery.Monitor.Container', {
 	},
 	
 	height: Ext.getBody().getViewSize().height - 120,
-	id: 'mainContainer',
-	renderTo: Ext.get('term_delivery_monitor_js'),
+	renderTo: 'term_delivery_monitor_js',
 	
 	items: [
 		{

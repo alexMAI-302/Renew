@@ -1,10 +1,9 @@
-Ext.define('app.store.Placeunload.LinksCleaning.Sites', {
+Ext.define('app.store.outsideUsers.RenewUsers', {
 	extend: 'Ext.data.Store',
 	model: 'app.model.valueModel',
-	autoLoad: true,
 	proxy: {
 		type: 'rest',
-		url : '/util_data/get_sites',
+		url : '/outside_users/get_renew_users',
 		reader: {
 			type: 'json'
 		}
