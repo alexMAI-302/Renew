@@ -1,4 +1,4 @@
-Ext.define('app.store.OutsideUsers.RenewUsers', {
+Ext.define('app.store.outsideUsers.RenewUsers', {
 	extend: 'Ext.data.Store',
 	model: 'app.model.valueModel',
 	proxy: {
