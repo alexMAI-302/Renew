@@ -1,6 +1,6 @@
-Ext.define('app.view.OutsideUsers.Container', {
+Ext.define('app.view.outsideUsers.Container', {
     extend: 'app.view.Lib.Grid.Panel',
-	alias: 'widget.outsideUsersContainer',
+    requires: 'app.view.Lib.Grid.column.ComboColumn',
 	
 	title: 'Внешние пользователи',
 	
@@ -8,13 +8,16 @@ Ext.define('app.view.OutsideUsers.Container', {
 	
 	config:{
 		suffix: 'OutsideUsers',
+		store: 'outsideUsers.OutsideUsers',
 		disableAdd: true,
 		disableDelete: true,
 		columns : [
 			{
 				width : 150,
 				header : 'Пользователь renew',
-				dataIndex : 'renew_user_id'
+				dataIndex : 'renew_user_id',
+				xtype: 'combocolumn',
+				store: 'app.store.outsideUsers.RenewUsers'
 			},
 			{
 				width : 60,

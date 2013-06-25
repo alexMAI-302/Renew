@@ -1,6 +1,6 @@
-Ext.define('app.store.OutsideUsers.OutsideUsers', {
+Ext.define('app.store.outsideUsers.OutsideUsers', {
 	extend: 'Ext.data.Store',
-	model: 'app.model.OutsideUsers.UserModel',
+	model: 'app.model.outsideUsers.UserModel',
 	proxy: {
 		type: 'rest',
 		url : '/outside_users/outside_users',

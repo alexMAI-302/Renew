@@ -20,14 +20,15 @@ Ext.define('app.view.keyKeyDictionary.Container', {
 				valueField: 'id',
 				allowBlank: false,
 				queryMode: 'local',
+				width: 350,
+				labelWidth: 150,
 				listeners: {
-					beforequery: function(queryEvent, eOpts){
-						queryEvent.forceAll=true;
+					beforequery: function(queryEvent){
+						queryEvent.combo.store.clearFilter();
+						queryEvent.combo.store.filter(queryEvent.combo.displayField, queryEvent.query);
 						return true;
 					}
-				},
-				width: 350,
-				labelWidth: 150
+				}
 			},
 			{
 				id: 'DictionaryFilter'+Ext.get('property2_name').getValue(),
@@ -38,14 +39,15 @@ Ext.define('app.view.keyKeyDictionary.Container', {
 				valueField: 'id',
 				allowBlank: false,
 				queryMode: 'local',
+				width: 350,
+				labelWidth: 150,
 				listeners: {
-					beforequery: function(queryEvent, eOpts){
-						queryEvent.forceAll=true;
+					beforequery: function(queryEvent){
+						queryEvent.combo.store.clearFilter();
+						queryEvent.combo.store.filter(queryEvent.combo.displayField, queryEvent.query);
 						return true;
 					}
-				},
-				width: 350,
-				labelWidth: 150
+				}
 			}
 		],
 		disableDeleteColumn: true,

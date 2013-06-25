@@ -2,7 +2,6 @@ Ext.define('app.controller.TermDelivery.Monitor', {
     extend: 'Ext.app.Controller',
 	stores: [
 		'TermDelivery.Monitor.ZoneTypes',
-		'Branches',
 		'TermDelivery.Monitor.Routes',
 		'TermDelivery.Monitor.Terminals',
 		'TermDelivery.Monitor.TerminalBreaks'
@@ -19,10 +18,8 @@ Ext.define('app.controller.TermDelivery.Monitor', {
 	],
 	
 	zoneTypesStore: null,
-	branchesStore: null,
 	routesStore: null,
 	terminalsStore: null,
-	terminalBreaksStore: null,
 	
 	loadStatus: {
 		zoneTypes: false,
@@ -261,11 +258,9 @@ Ext.define('app.controller.TermDelivery.Monitor', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.zoneTypesStore = controller.getTermDeliveryMonitorZoneTypesStore();
-		controller.routesStore = controller.getTermDeliveryMonitorRoutesStore();
-		controller.terminalsStore = controller.getTermDeliveryMonitorTerminalsStore();
-		controller.branchesStore = controller.getBranchesStore();
-		controller.terminalBreaksStore = controller.getTermDeliveryMonitorTerminalBreaksStore();
+		controller.zoneTypesStore = Ext.getCmp('zoneTypeCombo').getStore();
+		controller.routesStore = Ext.getCmp('routesTable').getStore();
+		controller.terminalsStore = Ext.getCmp('terminalsTable').getStore();
 	},
 	
 	initLoadings: function(){
@@ -332,18 +327,6 @@ Ext.define('app.controller.TermDelivery.Monitor', {
 		
 		//колонка поломок терминала
 		terminalsTable.columns[12].setDisabled(!controller.userConfig.change_terminals);
-		terminalsTable.columns[12].field = Ext.create('Ext.form.ComboBox', {
-			store: controller.terminalBreaksStore,
-			displayField: 'name',
-			valueField: 'id'
-		});
-		terminalsTable.columns[12].renderer = function(value){
-			var matching = controller.terminalBreaksStore.queryBy(
-				function(record, id){
-					return record.get('id') == value;
-				});
-			return (matching.items[0]) ? matching.items[0].data.name : '';
-		};
 		
 		//колонка "комментарий ОШ"
 		terminalsTable.columns[13].setDisabled(!controller.userConfig.change_techinfo);
@@ -387,21 +370,10 @@ Ext.define('app.controller.TermDelivery.Monitor', {
 		});
 	},
 	
-	bindStores: function(){
-		var controller=this;
-		
-		Ext.getCmp('zoneTypeCombo').bindStore(controller.zoneTypesStore);
-		Ext.getCmp('routesTable').reconfigure(controller.routesStore);
-		Ext.getCmp('terminalsTable').bindStore(controller.terminalsStore);
-	},
-	
 	onLaunch: function(){
 		var controller = this;
 		
 		controller.initStores();
-		
 		controller.initLoadings();
-		
-		controller.bindStores();
 	}
 });

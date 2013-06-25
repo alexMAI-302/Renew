@@ -4,6 +4,7 @@ Ext.define('app.view.GeoPoint.Grid', {
 	
 	config: {
 		suffix: 'GeoPoint',
+		store: 'GeoPoint.GeoPoints',
 		disableDeleteColumn: true,
 		disableDelete: true,
 		disableAdd: true,

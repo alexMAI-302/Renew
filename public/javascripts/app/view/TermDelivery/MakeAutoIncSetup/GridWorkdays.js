@@ -4,6 +4,7 @@ Ext.define('app.view.TermDelivery.MakeAutoIncSetup.GridWorkdays', {
 	alias: 'widget.workdaysGrid',
 	
 	requires: [
+		'app.view.Lib.Grid.column.ComboColumn',
 		'app.view.Lib.DateIntervalFilter'
 	],
     
@@ -13,6 +14,7 @@ Ext.define('app.view.TermDelivery.MakeAutoIncSetup.GridWorkdays', {
 		height: 300,
 		disableRefresh: true,
 		disableDelete: true,
+		store: 'TermDelivery.MakeAutoIncSetup.PpsZoneWorkdays',
 		beforeButtons: [
 			{
 				xtype: 'dateIntervalFilter',
@@ -37,11 +39,9 @@ Ext.define('app.view.TermDelivery.MakeAutoIncSetup.GridWorkdays', {
 				width: 110,
 				header: 'Тип',
 				dataIndex: 'type',
-				field: {
-					xtype: 'combo',
-					displayField: 'name',
-					valueField: 'id'
-				}
+				xtype: 'combocolumn',
+				store: 'app.store.TermDelivery.MakeAutoIncSetup.DayTypes',
+				allowNull: true
 			}
 		]
     }

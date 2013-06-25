@@ -25,7 +25,8 @@ Ext.define('app.view.Dov.Revoke.Filter', {
 					queryMode: 'local',
 					valueField: 'id',
 					displayField: 'name',
-					labelWidth: 80
+					labelWidth: 80,
+					store: Ext.create('app.store.Dov.PalmSalesmans')
 				},
 				{
 					id: 'showAllRevoke',

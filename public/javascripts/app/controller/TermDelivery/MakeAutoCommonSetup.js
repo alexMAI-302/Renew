@@ -52,8 +52,8 @@ Ext.define('app.controller.TermDelivery.MakeAutoCommonSetup', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.terminalsStore=controller.getTermDeliveryMakeAutoCommonSetupTerminalsStore();
-		controller.zonesStore=controller.getTermDeliveryMakeAutoCommonSetupZonesStore();
+		controller.terminalsStore=Ext.getCmp('TerminalsTable').getStore();
+		controller.zonesStore=Ext.getCmp('filterZoneCommon').store;
 		
 		controller.zonesStore.proxy.extraParams={
 			zone_type: 0
@@ -61,18 +61,9 @@ Ext.define('app.controller.TermDelivery.MakeAutoCommonSetup', {
 		controller.zonesStore.load();
 	},
 	
-	bindStores: function(){
-		var controller=this;
-		
-		Ext.getCmp('TerminalsTable').reconfigure(controller.terminalsStore);
-		Ext.getCmp('filterZoneCommon').bindStore(controller.zonesStore);
-	},
-	
 	onLaunch: function(){
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
 	}
 });

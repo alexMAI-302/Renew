@@ -100,7 +100,7 @@ Ext.define('app.controller.ContentEditor', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.urlsStore=controller.getContentEditorUrlsStore();
+		controller.urlsStore=Ext.getCmp('urlContentEditor').getStore();
 		
 		controller.urlsStore.load(
 			function(records, operation, success){
@@ -111,17 +111,9 @@ Ext.define('app.controller.ContentEditor', {
 		);
 	},
 	
-	bindStores: function(){
-		var controller=this;
-		
-		Ext.getCmp('urlContentEditor').bindStore(controller.urlsStore);
-	},
-	
 	onLaunch: function(){
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
 	}
 });

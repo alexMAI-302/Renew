@@ -7,6 +7,7 @@ Ext.define('app.view.AutoTransport.Sellers.Container', {
 	config:
 	{
 		xtype: 'simpleGrid',
+		store: 'AutoTransport.Sellers',
 		suffix: 'Sellers',
 		disableDeleteColumn: true,
 		columns : [{

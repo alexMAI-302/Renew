@@ -1,6 +1,7 @@
 Ext.define('app.view.AutoTransport.Recept.Grid', {
     extend: 'app.view.Lib.Grid.Panel',
 	alias: 'widget.receptGrid',
+	requires: 'app.view.Lib.Grid.column.ComboColumn',
 	
 	config: {
 		title: 'Расход',
@@ -8,6 +9,7 @@ Ext.define('app.view.AutoTransport.Recept.Grid', {
 		disableDeleteColumn: true,
 		disableRefresh: true,
 		suffix: 'Recept',
+		store: 'AutoTransport.Recept.Recept',
 		columns: [
 			{
 				width: 120,
@@ -24,7 +26,9 @@ Ext.define('app.view.AutoTransport.Recept.Grid', {
 			{
 				width: 240,
 				header: 'Машина',
-				dataIndex: 'truck_id'
+				dataIndex: 'truck_id',
+				xtype: 'combocolumn',
+				store: 'app.store.AutoTransport.Recept.Truck'
 			}
 		]
 	}

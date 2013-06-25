@@ -8,6 +8,7 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 	
 	config: {
 		xtype: 'simpleGrid',
+		store: 'RenewPlan.RenewPlanGoods',
 		suffix: 'RenewPlanGoods',
 		disableDeleteColumn: true,
 		enableBuffering: true,
@@ -26,7 +27,8 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 				queryMode: 'local',
 				allowNull: true,
 				width: 250,
-				labelWidth: 60
+				labelWidth: 60,
+				store: 'RenewPlan.Lggroups'
 			},
 			{
 				xtype: 'checkbox',

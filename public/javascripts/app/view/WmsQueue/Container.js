@@ -10,6 +10,7 @@ Ext.define('app.view.WmsQueue.Container', {
 	
 	config: {
 		suffix: 'WmsQueue',
+		store: 'WmsQueue.WmsQueueEntries',
 		disableRefresh: true,
 		disableAdd: true,
 		disableDelete: true,

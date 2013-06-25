@@ -132,7 +132,7 @@ class TermDelivery::MakeAutoIncSetupController < ApplicationSimpleErrorControlle
         render :text => normes_list.to_json
       end
     when "post"
-      ddate=Time.parse(params[:ddate]).strftime('%F')
+      ddate=params[:ddate].strftime('%F')
 
       ActiveRecord::Base.connection.execute(
       "INSERT INTO pps_zone_workday(
@@ -145,7 +145,7 @@ class TermDelivery::MakeAutoIncSetupController < ApplicationSimpleErrorControlle
       render :text => {"id" => "#{ddate}"}.to_json
     when "put"
       id=Time.parse(params[:id]).strftime('%F')
-      ddate=Time.parse(params[:ddate]).strftime('%F')
+      ddate=params[:ddate].strftime('%F')
       ActiveRecord::Base.connection.execute(
       "UPDATE pps_zone_workday SET
         ddate='#{ddate}',

@@ -305,19 +305,10 @@ Ext.define('app.controller.BuyersRoute', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.masterStore = controller.getBuyersRouteBuyersRoutesStore();
-		controller.sitesStore = controller.getBuyersRouteSitesStore();
-		controller.tariffsStore = controller.getBuyersRouteTariffsStore();
+		controller.masterStore = Ext.getCmp('BuyersRoutesTable').getStore();
+		controller.sitesStore = Ext.getCmp('filterSiteBuyersRoute').getStore();
+		controller.tariffsStore = Ext.getCmp('filterTariffBuyersRoute').getStore();
 		controller.placeunloadsStore = controller.getBuyersRoutePlaceunloadsStore();
-	},
-	
-	bindStores: function(){
-		var controller=this,
-			buyersRouteTable = Ext.getCmp('BuyersRoutesTable');
-		
-		buyersRouteTable.reconfigure(controller.masterStore);
-		Ext.getCmp('filterSiteBuyersRoute').bindStore(controller.sitesStore);
-		Ext.getCmp('filterTariffBuyersRoute').bindStore(controller.tariffsStore);
 	},
 	
 	loadDictionaries: function(){
@@ -358,8 +349,6 @@ Ext.define('app.controller.BuyersRoute', {
 		controller.initMap();
 		
 		controller.initStores();
-		
-		controller.bindStores();
 		
 		controller.loadDictionaries();
 	}

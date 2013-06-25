@@ -20,7 +20,8 @@ Ext.define('app.view.Dov.Issue.Form', {
 			fieldLabel: 'Торг. пред.',
 			queryMode: 'local',
 			valueField: 'id',
-			displayField: 'name'
+			displayField: 'name',
+			store: Ext.create('app.store.Dov.PalmSalesmans')
 		},
 		{
 			id: 'quantityIssue',

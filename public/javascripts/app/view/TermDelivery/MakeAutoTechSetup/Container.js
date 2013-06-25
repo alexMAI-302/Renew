@@ -23,6 +23,7 @@ Ext.define('app.view.TermDelivery.MakeAutoTechSetup.Container', {
 		{
 			xtype: 'simpleGrid',
 			suffix: 'Zones',
+			store: 'TermDelivery.MakeAutoTechSetup.Zones',
 			title: 'Зоны',
 			disableDelete: true,
 			disableRefresh: true,

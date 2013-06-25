@@ -4,8 +4,6 @@ Ext.define('app.view.TermDelivery.Monitor.Filter', {
 	alias: 'widget.Filter',
 	
 	cls: 'Filter',
-	
-	date: new Date(),
     
     layout: {
 		type: 'hbox'
@@ -25,7 +23,8 @@ Ext.define('app.view.TermDelivery.Monitor.Filter', {
 			queryMode: 'local',
 			allowBlank: false,
 			width: 200,
-			labelWidth: 100
+			labelWidth: 100,
+			store: 'TermDelivery.Monitor.ZoneTypes'
 		},
 		{
 			id: 'ddate',

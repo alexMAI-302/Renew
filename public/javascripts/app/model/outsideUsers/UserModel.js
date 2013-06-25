@@ -1,4 +1,4 @@
-Ext.define('app.model.OutsideUsers.UserModel', {
+Ext.define('app.model.outsideUsers.UserModel', {
 	extend: 'Ext.data.Model',
 	fields: [
 	{

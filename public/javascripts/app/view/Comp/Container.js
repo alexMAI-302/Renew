@@ -4,8 +4,9 @@ Ext.define('app.view.Comp.Container', {
 	
 	requires: [
 		'app.view.Comp.Filter',
+		'app.view.Comp.Action',
 		'app.view.Lib.Grid.Panel',
-		'app.view.Comp.Action'
+		'app.view.Lib.Grid.column.ComboColumn'
 	],
 	
 	layout: {
@@ -30,11 +31,14 @@ Ext.define('app.view.Comp.Container', {
 			disableDeleteColumn: true,
 			title: 'Комплектующие',
 			editing: 'row',
+			store: 'Comp.Components',
 			columns: [
 				{
 					width: 350,
 					header: 'Тип',
-					dataIndex: 'type'
+					dataIndex: 'type',
+					xtype: 'combocolumn',
+					store: 'Comp.Types'
 				},
 				{
 					width: 100,
@@ -47,12 +51,16 @@ Ext.define('app.view.Comp.Container', {
 				{
 					width: 110,
 					header: 'Местонахождение',
-					dataIndex: 'state'
+					dataIndex: 'state',
+					xtype: 'combocolumn',
+					store: 'Comp.CompLocations'
 				},
 				{
 					width: 130,
 					header: 'Сотрудник',
-					dataIndex: 'person'
+					dataIndex: 'person',
+					xtype: 'combocolumn',
+					store: 'Comp.Persons'
 				},
 				{
 					width: 170,
@@ -95,22 +103,34 @@ Ext.define('app.view.Comp.Container', {
 				{
 					width: 170,
 					header: 'Откуда',
-					dataIndex: 'source'
+					dataIndex: 'source',
+					xtype: 'combocolumn',
+					store: 'Comp.Operations',
+					onlyRenderer: true
 				},
 				{
 					width: 170,
 					header: 'Куда',
-					dataIndex: 'destination'
+					dataIndex: 'destination',
+					xtype: 'combocolumn',
+					store: 'Comp.Operations',
+					onlyRenderer: true
 				},
 				{
 					width: 170,
 					header: 'Терминал',
-					dataIndex: 'terminal'
+					dataIndex: 'terminal',
+					xtype: 'combocolumn',
+					store: 'Comp.Terminals',
+					onlyRenderer: true
 				},
 				{
 					width: 170,
 					header: 'Сотрудник',
-					dataIndex: 'person'
+					dataIndex: 'person',
+					xtype: 'combocolumn',
+					store: 'Comp.Persons',
+					onlyRenderer: true
 				},
 				{
 					width: 170,

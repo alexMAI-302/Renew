@@ -54,22 +54,14 @@ Ext.define('app.controller.WmsQueue', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.masterStore=controller.getWmsQueueWmsQueueEntriesStore();
+		controller.masterStore=Ext.getCmp('WmsQueueTable').getStore();
 		
 		controller.refreshWmsQueue();
-	},
-	
-	bindStores: function(){
-		var controller=this;
-		
-		Ext.getCmp('WmsQueueTable').reconfigure(controller.masterStore);
 	},
 	
 	onLaunch: function(){
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
 	}
 });

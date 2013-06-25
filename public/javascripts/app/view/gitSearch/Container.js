@@ -3,11 +3,12 @@ Ext.define('app.view.gitSearch.Container', {
 	
 	requires: [
 		'app.view.gitSearch.Grid',
-		'app.view.gitSearch.Filter',
+		'app.view.gitSearch.Filter'
 	],
 	
 	width: '100%',
 	height: Ext.getBody().getViewSize().height - 120,
+	renderTo: 'main_js',
 	
 	layout: {
 		type: 'border'

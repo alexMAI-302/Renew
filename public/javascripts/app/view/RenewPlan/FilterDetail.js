@@ -23,12 +23,7 @@ Ext.define('app.view.RenewPlan.FilterDetail', {
 			allowNull: true,
 			width: 250,
 			labelWidth: 65,
-			listeners: {
-				select: function(field){
-					field.getStore().clearFilter(true);
-					return true;
-				}
-			}
+			store: 'RenewPlan.Sellers'
 		}
 	]
 });

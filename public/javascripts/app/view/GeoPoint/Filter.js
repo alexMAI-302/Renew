@@ -21,7 +21,8 @@ Ext.define('app.view.GeoPoint.Filter', {
 			displayField: 'name',
 			queryMode: 'local',
 			width: 200,
-			labelWidth: 70
+			labelWidth: 70,
+			store: 'Branches'
 		},
 		{
 			id: 'filterPointsGeoPoint',
@@ -31,7 +32,19 @@ Ext.define('app.view.GeoPoint.Filter', {
 			displayField: 'name',
 			queryMode: 'local',
 			width: 180,
-			labelWidth: 40
+			labelWidth: 40,
+			value: 1,
+			store:{
+				model: 'app.model.valueModel',
+				data: [
+			    	{id: 1, name: 'Незаполненные'},
+			    	{id: 2, name: 'Все'},
+			    	{id: 3, name: 'Только заполненные'}
+			    ],
+				proxy: {
+			        type: 'memory'
+				}
+		}
 		},
 		{
 			id: 'filterTerminalStrGeoPoint',

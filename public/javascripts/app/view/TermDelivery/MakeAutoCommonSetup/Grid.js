@@ -9,6 +9,7 @@ Ext.define('app.view.TermDelivery.MakeAutoCommonSetup.Grid', {
 		disableDeleteColumn: true,
 		disableAdd: true,
 		disableSave: true,
+		store: 'TermDelivery.MakeAutoCommonSetup.Terminals',
 		columns: [
 			{
 				width: 250,

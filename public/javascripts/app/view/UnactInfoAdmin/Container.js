@@ -5,6 +5,7 @@ Ext.define('app.view.UnactInfoAdmin.Container', {
 	
 	config: {
 		xtype: 'simpleGrid',
+		store: 'UnactInfoAdmin.Actions',
 		title: 'Информационные материалы',
 		suffix: 'Actions',
 		disableDelete: true,

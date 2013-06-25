@@ -1,22 +1,28 @@
 Ext.define('app.view.AutoTransport.Income.ItemsGrid', {
     extend: 'app.view.Lib.Grid.Panel',
 	alias: 'widget.incGoodsGrid',
+	requires: 'app.view.Lib.Grid.column.ComboColumn',
 	
 	config: {
 		suffix: 'IncGoods',
 	    disabled: true,
 	    disableSave: true,
 	    disableDeleteColumn: true,
+	    store: 'AutoTransport.Income.IncGoods',
 		columns: [
 			{
 				width: 170,
 				header: 'Группа',
-				dataIndex: 'at_ggroup'
+				dataIndex: 'at_ggroup',
+				xtype: 'combocolumn',
+				store: 'app.store.AutoTransport.Ggroup'
 			},
 			{
 				width: 400,
 				header: 'Наименование',
-				dataIndex: 'at_goods'
+				dataIndex: 'at_goods',
+				xtype: 'combocolumn',
+				store: 'app.store.AutoTransport.Goods'
 			},
 			{
 				width: 80,
@@ -30,7 +36,10 @@ Ext.define('app.view.AutoTransport.Income.ItemsGrid', {
 			{
 				width: 120,
 				header: 'Единица измерения',
-				dataIndex: 'measure'
+				dataIndex: 'measure',
+				xtype: 'combocolumn',
+				store: 'app.store.AutoTransport.Measure',
+				onlyRenderer: true
 			},
 			{
 				width: 80,

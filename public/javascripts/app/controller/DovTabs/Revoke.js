@@ -84,16 +84,17 @@ Ext.define('app.controller.DovTabs.Revoke', {
 	},
 	
 	initStores: function(){
-		var controller=this;
+		var controller=this,
+			palmSalesmanRevoke = Ext.getCmp('palmSalesmanRevoke');
 		
-		controller.dovStore=controller.getDovRevokeDovStore();
-		controller.palmSalesmansStore=Ext.create('app.store.Dov.PalmSalesmans');
+		controller.dovStore=Ext.getCmp('DovRevokeTable').store;
+		controller.palmSalesmansStore=palmSalesmanRevoke.store;
 		
 		controller.palmSalesmansStore.add({
 			id: -1,
 			name: 'ВСЕ'
 		});
-		Ext.getCmp('palmSalesmanRevoke').setValue(-1);
+		palmSalesmanRevoke.setValue(-1);
 		controller.palmSalesmansStore.addListener({
 			load: function(store, records, successful, eOpts){
 				if(successful!==true){
@@ -105,13 +106,6 @@ Ext.define('app.controller.DovTabs.Revoke', {
 		controller.palmSalesmansStore.load({
 			addRecords: true
 		});
-	},
-	
-	bindStores: function(){
-		var controller=this;
-		
-		Ext.getCmp('DovRevokeTable').reconfigure(controller.dovStore);
-		Ext.getCmp('palmSalesmanRevoke').bindStore(controller.palmSalesmansStore);
 	},
 	
 	initTables: function(){
@@ -219,8 +213,6 @@ Ext.define('app.controller.DovTabs.Revoke', {
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
 		
 		controller.initTables();
 	}

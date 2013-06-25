@@ -907,79 +907,21 @@ Ext.define('app.controller.RenewPlan', {
 	},
 	
 	initStores: function(){
-		var controller=this;
+		var controller=this,
+			renewPlanTable = Ext.getCmp('RenewPlanTable');
 		
-		controller.masterStore = controller.getRenewPlanRenewPlansStore();
-		controller.detailStore=controller.getRenewPlanRenewPlanGoodsStore();
-		controller.sitesStore = controller.getRenewPlanSitesStore();
+		controller.masterStore = renewPlanTable.getStore();
+		controller.detailStore = Ext.getCmp('RenewPlanGoodsTable').getStore();
+		controller.sitesStore = renewPlanTable.columns[3].store;
 		controller.siteToStoragesStore = controller.getRenewPlanSiteToStoragesStore();
-		controller.renewPlanTypesStore = controller.getRenewPlanRenewPlanTypesStore();
+		controller.renewPlanTypesStore = Ext.getCmp('actionRenewPlanType').getStore();
 		controller.goodsStore = controller.getRenewPlanGoodsStore();
-		controller.lggroupsStore = controller.getRenewPlanLggroupsStore();
-		controller.sellersStore = controller.getRenewPlanSellersStore();
-		controller.siteToStoragesComboStore = Ext.create('Ext.data.Store', {
-		    model: 'app.model.RenewPlan.SiteStorageModel',
-			proxy: {
-		        type: 'memory'
-			}
-		});
-		controller.groupInfoStore = Ext.create('Ext.data.Store', {
-		    model: 'app.model.RenewPlan.InfoTableModel',
-			proxy: {
-		        type: 'memory'
-			}
-		});
+		controller.lggroupsStore = Ext.getCmp('filterLggroupRenewPlanGoods').getStore();
+		controller.sellersStore = Ext.getCmp('filterSellerRenewPlanGoods').getStore();
+		controller.siteToStoragesComboStore = Ext.getCmp('actionSiteToStorageRenewPlan').getStore();
+		controller.groupInfoStore = Ext.getCmp('RenewPlanGoodsInfoTable').getStore();
 		
 		controller.loadDictionaries();
-	},
-	
-	bindStores: function(){
-		var controller=this,
-			renewPlanTable=Ext.getCmp('RenewPlanTable');
-		
-		Ext.getCmp('RenewPlanGoodsTable').reconfigure(controller.detailStore);
-		Ext.getCmp('RenewPlanGoodsInfoTable').reconfigure(controller.groupInfoStore);
-		renewPlanTable.reconfigure(controller.masterStore);
-		
-		Ext.getCmp('actionRenewPlanType').bindStore(controller.renewPlanTypesStore);
-		Ext.getCmp('actionSiteToStorageRenewPlan').bindStore(controller.siteToStoragesComboStore);
-		Ext.getCmp('filterLggroupRenewPlanGoods').bindStore(controller.lggroupsStore);
-		Ext.getCmp('filterSellerRenewPlanGoods').bindStore(controller.sellersStore);
-	},
-	
-	makeComboColumn: function(column, storeCombo, tableStore, property, allowNull, onlyRenderer){
-		function renderer(value){
-			var matching = null,
-				data=storeCombo.snapshot || storeCombo.data;
-			data.each(function(record){
-				if(record.get('id')==value){
-					matching=record.get('name');
-				}
-				return matching==null;
-			});
-			return matching;
-		};
-		
-		if(!onlyRenderer){
-			column.field = Ext.create('Ext.form.ComboBox', {
-				store: storeCombo,
-				queryMode: 'local',
-				displayField: 'name',
-				valueField: 'id',
-				value: "",
-				autoSelect: (allowNull!==true)
-			});
-		}
-		column.renderer=renderer;
-		
-		column.doSort = function(state){
-			tableStore.sort({
-				property: property,
-				transform: renderer,
-				direction: state
-			});
-			return true;
-		};
 	},
 	
 	changeIntSorter: function(column, tableStore, property){
@@ -1002,19 +944,9 @@ Ext.define('app.controller.RenewPlan', {
 			renewPlanTable = Ext.getCmp('RenewPlanTable'),
 			renewPlanGoodsTable = Ext.getCmp('RenewPlanGoodsTable'),
 			
-			siteFromColumn=renewPlanTable.columns[3],
-			siteToColumn=renewPlanTable.columns[4],
-			PlanTypeColumn=renewPlanTable.columns[8],
-			siteToStorageColumn=renewPlanTable.columns[13],
-			
 			goodsColumn=renewPlanGoodsTable.columns[0],
 			donevolColumn=renewPlanGoodsTable.columns[11],
 			truckColumn = renewPlanGoodsTable.columns[18];
-		
-		controller.makeComboColumn(siteFromColumn, controller.sitesStore, controller.masterStore, 'site_from');
-		controller.makeComboColumn(siteToColumn, controller.sitesStore, controller.masterStore, 'site_to');
-		controller.makeComboColumn(PlanTypeColumn, controller.renewPlanTypesStore, controller.masterStore, 'renew_plan_type_id', true, true);
-		controller.makeComboColumn(siteToStorageColumn, controller.siteToStoragesStore, controller.masterStore, 'site_to_storage', true, true);
 		
 		controller.changeIntSorter(donevolColumn, controller.detailStore, 'donevol');
 		controller.changeIntSorter(renewPlanGoodsTable.columns[10], controller.detailStore, 'volume');
@@ -1102,8 +1034,6 @@ Ext.define('app.controller.RenewPlan', {
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
 		
 		controller.initTables();
 	}

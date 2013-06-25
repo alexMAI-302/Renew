@@ -15,7 +15,6 @@ Ext.define('app.controller.PlaceunloadSchedule', {
 	],
 	
 	masterStore: null,
-	salesmansStore: null,
 	
 	showServerError: function(response, options) {
 		var controller=this;
@@ -117,22 +116,12 @@ Ext.define('app.controller.PlaceunloadSchedule', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.masterStore = controller.getPlaceunloadScheduleSchedulesStore();
-		controller.salesmansStore = controller.getPlaceunloadScheduleSalesmansStore();
-	},
-	
-	bindStores: function(){
-		var controller=this;
-		
-		Ext.getCmp('SchedulesTable').reconfigure(controller.masterStore);
-		Ext.getCmp('salesmansSchedulesFilter').bindStore(controller.salesmansStore);
+		controller.masterStore = Ext.getCmp('SchedulesTable').getStore();
 	},
 	
 	onLaunch: function(){
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
 	}
 });

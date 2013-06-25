@@ -3,11 +3,13 @@ Ext.define('app.view.RenewPlan.Grid', {
 	alias: 'widget.renewPlanPanel',
 	
 	requires: [
-		'app.view.Lib.DateIntervalFilter'
+		'app.view.Lib.DateIntervalFilter',
+		'app.view.Lib.Grid.column.ComboColumn'
 	],
 	
 	config: {
 		suffix: 'RenewPlan',
+		store: 'RenewPlan.RenewPlans',
 		disableRefresh: true,
 		disableDeleteColumn: true,
 		title: 'Планируемые поставки',
@@ -55,12 +57,16 @@ Ext.define('app.view.RenewPlan.Grid', {
 			{
 				width: 90,
 				header: 'Откуда',
-				dataIndex: 'site_from'
+				dataIndex: 'site_from',
+				xtype: 'combocolumn',
+				store: 'RenewPlan.Sites'
 			},
 			{
 				width: 90,
 				header: 'Куда',
-				dataIndex: 'site_to'
+				dataIndex: 'site_to',
+				xtype: 'combocolumn',
+				store: 'RenewPlan.Sites'
 			},
 			{
 				xtype: 'numbercolumn',
@@ -96,7 +102,10 @@ Ext.define('app.view.RenewPlan.Grid', {
 				width: 40,
 				header: 'План',
 				dataIndex: 'renew_plan_type_id',
-				useNull: true,
+				xtype: 'combocolumn',
+				store: 'RenewPlan.RenewPlanTypes',
+				onlyRenderer: true,
+				allowNull: true,
 				disabled: true
 			},
 			{
@@ -132,6 +141,10 @@ Ext.define('app.view.RenewPlan.Grid', {
 				width: 90,
 				header: 'Склад<br/>приемника',
 				dataIndex: 'site_to_storage',
+				xtype: 'combocolumn',
+				store: 'RenewPlan.SiteToStorages',
+				allowNull: true,
+				onlyRenderer: true,
 				disabled: true
 			},
 			{

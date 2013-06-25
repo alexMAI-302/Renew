@@ -230,42 +230,27 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 	},
 	
 	initStores: function(){
-		var controller=this;
+		var controller=this,
+			incomeTable = Ext.getCmp('IncomeTable'),
+			incGoodsTable = Ext.getCmp('IncGoodsTable');
 		
-		controller.detailStore=controller.getAutoTransportIncomeIncGoodsStore();
-		controller.masterStore=controller.getAutoTransportIncomeIncomeStore();
-		controller.ggroupStore=controller.getAutoTransportGgroupStore();
-		controller.goodsStore=controller.getAutoTransportGoodsStore();
-		controller.incTypeStore=controller.getAutoTransportIncomeIncTypeStore();
-		controller.measureStore=controller.getAutoTransportMeasureStore();
-		controller.sellersStore=controller.getAutoTransportSellersStore();
+		controller.masterStore=incomeTable.store;
+		controller.incTypeStore=incomeTable.columns[1].store;
+		controller.sellersStore=incomeTable.columns[2].store;
+		
+		controller.detailStore=incGoodsTable.store;
+		controller.ggroupStore=incGoodsTable.columns[0].store;
+		controller.goodsStore=incGoodsTable.columns[1].store;
+		controller.measureStore=incGoodsTable.columns[3].store;
 		
 		controller.loadDictionaries();
 	},
 	
-	bindStores: function(){
-		var controller=this,
-			incomeTable=Ext.getCmp('IncomeTable');
-		
-		Ext.getCmp('IncGoodsTable').bindStore(controller.detailStore);
-		incomeTable.bindStore(controller.masterStore);
-	},
-	
 	initTables: function(){
 		var controller=this,
-			incomeTable = Ext.getCmp('IncomeTable'),
 			incGoodsTable = Ext.getCmp('IncGoodsTable'),
-			typeColumn = incomeTable.columns[1],
-			sellerColumn = incomeTable.columns[2],
 			groupColumn = incGoodsTable.columns[0],
-			goodsColumn = incGoodsTable.columns[1],
-			measureColumn = incGoodsTable.columns[3];
-		
-		incomeTable.makeComboColumn(typeColumn, controller.incTypeStore);
-		incomeTable.makeComboColumn(sellerColumn, controller.sellersStore, true);
-		incGoodsTable.makeComboColumn(groupColumn, controller.ggroupStore);
-		incGoodsTable.makeComboColumn(goodsColumn, controller.goodsStore);
-		incGoodsTable.makeComboColumn(measureColumn, controller.measureStore, false, true);
+			goodsColumn = incGoodsTable.columns[1];
 		
 		goodsColumn.field.addListener(
 			"select",
@@ -297,8 +282,6 @@ Ext.define('app.controller.AutoTransportTabs.Income', {
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
 		
 		controller.initTables();
 	}

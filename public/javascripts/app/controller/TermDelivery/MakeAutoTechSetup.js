@@ -111,22 +111,14 @@ Ext.define('app.controller.TermDelivery.MakeAutoTechSetup', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.zonesStore=controller.getTermDeliveryMakeAutoTechSetupZonesStore();
+		controller.zonesStore=Ext.getCmp('ZonesTable').getStore();
 		
 		controller.refresh();
-	},
-	
-	bindStores: function(){
-		var controller=this;
-		
-		Ext.getCmp('ZonesTable').reconfigure(controller.zonesStore);
 	},
 	
 	onLaunch: function(){
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
 	}
 });

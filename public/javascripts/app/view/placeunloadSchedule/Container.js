@@ -7,6 +7,7 @@ Ext.define('app.view.placeunloadSchedule.Container', {
 	
 	config: {
 		suffix: 'Schedules',
+		store:'placeunloadSchedule.Schedules', 
 		disableAdd: true,
 		disableDelete: true,
 		disableDeleteColumn: true,
@@ -20,7 +21,8 @@ Ext.define('app.view.placeunloadSchedule.Container', {
 				valueField: 'id',
 				allowBlank: false,
 				labelWidth: 140,
-				width: 380
+				width: 380,
+				store: 'placeunloadSchedule.Salesmans'
 			},
 			{
 				id: 'ddateSchedulesFilter',

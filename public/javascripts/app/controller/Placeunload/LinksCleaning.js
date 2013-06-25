@@ -19,7 +19,6 @@ Ext.define('app.controller.Placeunload.LinksCleaning', {
 	
 	detailStore: null,
 	masterStore: null,
-	sitesStore: null,
 	
 	showServerError: function(responseText) {
 		Ext.Msg.alert('Ошибка', responseText);
@@ -140,26 +139,13 @@ Ext.define('app.controller.Placeunload.LinksCleaning', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.detailStore=controller.getPlaceunloadLinksCleaningPlaceunloadsStore();
-		controller.masterStore=controller.getPlaceunloadLinksCleaningBuyersStore();
-		controller.sitesStore=controller.getPlaceunloadLinksCleaningSitesStore();
-		
-		controller.loadDictionaries();
-	},
-	
-	bindStores: function(){
-		var controller=this;
-		
-		Ext.getCmp('BuyersTable').reconfigure(controller.masterStore);
-		Ext.getCmp('PlaceunloadsTable').reconfigure(controller.detailStore);
-		Ext.getCmp('siteBuyers').bindStore(controller.sitesStore);
+		controller.detailStore=Ext.getCmp('PlaceunloadsTable').getStore();
+		controller.masterStore=Ext.getCmp('BuyersTable').getStore();
 	},
 	
 	onLaunch: function(){
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
 	}
 });

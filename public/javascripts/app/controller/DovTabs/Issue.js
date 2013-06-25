@@ -115,24 +115,15 @@ Ext.define('app.controller.DovTabs.Issue', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.dovStore=controller.getDovIssueDovStore();
-		controller.palmSalesmansStore=Ext.create('app.store.Dov.PalmSalesmans');
+		controller.dovStore=Ext.getCmp('DovIssueTable').store;
+		controller.palmSalesmansStore=Ext.getCmp('palmSalesmanIssue').store;
 		
 		controller.palmSalesmansStore.load();
-	},
-	
-	bindStores: function(){
-		var controller=this;
-		
-		Ext.getCmp('DovIssueTable').reconfigure(controller.dovStore);
-		Ext.getCmp('palmSalesmanIssue').bindStore(controller.palmSalesmansStore);
 	},
 	
 	onLaunch: function(){
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
 	}
 });

@@ -181,11 +181,12 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 	},
 	
 	initStores: function(){
-		var controller=this;
+		var controller=this,
+			nomenclatureTable = Ext.getCmp('NomenclatureTable');
 		
-		controller.detailStore=controller.getAutoTransportNomenclatureNomenclatureStore();
+		controller.detailStore=nomenclatureTable.getStore();
 		controller.masterStore=Ext.getCmp('NomenclatureGroupTable').getStore();
-		controller.measureStore=controller.getAutoTransportMeasureStore();
+		controller.measureStore=nomenclatureTable.columns[1].store;
 		controller.comboStore = Ext.create('Ext.data.Store', {
 			model: 'app.model.valueModel',
 			proxy: {
@@ -220,28 +221,18 @@ Ext.define('app.controller.AutoTransportTabs.Nomenclature', {
 		controller.measureStore.load();
 	},
 	
-	bindStores: function(){
-		var controller=this;
-		
-		Ext.getCmp('NomenclatureTable').bindStore(controller.detailStore);
-	},
-	
 	initTables: function(){
 		var controller=this,
 			nomenclatureTable = Ext.getCmp('NomenclatureTable'),
-			measureColumn = nomenclatureTable.columns[1],
 			groupColumn = nomenclatureTable.columns[2];
 		
 		nomenclatureTable.makeComboColumn(groupColumn, controller.comboStore);
-		nomenclatureTable.makeComboColumn(measureColumn, controller.measureStore);
 	},
 	
 	onLaunch: function(){
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
 		
 		controller.initTables();
 	}

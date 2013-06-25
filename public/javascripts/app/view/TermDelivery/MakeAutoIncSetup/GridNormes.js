@@ -4,11 +4,13 @@ Ext.define('app.view.TermDelivery.MakeAutoIncSetup.GridNormes', {
 	alias: 'widget.normesGrid',
 	
 	requires: [
+		'app.view.Lib.Grid.column.ComboColumn',
 		'app.view.Lib.DateIntervalFilter'
 	],
     
     config: {
 		suffix: 'Normes',
+		store: 'TermDelivery.MakeAutoIncSetup.PpsZoneNormes',
 		title: 'Нормативы',
 		height: 300,
 		disableRefresh: true,
@@ -26,21 +28,15 @@ Ext.define('app.view.TermDelivery.MakeAutoIncSetup.GridNormes', {
 				width: 150,
 				header: 'Зона',
 				dataIndex: 'zone',
-				field: {
-					xtype: 'combo',
-					displayField: 'name',
-					valueField: 'id'
-				}
+				xtype: 'combocolumn',
+				store: 'app.store.TermDelivery.MakeAutoIncSetup.Zones'
 			},
 			{
 				width: 70,
 				header: 'Период',
 				dataIndex: 'period',
-				field: {
-					xtype: 'combo',
-					displayField: 'name',
-					valueField: 'id'
-				}
+				xtype: 'combocolumn',
+				store: 'app.store.TermDelivery.MakeAutoIncSetup.Periods'
 			},
 			{
 				width: 60,

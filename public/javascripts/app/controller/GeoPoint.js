@@ -18,8 +18,6 @@ Ext.define('app.controller.GeoPoint', {
 	mainContainer: null,
 	
 	masterStore: null,
-	branchesStore: null,
-	pointTypesStore: null,
 	
 	mainCity: [],
 	map: null,
@@ -397,31 +395,8 @@ Ext.define('app.controller.GeoPoint', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.masterStore = controller.getGeoPointGeoPointsStore();
-		controller.branchesStore = controller.getBranchesStore();
-		controller.pointTypesStore = Ext.create('Ext.data.Store', {
-		    model: 'app.model.valueModel',
-		    data: [
-		    	{id: 1, name: 'Незаполненные'},
-		    	{id: 2, name: 'Все'},
-		    	{id: 3, name: 'Только заполненные'}
-		    ],
-			proxy: {
-		        type: 'memory'
-			}
-		});
-	},
-	
-	bindStores: function(){
-		var controller=this,
-			geoPointKind = Ext.getCmp('filterPointsGeoPoint'),
-			branch = Ext.getCmp('filterBranchGeoPoint');
+		controller.masterStore = Ext.getCmp('GeoPointTable').getStore();
 		
-		Ext.getCmp('GeoPointTable').reconfigure(controller.masterStore);
-		
-		geoPointKind.bindStore(controller.pointTypesStore);
-		geoPointKind.setValue(1);
-		branch.bindStore(controller.branchesStore);
 		if(controller.map!=null){
 			controller.initPageData();
 		}
@@ -433,7 +408,5 @@ Ext.define('app.controller.GeoPoint', {
 		controller.initMap();
 		
 		controller.initStores();
-		
-		controller.bindStores();
 	}
 });

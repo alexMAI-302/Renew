@@ -25,12 +25,7 @@ Ext.define('app.view.RenewPlan.Action', {
 			valueField: 'id',
 			displayField: 'name',
 			queryMode: 'local',
-			listeners: {
-				select: function(field){
-					field.getStore().clearFilter(true);
-					return true;
-				}
-			},
+			store: 'RenewPlan.RenewPlanTypes',
 			labelWidth: 30
 		},
 		{
@@ -39,20 +34,17 @@ Ext.define('app.view.RenewPlan.Action', {
 			text: 'Рассчитать план'
 		},
 		{
-			xtype: 'text',
-			text: 'Склад приемника:',
-			height: 20
-		},
-		{
 			id: 'actionSiteToStorageRenewPlan',
 			xtype: 'combobox',
 			valueField: 'id',
 			displayField: 'name',
 			queryMode: 'local',
-			listeners: {
-				select: function(field){
-					field.getStore().clearFilter(true);
-					return true;
+			labelAlign: 'top',
+			fieldLabel: 'Склад приемника:',
+			store: {
+				model: 'app.model.RenewPlan.SiteStorageModel',
+				proxy: {
+					type: 'memory'
 				}
 			}
 		},

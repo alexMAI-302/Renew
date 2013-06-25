@@ -22,12 +22,7 @@ Ext.define('app.view.TermDelivery.MakeAutoCommonSetup.Filter', {
 			allowNull: true,
 			width: 200,
 			labelWidth: 30,
-			listeners: {
-				select: function(field){
-					field.getStore().clearFilter(true);
-					return true;
-				}
-			}
+			store: 'TermDelivery.MakeAutoCommonSetup.Zones'
 		},
 		{
 			id: 'filterStrCommon',

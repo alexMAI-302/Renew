@@ -75,13 +75,7 @@ Ext.define('app.controller.Certificate', {
 	initStores: function(){
 		var controller=this;
 		
-		controller.certificatesStore=controller.getCertificateCertificatesStore();
-	},
-	
-	bindStores: function(){
-		var controller=this;
-		
-		Ext.getCmp('certificatesTable').reconfigure(controller.certificatesStore);
+		controller.certificatesStore=Ext.getCmp('certificatesTable').getStore();
 	},
 	
 	initElements: function(){
@@ -157,8 +151,6 @@ Ext.define('app.controller.Certificate', {
 		var controller = this;
 		
 		controller.initStores();
-		
-		controller.bindStores();
 		
 		controller.initElements();
 	}
