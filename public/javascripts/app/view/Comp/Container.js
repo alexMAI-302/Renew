@@ -83,6 +83,7 @@ Ext.define('app.view.Comp.Container', {
 			disableAdd: true,
 			disableDelete: true,
 			disableDeleteColumn: true,
+			store: 'Comp.Operations',
 			columns: [
 				{
 					xtype:'actioncolumn',
@@ -105,7 +106,7 @@ Ext.define('app.view.Comp.Container', {
 					header: 'Откуда',
 					dataIndex: 'source',
 					xtype: 'combocolumn',
-					store: 'Comp.Operations',
+					store: 'Comp.CompLocations',
 					onlyRenderer: true
 				},
 				{
@@ -113,7 +114,7 @@ Ext.define('app.view.Comp.Container', {
 					header: 'Куда',
 					dataIndex: 'destination',
 					xtype: 'combocolumn',
-					store: 'Comp.Operations',
+					store: 'Comp.CompLocations',
 					onlyRenderer: true
 				},
 				{
