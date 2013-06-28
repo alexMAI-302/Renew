@@ -399,7 +399,9 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 				var unloading = Ext.get('unloading').getValue(),
 					newPlaceunloadUnloading = Ext.getCmp('newPlaceunloadUnloading');
 				
-				Ext.getCmp('buyerCombo').setRawValue(partnerName);
+				if(!(buyerId>0)){
+					Ext.getCmp('buyerCombo').setRawValue(partnerName);
+				}
 				newPlaceunloadUnloading.setValue(newPlaceunloadUnloading.getStore().findRecord('id', unloading));
 				Ext.getCmp('newPlaceunloadName').setValue(partnerName);
 			}

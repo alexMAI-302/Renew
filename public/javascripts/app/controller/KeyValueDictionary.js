@@ -96,6 +96,7 @@ Ext.define('app.controller.KeyValueDictionary', {
 		var controller=this;
 		
 		controller.masterStore=controller.getKeyValueDictionaryDictionaryEntriesStore();
+		controller.load();
 	},
 	
 	onLaunch: function(){
