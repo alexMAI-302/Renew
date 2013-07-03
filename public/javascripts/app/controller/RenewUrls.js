@@ -71,7 +71,7 @@ Ext.define('app.controller.RenewUrls', {
 		controller.mainContainer=Ext.create('app.view.renewUrls.Container');
 		
 		controller.control({
-			'RenewUrlsTable': {
+			'#RenewUrlsTable': {
 				selectionchange: function(sm, selected, eOpts){
 					Ext.getCmp('deleteRenewUrls').setDisabled(selected==null || selected.length==0);
 					return true;
