@@ -1,0 +1,109 @@
+<% content_for :stylesheets do %>
+	.bold_font {
+		font-weight:bold;
+	}
+<% end %>
+<% content_for :content do %>
+	<table rules="cols" border="1" frame="void">
+		<tr>
+			<td>
+				<table>
+					<tr>
+						<td>
+							<%= @person %>
+							<br/>
+							ООО "ЮНЭКТ Трейд"
+						</td>
+						<td align="center" valign="top" class="bold_font">
+							Журнал регистрации кассовых документов
+						</td>
+					</tr>
+				</table>
+				<table frame="border" border="1">
+					<thead>
+						<th>Дата</th>
+						<th>№ п.п.</th>
+						<th>Примечание</th>
+						<th>№ накладной</th>
+						<th>Сумма</th>
+						<th>Организация</th>
+					</thead>
+					<tbody>
+						<% @cash_data.each_with_index do |cash, i| %>
+						<tr>
+							<td><%= cash["ddate"] %></td>
+							<td><%= i+1 %></td>
+							<td><%= cash["buyer_name"] %></td>
+							<td><%= cash["ndoc"] %></td>
+							<td><%= cash["cash"] %></td>
+							<td><%= cash["org_name"] %></td>
+						</tr>
+						<% end %>
+						<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td class="bold"><%= @cash %></td>
+							<td></td>
+						</tr>
+						<tr class="bold_font">
+							<td colspan="2">Итого по ККМ</td>
+							<td><%= @white_cash %></td>
+						</tr>
+						<tr class="bold_font">
+							<td>Итого</td>
+							<td><%= @cash_data.length.to_human_str %></td>
+						</tr>
+					</tbody>
+				</table>
+				<table class="bold_font">
+					<tr>
+						<td align="right" width="30%">5000 x</td>
+					</tr>
+					<tr>
+						<td align="right" width="30%">1000 x</td>
+					</tr>
+					<tr>
+						<td align="right" width="30%">500 x</td>
+					</tr>
+					<tr>
+						<td align="right" width="30%">100 x</td>
+					</tr>
+					<tr>
+						<td align="right" width="30%">50 x</td>
+					</tr>
+					<tr>
+						<td align="right" width="30%">10 x</td>
+					</tr>
+					<tr>
+						<td align="right" width="30%">мел.</td>
+					</tr>
+				</table>
+				<table rules="rows" class="bold_font" frame="below" border="1">
+					<tr>
+						<td width="1%"></td><td width="15%">Общая сумма:</td>
+					</tr>
+					<tr>
+						<td width="1%"></td><td width="15%">Подпись:</td>
+					</tr>
+				</table>
+			</td>
+			<td valign="top">
+				<div align="center" class="bold_font">
+					Квитанция
+				</div>
+				Дата: <%= @ddate %>
+				<br/>
+				Принято от: <%= @person %>
+				<br/>
+				Сумма: <%= @cash %>
+				<br/>
+				<br/>
+				<div align="center">
+					МП
+				</div>
+			</td>
+		</tr>
+	</table>
+<% end %>
