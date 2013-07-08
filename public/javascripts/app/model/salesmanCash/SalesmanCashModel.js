@@ -4,6 +4,7 @@ Ext.define('app.model.salesmanCash.SalesmanCashModel', {
 	{name: 'id'				, type:'string'},
 	{name: 'ndoc'			, type:'string'},
 	{name: 'ddate'			, type:'date'},
+	{name: 'cash_id'		, type:'int', useNull: true},
 	{name: 'summ'			, type:'float', useNull: true},
 	{name: 'cash'			, type:'float', useNull: true},
 	{name: 'doc_id'			, type:'int'},
