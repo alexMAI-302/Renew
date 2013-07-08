@@ -32,7 +32,13 @@ Ext.define('app.view.Dov.Issue.Container', {
 				{
 					width: 350,
 					header: 'Номер',
-					dataIndex: 'id'
+					dataIndex: 'ndoc'
+				},
+				{
+					width: 65,
+					xtype: 'checkcolumn',
+					header: 'На печать',
+					dataIndex: 'to_print'
 				}
 			]
 		}

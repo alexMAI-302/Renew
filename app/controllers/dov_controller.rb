@@ -24,17 +24,7 @@ class DovController < ApplicationSimpleErrorController
 
   def get_dov_issue
     res=ActiveRecord::Base.connection.select_all("
-    SELECT
-      ndoc id,
-      ndoc name
-    FROM
-      dov
-    WHERE
-      (ddate >= today() and ddate < DATEADD(day, 1, TODAY()))
-      and
-      agent = #{params[:salesman_id].to_i}
-    ORDER BY
-      1")
+    call renew_web.dov_get_dov_issue(#{params[:salesman_id].to_i})")
     render :text => res.to_json
   end
 

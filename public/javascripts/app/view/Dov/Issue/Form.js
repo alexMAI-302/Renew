@@ -49,11 +49,9 @@ Ext.define('app.view.Dov.Issue.Form', {
 					text: 'Выдать доверенности'
 				},
 				{
+					id: 'printDov',
 					xtype: 'button',
-					text: 'Распечатать все',
-					href: '/',
-					target: '_blank',
-					id: 'printDov'
+					text: 'Распечатать'
 				},
 				{
 					xtype: 'button',
