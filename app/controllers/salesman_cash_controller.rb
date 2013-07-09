@@ -28,26 +28,29 @@ class SalesmanCashController < ApplicationSimpleErrorController
         cashes=[cashes]
       end
       items=cashes.to_xml(:root => "cashes")
+      
       res = ActiveRecord::Base.connection.select_value("
       SELECT renew_web.salesman_cashes_save(
-      #{params[:salesman_id].to_i}),
+      #{params[:salesman_id].to_i},
       #{ActiveRecord::Base.connection.quote(items)})")
       if res=='OK'
         render :text => {"success" => true}.to_json
       else
-        render :text => {"success" => false, "msg" => res}.to_json
+        render :text => res, :status => 500
       end
     end
 	end
 	
 	def print_cash
+	  recepts_hash = ActiveSupport::JSON.decode(request.body.gets)
 	  recepts = []
+	  recepts_hash.each_pair do |id, r|
+	    recepts << { :id => id, :cash => (r["cash"].to_f>0)?r["cash"]:nil}
+	  end
 	  @cash = 0.0
 	  @white_cash = 0.0
-	  params["ndoc"].each do |ndoc|
-	    recepts << { :id => ndoc[1][:id], :cash => (ndoc[1][:cash].to_i>0)?ndoc[1][:cash]:nil}
-	  end
 	  items = recepts.to_xml
+	  
 	  @cash_data=ActiveRecord::Base.connection.execute("
     call renew_web.salesman_cashes_get_print_data(
     #{params[:salesman_id].to_i},

@@ -17,6 +17,12 @@ Ext.define('app.controller.SalesmanCash', {
 	mainContainer: null,
 	masterStore: null,
 	
+	showServerError: function(response, options) {
+		var controller=this;
+		Ext.Msg.alert('Ошибка', response.responseText);
+		controller.mainContainer.setLoading(false);
+	},
+	
 	load: function(){
 		var controller=this;
 		
@@ -62,37 +68,44 @@ Ext.define('app.controller.SalesmanCash', {
 			},
 			'#salesmanCashPrint': {
 				click: function(){
-					var ndocs = {},
-						ndocs_str_array = [],
-						i = 0;
+					var ndocs = {};
 					controller.masterStore.each(
 						function(r){
-							if(ndocs[r.get('id')]){
-								ndocs[r.get('id')].cash+=r.get('cash');
-							} else {
-								ndocs[r.get('id')] = {
-									id: r.get('id'),
-									buyer_name: r.get('buyer_name'),
-									cash: r.get('cash')
+							if(r.get('cash')>0){
+								if(ndocs[r.get('doc_id')]){
+									ndocs[r.get('doc_id')].cash+=r.get('cash');
+								} else {
+									ndocs[r.get('doc_id')] = {
+										id: r.get('doc_id'),
+										cash: r.get('cash')
+									}
 								}
 							}
 							
 							return true;
 						}
 					);
-					for(var ndoc in ndocs){
-						ndocs_str_array.push(
-						"ndoc["+i+"][id]="+ndocs[ndoc].id+
-						"&ndoc["+i+"][buyer_name]="+ndocs[ndoc].buyer_name+
-						"&ndoc["+i+"][cash]="+ndocs[ndoc].cash);
-						i++;
-					}
-					window.open(
-						'/salesman_cash/print_cash?salesman_id='+
-						Ext.getCmp('salesmanCashPalmSalesmanFilter').getValue()+'&'+
-						ndocs_str_array.join('&'),
-						'_blank'
-					);
+					Ext.Ajax.request({
+						url: '/salesman_cash/print_cash',
+						timeout: 600000,
+						method: 'POST',
+						params: {
+							salesman_id: Ext.getCmp('salesmanCashPalmSalesmanFilter').getValue(),
+							authenticity_token: window._token
+						},
+						jsonData: ndocs,
+						callback: function(options, success, response){
+							if(success!==true){
+								controller.showServerError(response, options);
+							} else {
+								var win = window.open('', 'printgrid');
+								
+					            win.document.open();
+					            win.document.write(response.responseText);
+					            win.document.close();
+							}
+						}
+					});
 				}
 			}
 		});
