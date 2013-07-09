@@ -45,7 +45,7 @@ class SalesmanCashController < ApplicationSimpleErrorController
 	  recepts_hash = ActiveSupport::JSON.decode(request.body.gets)
 	  recepts = []
 	  recepts_hash.each_pair do |id, r|
-	    recepts << { :id => id, :cash => (r["cash"].to_i>0)?r["cash"]:nil}
+	    recepts << { :id => id, :cash => (r["cash"].to_f>0)?r["cash"]:nil}
 	  end
 	  @cash = 0.0
 	  @white_cash = 0.0

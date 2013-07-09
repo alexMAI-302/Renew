@@ -35,7 +35,7 @@
 							<td><%= i+1 %></td>
 							<td><%= cash["buyer_name"] %></td>
 							<td><%= cash["ndoc"] %></td>
-							<td><%= cash["cash"] %></td>
+							<td><%= "%.2f" % cash["cash"] %></td>
 							<td><%= cash["org_name"] %></td>
 						</tr>
 						<% end %>

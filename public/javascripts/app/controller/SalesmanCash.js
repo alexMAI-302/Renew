@@ -72,11 +72,11 @@ Ext.define('app.controller.SalesmanCash', {
 					controller.masterStore.each(
 						function(r){
 							if(r.get('cash')>0){
-								if(ndocs[r.get('id')]){
-									ndocs[r.get('id')].cash+=r.get('cash');
+								if(ndocs[r.get('doc_id')]){
+									ndocs[r.get('doc_id')].cash+=r.get('cash');
 								} else {
-									ndocs[r.get('id')] = {
-										id: r.get('id'),
+									ndocs[r.get('doc_id')] = {
+										id: r.get('doc_id'),
 										cash: r.get('cash')
 									}
 								}
