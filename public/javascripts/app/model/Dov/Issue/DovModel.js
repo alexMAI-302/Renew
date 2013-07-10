@@ -3,5 +3,5 @@ Ext.define('app.model.Dov.Issue.DovModel', {
 	fields: [
 	{name: 'id'			, type:'int'},
 	{name: 'ndoc'		, type:'string'},
-	{name: 'to_print'	, type:'int', persist: false}]
+	{name: 'to_print'	, type:'boolean', persist: false}]
 });
