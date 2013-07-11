@@ -65,6 +65,7 @@ class SalesmanCashController < ApplicationSimpleErrorController
           @white_cash=@white_cash+r["cash"].to_f
         end
       end
+      @cdesk = @cash_data[0]["cdesk"]
       @person = @cash_data[0]["person"]
       @ddate = (Time.now).strftime('%F')
       render :layout => 'application_empty'
