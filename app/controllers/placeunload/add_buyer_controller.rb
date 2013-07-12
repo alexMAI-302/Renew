@@ -210,6 +210,7 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
         pl.latitude latitude,
         pl.fulladdress,
         pl.descr,
+        ISNULL(pl.unloading, -1) unloading,
         (select
           list(g2.name)
         from
@@ -237,6 +238,7 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
       @longitude = pa["longitude"]
       @tp        = pa["tp"]
       @descr     = pa["descr"]
+      @unloading     = pa["unloading"]
     end
   end
 

@@ -24,6 +24,7 @@ from
     if day_of_week>=1 && day_of_week<32
       ActiveRecord::Base.connection.execute("
       BEGIN
+        LOCK TABLE placeunload_schedule IN EXCLUSIVE MODE;
         IF EXISTS(SELECT * FROM placeunload_schedule WHERE placeunload_id=#{params[:id].to_i} and ddateb='#{Time.parse(params[:ddate]).strftime('%F')}') THEN
           UPDATE placeunload_schedule
           SET day_of_week = #{params[:day_of_week].to_i}

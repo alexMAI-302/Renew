@@ -31,17 +31,18 @@ Ext.define('app.view.Placeunload.AddBuyer.PlaceunloadPropertiesGrid', {
 			id: 'newPlaceunloadUnloading',
 			queryMode: 'local',
 			store: {
-				fields: ['id', 'name'],
+				fields: ["id", "name"],
 				data: [
-					{name: '__Не определено', id: -1},
-					{name: '15 мин', id: 15},
-					{name: '30 мин', id: 30},
-					{name: '45 мин', id: 45},
-					{name: '1 час', id: 60},
-					{name: '2 час', id: 120},
-					{name: '4 час', id: 240}
-				] 
+					{id: -1, name: '__Не определено'},
+					{id: 15, name: '15 мин'},
+					{id: 30, name: '30 мин'},
+					{id: 45, name: '45 мин'},
+					{id: 60, name: '1 час'},
+					{id: 120, name: '2 час'},
+					{id: 240, name: '4 час'}
+				]
 			},
+			value: -1,
 			fieldLabel: "Продолжительность разгрузки",
 			width: '100%',
 			labelWidth: 180,
@@ -83,7 +84,8 @@ Ext.define('app.view.Placeunload.AddBuyer.PlaceunloadPropertiesGrid', {
 			fieldLabel: "Маршрут",
 			width: '100%',
 			labelWidth: 110,
-			allowBlank: false
+			allowBlank: false,
+			disabled: true
 		},
 		{
 			xtype: 'textfield',

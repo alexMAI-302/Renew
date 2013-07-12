@@ -460,6 +460,8 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 			function(records, operation, success){
 				count--;
 				checkLoading(count);
+				Ext.getCmp('newPlaceunloadIncschedule').setValue(4384);
+				Ext.getCmp('newPlaceunloadDelschedule').setValue(4384);
 			}
 		);
 		
