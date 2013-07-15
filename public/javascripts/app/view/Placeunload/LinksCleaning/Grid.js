@@ -3,17 +3,17 @@ Ext.define('app.view.Placeunload.LinksCleaning.Grid', {
 	alias: 'widget.buyersGrid',
 	
 	config: {
-		suffix: 'Buyers',
+		suffix: 'Deliveries',
 		disableSave: true,
 		disableAdd: true,
 		disableDelete: true,
 		disableDeleteColumn: true,
 		disableRefresh: true,
-		store: 'Placeunload.LinksCleaning.Buyers',
+		store: 'Placeunload.LinksCleaning.Deliveries',
 		beforeButtons: [
 			{
 				xtype: 'dateIntervalFilter',
-				suffix: 'Buyers',
+				suffix: 'Deliveries',
 				shiftInterval: Ext.Date.DAY,
 				shiftBegin: -7,
 				filterItems: [
@@ -34,9 +34,29 @@ Ext.define('app.view.Placeunload.LinksCleaning.Grid', {
 		],
 		columns: [
 			{
-				width: 500,
-				header: 'Покупатели',
-				dataIndex: 'name'
+				width: 100,
+				header: 'Номер доставки',
+				dataIndex: 'ndoc'
+			},
+			{
+				width: 100,
+				header: 'Дата',
+				dataIndex: 'ddate'
+			},
+			{
+				width: 120,
+				header: 'Сопровождающий',
+				dataIndex: 'securer_name'
+			},
+			{
+				width: 60,
+				header: 'Порядок',
+				dataIndex: 'ord'
+			},
+			{
+				width: 180,
+				header: 'Покупатель',
+				dataIndex: 'buyer_name'
 			}
 		]
 	}
