@@ -13,16 +13,33 @@ Ext.define('app.view.Placeunload.LinksCleaning.ItemsGrid', {
 		afterButtons: [
 			{
 				id: 'makeMainPlaceunloads',
-				icon: '/images/tree_hierarchy.png',
-				tooltip: 'Сделать главным',
+				icon: '/images/save.png',
+				tooltip: 'Сохранить',
 				disabled: true
 			}
 		],
 		columns: [
 			{
-				width: 500,
+				width: 200,
 				header: 'Наименование',
 				dataIndex: 'name'
+			},
+			{
+				width: 300,
+				header: 'Адрес',
+				dataIndex: 'address'
+			},
+			{
+				width: 25,
+				xtype: 'checkcolumn',
+				header: 'Гл.',
+				dataIndex: 'main'
+			},
+			{
+				width: 30,
+				xtype: 'checkcolumn',
+				header: 'Доп.',
+				dataIndex: 'extra'
 			}
 		]
 	}

@@ -16,15 +16,32 @@ Ext.define('app.view.Placeunload.LinksCleaning.Container', {
 	
 	items: [
 		{
-			xtype: 'buyersGrid',
-			region: 'center',
-			split: true,
-			flex: 1
+			region: 'west',
+			width: 600,
+			layout: 'border',
+			items: [
+				{
+					xtype: 'placeunloadsGrid',
+					region: 'south',
+					flex: 1
+				},
+				{
+					xtype: 'buyersGrid',
+					region: 'center',
+					split: true,
+					flex: 1
+				}
+			]
 		},
 		{
-			xtype: 'placeunloadsGrid',
-			region: 'south',
-			flex: 1
+			region: 'center',
+			height: '100%',
+			items:[{
+				width: '100%',
+				height: '100%',
+				xtype: 'container',
+				id: 'placeunloadLinksCleaningMap'				
+			}]
 		}
 	]
 });
