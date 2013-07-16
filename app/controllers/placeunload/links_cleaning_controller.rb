@@ -14,9 +14,11 @@ class Placeunload::LinksCleaningController < ApplicationSimpleErrorController
   end
   
   def get_placeunloads
+    id_array = params[:master_id].split("_")
     res =  ActiveRecord::Base.connection.select_all("
     call placeunload_links_cleaning_get_placeunloads(
-    #{params[:master_id].to_i})")
+    #{id_array[0].to_i},
+    #{id_array[1].to_i})")
     render :text => res.to_json
   end
   
