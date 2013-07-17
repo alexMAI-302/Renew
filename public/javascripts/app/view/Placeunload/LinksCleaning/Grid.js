@@ -39,9 +39,11 @@ Ext.define('app.view.Placeunload.LinksCleaning.Grid', {
 				dataIndex: 'ndoc'
 			},
 			{
-				width: 100,
+				width: 70,
 				header: 'Дата',
-				dataIndex: 'ddate'
+				dataIndex: 'ddate',
+				xtype: 'datecolumn',
+				format: 'd.m.Y'
 			},
 			{
 				width: 120,
@@ -54,7 +56,7 @@ Ext.define('app.view.Placeunload.LinksCleaning.Grid', {
 				dataIndex: 'ord'
 			},
 			{
-				width: 180,
+				width: 210,
 				header: 'Покупатель',
 				dataIndex: 'buyer_name'
 			}

@@ -40,6 +40,15 @@ Ext.define('app.view.Placeunload.LinksCleaning.ItemsGrid', {
 				xtype: 'checkcolumn',
 				header: 'Доп.',
 				dataIndex: 'extra'
+			},
+			{
+				width: 25,
+				xtype: 'actioncolumn',
+				handler: function(grid, rowIndex, colIndex, item, e, record, row){
+					window.open('/placeunload/points?id='+record.get('id'));
+				},
+				icon: '/images/edit.png',
+				tooltip: 'Изменить точку'
 			}
 		]
 	}

@@ -186,6 +186,7 @@ Ext.define('app.controller.Placeunload.LinksCleaning', {
 							},
 							callback: function(options, success, response){
 								if(success===true){
+									Ext.Msg.alert("", "Объединение адресов успешно проведено");
 									controller.detailStore.removeAll();
 									controller.loadMaster();
 								} else {
@@ -193,6 +194,8 @@ Ext.define('app.controller.Placeunload.LinksCleaning', {
 								}
 							}
 						});
+					} else {
+						Ext.Msg.alert("Ошибка", "Не выбран основной или дополнительные адреса");
 					}
 				}
 			}
