@@ -945,11 +945,11 @@ Ext.define('app.controller.RenewPlan', {
 			renewPlanGoodsTable = Ext.getCmp('RenewPlanGoodsTable'),
 			
 			goodsColumn=renewPlanGoodsTable.columns[0],
-			donevolColumn=renewPlanGoodsTable.columns[11],
-			truckColumn = renewPlanGoodsTable.columns[18];
+			donevolColumn=renewPlanGoodsTable.columns[12],
+			truckColumn = renewPlanGoodsTable.columns[19];
 		
 		controller.changeIntSorter(donevolColumn, controller.detailStore, 'donevol');
-		controller.changeIntSorter(renewPlanGoodsTable.columns[10], controller.detailStore, 'volume');
+		controller.changeIntSorter(renewPlanGoodsTable.columns[11], controller.detailStore, 'volume');
 		
 		function goodsRenderer(value, metaData, record){
 			return record.get('goods_name');
