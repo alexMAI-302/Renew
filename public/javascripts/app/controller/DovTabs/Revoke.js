@@ -64,20 +64,16 @@ Ext.define('app.controller.DovTabs.Revoke', {
 				}
 			},
 			'#filterNdocRevoke': {
-				change: function(field, newValue, oldValue, eOpts){
-					if(newValue==null || newValue==''){
-						controller.dovStore.clearFilter();
-					} else {
-						if(oldValue!=null && newValue.substring(0, oldValue.length-1)!=oldValue){
+				specialkey: function(field, e, eOpts){
+					if(e.getKey()==e.ENTER){
+						var value = field.getValue();
+						if(value==null || value==''){
+							controller.dovStore.clearFilter();
+						} else {
 							controller.dovStore.clearFilter(true);
+							controller.dovStore.filter("ndoc", value);
 						}
-						controller.dovStore.filter("ndoc", newValue);
 					}
-					return true;
-				},
-				focus: function(field, e, eOpts){
-					field.setValue('');
-					return true;
 				}
 			}
 		});
