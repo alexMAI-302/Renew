@@ -24,7 +24,7 @@ class RenewPlanController < ApplicationSimpleErrorController
     case method
     when "get"
       res=ActiveRecord::Base.connection.select_all("
-      call dbo.ask_dw_renew_plan_goods(
+      call renew_plan_renew_plan_goods_get(
         #{params[:master_id].to_i},
         #{params[:seller_id].to_i}
       )")
@@ -67,8 +67,7 @@ class RenewPlanController < ApplicationSimpleErrorController
   def get_goods
     goods_names=ActiveSupport::JSON.decode(request.body.gets)["goods"]
     items=goods_names.to_xml(:root => "goods")
-    logger.info "
-    call renew_web.renew_plan_goods_get_goods(#{ActiveRecord::Base.connection.quote(items)})"
+
     res = ActiveRecord::Base.connection.select_all("
     call renew_web.renew_plan_goods_get_goods(#{ActiveRecord::Base.connection.quote(items)})")
     

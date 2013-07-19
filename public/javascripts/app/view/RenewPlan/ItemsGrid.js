@@ -72,6 +72,12 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 				disabled: true
 			},
 			{
+				width: 35,
+				header: 'Кат.<br/>прод.',
+				dataIndex: 'sale_category',
+				disabled: true
+			},
+			{
 				width: 30,
 				header: 'Д',
 				dataIndex: 'd',

@@ -130,6 +130,12 @@ Ext.define('app.model.RenewPlan.RenewPlanGoodsModel', {
 		persist: false
 	},
 	{
+		name: "sale_category",
+		type: "string",
+		useNull: true,
+		persist: false
+	},
+	{
 		name: "goods_abc",
 		type: "string",
 		useNull: true,
