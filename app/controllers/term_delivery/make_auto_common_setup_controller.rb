@@ -39,10 +39,11 @@ class TermDelivery::MakeAutoCommonSetupController < ApplicationSimpleErrorContro
             GET_BIT(sd.week_days, 6) friday,
             GET_BIT(sd.week_days, 7) saturday,
             GET_BIT(sd.week_days, 1) sunday,
-			exclude
+            sd.exclude,
+            pt.info
           FROM
             pps_terminal pt
-            LEFT JOIN pps_terminal_skip_days sd ON sd.terminal_id=pt.id
+              LEFT JOIN pps_terminal_skip_days sd ON sd.terminal_id=pt.id
           WHERE
             (
               #{str}=''
@@ -75,24 +76,28 @@ class TermDelivery::MakeAutoCommonSetupController < ApplicationSimpleErrorContro
       friday=params[:friday]? 1 : 0
       saturday=params[:saturday]? 1 : 0
       sunday=params[:sunday]? 1 : 0
-	  exclude=params[:exclude]? 1 : 0
+      exclude=params[:exclude]? 1 : 0
+      info = (params[:info].nil? || params[:info].to_s=='') ? nil : params[:info].to_s.strip
+ 
       if (monday+tuesday+wednesday+thursday+friday+saturday+sunday+exclude>=1)
         ActiveRecord::Base.connection.execute("
           INSERT INTO pps_terminal_skip_days(
             terminal_id,
             week_days,
-			exclude
+            exclude
           )
           ON EXISTING UPDATE
           VALUES(
             #{id},
             '#{sunday}#{monday}#{tuesday}#{wednesday}#{thursday}#{friday}#{saturday}',
-			#{exclude}
+            #{exclude}
           )")
       else
         ActiveRecord::Base.connection.execute("
           DELETE FROM pps_terminal_skip_days WHERE terminal_id=#{id}")
       end
+      
+      PpsTerminal.update(id, {:info => info})
 
       render :text => {"success" => true}.to_json
     end
