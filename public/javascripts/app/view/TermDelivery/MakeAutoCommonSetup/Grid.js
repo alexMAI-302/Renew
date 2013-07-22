@@ -83,6 +83,14 @@ Ext.define('app.view.TermDelivery.MakeAutoCommonSetup.Grid', {
 				align: 'center',
 				dataIndex: 'exclude',
 				xtype: 'checkcolumn'
+			},
+			{
+				width: 150,
+				header: 'Инфо для инкассаторов',
+				dataIndex: 'info',
+				editor: {
+					xtyte: 'textfield',
+				}
 			}
 		]
     }
