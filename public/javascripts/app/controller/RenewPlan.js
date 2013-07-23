@@ -68,7 +68,7 @@ Ext.define('app.controller.RenewPlan', {
 			controller.detailStore.sync({
 				callback: function(batch){
 					if(batch.exceptions.length>0){
-						Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+						Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText.escapeHTML())
 					}
 					container.setLoading(false);
 				}
@@ -265,7 +265,7 @@ Ext.define('app.controller.RenewPlan', {
 						controller.detailStore.sync({
 							callback: function(batch){
 								if(batch.exceptions.length>0){
-									Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+									Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText.escapeHTML());
 								}
 								controller.mainContainer.setLoading(false);
 								callback.call(controller);
@@ -295,7 +295,7 @@ Ext.define('app.controller.RenewPlan', {
 		controller.detailStore.load(
 			function(records, operation, success){
 				if(!success){
-					Ext.Msg.alert("Ошибка", "Ошибка при получении позиций планируемых поставок");
+					Ext.Msg.alert("Ошибка", "Ошибка при получении позиций планируемых поставок <br/>" + operation.getError().responseText);
 				} else {
 					controller.computeGroupInfo();
 					controller.postFilterRenewPlanGoods(
@@ -593,7 +593,7 @@ Ext.define('app.controller.RenewPlan', {
 									controller.detailStore.sync({
 										callback: function(batch){
 											if(batch.exceptions.length>0){
-												Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+												Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText.escapeHTML());
 											}
 											controller.mainContainer.setLoading(false);
 											controller.renewPlanSelectionChange(record);
