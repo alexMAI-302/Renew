@@ -68,7 +68,7 @@ Ext.define('app.controller.RenewPlan', {
 			controller.detailStore.sync({
 				callback: function(batch){
 					if(batch.exceptions.length>0){
-						Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText.escapeHTML())
+						Ext.Msg.alert("Ошибка", Ext.String.htmlEncode(batch.exceptions[0].getError().responseText))
 					}
 					container.setLoading(false);
 				}
@@ -265,7 +265,7 @@ Ext.define('app.controller.RenewPlan', {
 						controller.detailStore.sync({
 							callback: function(batch){
 								if(batch.exceptions.length>0){
-									Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText.escapeHTML());
+									Ext.Msg.alert("Ошибка", Ext.String.htmlEncode(batch.exceptions[0].getError().responseText));
 								}
 								controller.mainContainer.setLoading(false);
 								callback.call(controller);
@@ -593,7 +593,7 @@ Ext.define('app.controller.RenewPlan', {
 									controller.detailStore.sync({
 										callback: function(batch){
 											if(batch.exceptions.length>0){
-												Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText.escapeHTML());
+												Ext.Msg.alert("Ошибка", Ext.String.htmlEncode(batch.exceptions[0].getError().responseText));
 											}
 											controller.mainContainer.setLoading(false);
 											controller.renewPlanSelectionChange(record);

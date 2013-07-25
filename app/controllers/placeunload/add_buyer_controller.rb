@@ -248,34 +248,38 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
     data["dow"].each do |day|
       dow+=1<<(day.to_i-1)
     end
-    
-    serr = ActiveRecord::Base.connection.select_value("
-      SELECT * FROM renew_web.placeunload_save_buyer(
-        #{data["partner_group_id"].to_i},
-        #{data["partner_id"].to_i},
-        '#{ActiveRecord::Base.connection.quote_string(data["partner_name"].strip)}',
-        #{data["buyer_id"].to_i},
-        '#{ActiveRecord::Base.connection.quote_string(data["buyer_name"].strip)}',
-        #{data["placeunload_id"].to_i},
-        '#{ActiveRecord::Base.connection.quote_string(data["placeunload_name"].strip)}',
-        '#{ActiveRecord::Base.connection.quote_string(data["loadto"].strip)}',
-        '#{ActiveRecord::Base.connection.quote_string(data["fulladdress"])}',
-        #{data["latitude"].to_f},
-        #{data["longitude"].to_f},
-        '#{ActiveRecord::Base.connection.quote_string(data["placeunload_descr"].strip)}',
-        #{data["placeunload_unloading"]=="-1" ? 'null' : data["placeunload_unloading"].to_i},
-        #{data["placeunload_delscheduleid"].to_i},
-        #{data["placeunload_incscheduleid"].to_i},
-        #{data["placeunload_buyers_route_id"]=="-1" ? 'null' : data["placeunload_buyers_route_id"].to_i},
-        #{data["placeunload_placecategory_id"].to_i},
-        #{dow}
-        )
-    ")
 
-    if !serr.nil? && serr.size==0
-      render :text => "ok"
-    else
-      render :text => serr
+    begin    
+      serr = ActiveRecord::Base.connection.select_value("
+        call renew_web.placeunload_save_buyer(
+          #{data["partner_group_id"].to_i},
+          #{data["partner_id"].to_i},
+          '#{ActiveRecord::Base.connection.quote_string(data["partner_name"].strip)}',
+          #{data["buyer_id"].to_i},
+          '#{ActiveRecord::Base.connection.quote_string(data["buyer_name"].strip)}',
+          #{data["placeunload_id"].to_i},
+          '#{ActiveRecord::Base.connection.quote_string(data["placeunload_name"].strip)}',
+          '#{ActiveRecord::Base.connection.quote_string(data["loadto"].strip)}',
+          '#{ActiveRecord::Base.connection.quote_string(data["fulladdress"])}',
+          #{data["latitude"].to_f},
+          #{data["longitude"].to_f},
+          '#{ActiveRecord::Base.connection.quote_string(data["placeunload_descr"].strip)}',
+          #{data["placeunload_unloading"]=="-1" ? 'null' : data["placeunload_unloading"].to_i},
+          #{data["placeunload_delscheduleid"].to_i},
+          #{data["placeunload_incscheduleid"].to_i},
+          #{data["placeunload_buyers_route_id"]=="-1" ? 'null' : data["placeunload_buyers_route_id"].to_i},
+          #{data["placeunload_placecategory_id"].to_i},
+          #{dow}
+          )
+      ")
+            
+      if !serr.nil? && serr.size==0
+        render :text => "ok"
+      else
+        render :text => serr
+      end
+    rescue => t
+      render :text => t
     end
   end
 end
