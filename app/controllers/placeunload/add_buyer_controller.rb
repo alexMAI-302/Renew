@@ -49,12 +49,13 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
       sp_v.name unloading
     from
       partners p
-      LEFT JOIN partners_sp_sets p_sp_s ON p.id=p_sp_s.partner
-      LEFT JOIN sp_types sp_t ON p_sp_s.sp_tp=sp_t.id
-      LEFT JOIN sp_values sp_v ON sp_v.id=p_sp_s.spv_id
+        LEFT JOIN
+          (partners_sp_sets p_sp_s 
+            JOIN sp_types sp_t ON  p_sp_s.sp_tp=sp_t.id
+                               and sp_t.name='Тариф'
+            JOIN sp_values sp_v ON sp_v.id=p_sp_s.spv_id
+          ) ON p.id=p_sp_s.partner
     where
-      (sp_t.name='Тариф' OR p_sp_s.partner IS NULL)
-      AND
       p.parent in (select id from partners_groups_tree where parent = #{pgid.to_i}) #{pname}
     order by
       2")
