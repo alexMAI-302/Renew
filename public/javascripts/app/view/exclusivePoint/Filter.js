@@ -12,8 +12,7 @@ Ext.define('app.view.exclusivePoint.Filter', {
 		}
 	},
 	
-	//frame: true,
-	
+
 	items: [
 		{
 			id: 'meterField',
@@ -30,7 +29,6 @@ Ext.define('app.view.exclusivePoint.Filter', {
 			id: 'refreshButton',
 			xtype: 'button',
 			text: 'Найти',
-	        //formBind: true           //Если мессадж не заполнен, то ничего не ищем
 		},
 	]
 });

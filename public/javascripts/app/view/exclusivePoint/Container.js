@@ -8,7 +8,7 @@ Ext.define('app.view.exclusivePoint.Container', {
 	],
 	
 	width: '100%',
-	height: Ext.getBody().getViewSize().height - 120, //700,
+	height: Ext.getBody().getViewSize().height - 120,
 	
 	layout: {
 		type: 'border'
@@ -32,7 +32,7 @@ Ext.define('app.view.exclusivePoint.Container', {
 			items: [{
 				xtype: 'exclusivePointExclusiveBuyer',
 				height: '50%',
-				region: 'center'//'north'
+				region: 'center'
 			},{
 				xtype: 'exclusivePointMultiBuyer',
 				height: '50%',
