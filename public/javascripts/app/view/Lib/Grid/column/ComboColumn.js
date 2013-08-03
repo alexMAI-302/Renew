@@ -37,11 +37,12 @@ Ext.define('app.view.Lib.Grid.column.ComboColumn', {
 			return matching;
 		};
 		
-		me.renderer = renderer;
+		me.renderer = config.renderer || renderer;
 		
 		if(!config.onlyRenderer){
 			me.field = Ext.create('Ext.form.ComboBox', {
 				store: me.store,
+				listConfig: config.listConfig,
 				queryMode: config.queryMode || 'local',
 				displayField: config.displayField || 'name',
 				valueField: config.valueField || 'id',

@@ -38,30 +38,22 @@ Ext.define('app.controller.ExclusivePoint', {
 					controller.map.container.fitToViewport();
 				}
 			},
-			
+
+			'#exclusivePointMultiBuyerTable': {
+				selectionchange: controller.onSelectionchange
+			},
+
+			'#deleteexclusivePointMultiBuyer': {
+				click: controller.onDeleteMultiBuyer
+			},
+
 			'#addexclusivePointMultiBuyer': {
 				click: controller.onAddMultiBuyer
 			},
 			
-			'#exclusivePointMultiBuyerTable': {
-				selectionchange: controller.filterTp
+			'#saveexclusivePointMultiBuyer': {
+				click: controller.onSaveMultiBuyer
 			},
-			
-			'#celleditingexclusivePointMultiBuyer':			
-			{
-				beforeedit: function() {console.log('beforeedit')}
-			}
-			/*
-			'#exclusivePointMultiBuyerTpId': {
-				expand: function( field, eOpts ) {
-					console.log('expand');
-				},
-				
-				select: function( combo, records, eOpts ) {
-					console.log('select');
-				}
-			}
-			*/
 		})
 	},
 	
@@ -70,17 +62,6 @@ Ext.define('app.controller.ExclusivePoint', {
 		this.initStores();
 		
 		this.refreshMap();
-		
-	/*
-		this.bindStores();
-		
-		panel.setLoading(true);
-		this.siteStore.load(
-			function() {
-				panel.setLoading(false);
-			}	
-		);
-		*/
 	},
 	
 	initMap: function() {
@@ -115,26 +96,23 @@ Ext.define('app.controller.ExclusivePoint', {
 		
 
 
-		this.supervisorStore.load();
-		this.tpStore.load();
+		this.supervisorStore.load({
+			callback: function(records, operation, success) {
+				if (!success)
+					Ext.Msg.alert('Ошибка', 'Ошибка загрузки супервайзеров<br/>' + operation.getError().responseText)
+			}
+		});
+		this.tpStore.load({
+			callback: function(records, operation, success) {
+				if (!success)
+					Ext.Msg.alert('Ошибка', 'Ошибка загрузки ТП<br/>' + operation.getError().responseText)
+			}
+		});
 		
 		
 		
 		//event
 		colSuper = Ext.getCmp('exclusivePointMultiBuyerTable').columns[2].field;
-		/*
-		colSuper.addListener(
-			"change",
-			function(combo, newValue, oldValue, eOpts)  {
-				console.log('change')
-				var record = Ext.getCmp('exclusivePointMultiBuyerTable').getSelectionModel().getSelection()[0]
-				
-				
-				record.set("tp_id", null);
-				record.set("podr", null);
-			}
-		)
-		*/
 		colSuper.addListener(
 			"select",
 			function(combo, records, eOpts)  {
@@ -151,74 +129,42 @@ Ext.define('app.controller.ExclusivePoint', {
 		colTp.addListener(
 			"expand",
 			function( field, eOpts ) {
-				console.log('expand');
-				
 				var super_id =Ext.getCmp('exclusivePointMultiBuyerTable').getSelectionModel().getSelection()[0].get("super_id");
 				controller.tpStore.filter('super_id', super_id);
 			}
 		)
 		
-		
-		//v1
-		//colBuyer = Ext.getCmp('exclusivePointMultiBuyerTable').columns[4].field;
 		colTp.addListener(
 			"select",
 			function(combo, records, eOpts) {
-				console.log('select tp');
-							
-				controller.buyerCBStore.proxy.extraParams={
-					tp: records[0].get('id') //get('tp')
-				};
-				controller.buyerCBStore.load() //collback дописать
-				//controller.buyerCBStore.removeAll();
-				//console.log(controller.buyerCBStore)
-				
-				//console.log(Ext.getCmp('exclusivePointMultiBuyerTable').columns[4])
-				
-				//console.log(Ext.getCmp('exclusivePointMultiBuyerTable').columns[4])
-				/*
-				var store = Ext.getCmp('exclusivePointMultiBuyerTable').columns[4].field.store
-				store.proxy.extraParams={
-					tp: records[0].get('id')
-				};
-				
-				store.removeAll()
-				*/
+				controller.filterBuyerCB(records[0].get('id'))
 			}
 		)
+		
+		
+		colBuyer = Ext.getCmp('exclusivePointMultiBuyerTable').columns[4].field;
+		colBuyer.addListener(
+			"select",
+			function(combo, records, eOpts)  {
+				var recordTable = Ext.getCmp('exclusivePointMultiBuyerTable').getSelectionModel().getSelection()[0]
+
+				recordTable.set("loadto", records[0].get('loadto'));
+				recordTable.set("name", records[0].get('name')); //Запомним имя покупателя. когда произойдет соранение строка перестанет быть фантомной. 
+				                                                 //а для таких cтрочеr название покупателя берется не из combobox, и из колонки name
+			}
+		);
 		
 		cellEdit = Ext.getCmp('exclusivePointMultiBuyerTable').getPlugin('celleditingexclusivePointMultiBuyer')
 		cellEdit.addListener(
 			"beforeedit",
 			function( editor, e ) {
-				//Редактировать можно только фантомные строчки
-				//console.log('beforeedit' + e.record.phantom)
 				
+				//Редактировать можно только фантомные строчки
 				e.cancel = !e.record.phantom
 				return e.record.phantom 				
 			}
 		)
-		
-		
-		
-//		Ext.getCmp('ExclusivePointBuyerTable').getStore();
-/*
-		console.log(this.buyerStore)
-		console.log(Ext.getCmp('currentBuyer').getStore())
-		console.log(this.buyerStore == Ext.getCmp('currentBuyer').getStore())
-*/
 	},
-/*	
-	bindStores: function(){
-		var siteFilter = Ext.getCmp('siteFilter');
-		
-		siteFilter.bindStore(this.siteStore);
-		Ext.getCmp('DeliveryRouteTable').reconfigure(this.masterStore);
-		
-		siteFilter.setValue(1);
-	},
-*/
-
 
 	createPlacemarks: function() {
 		var controller   = this,
@@ -236,8 +182,6 @@ Ext.define('app.controller.ExclusivePoint', {
 			    
 			point = new ymaps.Placemark([latitude, longitude],
 				{
-					//iconContent: ord,
-					//balloonContent: ord,
 				},
 				{
 					preset: hasMulti?'twirl#darkblueDotIcon':'twirl#redDotIcon'
@@ -284,7 +228,6 @@ Ext.define('app.controller.ExclusivePoint', {
 	
 	loadBuyers: function(mEvent) {
 		var meterControl = Ext.getCmp('meterField'),
-		    //controller = this,
 		    coordinates,
 		    multiBuyersTable = Ext.getCmp('exclusivePointMultiBuyerTable') ;
 		
@@ -339,8 +282,6 @@ Ext.define('app.controller.ExclusivePoint', {
 	},
 	
 	onAddMultiBuyer: function() {
-		console.log('add');
-		
 		var panel = Ext.getCmp('exclusivePointMultiBuyerTable'),
 			sm = panel.getSelectionModel(),
 		    store = panel.getStore(),
@@ -348,25 +289,83 @@ Ext.define('app.controller.ExclusivePoint', {
 		    cellEditing = panel.getPlugin('celleditingexclusivePointMultiBuyer'); //('cellEditing'),
 		    model = new store.model;
 		
-		console.log(panel)
-
 		cellEditing.cancelEdit();
-
 		store.insert(Math.max(index, 0), model);
 		sm.select(model)
 		cellEditing.startEdit(model, 0);
 	},
 	
-	filterTp: function(sm, records, eOpts) {
-		console.log('selectionchange')
-		console.log(records)
-		
-		if (records!=null && records.length == 1) {
-			var super_id = records[0].get("super_id");
-			
-			controller.tpStore.filter('super_id', super_id);
-			
-			console.log(controller.tpStore)					
+	onDeleteMultiBuyer: function() {
+		var sm = Ext.getCmp('exclusivePointMultiBuyerTable').getSelectionModel();
+				
+		controller.multiBuyerStore.remove(sm.getSelection()[0]);
+		if (controller.multiBuyerStore.getCount() > 0) {
+			sm.select(0);
 		}
+	},
+	
+	onSaveMultiBuyer: function() {
+		var store  = controller.multiBuyerStore,
+		    panel  = Ext.getCmp('exclusivePointMultiBuyerTable'),
+		    sm     = Ext.getCmp('exclusivePointExclusiveBuyerTable').getSelectionModel(),
+		    exclId;
+		    
+		    
+		//Найдем id эксклюзивного покупателя
+		if(1 != sm.getCount()) {
+			Ext.Msg.alert("Ошибка", "Не выбран эксклюзивный покупатель")
+			return
+		}
+		else
+		    exclId = sm.getLastSelected().get("id") 
+		
+		Ext.getCmp('exclusivePointExclusiveBuyerTable').getSelectionModel()
+		
+		if (
+			(store.getNewRecords().length > 0) ||
+			(store.getUpdatedRecords().length > 0) ||
+			(store.getRemovedRecords().length > 0)){
+				
+			store.proxy.extraParams={
+				exclId: exclId
+			};	
+				
+			panel.setLoading(true);
+			store.sync({
+				callback: function(batch){
+					if(batch.exceptions.length>0){
+						Ext.Msg.alert("Ошибка", batch.exceptions[0].getError());
+					}
+					panel.setLoading(false);
+				}
+			});
+		}	
+	},
+
+	
+	onSelectionchange: function(sm, records, eOpts) {
+		Ext.getCmp('deleteexclusivePointMultiBuyer').setDisabled(records==null || records.length==0);
+
+		if (records!=null && records.length == 1)
+		
+			//При создании новой строки срабатывает евент, но ТП еще нет, поэтому не шлем запрос
+			if (typeof (records[0].get("tp_id")) == 'number')
+			
+				//обновляем список, только если кликнули на фантомную строку
+				if (records[0].phantom)
+					controller.filterBuyerCB(records[0].get("tp_id"))		
+	},
+	
+	
+	filterBuyerCB: function(tp_id) {
+		controller.buyerCBStore.proxy.extraParams={
+			tp: tp_id
+		};
+		controller.buyerCBStore.load({
+			callback: function(records, operation, success) {
+				if (!success)
+					Ext.Msg.alert('Ошибка', 'Ошибка загрузки покупателей<br/>' + operation.getError().responseText)
+  				}					
+		})	
 	}
 })
