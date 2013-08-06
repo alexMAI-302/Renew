@@ -40,7 +40,7 @@
 							if(batch.exceptions.length>0){
 								Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
 							}
-							mainContainer.setLoading(false);
+							controller.mainContainer.setLoading(false);
 						}
 					});
 					controller.mainContainer.setLoading(false);
