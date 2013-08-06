@@ -32,10 +32,17 @@ class ClothingSizeController < ApplicationSimpleErrorController
 				ed1.path, emp_rel.magnitude desc, shortened ")
 			 render :text => res.to_json
 		when "put"
-			ActiveRecord::Base.connection.update("
-				call _extra.setvalue(#{params[:id].to_i},'person_size_shoulders',#{ActiveRecord::Base.connection.quote(params[:size_shoulders])}); ")
+				val=ActiveRecord::Base.connection.quote(params[:size_shoulders])
+				val=(val=="''")? "null":val;
+				q="call _extra.setvalue(#{params[:id].to_i},'person_size_shoulders',#{val}); "
+				logger.info q
 				ActiveRecord::Base.connection.update("
-				call _extra.setvalue(#{params[:id].to_i},'person_size_hips',#{ActiveRecord::Base.connection.quote(params[:size_hips])}); ")
+				call _extra.setvalue(#{params[:id].to_i},'person_size_shoulders',#{val}); ")
+				
+				val=ActiveRecord::Base.connection.quote(params[:size_hips])
+				val=(val=="''")? "null":val;
+				ActiveRecord::Base.connection.update("
+				call _extra.setvalue(#{params[:id].to_i},'person_size_hips',#{val}); ")
 			    render :text => {"success" => true, "id" => params[:id]}.to_json
     end
 	
