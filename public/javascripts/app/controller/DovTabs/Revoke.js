@@ -20,10 +20,14 @@ Ext.define('app.controller.DovTabs.Revoke', {
 		var controller=this;
 		
 		controller.dovStore.proxy.extraParams={
+			ddateb: Ext.getCmp('ddatebRevoke').getValue(),
+			ddatee: Ext.getCmp('ddateeRevoke').getValue(),
 			salesman_id: Ext.getCmp('palmSalesmanRevoke').getValue(),
 			show_all_revoke: Ext.getCmp('showAllRevoke').getValue()
 		};
-		
+		controller.revokeContainer.setLoading(true);
+		controller.dovStore.clearFilter(true);
+		Ext.getCmp('filterNdocRevoke').setValue('');
 		controller.dovStore.load(
 			function(records, operation, success){
 				if(!success){
@@ -35,7 +39,18 @@ Ext.define('app.controller.DovTabs.Revoke', {
 	},
 	
 	init: function() {
-		var controller = this;
+		var controller = this,
+			datesChanged = {
+				select: function(combo, records){
+					controller.refreshDov();
+					return true;
+				},
+				change: function(el, newValue, oldValue, eOpts){
+					if(el.isValid()){
+						controller.refreshDov();
+					}
+				}
+			};
 		
 		controller.revokeContainer=Ext.create('app.view.Dov.Revoke.Container');
 		Ext.getCmp('DovMain').add(controller.revokeContainer);
@@ -52,11 +67,12 @@ Ext.define('app.controller.DovTabs.Revoke', {
 				select: function(combo, records){
 					if(records!=null && records.length>0){
 						controller.refreshDov();
-						Ext.getCmp('filterNdocRevoke').setValue('');
 					}
 					return true;
 				}
 			},
+			'#ddatebRevoke': datesChanged,
+			'#ddateeRevoke': datesChanged,
 			'#showAllRevoke': {
 				change: function(field, newValue, oldValue, eOpts){
 					controller.refreshDov();

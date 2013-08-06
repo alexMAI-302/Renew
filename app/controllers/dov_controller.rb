@@ -29,6 +29,8 @@ class DovController < ApplicationSimpleErrorController
   end
 
   def get_dov_revoke
+    ddateb=Time.parse(params[:ddateb]).strftime('%F')
+    ddatee=Time.parse(params[:ddatee]).strftime('%F')
     res=ActiveRecord::Base.connection.select_all("
     SELECT
       d.id,
@@ -55,7 +57,7 @@ class DovController < ApplicationSimpleErrorController
         status = 0
       )
       AND
-      ddate>=DATEADD(month, -1, TODAY())
+      ddate>='#{ddateb}' AND ddate<='#{ddatee}'
     ORDER BY
       d.ndoc DESC")
     render :text => res.to_json

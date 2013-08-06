@@ -67,12 +67,14 @@ Ext.define('app.view.Lib.DateIntervalFilter', {
 		if(config.filterButton){
 			items.push(config.filterButton);
 		} else {
-			items.push({
-				id : 'filter' + config.suffix,
-				xtype : 'button',
-				icon : '/ext/resources/themes/images/default/grid/refresh.gif',
-				tooltip: 'Фильтр/обновить'
-			});
+			if(config.filterButton!==false){
+					items.push({
+					id : 'filter' + config.suffix,
+					xtype : 'button',
+					icon : '/ext/resources/themes/images/default/grid/refresh.gif',
+					tooltip: 'Фильтр/обновить'
+				});
+			}
 		}
 		
 		if(config.extraItems != null) {
