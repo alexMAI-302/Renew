@@ -179,9 +179,12 @@ Ext.define('app.controller.ExclusivePoint', {
 			var latitude  = r.get('latitude'),
 			    longitude = r.get('longitude'),
 			    hasMulti  = r.get('hasMulti'),
+			    hint      = r.get('hint'),
 			    
 			point = new ymaps.Placemark([latitude, longitude],
 				{
+					balloonContent: "Вы тут",
+					hintContent: "<ul><li>" + hint.replace(new RegExp(",",'g'),"</li><li>") + "</li></ul>"
 				},
 				{
 					preset: hasMulti?'twirl#darkblueDotIcon':'twirl#redDotIcon'
