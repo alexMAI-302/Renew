@@ -47,18 +47,19 @@ Ext.define('app.view.Lib.Grid.column.ComboColumn', {
 				displayField: config.displayField || 'name',
 				valueField: config.valueField || 'id',
 				value: "",
-				autoSelect: (config.allowNull!==true)
-			});
-			
-			if(config.fieldListeners!==false){
-				me.field.on(config.fieldListeners || {
-					beforequery: function(queryEvent){
-						queryEvent.combo.store.clearFilter();
-						queryEvent.combo.store.filter(queryEvent.combo.displayField, queryEvent.query);
-						return true;
-					}
-				});
-			}
+				autoSelect: (config.allowNull!==true),
+				column: me,
+				name: me.dataIndex,
+				listeners: (config.fieldListeners!==false)?
+					(config.fieldListeners || {
+						beforequery: function(queryEvent){
+							queryEvent.combo.store.clearFilter();
+							queryEvent.combo.store.filter(queryEvent.combo.displayField, queryEvent.query);
+							return true;
+						}
+					}) :null
+				}
+			);
 		}
 		
 		me.doSort = function(state){
