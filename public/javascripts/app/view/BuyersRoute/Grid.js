@@ -16,6 +16,15 @@ Ext.define('app.view.BuyersRoute.Grid', {
 				width: 170,
 				header: 'Наименование',
 				dataIndex: 'name'
+			},
+			{
+				width: 100,
+				header: 'Площадка',
+				dataIndex: 'site_name',
+				renderer: function(v, metaData, r){
+					metaData.style = "color: "+r.get('color')+";";
+					return v;
+				}
 			}
 		]
 	}

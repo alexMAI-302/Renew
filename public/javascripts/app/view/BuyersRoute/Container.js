@@ -23,7 +23,7 @@ Ext.define('app.view.BuyersRoute.Container', {
 		{
 			xtype: 'buyersRouteGrid',
 			region: 'west',
-			width: 190,
+			width: 290,
 			split: true
 		},
 		{
