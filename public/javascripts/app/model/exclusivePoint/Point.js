@@ -4,6 +4,7 @@ Ext.define('app.model.exclusivePoint.Point', {
 	fields: [
 		{name: 'latitude',  type: 'float'},
 		{name: 'longitude', type: 'float'},
-		{name: 'hasMulti',  type: 'boolean'}
+		{name: 'hasMulti',  type: 'boolean'},
+		{name: 'hint',      type: 'string'}
 	]
 });

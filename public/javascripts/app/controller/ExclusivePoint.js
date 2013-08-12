@@ -90,10 +90,9 @@ Ext.define('app.controller.ExclusivePoint', {
 		this.pointStore      = Ext.create ('app.store.exclusivePoint.Point');
 		this.buyerStore      = Ext.getCmp('exclusivePointExclusiveBuyerTable').getStore();
 		this.multiBuyerStore = Ext.getCmp('exclusivePointMultiBuyerTable').getStore();
-		this.supervisorStore = Ext.getCmp('exclusivePointMultiBuyerTable').columns[2].store;
-		this.tpStore         = Ext.getCmp('exclusivePointMultiBuyerTable').columns[3].store;
-		this.buyerCBStore    = Ext.getCmp('exclusivePointMultiBuyerTable').columns[4].store;
-		
+		this.supervisorStore = Ext.getCmp('exclusivePointMultiBuyerTable').columns[1].store;
+		this.tpStore         = Ext.getCmp('exclusivePointMultiBuyerTable').columns[2].store;
+		this.buyerCBStore    = Ext.getCmp('exclusivePointMultiBuyerTable').columns[3].store;
 
 
 		this.supervisorStore.load({
@@ -112,7 +111,7 @@ Ext.define('app.controller.ExclusivePoint', {
 		
 		
 		//event
-		colSuper = Ext.getCmp('exclusivePointMultiBuyerTable').columns[2].field;
+		colSuper = Ext.getCmp('exclusivePointMultiBuyerTable').columns[1].field;
 		colSuper.addListener(
 			"select",
 			function(combo, records, eOpts)  {
@@ -120,29 +119,20 @@ Ext.define('app.controller.ExclusivePoint', {
 
 				recordTable.set("tp_id", null);
 				recordTable.set("podr", records[0].get('podr'));
+				
+				controller.filterTpCB(records[0].get('id'))
 			}
 		)
-		
-	
-		
-		colTp = Ext.getCmp('exclusivePointMultiBuyerTable').columns[3].field;
-		colTp.addListener(
-			"expand",
-			function( field, eOpts ) {
-				var super_id =Ext.getCmp('exclusivePointMultiBuyerTable').getSelectionModel().getSelection()[0].get("super_id");
-				controller.tpStore.filter('super_id', super_id);
-			}
-		)
-		
+
+		colTp = Ext.getCmp('exclusivePointMultiBuyerTable').columns[2].field;
 		colTp.addListener(
 			"select",
 			function(combo, records, eOpts) {
 				controller.filterBuyerCB(records[0].get('id'))
 			}
 		)
-		
-		
-		colBuyer = Ext.getCmp('exclusivePointMultiBuyerTable').columns[4].field;
+
+		colBuyer = Ext.getCmp('exclusivePointMultiBuyerTable').columns[3].field;
 		colBuyer.addListener(
 			"select",
 			function(combo, records, eOpts)  {
@@ -179,9 +169,12 @@ Ext.define('app.controller.ExclusivePoint', {
 			var latitude  = r.get('latitude'),
 			    longitude = r.get('longitude'),
 			    hasMulti  = r.get('hasMulti'),
+			    hint      = r.get('hint'),
 			    
 			point = new ymaps.Placemark([latitude, longitude],
 				{
+					balloonContent: "Вы тут",
+					hintContent: "<ul><li>" + hint.replace(new RegExp(",",'g'),"</li><li>") + "</li></ul>"
 				},
 				{
 					preset: hasMulti?'twirl#darkblueDotIcon':'twirl#redDotIcon'
@@ -217,7 +210,7 @@ Ext.define('app.controller.ExclusivePoint', {
 		controller.pointStore.load(
 			function(records, operation, success){
 				if(!success) {
-					Ext.Msg.alert('Ошибка загрузки маршрутов', operation.getError().responseText)
+					Ext.Msg.alert('Ошибка загрузки точек', operation.getError().responseText)
 					panel.setLoading(false);
 				} else {
 					controller.createPlacemarks();
@@ -346,26 +339,38 @@ Ext.define('app.controller.ExclusivePoint', {
 	onSelectionchange: function(sm, records, eOpts) {
 		Ext.getCmp('deleteexclusivePointMultiBuyer').setDisabled(records==null || records.length==0);
 
-		if (records!=null && records.length == 1)
-		
-			//При создании новой строки срабатывает евент, но ТП еще нет, поэтому не шлем запрос
-			if (typeof (records[0].get("tp_id")) == 'number')
+		if (records!=null && records.length == 1) {
 			
-				//обновляем список, только если кликнули на фантомную строку
-				if (records[0].phantom)
-					controller.filterBuyerCB(records[0].get("tp_id"))		
+			//Если перешли на фантомную строку, то надо пообновлять списки
+			if (records[0].phantom) {
+				
+				//Если супервайзер не выбран (2-я строка для случая ТП), то передается null и ТП очишаются. 
+				//(полезно, когда создается новая строка, т.к. срабатывает event или когда создали строку и начали кликать с одной строки на другую, не выбрав супервайзера)
+				controller.filterTpCB(records[0].get("super_id"))
+				controller.filterBuyerCB(records[0].get("tp_id"))			
+			}
+		}		
 	},
 	
 	
 	filterBuyerCB: function(tp_id) {
-		controller.buyerCBStore.proxy.extraParams={
-			tp: tp_id
-		};
-		controller.buyerCBStore.load({
-			callback: function(records, operation, success) {
-				if (!success)
-					Ext.Msg.alert('Ошибка', 'Ошибка загрузки покупателей<br/>' + operation.getError().responseText)
-  				}					
-		})	
+		if (typeof (tp_id) == 'number') {
+			controller.buyerCBStore.proxy.extraParams={
+				tp: tp_id
+			};
+			controller.buyerCBStore.load({
+				callback: function(records, operation, success) {
+					if (!success)
+						Ext.Msg.alert('Ошибка', 'Ошибка загрузки покупателей<br/>' + operation.getError().responseText)
+	  				}					
+			})	
+		}
+		else
+			controller.buyerCBStore.loadData([], false)  
+	},
+	
+	filterTpCB: function(super_id) {
+		controller.tpStore.clearFilter();
+		controller.tpStore.filter('super_id', super_id);
 	}
 })

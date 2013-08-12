@@ -24,12 +24,7 @@ Ext.define('app.view.exclusivePoint.MultiBuyer', {
 		title: 'Мультиассортиментные покупатели',
 
 		columns: [
-			{
-				dataIndex: 'id',
-				text: 'id',
-				disabled: true,
-				hidden: true
-			},
+
 			{
 				dataIndex: 'podr',
 				text: 'Подразделение',
@@ -60,7 +55,8 @@ Ext.define('app.view.exclusivePoint.MultiBuyer', {
 				id: 'exclusivePointMultiBuyerTpId',
 				
 	            xtype: 'combocolumn',
-	            store: 'app.store.exclusivePoint.Tp',                
+	            store: 'app.store.exclusivePoint.Tp',       
+	            fieldListeners: false,
 
 				width: '15%',
 				editor: {
@@ -89,8 +85,8 @@ Ext.define('app.view.exclusivePoint.MultiBuyer', {
 						return(record.get('name'))
 					else {
 						var matching = null,
-						
-						data = comboBoxStore.data;
+						    data = comboBoxStore.data;
+
 						data.each(function(r){
 							if(r.get('id')==value){
 								matching=r.get('name');
@@ -108,6 +104,12 @@ Ext.define('app.view.exclusivePoint.MultiBuyer', {
 				hideable: false,
 				disabled: true,
 				width: '25%',
+			},
+			{
+				dataIndex: 'id',
+				text: 'id',
+				disabled: true,
+				hidden: true
 			},
 		]
 	}
