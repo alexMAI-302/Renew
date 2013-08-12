@@ -110,8 +110,20 @@ Ext.define('app.view.RenewPlan.Grid', {
 			},
 			{
 				width: 150,
-				header: 'Номер заказа',
-				dataIndex: 'sorder_ndoc',
+				header: 'Номера заказов',
+				dataIndex: 'ndocs_by_orders',
+				disabled: true
+			},
+			{
+				width: 100,
+				header: 'Вес по заказам',
+				dataIndex: 'weight_by_orders',
+				disabled: true
+			},
+			{
+				width: 100,
+				header: 'Объем по заказам',
+				dataIndex: 'volume_by_orders',
 				disabled: true
 			},
 			{
