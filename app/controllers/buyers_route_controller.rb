@@ -19,12 +19,6 @@ class BuyersRouteController < ApplicationPageErrorController
     render :text => res.to_json
   end
   
-  def get_spv
-    res = ActiveRecord::Base.connection.select_all("select id, name from sp_values where sp_tp = 1284")
-    
-    render :text => res.to_json
-  end
-  
   def get_placeunload
     res = ActiveRecord::Base.connection.select_all("
     select distinct
@@ -43,15 +37,19 @@ class BuyersRouteController < ApplicationPageErrorController
     when "get"
       res = ActiveRecord::Base.connection.select_all(
       "select
-        id,
-        name,
-        points
+        br.id,
+        br.name,
+        s.id site_id,
+        s.name site_name,
+        s.latitude site_latitude,
+        s.longitude site_longitude,
+        br.points
       from
-        buyers_route
-      where
-        site = #{params[:site].to_i} and spv_id = #{params[:spv_id]}
+        buyers_route br
+        JOIN site s ON s.id=br.site
       order by
-        name")
+        s.id,
+        br.name")
       
       render :text => res.to_json
     when "put"

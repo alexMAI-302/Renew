@@ -2,14 +2,11 @@ Ext.define('app.controller.BuyersRoute', {
     extend: 'Ext.app.Controller',
 	
 	stores: [
-		'BuyersRoute.Sites',
-		'BuyersRoute.Tariffs',
 		'BuyersRoute.BuyersRoutes',
 		'BuyersRoute.Placeunloads'
 	],
 	
 	models: [
-		'valueModel',
 		'BuyersRoute.BuyersRouteModel',
 		'BuyersRoute.PlaceunloadModel'
 	],
@@ -21,24 +18,13 @@ Ext.define('app.controller.BuyersRoute', {
 	mainContainer: null,
 	
 	masterStore: null,
-	sitesStore: null,
-	tariffsStore: null,
 	placeunloadsStore: null,
 	
 	map: null,
 	routesCollection: null,
 	currentZone: null,
-	style1:
-	{
-		strokeColor: "ff000055",
-		fillColor: "ffff0055"
-	},
-	style2: 
-	{
-		strokeColor: "ffff0055",
-		fillColor: "ff000055"
-	},
-
+	
+	center: [55.76, 37.64],
 	
 	storeHasChanges: function(store){
 		return (store.getNewRecords().length > 0) ||
@@ -81,72 +67,62 @@ Ext.define('app.controller.BuyersRoute', {
 	},
 
 	filterMaster: function(){
-		var controller = this,
-			site = Ext.getCmp('filterSiteBuyersRoute').getValue(),
-			spvId = Ext.getCmp('filterTariffBuyersRoute').getValue();
+		var controller = this;
 		
-		if(site>0 && spvId>0){
-			controller.mainContainer.setLoading(true);
-			controller.currentZone = null;
-			controller.routesCollection.removeAll();
+		controller.mainContainer.setLoading(true);
+		controller.currentZone = null;
+		controller.routesCollection.removeAll();
 		
-			controller.masterStore.proxy.extraParams = {
-				site: site,
-				spv_id: spvId
-			};
-			controller.masterStore.load(
-				function(records, operation, success){
-					if(success!==true){
-						Ext.Msg.alert("Ошибка", "Ошибка при получении зон доставки");
-					} else {
-						var p, pointsStr,
-							site = controller.sitesStore.getById(Ext.getCmp('filterSiteBuyersRoute').getValue()),
-							center = [site.get('latitude'), site.get('longitude')]
-							centerPolygon = [site.get('latitude'), site.get('longitude')];
-						
-						for(var i=0; i<records.length; i++){
-							pointsStr = records[i].get('points');
-							p = new ymaps.Polygon(
-								(pointsStr != null && pointsStr != '')?
-								ymaps.geometry.Polygon.fromEncodedCoordinates(pointsStr):
-								[[centerPolygon]],
-								{
-									id: records[i].get('id')
-								},
-								{
-									strokeColor: controller.style2.strokeColor.toString(),
-									fillColor: controller.style2.fillColor.toString()
-								}
-							);
-							p.events.add(
-								"geometrychange",
-								function(e){
-									if(controller.currentZone!=null){
-										var r = controller.masterStore.getById(controller.currentZone.properties.get('id')),
-											str='',
-											geometry = e.originalEvent.target.geometry,
-											coords = geometry.getCoordinates()[0];
-										r.set(
-											'points',
-											ymaps.geometry.Polygon.toEncodedCoordinates(geometry)
-										);
-										for(var j=0; coords.length>1 && j<coords.length; j++){
-											str+=j+", "+coords[j][0]+", "+coords[j][1]+";";
-										}
-										r.set('point_str', str);
-										controller.computeZonePoints(geometry);
+		controller.masterStore.load(
+			function(records, operation, success){
+				if(success!==true){
+					Ext.Msg.alert("Ошибка", "Ошибка при получении зон доставки");
+				} else {
+					var p, pointsStr;
+					
+					for(var i=0; i<records.length; i++){
+						pointsStr = records[i].get('points');
+						p = new ymaps.Polygon(
+							(pointsStr != null && pointsStr != '')?
+							ymaps.geometry.Polygon.fromEncodedCoordinates(pointsStr):
+							[[[records[i].get('site_latitude'), records[i].get('site_longitude')]]],
+							{
+								id: records[i].get('id')
+							},
+							{
+								strokeColor: '#000000',
+								fillColor: records[i].get('color'),
+								opacity: 0.3
+							}
+						);
+						p.events.add(
+							"geometrychange",
+							function(e){
+								if(controller.currentZone!=null){
+									var r = controller.masterStore.getById(controller.currentZone.properties.get('id')),
+										str='',
+										geometry = e.originalEvent.target.geometry,
+										coords = geometry.getCoordinates()[0];
+									r.set(
+										'points',
+										ymaps.geometry.Polygon.toEncodedCoordinates(geometry)
+									);
+									for(var j=0; coords.length>1 && j<coords.length; j++){
+										str+=j+", "+coords[j][0]+", "+coords[j][1]+";";
 									}
+									r.set('point_str', str);
+									controller.computeZonePoints(geometry);
 								}
-							);
-							
-							controller.routesCollection.add(p);
-						}
-						controller.map.setCenter(centerPolygon, 10);
+							}
+						);
+						
+						controller.routesCollection.add(p);
 					}
-					controller.mainContainer.setLoading(false);
+					controller.map.setCenter(controller.center, 10);
 				}
-			)
-		}
+				controller.mainContainer.setLoading(false);
+			}
+		);
 	},
 	
 	checkLineIntersection: function(start1, end1, start2, end2){
@@ -258,10 +234,10 @@ Ext.define('app.controller.BuyersRoute', {
 						function(o){
 							if(o.properties.get('id')==id){
 								controller.currentZone = o;
-								o.options.set("fillColor", controller.style1.fillColor.toString());
+								o.options.set("opacity", 0.9);
 								o.editor.startEditing();
 							} else {
-								o.options.set("fillColor", controller.style2.fillColor.toString());
+								o.options.set("opacity", 0.3);
 							}
 						}
 					);
@@ -288,7 +264,7 @@ Ext.define('app.controller.BuyersRoute', {
 		ymaps.ready(function(){
 			controller.map = new ymaps.Map("buyersRouteMap",
 				{
-					center: [55.76, 37.64],
+					center: controller.center,
 					zoom: 13,
 			        behaviors: ["default", "scrollZoom"]
 				}
@@ -296,8 +272,12 @@ Ext.define('app.controller.BuyersRoute', {
 			// Добавление элементов управления
 			controller.map.controls.add("zoomControl");
 			controller.map.controls.add("typeSelector");
-			controller.routesCollection = new ymaps.GeoObjectCollection(controller.style1);
+			controller.routesCollection = new ymaps.GeoObjectCollection();
 			controller.map.geoObjects.add(controller.routesCollection);
+			
+			if(controller.masterStore!=null){
+				controller.filterMaster();
+			}
 			controller.mainContainer.setLoading(false);
 		});
 	},
@@ -306,39 +286,20 @@ Ext.define('app.controller.BuyersRoute', {
 		var controller=this;
 		
 		controller.masterStore = Ext.getCmp('BuyersRoutesTable').getStore();
-		controller.sitesStore = Ext.getCmp('filterSiteBuyersRoute').getStore();
-		controller.tariffsStore = Ext.getCmp('filterTariffBuyersRoute').getStore();
 		controller.placeunloadsStore = controller.getBuyersRoutePlaceunloadsStore();
 	},
 	
 	loadDictionaries: function(){
 		var controller=this,
-			count=3;
+			count=1;
 		
 		controller.mainContainer.setLoading(true);
-		function checkLoading(val){
-			if(val==0){
-				controller.mainContainer.setLoading(false);
-			}
-		};
-		
-		controller.sitesStore.load(
-			function(records, operation, success){
-				count--;
-				checkLoading(count);
-			}
-		);
-		controller.tariffsStore.load(
-			function(records, operation, success){
-				count--;
-				checkLoading(count);
-			}
-		);
 		
 		controller.placeunloadsStore.load(
 			function(records, operation, success){
-				count--;
-				checkLoading(count);
+				if(controller.map!=null){
+					controller.filterMaster();
+				}
 			}
 		);
 	},

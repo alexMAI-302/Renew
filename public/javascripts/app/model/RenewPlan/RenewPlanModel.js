@@ -94,6 +94,11 @@ Ext.define('app.model.RenewPlan.RenewPlanModel', {
 		persist: false
 	},
 	{
+		name: "ndocs_by_orders",
+		type: "string",
+		persist: false
+	},
+	{
 		name: "renew_plan_type_id",
 		type: "int",
 		persist: false
@@ -102,6 +107,16 @@ Ext.define('app.model.RenewPlan.RenewPlanModel', {
 		name: 'site_to_storage',
 		type:'int',
 		useNull: true,
+		persist: false
+	},
+	{
+		name: "weight_by_orders",
+		type: "string",
+		persist: false
+	},
+	{
+		name: "volume_by_orders",
+		type: "string",
 		persist: false
 	},
 	{

@@ -15,30 +15,6 @@ Ext.define('app.view.BuyersRoute.Filter', {
 	
 	items: [
 		{
-			id: 'filterSiteBuyersRoute',
-			xtype: 'combobox',
-			fieldLabel: 'Площадка',
-			valueField: 'id',
-			displayField: 'name',
-			queryMode: 'local',
-			allowNull: false,
-			width: 170,
-			labelWidth: 60,
-			store: 'BuyersRoute.Sites'
-		},
-		{
-			id: 'filterTariffBuyersRoute',
-			xtype: 'combobox',
-			fieldLabel: 'Тариф',
-			valueField: 'id',
-			displayField: 'name',
-			queryMode: 'local',
-			allowNull: false,
-			width: 170,
-			labelWidth: 40,
-			store: 'BuyersRoute.Tariffs'
-		},
-		{
 			id: 'filterBuyersRoute',
 			xtype : 'button',
 			icon : '/ext/resources/themes/images/default/grid/refresh.gif',
