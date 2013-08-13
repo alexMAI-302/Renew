@@ -65,6 +65,7 @@ class SalesmanCashController < ApplicationSimpleErrorController
           @white_cash=@white_cash+r["cash"].to_f
         end
       end
+      @cash = "%.2f" % @cash 
       @cdesk = @cash_data[0]["cdesk"]
       @person = @cash_data[0]["person"]
       @ddate = (Time.now).strftime('%F')
