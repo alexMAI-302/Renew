@@ -116,6 +116,16 @@ Ext.define('app.controller.BuyersRoute', {
 							}
 						);
 						
+						p.events.add(
+							"click",
+							function(e){
+								var id = e.originalEvent.target.properties.get("id");
+								if(id!=null){
+									controller.changeBuyersRoute(id);
+								}
+							}
+						);
+						
 						controller.routesCollection.add(p);
 					}
 					controller.map.setCenter(controller.center, 10);
@@ -213,6 +223,28 @@ Ext.define('app.controller.BuyersRoute', {
 		Ext.getCmp('pointsInZoneBuyersRoute').setValue(routePoints.length);
 	},
 	
+	changeBuyersRoute: function(id){
+		var controller = this;
+		
+		if(controller.currentZone!=null){
+			controller.currentZone.editor.stopEditing();
+		}
+		controller.routesCollection.each(
+			function(o){
+				if(o.properties.get('id')==id){
+					controller.currentZone = o;
+					o.options.set("opacity", 0.9);
+					o.editor.startEditing();
+				} else {
+					o.options.set("opacity", 0.3);
+				}
+			}
+		);
+		if(controller.currentZone!=null){
+			controller.computeZonePoints(controller.currentZone.geometry);
+		}
+	},
+	
 	init: function() {
 		var controller = this;
 		
@@ -224,26 +256,9 @@ Ext.define('app.controller.BuyersRoute', {
 			},
 			'#BuyersRoutesTable': {
 				selectionchange: function(sm, selected, eOpts){
-					var id=(selected[0]!=null)?selected[0].get('id'):null,
-						point;
+					var id=(selected[0]!=null)?selected[0].get('id'):null;
 					
-					if(controller.currentZone!=null){
-						controller.currentZone.editor.stopEditing();
-					}
-					controller.routesCollection.each(
-						function(o){
-							if(o.properties.get('id')==id){
-								controller.currentZone = o;
-								o.options.set("opacity", 0.9);
-								o.editor.startEditing();
-							} else {
-								o.options.set("opacity", 0.3);
-							}
-						}
-					);
-					if(controller.currentZone!=null){
-						controller.computeZonePoints(controller.currentZone.geometry);
-					}
+					controller.changeBuyersRoute(id);
 				}
 			},
 			'#saveBuyersRoute': {

@@ -16,6 +16,12 @@ Ext.define('app.controller.PlaceunloadSchedule', {
 	
 	masterStore: null,
 	
+	storeHasChanges: function(store){
+		return (store.getNewRecords().length > 0) ||
+			(store.getUpdatedRecords().length > 0) ||
+			(store.getRemovedRecords().length > 0)
+	},
+	
 	showServerError: function(response, options) {
 		var controller=this;
 		Ext.Msg.alert('Ошибка', response.responseText);
@@ -53,15 +59,20 @@ Ext.define('app.controller.PlaceunloadSchedule', {
 					controller.masterStore.proxy.extraParams={
 						ddate: Ext.getCmp('ddateSchedulesFilter').getValue()
 					};
-					controller.masterStore.sync({
-						callback: function(batch){
-							if(batch.exceptions.length>0){
-								Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
-							} else {
-								controller.loadMaster();
+					if(controller.storeHasChanges(controller.masterStore)){
+						controller.mainContainer.setLoading(true);
+						controller.masterStore.sync({
+							callback: function(batch){
+								if(batch.exceptions.length>0){
+									var error = batch.exceptions[0].getError().responseText
+									Ext.Msg.alert("Ошибка", (error!=null && error!="")?error:"Сервер не отвечает. Повторите попытку через некоторое время");
+								} else {
+									controller.loadMaster();
+								}
+								controller.mainContainer.setLoading(false);
 							}
-						}
-					});
+						});
+					}
 				}
 			},
 			'#printSchedules': {
