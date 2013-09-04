@@ -29,7 +29,7 @@ Ext.define('app.controller.BuyersRoute', {
 	storeHasChanges: function(store){
 		return (store.getNewRecords().length > 0) ||
 			(store.getUpdatedRecords().length > 0) ||
-			(store.getRemovedRecords().length > 0)
+			(store.getRemovedRecords().length > 0);
 	},
 	
 	showServerError: function(response, options) {
@@ -121,7 +121,7 @@ Ext.define('app.controller.BuyersRoute', {
 							function(e){
 								var id = e.originalEvent.target.properties.get("id");
 								if(id!=null){
-									controller.changeBuyersRoute(id);
+									Ext.getCmp('BuyersRoutesTable').getSelectionModel().select(controller.masterStore.getById(id));
 								}
 							}
 						);
