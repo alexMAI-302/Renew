@@ -42,27 +42,32 @@ Ext.define('app.controller.BuyersRoute', {
 		var controller=this,
 			intersections = controller.checkPolygonsIntersections(controller.routesCollection);
 		
-		if(intersections==null){
-			if (controller.storeHasChanges(controller.masterStore)){
-				controller.mainContainer.setLoading(true);
-				controller.masterStore.sync({
-					callback: function(batch){
-						if(batch.exceptions.length>0){
-							Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
-							controller.mainContainer.setLoading(false);
-						}
-						controller.mainContainer.setLoading(false);
-					}
-				});
+		if(intersections!=null && intersections.length>0){
+			var zones = [];
+			for(var i=0; i<intersections.length; i++){
+				zones.push(
+					controller.masterStore.getById(intersections[i][0]).get('name')+
+					' и '+
+					controller.masterStore.getById(intersections[i][1]).get('name')
+				);
 			}
-		} else {
-			var zone1 = controller.masterStore.getById(intersections[0]),
-				zone2 = controller.masterStore.getById(intersections[1]);
 			Ext.Msg.alert(
 				"Внимание",
-				"Зоны "+zone1.get('name')+" и "+zone2.get('name')+
-				" имеют пересечение.<br/>Уберите пересечение и попробуйте еще раз."
+				"Данные будут сохранены, но зоны "+zones.join()+
+				" имеют пересечение."
 			);
+		}
+		if (controller.storeHasChanges(controller.masterStore)){
+			controller.mainContainer.setLoading(true);
+			controller.masterStore.sync({
+				callback: function(batch){
+					if(batch.exceptions.length>0){
+						Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+						controller.mainContainer.setLoading(false);
+					}
+					controller.mainContainer.setLoading(false);
+				}
+			});
 		}
 	},
 
@@ -156,7 +161,8 @@ Ext.define('app.controller.BuyersRoute', {
 	
 	checkPolygonsIntersections: function(polygons){
 		var polygonsCoordinates = [],
-			i, j, k, l;
+			i, j, k, l, flagNoIntersections,
+			result = [];
 		
 		polygons.each(
 			function(polygon){
@@ -176,11 +182,12 @@ Ext.define('app.controller.BuyersRoute', {
 				for(j=i+1; j<polygonsCoordinates.length; j++){
 					//если второй многоугольник имеет не меньше 3 вершин, то тогда сравниваем
 					if(polygonsCoordinates[j].coords.length>=3){
+						flagNoIntersections = true;
 						//проверяем попарно пересечение сторон
 						//цикл получения вершин первого многоугольника
-						for(k=0; k<polygonsCoordinates[i].coords.length-1; k++){
+						for(k=0; k<polygonsCoordinates[i].coords.length-1 && flagNoIntersections; k++){
 							//цикл получения вершин второго многоугольника
-							for(l=0; l<polygonsCoordinates[j].coords.length-1; l++){
+							for(l=0; l<polygonsCoordinates[j].coords.length-1 && flagNoIntersections; l++){
 								if(
 									this.checkLineIntersection(
 										polygonsCoordinates[i].coords[k],
@@ -188,7 +195,8 @@ Ext.define('app.controller.BuyersRoute', {
 										polygonsCoordinates[j].coords[l],
 										polygonsCoordinates[j].coords[l+1])
 								){
-									return [polygonsCoordinates[i].id, polygonsCoordinates[j].id];
+									result.push([polygonsCoordinates[i].id, polygonsCoordinates[j].id]);
+									flagNoIntersections = false;
 								}
 							}
 						}
@@ -196,6 +204,7 @@ Ext.define('app.controller.BuyersRoute', {
 				}
 			}
 		}
+		return result;
 	},
 	
 	computeZonePoints: function(geometry){
