@@ -54,6 +54,7 @@ class BuyersRouteController < ApplicationPageErrorController
       render :text => res.to_json
     when "put"
       route_id = params[:id].to_i
+      data=ActiveSupport::JSON.decode(request.body.gets)
       r = BuyersRoute.find( route_id )
       r.points = params[:points]
       r.save
@@ -70,7 +71,7 @@ class BuyersRouteController < ApplicationPageErrorController
       DELETE FROM geozone_coordinates WHERE buyers_route=#{route_id};
       #{query_insert_points}")
       
-      render :text => {"success" => true}.to_json
+      render :text => {"success" => true, "site_id" => data["site_id"]}.to_json
     end
   end
 
