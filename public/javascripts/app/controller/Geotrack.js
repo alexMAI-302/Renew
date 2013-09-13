@@ -4,11 +4,13 @@ Ext.define('app.controller.Geotrack', {
 	stores: [
 		'Geotrack.Tracks',
 		'Geotrack.Terminals',
-		'Geotrack.Agents'
+		'Geotrack.Agents',
+		'Geotrack.Positions'
 	],
 	
 	models: [
 		'valueModel',
+		'Geotrack.AgentModel',
 		'Geotrack.TrackModel',
 		'Geotrack.TerminalModel'
 	],
@@ -19,6 +21,7 @@ Ext.define('app.controller.Geotrack', {
 	
 	mainContainer: null,
 	
+	positionsStore: null,
 	masterStore: null,
 	detailStore: null,
 	terminalsStore: null,
@@ -170,18 +173,38 @@ Ext.define('app.controller.Geotrack', {
 	},
 
 	filterMaster: function(){
-		var controller = this;
+		var controller = this,
+			filterGeotrackPosition = Ext.getCmp('filterGeotrackPosition'),
+			selectedPosition = filterGeotrackPosition.getValue();
 		
 		controller.mainContainer.setLoading(true);
 		
 		controller.masterStore.proxy.extraParams = {
 			ddate: Ext.getCmp('filterGeotrackDdate').getValue()
 		};
+		
 		controller.masterStore.load(
 			function(records, operation, success){
+				var positionsData=[{id: -1, name: 'ВСЕ'}],
+					positions={},
+					positionId;
+				
 				if(success!==true){
 					Ext.Msg.alert("Ошибка", "Ошибка при получении списка агентов");
 				}
+				for(var i=0; i<records.length; i++){
+					positionId = records[i].get('position_id');
+					if(!positions[positionId]){
+						positions[positionId] = positionId;
+						positionsData.push({
+							id: records[i].get('position_id'),
+							name: records[i].get('position_name')
+						});
+					}
+				}
+				controller.positionsStore.loadData(positionsData);
+				selectedPosition = (selectedPosition)?selectedPosition:-1;
+				filterGeotrackPosition.select(selectedPosition);
 				controller.mainContainer.setLoading(false);
 			}
 		)
@@ -195,6 +218,17 @@ Ext.define('app.controller.Geotrack', {
 		controller.control({
 			'#refreshGeoTrackAgents': {
 				click: controller.filterMaster
+			},
+			'#filterGeotrackPosition': {
+				select: function(combo, records, eOpts){
+					if(records!=null && records[0]!=null){
+						var posId = records[0].get('id');
+						controller.masterStore.clearFilter();
+						if(posId!=-1){
+							controller.masterStore.filter('position_id', posId);
+						}
+					}
+				}
 			},
 			'#refreshGeoTracks': {
 				click: controller.loadGeotrack
@@ -394,6 +428,7 @@ Ext.define('app.controller.Geotrack', {
 		
 		controller.masterStore = Ext.getCmp('GeoTrackAgentsTable').getStore();
 		controller.detailStore = Ext.getCmp('GeoTracksTable').getStore();
+		controller.positionsStore = Ext.getCmp('filterGeotrackPosition').getStore();
 		controller.terminalsStore = controller.getGeotrackTerminalsStore();
 	},
 	

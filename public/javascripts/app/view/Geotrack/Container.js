@@ -2,7 +2,9 @@ Ext.define('app.view.Geotrack.Container', {
     extend: 'Ext.panel.Panel',
 	
 	requires: [
-		'app.view.Geotrack.Filter'
+		'app.view.Geotrack.Filter',
+		'app.view.Geotrack.Grid',
+		'app.view.Geotrack.ItemsGrid'
 	],
 	
 	renderTo: 'geotrack_js',
@@ -18,7 +20,36 @@ Ext.define('app.view.Geotrack.Container', {
 		{
 			xtype: 'geotrackFilter',
 			region: 'west',
-			split: true
+			split: true,
+			height: '100%',
+			width: 215,
+			layout: {
+				type: 'border'
+			},
+			items: [
+				{
+					region: 'north',
+					xtype: 'geotrackFilter'
+				},
+				{
+					region: 'center',
+					layout: {
+						type: 'border'
+					},
+					items: [
+						{
+							region: 'north',
+							split: true,
+							xtype: 'geotrackGrid'
+						},
+						{
+							region: 'center',
+							flex: 1,
+							xtype: 'geotrackItemsGrid'
+						}
+					]
+				}
+			]
 		},
 		{
 			region: 'center',
