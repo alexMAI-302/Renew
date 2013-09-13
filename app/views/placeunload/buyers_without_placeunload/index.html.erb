@@ -1,0 +1,21 @@
+<% content_for :js do %>
+   <script src="//api-maps.yandex.ru/2.0/?load=package.full&mode=debug&lang=ru-RU" type="text/javascript"></script>
+<%	end -%>
+
+<% content_for :js_controller do %>
+,'Placeunload.BuyersWithoutPlaeunload'
+<% end -%>
+
+<% content_for :stylesheets do %>
+	.x-wrap_cells .x-grid-cell-inner {
+		white-space: normal;
+	}
+<% end %>
+
+<% content_for :title do %>
+Покупатели без адреса разгрузки
+<%	end -%>
+
+<% content_for :content do %>
+	<div id="placeunload_buyers_without_placeunload_js"></div>
+<%	end -%>

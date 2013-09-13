@@ -4,7 +4,6 @@ Ext.define('app.view.Placeunload.AddBuyer.SearchContainer', {
 
 	title: 'Геокодирование адреса',
 
-
 	region: 'north',
 	layout: {
 		type: 'table',
@@ -22,12 +21,6 @@ Ext.define('app.view.Placeunload.AddBuyer.SearchContainer', {
 			id: 'findAddressPlaceunload',
 			icon: '/images/view.png',
 			tooltip: 'Найти'
-		},
-		{
-			colspan: 2,
-			xtype: 'toolbar',
-			width: '100%',
-			id: 'sitesPointsPlaceunload'
 		},
 		{
 			width: '100%',

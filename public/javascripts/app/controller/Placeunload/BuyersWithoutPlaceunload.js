@@ -1,10 +1,8 @@
-Ext.define('app.controller.Placeunload.AddBuyer', {
+Ext.define('app.controller.Placeunload.BuyersWithoutPlaceunload', {
     extend: 'Ext.app.Controller',
 	
 	stores: [
-		'Placeunload.AddBuyer.PartnersGroups',
-		'Placeunload.AddBuyer.Partners',
-		'Placeunload.AddBuyer.Buyers',
+		'Placeunload.BuyersWithoutPlaceunload.Buyers',
 		'Placeunload.AddBuyer.Placeunloads',
 		'Placeunload.AddBuyer.Placecategories',
 		'Placeunload.AddBuyer.Routes',
@@ -28,10 +26,16 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 	placecategoriesStore: null,
 	routesStore: null,
 	schedulesStore: null,
+	sitesStore: null,
 	
 	map: null,
 	placeunloadPoint: null,
 	routesCollection: null,
+	style1:
+	{
+		strokeColor: "ffff0055",
+		fillColor: "ff000055"
+	},
 	
 	showServerError: function(response, options) {
 		var controller=this;
@@ -317,6 +321,7 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 		controller.placecategoriesStore = controller.getPlaceunloadAddBuyerPlacecategoriesStore();
 		controller.routesStore = controller.getPlaceunloadAddBuyerRoutesStore();
 		controller.schedulesStore = controller.getPlaceunloadAddBuyerSchedulesStore();
+		controller.sitesStore = controller.getPlaceunloadAddBuyerSitesStore();
 	},
 	
 	loadStaticData: function(){
@@ -392,7 +397,7 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 	
 	loadDictionaries: function(){
 		var controller=this,
-			count=3;
+			count=4;
 		
 		controller.mainContainer.setLoading(true);
 		function checkLoading(val){
@@ -422,8 +427,9 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 								id: records[i].get('id')
 							},
 							{
-								strokeColor: "ffff0055",
-								fillColor: "ff000055"							}
+								strokeColor: controller.style1.strokeColor.toString(),
+								fillColor: controller.style1.fillColor.toString()
+							}
 						);
 						polygon.events.add("click", function(mEvent){
 							controller.geocode(mEvent.get('coordPosition'));
@@ -443,6 +449,31 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 				checkLoading(count);
 				Ext.getCmp('newPlaceunloadIncschedule').setValue(4384);
 				Ext.getCmp('newPlaceunloadDelschedule').setValue(4384);
+			}
+		);
+		
+		controller.sitesStore.load(
+			function(records, operation, success){
+				var sitesPointsPlaceunload = Ext.getCmp('sitesPointsPlaceunload'),
+					point;
+				
+				sitesPointsPlaceunload.removeAll();
+				for(var i=0; i<records.length; i++){
+					point = [records[i].get('latitude'), records[i].get('longitude')];
+					sitesPointsPlaceunload.add(
+						Ext.create("Ext.Button", {
+							text: records[i].get('name'),
+							point: point,
+							handler: function(button){
+								controller.geocode(button.point);
+								Ext.getCmp('placeunloadMode').toggle();
+							}
+						})
+					);
+				}
+				
+				count--;
+				checkLoading(count);
 			}
 		);
 	},

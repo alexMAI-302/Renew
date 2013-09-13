@@ -33,7 +33,6 @@ Ext.define('app.view.Placeunload.AddBuyer.Container', {
 					region: 'center',
 					title: 'Адрес разгрузки',
 					id: 'placeunloadsContainer',
-					disabled: true,
 					tbar: [
 						{
 							id: 'placeunloadMode',
@@ -59,8 +58,7 @@ Ext.define('app.view.Placeunload.AddBuyer.Container', {
 					width: '100%',
 					xtype: 'button',
 					text: 'Сохранить',
-					id: 'savePlaceunload',
-					disabled: true
+					id: 'savePlaceunload'
 				}
 			]
 		},

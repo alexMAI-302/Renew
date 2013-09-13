@@ -145,22 +145,6 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
     render :text => res.to_json
   end
 
-  def get_sites
-    sites=ActiveRecord::Base.connection.select_all("
-    SELECT
-      id,
-      name,
-      latitude,
-      longitude
-    FROM
-      site
-    WHERE
-      latitude IS NOT NULL
-      AND
-      longitude IS NOT NULL")
-    render :text => sites.to_json
-  end
-
   def index
     partners_time = {"Водители ООРТ" => 15, "Водители ОПТ" => 30, "VIP" => 60}
     if params[:partner]
