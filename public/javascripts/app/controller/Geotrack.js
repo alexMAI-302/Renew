@@ -171,11 +171,32 @@ Ext.define('app.controller.Geotrack', {
 			}
 		);
 	},
-
-	filterMaster: function(){
+	
+	loadPositions: function(records){
 		var controller = this,
+			positionsData=[{id: -1, name: 'ВСЕ'}],
+			positions={},
+			positionId,
 			filterGeotrackPosition = Ext.getCmp('filterGeotrackPosition'),
 			selectedPosition = filterGeotrackPosition.getValue();
+		
+		for(var i=0; i<records.length; i++){
+			positionId = records[i].get('position_id');
+			if(!positions[positionId]){
+				positions[positionId] = positionId;
+				positionsData.push({
+					id: records[i].get('position_id'),
+					name: records[i].get('position_name')
+				});
+			}
+		}
+		controller.positionsStore.loadData(positionsData);
+		selectedPosition = (selectedPosition) ? selectedPosition :-1;
+		filterGeotrackPosition.select(selectedPosition);
+	},
+
+	filterMaster: function(){
+		var controller = this;
 		
 		controller.mainContainer.setLoading(true);
 		
@@ -185,29 +206,13 @@ Ext.define('app.controller.Geotrack', {
 		
 		controller.masterStore.load(
 			function(records, operation, success){
-				var positionsData=[{id: -1, name: 'ВСЕ'}],
-					positions={},
-					positionId;
-				
 				if(success!==true){
 					Ext.Msg.alert("Ошибка", "Ошибка при получении списка агентов");
 				}
-				for(var i=0; i<records.length; i++){
-					positionId = records[i].get('position_id');
-					if(!positions[positionId]){
-						positions[positionId] = positionId;
-						positionsData.push({
-							id: records[i].get('position_id'),
-							name: records[i].get('position_name')
-						});
-					}
-				}
-				controller.positionsStore.loadData(positionsData);
-				selectedPosition = (selectedPosition)?selectedPosition:-1;
-				filterGeotrackPosition.select(selectedPosition);
+				controller.loadPositions(records);
 				controller.mainContainer.setLoading(false);
 			}
-		)
+		);
 	},
 	
 	init: function() {
@@ -265,7 +270,7 @@ Ext.define('app.controller.Geotrack', {
 								o.balloon.close();
 							}
 						}
-					)
+					);
 				}
 			},
 			'#filterGeotrackDdate': {
@@ -453,6 +458,7 @@ Ext.define('app.controller.Geotrack', {
 						controller.initPageData();
 					}
 				}
+				controller.loadPositions(records);
 				controller.mainContainer.setLoading(false);
 			}
 		);
