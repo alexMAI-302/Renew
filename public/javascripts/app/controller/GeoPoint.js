@@ -3,6 +3,7 @@ Ext.define('app.controller.GeoPoint', {
 	
 	stores: [
 		'GeoPoint.GeoPoints',
+		'GeoPoint.MegaportAgents',
 		'Branches'
 	],
 	
@@ -60,8 +61,9 @@ Ext.define('app.controller.GeoPoint', {
 			branch = Ext.getCmp('filterBranchGeoPoint').getValue(),
 			pointKind = Ext.getCmp('filterPointsGeoPoint').getValue(),
 			terminalId = Ext.getCmp('filterTerminalIdGeoPoint').getValue();
-		
-		if((branch!=null && pointKind!=null) || terminalId!=null){
+			agent = Ext.getCmp('filterMegaportAgentsGeoPoint').getValue();
+
+		if((branch!=null && pointKind!=null) || terminalId!=null && terminalId!=''){
 			controller.mainCity = [];
 			controller.clusterer.removeAll();
 			
@@ -71,7 +73,8 @@ Ext.define('app.controller.GeoPoint', {
 				branch: branch,
 				point_kind: pointKind,
 				filter_str: Ext.getCmp('filterTerminalStrGeoPoint').getValue(),
-				terminal_id: terminalId
+				terminal_id: terminalId,
+				agent: agent
 			};
 			controller.masterStore.load(
 				function(records, operation, success){

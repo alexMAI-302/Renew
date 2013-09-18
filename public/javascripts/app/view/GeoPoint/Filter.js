@@ -59,6 +59,17 @@ Ext.define('app.view.GeoPoint.Filter', {
 			fieldLabel: 'Номер',
 			width: 250,
 			labelWidth: 40
-		}
+		},
+		{
+			id: 'filterMegaportAgentsGeoPoint',
+			xtype: 'combobox',
+			fieldLabel: 'Менеджер Мегапорта',
+			valueField: 'id',
+			displayField: 'name',
+			queryMode: 'local',
+			width: 300,
+			labelWidth: 130,
+			store: 'GeoPoint.MegaportAgents'
+		},
 	]
 });

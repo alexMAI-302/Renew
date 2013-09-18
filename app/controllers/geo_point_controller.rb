@@ -6,38 +6,15 @@ class GeoPointController < ApplicationSimpleErrorController
     method=request.method.to_s
     case method
     when "get"
-      str_cond = "pt.isdeleted = 0 AND ttp.enabled = 1"
-      str_cond += " AND pt.main_subdealerID IN (SELECT subdealerid FROM branch WHERE branch.id=#{params[:branch].to_i}) " if !(params[:branch].nil?) && params[:branch]!=''
-      str_cond += " and (g.latitude is not null) " if params[:point_kind].to_i == 3
-      str_cond += " and (g.latitude is null) " if params[:point_kind].to_i == 1
-      if !params[:filter_str].nil? && params[:filter_str].size > 0
-        str_cond += " and (pt.name like '%#{params[:filter_str]}%' OR pt.address like '%#{params[:filter_str]}%')"
-      end
-      if !params[:terminal_id].nil? && params[:terminal_id].size > 0
-        str_cond += " and pt.terminalID=#{params[:terminal_id].to_i}"
-      end
+      branch     = params[:branch].present?      ? params[:branch].to_i : 'null'
+      point_kind = params[:point_kind].present?  ? params[:point_kind].to_i : 'null'
+      filter_str = params[:filter_str].present?  ? '"' + ActiveRecord::Base.connection.quote_string(params[:filter_str].to_s) + '"' : 'null'
+      terminal   = params[:terminal_id].present? ? params[:terminal_id].to_i : 'null'
+      agent      = params[:agent].present?       ? params[:agent].to_i : 'null'
       
-      rst = Geoaddress.find(
-        :all,
-        :select => "
-        g.id,
-        pt.terminalID,
-        pt.code,
-        pt.name,
-        pt.address taddress,
-        g.fulladdress,
-        g.srcaddress,
-        g.latitude,
-        g.longitude,
-        g.ismanual,
-        g.city",
-        :from => "geoaddress g",
-        :joins => "JOIN pps_terminal pt ON g.id=pt.geoaddressid
-        JOIN terminal_type ttp ON ttp.ttp_id = pt.ttp_id",
-        :conditions => str_cond,
-        :order => 'pt.address')
-        
-      render :text => rst.to_json
+      data = ActiveRecord::Base.connection.select_all("call dbo.geo_point(#{branch}, #{point_kind}, #{filter_str}, #{terminal}, #{agent})")
+      
+      render :text => data.to_json
     when "put"
       Geoaddress.update(
         params[:id],
@@ -55,6 +32,13 @@ class GeoPointController < ApplicationSimpleErrorController
   end
   
   def index
-	end
+  end
+	
+  def get_megaport_agents
+    agents = AgentGroup.find_by_name("Агенты Мегапорт").agents
+    mega = {:id => 0, :name => "Все агенты"}
+    
+    render :text => agents.insert(0, mega).to_json(:only => [:id, :name])
+  end
 end
   
