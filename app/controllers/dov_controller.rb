@@ -8,7 +8,7 @@ class DovController < ApplicationSimpleErrorController
       renew_web.renew_user_dov_site ds
       JOIN renew_web.renew_users ru ON ds.renew_user_id=ru.id
     WHERE
-      name='#{ActiveRecord::Base.connection.quote_string(session[:user_id])}'")
+      ru.name='#{ActiveRecord::Base.connection.quote_string(session[:user_id])}'")
   end
 
   def get_palm_salesmans
@@ -18,7 +18,10 @@ class DovController < ApplicationSimpleErrorController
   end
 
   def create_dov
-    ActiveRecord::Base.connection.execute("call dbo.dov_insert(#{params[:salesman_id].to_i}, #{params[:quantity].to_i})")
+    ActiveRecord::Base.connection.execute("call dbo.dov_insert(
+    '#{ActiveRecord::Base.connection.quote_string(session[:user_id])}',
+    #{params[:salesman_id].to_i},
+    #{params[:quantity].to_i})")
     render :text => {"success" => true}.to_json
   end
 
@@ -58,13 +61,24 @@ class DovController < ApplicationSimpleErrorController
       )
       AND
       ddate>='#{ddateb}' AND ddate<='#{ddatee}'
+      AND
+      d.site IN (
+      SELECT
+        ds.site
+      FROM
+        renew_web.renew_user_dov_site ds
+        JOIN renew_web.renew_users ru1 ON ds.renew_user_id=ru1.id
+      WHERE
+        ru1.name='#{ActiveRecord::Base.connection.quote_string(session[:user_id])}')
     ORDER BY
       d.ndoc DESC")
     render :text => res.to_json
   end
 
   def delete_dov
-    ActiveRecord::Base.connection.execute("call dbo.dov_delete(#{params[:salesman_id].to_i})")
+    ActiveRecord::Base.connection.execute("call dbo.dov_delete(
+    '#{ActiveRecord::Base.connection.quote_string(session[:user_id])}',
+    #{params[:salesman_id].to_i})")
     render :text => {"success" => true}.to_json
   end
 
