@@ -12,6 +12,19 @@ Ext.define('app.view.Geotrack.ItemsGrid', {
 		title: 'Трэки',
 		afterButtons: [
 			{
+				id: 'GeoTracksTsFinder',
+				fieldLabel: 'Время',
+				xtype: 'timefield',
+				width: 100,
+				labelWidth: 35
+			},
+			{
+				id: 'GeoTracksTs',
+				icon: '/images/clock.png',
+				tooltip: 'Показать/скрыть время в точках',
+				enableToggle: true
+			},
+			{
 				id: 'GeoTracksDistance'
 			}
 		],
@@ -21,7 +34,7 @@ Ext.define('app.view.Geotrack.ItemsGrid', {
 				xtype: 'rownumberer'
 			},
 			{
-				width: 170,
+				width: 250,
 				header: 'Информация',
 				dataIndex: 'id',
 				renderer: function(v, metaData, r){
