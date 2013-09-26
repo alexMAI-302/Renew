@@ -15,7 +15,10 @@ Ext.define('app.model.Geotrack.TrackModel', {
 			if(v!=null && v.length>0){
 				var data=[];
 				for(var i=0; i<v.length; i++){
-					data.push([v[i].latitude, v[i].longitude]);
+					data.push({
+						coords: [v[i].latitude, v[i].longitude],
+						ts: Ext.Date.parse(v[i].ts, 'Y-m-d H:i:s')
+					});
 				}
 				r.pointsArray = data;
 			}

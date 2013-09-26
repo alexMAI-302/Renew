@@ -23,7 +23,7 @@ class GeotrackController < ApplicationSimpleErrorController
         tracks << current_track
       end
 
-      current_track[:points] << {:latitude => point["latitude"], :longitude => point["longitude"]}
+      current_track[:points] << {latitude: point["latitude"], longitude: point["longitude"], ts: point["real_ts"]}
     end
 
     tracks.each do |track|

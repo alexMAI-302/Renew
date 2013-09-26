@@ -22,7 +22,7 @@ Ext.define('app.view.Geotrack.Container', {
 			region: 'west',
 			split: true,
 			height: '100%',
-			width: 215,
+			width: 300,
 			layout: {
 				type: 'border'
 			},

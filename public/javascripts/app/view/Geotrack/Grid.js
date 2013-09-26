@@ -13,7 +13,7 @@ Ext.define('app.view.Geotrack.Grid', {
 		height: 250,
 		columns: [
 			{
-				width: 190,
+				width: 275,
 				header: 'Имя',
 				dataIndex: 'name',
 				disabled: true

@@ -5,7 +5,7 @@ Ext.define('app.view.Geotrack.Filter', {
 	
 	layout: {type: 'vbox'},
 	defaults: {
-		width: 215
+		width: 300
 	},
 	items: [
 		{

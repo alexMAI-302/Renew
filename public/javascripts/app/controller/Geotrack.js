@@ -29,6 +29,7 @@ Ext.define('app.controller.Geotrack', {
 	map: null,
 	center: [55.7, 37.6],
 	trackLines: null,
+	trackPointsCollection: null,
 	terminalCollection: null,
 	okPointsCollection: null,
 	
@@ -47,6 +48,7 @@ Ext.define('app.controller.Geotrack', {
 		
 		controller.trackLines.removeAll();
 		controller.terminalCollection.removeAll();
+		controller.trackPointsCollection.removeAll();
 		controller.okPointsCollection.removeAll();
 		distanceText.setText('');
 		
@@ -61,16 +63,49 @@ Ext.define('app.controller.Geotrack', {
 					if(success!==true){
 						Ext.Msg.alert("Ошибка", "Ошибка при получении трэков");
 					} else {
-						var trackLine, distance=0;
+						var trackLine, distance=0, trackPoints, coordArray, showPoints = Ext.getCmp('GeoTracksTs').pressed;
 						
 						for(var i=0; i<records.length; i++){
 							if(records[i].pointsArray!=null && records[i].pointsArray.length>0){
+								coordArray=[];
+								trackPoints = new ymaps.GeoObjectCollection(
+									{
+										properties: {
+											id: records[i].get('id')
+										}
+									},
+									{
+										iconImageHref: '/images/point_blue.png',
+										iconImageSize: [7, 7],
+										iconImageOffset: [-1, -1],
+										balloonContentLayout: ymaps.templateLayoutFactory.createClass(
+											'<p>$[properties.ts]</p>'
+										),
+										visible: showPoints
+									}
+								);
+								
+								for(var j=0; j<records[i].pointsArray.length; j++){
+									coordArray.push(records[i].pointsArray[j].coords);
+									trackPoints.add(
+										new ymaps.Placemark(
+											records[i].pointsArray[j].coords,
+											{
+												id: j,
+												ts: Ext.Date.format(records[i].pointsArray[j].ts, "H:i:s") 
+											}
+										)
+									);
+								}
+								
+								controller.trackPointsCollection.add(trackPoints);
+								
 								trackLine = new ymaps.GeoObject(
 									{
 										geometry:
 										{
 											type: 'LineString',
-											coordinates: records[i].pointsArray
+											coordinates: coordArray
 										},
 										properties: 
 										{
@@ -209,8 +244,44 @@ Ext.define('app.controller.Geotrack', {
 				if(success!==true){
 					Ext.Msg.alert("Ошибка", "Ошибка при получении списка агентов");
 				}
-				controller.loadPositions(records);
+				if(records!=null){
+					controller.loadPositions(records);
+				}
 				controller.mainContainer.setLoading(false);
+			}
+		);
+	},
+	
+	showPointByTime: function(date){
+		var controller = this,
+			minTime, minId, minTrackId, currentTime;
+			
+		controller.detailStore.each(
+			function(r){
+				for(var i=0; i<r.pointsArray.length; i++){
+					currentTime = Math.abs(r.pointsArray[i].ts.getTime() - date.getTime());
+					if(minTime==null || currentTime <= minTime){
+						minTime = currentTime;
+						minTrackId = r.get('id');
+						minId = i;
+					}
+				}
+				return true;
+			}
+		);
+		
+		controller.trackPointsCollection.each(
+			function(trackPoints){
+				var trackId = trackPoints.properties.get('id');
+				trackPoints.each(
+					function(trackPoint){
+						if(trackId==minTrackId && trackPoint.properties.get('id')==minId){
+							trackPoint.balloon.open();
+						} else {
+							trackPoint.balloon.close();
+						}
+					}
+				);
 			}
 		);
 	},
@@ -221,6 +292,24 @@ Ext.define('app.controller.Geotrack', {
 		controller.mainContainer=Ext.create('app.view.Geotrack.Container');
 		
 		controller.control({
+			'#GeoTracksTsFinder': {
+				change: function(field, newValue, oldValue, eOpts){
+					if(newValue instanceof Date){
+						var current = Ext.getCmp('filterGeotrackDdate').getValue();
+						current.setHours(newValue.getHours());
+						current.setMinutes(newValue.getMinutes());
+						console.log(Ext.Date.format(current, 'Y-m-d H:i:s'));
+						controller.showPointByTime(current);
+					}
+				}
+			},
+			'#GeoTracksTs': {
+				toggle: function(button, pressed, eOpts){
+					controller.trackPointsCollection.each(function(trackPoints){
+						trackPoints.options.set("visible", pressed);
+					});
+				}
+			},
 			'#refreshGeoTrackAgents': {
 				click: controller.filterMaster
 			},
@@ -319,6 +408,7 @@ Ext.define('app.controller.Geotrack', {
 					)
 				}
 			);
+			controller.trackPointsCollection = new ymaps.GeoObjectCollection();
 			
 			controller.ArrowOverlay = function(geometry, data, options) {
 				controller.ArrowOverlay.superclass.constructor.call(this, geometry, data, options);
@@ -421,6 +511,7 @@ Ext.define('app.controller.Geotrack', {
 			);
 			
 			controller.map.geoObjects.add(controller.trackLines);
+			controller.map.geoObjects.add(controller.trackPointsCollection);
 			controller.map.geoObjects.add(controller.terminalCollection);
 			controller.map.geoObjects.add(controller.okPointsCollection);
 			
@@ -458,7 +549,9 @@ Ext.define('app.controller.Geotrack', {
 						controller.initPageData();
 					}
 				}
-				controller.loadPositions(records);
+				if(records!=null){
+					controller.loadPositions(records);
+				}
 				controller.mainContainer.setLoading(false);
 			}
 		);
