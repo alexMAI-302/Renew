@@ -63,8 +63,8 @@ Ext.define('app.controller.EmpDutyroster', {
 				click: function(button) {
 				         controller.masterStore.proxy.extraParams=
 						 {
-						ddateb: Ext.getCmp('ddatebEmpDutyroster').getValue(),
-						ddatee: Ext.getCmp('ddateeEmpDutyroster').getValue()
+						ddatebf: Ext.getCmp('ddatebEmpDutyroster').getValue(),
+						ddateef: Ext.getCmp('ddateeEmpDutyroster').getValue()
 						
 						};
 					controller.masterStore.load();
@@ -99,8 +99,8 @@ Ext.define('app.controller.EmpDutyroster', {
 
 					controller.masterStore.proxy.extraParams=
 						 {
-						ddateb: Ext.getCmp('ddatebEmpDutyroster').getValue(),
-						ddatee: Ext.getCmp('ddateeEmpDutyroster').getValue()
+						ddatebf: Ext.getCmp('ddatebEmpDutyroster').getValue(),
+						ddateef: Ext.getCmp('ddateeEmpDutyroster').getValue()
 						
 						};
 					controller.masterStore.load(
