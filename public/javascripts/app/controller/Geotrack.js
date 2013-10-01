@@ -4,6 +4,7 @@ Ext.define('app.controller.Geotrack', {
 	stores: [
 		'Geotrack.Tracks',
 		'Geotrack.Terminals',
+		'Geotrack.Placeunloads',
 		'Geotrack.Agents',
 		'Geotrack.Positions'
 	],
@@ -12,7 +13,8 @@ Ext.define('app.controller.Geotrack', {
 		'valueModel',
 		'Geotrack.AgentModel',
 		'Geotrack.TrackModel',
-		'Geotrack.TerminalModel'
+		'Geotrack.TerminalModel',
+		'Geotrack.PlaceunloadModel'
 	],
 	
 	views: [
@@ -25,12 +27,14 @@ Ext.define('app.controller.Geotrack', {
 	masterStore: null,
 	detailStore: null,
 	terminalsStore: null,
+	placeunloadsStore: null,
 	
 	map: null,
 	center: [55.7, 37.6],
 	trackLines: null,
 	trackPointsCollection: null,
 	terminalCollection: null,
+	placeunloadCollection: null,
 	okPointsCollection: null,
 	
 	ArrowOverlay: null,
@@ -42,146 +46,199 @@ Ext.define('app.controller.Geotrack', {
 		controller.mainContainer.setLoading(false);
 	},
 	
-	refreshMapData: function(ddate, agentId){
+	loadTerminals: function(ddate, agentId){
+		var controller = this;
+		
+		controller.mainContainer.setLoading(true);
+		
+		controller.terminalsStore.proxy.extraParams = {
+			ddate: ddate,
+			agent_id: agentId
+		};
+		controller.terminalsStore.load(
+			function(records, operation, success){
+				if(success!==true){
+					Ext.Msg.alert("Ошибка", "Ошибка при получении терминалов");
+				} else {
+					var terminal, okPoint;
+					
+					for(var i=0; i<records.length; i++){
+						
+						terminal = new ymaps.Placemark(
+							[records[i].get('latitude'), records[i].get('longitude')],
+							{
+								id: records[i].get('id'),
+								code: records[i].get('code'),
+								terminalid: records[i].get('terminalid')
+							}
+						);
+						controller.terminalCollection.add(terminal);
+						
+						if(records[i].get('ok_latitude')>0){
+							okPoint = new ymaps.Placemark(
+								[records[i].get('ok_latitude'), records[i].get('ok_longitude')],
+								{
+									id: records[i].get('id'),
+									code: records[i].get('code'),
+									terminalid: records[i].get('terminalid'),
+									ok_distance: records[i].get('ok_distance'),
+									cts_ok: Ext.Date.format(records[i].get('cts_ok'), 'c')
+								}
+							);
+							controller.okPointsCollection.add(okPoint);
+						}
+					}
+					
+					if(controller.map.geoObjects.getBounds()!=null){
+						controller.setBounds(controller.map.geoObjects.getBounds());
+					}
+				}
+			}
+		);
+	},
+	
+	loadPlaceunloads: function(ddate, agentId){
+		var controller = this;
+		
+		controller.placeunloadsStore.proxy.extraParams = {
+			ddate: ddate,
+			agent_id: agentId
+		};
+		controller.placeunloadsStore.load(
+			function(records, operation, success){
+				if(success!==true){
+					Ext.Msg.alert("Ошибка", "Ошибка при получении точек разгрузки");
+				} else {
+					var placeunload;
+					
+					for(var i=0; i<records.length; i++){
+						
+						placeunload = new ymaps.Placemark(
+							[records[i].get('latitude'), records[i].get('longitude')],
+							{
+								id: records[i].get('id'),
+								name: records[i].get('name'),
+								address: records[i].get('address')
+							}
+						);
+						controller.placeunloadCollection.add(placeunload);
+					}
+					
+					if(controller.map.geoObjects.getBounds()!=null){
+						controller.setBounds(controller.map.geoObjects.getBounds());
+					}
+				}
+			}
+		);
+	},
+	
+	loadDetail: function(ddate, agentId){
+		var controller = this;
+		
+		controller.detailStore.proxy.extraParams = {
+			ddate: ddate,
+			agent_id: agentId
+		};
+		controller.detailStore.load(
+			function(records, operation, success){
+				if(success!==true){
+					Ext.Msg.alert("Ошибка", "Ошибка при получении трэков");
+				} else {
+					var trackLine, distance=0, trackPoints, coordArray, showPoints = Ext.getCmp('GeoTracksTs').pressed;
+					
+					for(var i=0; i<records.length; i++){
+						if(records[i].pointsArray!=null && records[i].pointsArray.length>0){
+							coordArray=[];
+							trackPoints = new ymaps.GeoObjectCollection(
+								{
+									properties: {
+										id: records[i].get('id')
+									}
+								},
+								{
+									iconImageHref: '/images/point_blue.png',
+									iconImageSize: [7, 7],
+									iconImageOffset: [-1, -1],
+									balloonContentLayout: ymaps.templateLayoutFactory.createClass(
+										'<p>$[properties.ts]</p>'
+									),
+									visible: showPoints
+								}
+							);
+							
+							for(var j=0; j<records[i].pointsArray.length; j++){
+								coordArray.push(records[i].pointsArray[j].coords);
+								trackPoints.add(
+									new ymaps.Placemark(
+										records[i].pointsArray[j].coords,
+										{
+											id: j,
+											ts: Ext.Date.format(records[i].pointsArray[j].ts, "H:i:s") 
+										}
+									)
+								);
+							}
+							
+							controller.trackPointsCollection.add(trackPoints);
+							
+							trackLine = new ymaps.GeoObject(
+								{
+									geometry:
+									{
+										type: 'LineString',
+										coordinates: coordArray
+									},
+									properties: 
+									{
+										id: records[i].get('id'),
+										num: i+1,
+										start_time: Ext.Date.format(records[i].get('start_time'), 'H:i:s'),
+										finish_time: Ext.Date.format(records[i].get('finish_time'), 'H:i:s')
+									}
+								},
+								{
+									overlayFactory: controller.myFactory,
+									strokeWidth : 4,
+									opacity : 0.5,
+									strokeColor : '0000FF'
+								}
+							);
+							controller.trackLines.add(trackLine);
+						}
+						distance+=records[i].get('track_distance');
+					}
+					
+					Ext.getCmp('GeoTracksDistance').setText('Общая длина: ' + Ext.Number.toFixed(distance/1000, 2)+' км');
+					
+					if(controller.map.geoObjects.getBounds()!=null){
+						controller.setBounds(controller.map.geoObjects.getBounds());
+					}
+				}
+				
+				controller.mainContainer.setLoading(false);
+			}
+		);
+	},
+	
+	refreshMapData: function(ddate, agent, agentId){
 		var controller = this,
 			distanceText = Ext.getCmp('GeoTracksDistance');
 		
 		controller.trackLines.removeAll();
 		controller.terminalCollection.removeAll();
+		controller.placeunloadCollection.removeAll();
 		controller.trackPointsCollection.removeAll();
 		controller.okPointsCollection.removeAll();
 		distanceText.setText('');
 		
-		if(ddate!=null && ddate!="" && agentId>0){
-			controller.mainContainer.setLoading(true);
-			controller.detailStore.proxy.extraParams = {
-				ddate: ddate,
-				agent_id: agentId
-			};
-			controller.detailStore.load(
-				function(records, operation, success){
-					if(success!==true){
-						Ext.Msg.alert("Ошибка", "Ошибка при получении трэков");
-					} else {
-						var trackLine, distance=0, trackPoints, coordArray, showPoints = Ext.getCmp('GeoTracksTs').pressed;
-						
-						for(var i=0; i<records.length; i++){
-							if(records[i].pointsArray!=null && records[i].pointsArray.length>0){
-								coordArray=[];
-								trackPoints = new ymaps.GeoObjectCollection(
-									{
-										properties: {
-											id: records[i].get('id')
-										}
-									},
-									{
-										iconImageHref: '/images/point_blue.png',
-										iconImageSize: [7, 7],
-										iconImageOffset: [-1, -1],
-										balloonContentLayout: ymaps.templateLayoutFactory.createClass(
-											'<p>$[properties.ts]</p>'
-										),
-										visible: showPoints
-									}
-								);
-								
-								for(var j=0; j<records[i].pointsArray.length; j++){
-									coordArray.push(records[i].pointsArray[j].coords);
-									trackPoints.add(
-										new ymaps.Placemark(
-											records[i].pointsArray[j].coords,
-											{
-												id: j,
-												ts: Ext.Date.format(records[i].pointsArray[j].ts, "H:i:s") 
-											}
-										)
-									);
-								}
-								
-								controller.trackPointsCollection.add(trackPoints);
-								
-								trackLine = new ymaps.GeoObject(
-									{
-										geometry:
-										{
-											type: 'LineString',
-											coordinates: coordArray
-										},
-										properties: 
-										{
-											id: records[i].get('id'),
-											num: i+1,
-											start_time: Ext.Date.format(records[i].get('start_time'), 'H:i:s'),
-											finish_time: Ext.Date.format(records[i].get('finish_time'), 'H:i:s')
-										}
-									},
-									{
-										overlayFactory: controller.myFactory,
-										strokeWidth : 4,
-										opacity : 0.5,
-										strokeColor : '0000FF'
-									}
-								);
-								controller.trackLines.add(trackLine);
-							}
-							distance+=records[i].get('track_distance');
-						}
-						
-						distanceText.setText('Общая длина: ' + Ext.Number.toFixed(distance/1000, 2)+' км');
-						
-						if(controller.map.geoObjects.getBounds()!=null){
-							controller.setBounds(controller.map.geoObjects.getBounds());
-						}
-					}
-					
-					controller.mainContainer.setLoading(false);
-				}
-			);
-			
-			controller.terminalsStore.proxy.extraParams = {
-				ddate: ddate,
-				agent_id: agentId
-			};
-			controller.terminalsStore.load(
-				function(records, operation, success){
-					if(success!==true){
-						Ext.Msg.alert("Ошибка", "Ошибка при получении терминалов");
-					} else {
-						var terminal, okPoint;
-						
-						for(var i=0; i<records.length; i++){
-							
-							terminal = new ymaps.Placemark(
-								[records[i].get('latitude'), records[i].get('longitude')],
-								{
-									id: records[i].get('id'),
-									code: records[i].get('code'),
-									terminalid: records[i].get('terminalid')
-								}
-							);
-							controller.terminalCollection.add(terminal);
-							
-							if(records[i].get('ok_latitude')>0){
-								okPoint = new ymaps.Placemark(
-									[records[i].get('ok_latitude'), records[i].get('ok_longitude')],
-									{
-										id: records[i].get('id'),
-										code: records[i].get('code'),
-										terminalid: records[i].get('terminalid'),
-										ok_distance: records[i].get('ok_distance'),
-										cts_ok: Ext.Date.format(records[i].get('cts_ok'), 'c')
-									}
-								);
-								controller.okPointsCollection.add(okPoint);
-							}
-						}
-						
-						if(controller.map.geoObjects.getBounds()!=null){
-							controller.setBounds(controller.map.geoObjects.getBounds());
-						}
-					}
-				}
-			);
+		if(ddate!=null && ddate!="" && agentId>0){			
+			controller.loadDetail(ddate, agentId);
+			if(agent.get('position_name')=='Техник АСО'){
+				controller.loadTerminals(ddate, agentId);
+			}
+			if(agent.get('position_name')=='Экспедитор'){
+				controller.loadPlaceunloads(ddate, agentId);
+			}
 		}
 	},
 	
@@ -190,7 +247,7 @@ Ext.define('app.controller.Geotrack', {
 			ddate = Ext.getCmp('filterGeotrackDdate').getValue(),
 			agent = Ext.getCmp('GeoTrackAgentsTable').getSelectionModel().getSelection()[0];
 		
-		controller.refreshMapData(ddate, (agent!=null)?agent.get('id'):null);
+		controller.refreshMapData(ddate, agent, (agent!=null)?agent.get('id'):null);
 	},
 	
 	setBounds: function(bounds){
@@ -510,9 +567,22 @@ Ext.define('app.controller.Geotrack', {
 				}
 			);
 			
+			controller.placeunloadCollection = new ymaps.GeoObjectCollection(
+				{},
+				{
+					iconImageHref: '/images/shop.png',
+					iconImageSize: [19, 26],
+					balloonContentLayout: ymaps.templateLayoutFactory.createClass(
+						'<p>Наименование: $[properties.name]</p>' +
+						'<p>Адрес: $[properties.address]</p>'
+					)
+				}
+			);
+			
 			controller.map.geoObjects.add(controller.trackLines);
 			controller.map.geoObjects.add(controller.trackPointsCollection);
 			controller.map.geoObjects.add(controller.terminalCollection);
+			controller.map.geoObjects.add(controller.placeunloadCollection);
 			controller.map.geoObjects.add(controller.okPointsCollection);
 			
 			controller.mainContainer.setLoading(false);
@@ -526,6 +596,7 @@ Ext.define('app.controller.Geotrack', {
 		controller.detailStore = Ext.getCmp('GeoTracksTable').getStore();
 		controller.positionsStore = Ext.getCmp('filterGeotrackPosition').getStore();
 		controller.terminalsStore = controller.getGeotrackTerminalsStore();
+		controller.placeunloadsStore = controller.getGeotrackPlaceunloadsStore();
 	},
 	
 	loadDictionaries: function(){

@@ -124,7 +124,7 @@ Ext.define('app.controller.Certificate', {
 				check=(
 					parseInt(value[10]) == (((7*parseInt(value[0])+2*parseInt(value[1])+4*parseInt(value[2])+
 					10*parseInt(value[3])+3*parseInt(value[4])+5*parseInt(value[5])+9*parseInt(value[6])+
-					4*parseInt(value[7])+6*parseInt(value[8])+8*parseInt(value[8])) % 11) % 10)
+					4*parseInt(value[7])+6*parseInt(value[8])+8*parseInt(value[9])) % 11) % 10)
 				);
 				if(check){
 					check=(
