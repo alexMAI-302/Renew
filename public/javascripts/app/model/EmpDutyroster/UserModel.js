@@ -7,7 +7,8 @@ Ext.define('app.model.EmpDutyroster.UserModel', {
 	},
 	{
 		name: "person_id",
-		type: "int"
+		type: "int",
+		useNull: true
 	},
 	{
 		name: 'ddateb',
