@@ -119,7 +119,7 @@ class GoodsCatalogController < ApplicationSimpleErrorController
 	  case request.method
     when :get
       pictures_ids = ActiveRecord::Base.connection.select_all(
-      "SELECT union_goods_picture_id FROM union_goods_union_goods_pictures WHERE union_goods_id=#{params[:master_id].to_i}")
+      "SELECT union_goods_picture_id FROM union_goods_pictures_link WHERE union_goods_id=#{params[:master_id].to_i}")
       pictures_ids = pictures_ids.collect {|id| id["union_goods_picture_id"]} *','
       
       res = (pictures_ids.nil? || pictures_ids=="")?[]:RuzaPicture.connection.select_all("
@@ -141,7 +141,7 @@ class GoodsCatalogController < ApplicationSimpleErrorController
       render text: {success: true, name: params[:name], id: params[:id]}.to_json
     when :delete
       res = ActiveRecord::Base.connection.delete("
-      DELETE FROM dbo.union_goods_union_goods_pictures
+      DELETE FROM dbo.union_goods_pictures_link
       WHERE union_goods_id = #{params[:master_id].to_i} AND union_goods_picture_id = #{params[:id].to_i}")
       
       res = RuzaPicture.connection.delete("
@@ -185,7 +185,7 @@ class GoodsCatalogController < ApplicationSimpleErrorController
       if picture.save
         begin
           res = ActiveRecord::Base.connection.insert("
-          INSERT INTO dbo.union_goods_union_goods_pictures(union_goods_id, union_goods_picture_id)
+          INSERT INTO dbo.union_goods_pictures_link(union_goods_id, union_goods_picture_id)
           ON EXISTING SKIP
           VALUES(#{params[:master_id].to_i}, #{picture.id})")
           
