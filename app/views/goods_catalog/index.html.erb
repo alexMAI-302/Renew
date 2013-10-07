@@ -1,0 +1,68 @@
+<% content_for :js_controller do %>
+,'GoodsCatalog' 
+<% end -%>
+<% content_for :title do %>
+Каталог товаров
+<% end %>
+
+<% content_for :stylesheets do %>
+#UnionPicturesList {
+    background-color: #fff;
+    text-shadow: #fff 0 1px 0;
+    position: relative;
+    display: block;
+    height: auto;
+}
+
+#UnionPicturesList div.picture img {
+    margin-bottom: 1px;
+}
+
+#UnionPicturesList div.picture {
+    float: left;
+    padding: 8px 17px;
+    margin: 5px;
+/*    margin: 10px 0 0 25px;*/
+    text-align: center;
+    line-height: 14px;
+    color: #333;
+    font-size: 10px;
+    font-family: "Helvetica Neue",sans-serif;
+    height: 90px;
+    width: 100px;
+    overflow: hidden;
+    border-top: 1px solid transparent;
+    cursor: pointer;
+}
+
+.x-ie6 #UnionPicturesList div.picture,
+.x-ie7 #UnionPicturesList div.picture,
+.x-ie8 #UnionPicturesList div.picture {
+    border-top: none;
+    padding: 3px 2px;
+    margin: 2px;
+}
+
+#UnionPicturesList div.picture-hover {
+    background-color: #eee;
+}
+
+#UnionPicturesList .x-item-selected {
+    background-color: #D3E1F1 !important;
+}
+
+#UnionPicturesList div.picture strong {
+    color: #000;
+    display: block;
+}
+
+#UnionPicturesList div.picture span {
+    color: #999;
+}
+
+<% end -%>
+
+<% content_for :content do %>
+	<div id="goods_catalog_js">
+	</div>
+<% end %>

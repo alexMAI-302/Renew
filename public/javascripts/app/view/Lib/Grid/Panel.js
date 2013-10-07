@@ -122,7 +122,7 @@ Ext.define('app.view.Lib.Grid.Panel', {
 			for(i=0; i<plugins.length; i++){
 				if(plugins[i].ptype == 'bufferedrenderer'){
 					hasBufferPlugin=true;
-					break
+					break;
 				}
 			}
 			if(!hasBufferPlugin){
