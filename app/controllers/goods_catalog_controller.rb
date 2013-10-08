@@ -179,6 +179,7 @@ class GoodsCatalogController < ApplicationSimpleErrorController
 	    
 	    picture = UnionGoodsPicture.new()
 	    picture.name = params[:image].original_filename
+	    picture.content_type = params[:image].content_type
 	    picture.full_picture = full_image.to_blob
 	    picture.small_picture = small_image.to_blob
       
