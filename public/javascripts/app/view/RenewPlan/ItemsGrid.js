@@ -176,16 +176,14 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 				format: '0.00',
 				width: 45,
 				header: 'Масса',
-				dataIndex: 'weight',
-				disabled: true
+				dataIndex: 'weight'
 			},
 			{
 				xtype: 'numbercolumn',
 				format: '0.00',
 				width: 55,
 				header: 'Объем',
-				dataIndex: 'goods_volume',
-				disabled: true
+				dataIndex: 'goods_volume'
 			},
 			{
 				width: 50,
