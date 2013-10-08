@@ -231,12 +231,13 @@ Ext.define('app.controller.Geotrack', {
 		controller.okPointsCollection.removeAll();
 		distanceText.setText('');
 		
-		if(ddate!=null && ddate!="" && agentId>0){			
+		if(ddate!=null && ddate!="" && agentId>0){
+			var agentName = agent.get('position_name');			
 			controller.loadDetail(ddate, agentId);
-			if(agent.get('position_name')=='Техник АСО'){
+			if(agentName=='Техник АСО'){
 				controller.loadTerminals(ddate, agentId);
 			}
-			if(agent.get('position_name')=='Экспедитор'){
+			if(agentName=='Экспедитор' || agentName=='Водитель'){
 				controller.loadPlaceunloads(ddate, agentId);
 			}
 		}

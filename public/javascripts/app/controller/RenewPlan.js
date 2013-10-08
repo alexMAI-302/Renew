@@ -47,7 +47,7 @@ Ext.define('app.controller.RenewPlan', {
 	storeHasChanges: function(store){
 		return (store.getNewRecords().length > 0) ||
 			(store.getUpdatedRecords().length > 0) ||
-			(store.getRemovedRecords().length > 0)
+			(store.getRemovedRecords().length > 0);
 	},
 	
 	showServerError: function(response, options) {
@@ -68,7 +68,7 @@ Ext.define('app.controller.RenewPlan', {
 			controller.detailStore.sync({
 				callback: function(batch){
 					if(batch.exceptions.length>0){
-						Ext.Msg.alert("Ошибка", Ext.String.htmlEncode(batch.exceptions[0].getError().responseText))
+						Ext.Msg.alert("Ошибка", Ext.String.htmlEncode(batch.exceptions[0].getError().responseText));
 					}
 					container.setLoading(false);
 				}
@@ -838,8 +838,8 @@ Ext.define('app.controller.RenewPlan', {
 			function(editor, e, eOpts){
 				controller.detailColumn = e.colIdx;
 				if(
-					renewPlanGoodsTable.columns[e.colIdx].text=='Факт' ||
-					renewPlanGoodsTable.columns[e.colIdx].text=='Машина'
+					e.field=='donevol' ||
+					e.field=='trucknum'
 				){
 					controller.computeGroupInfo();
 				}
@@ -975,7 +975,7 @@ Ext.define('app.controller.RenewPlan', {
 					return true;
 				},
 				focus: function(component, e, eOpts){
-					var s=renewPlanGoodsTable.getSelectionModel().getSelection()[0]
+					var s=renewPlanGoodsTable.getSelectionModel().getSelection()[0];
 						
 					component.setRawValue(s.get('goods_name'));
 					component.doQuery(s.get('goods_name'));
