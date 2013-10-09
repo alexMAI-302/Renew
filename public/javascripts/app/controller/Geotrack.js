@@ -571,8 +571,8 @@ Ext.define('app.controller.Geotrack', {
 			controller.placeunloadCollection = new ymaps.GeoObjectCollection(
 				{},
 				{
-					iconImageHref: '/images/shop.png',
-					iconImageSize: [19, 26],
+					iconImageHref: '/images/shop_small.png',
+					iconImageSize: [10, 14],
 					balloonContentLayout: ymaps.templateLayoutFactory.createClass(
 						'<p>Наименование: $[properties.name]</p>' +
 						'<p>Адрес: $[properties.address]</p>'
