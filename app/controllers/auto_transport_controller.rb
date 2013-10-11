@@ -236,7 +236,17 @@ class AutoTransportController < ApplicationSimpleErrorController
         SELECT
           r.id,
           r.ddate,
-          r.pa_card truck_id
+          r.pa_card truck_id,
+          (SELECT DISTINCT
+            pa_card.serial + ' ' + ISNULL(truck_type.name, goods.short_name, '')
+          FROM
+            pa_card
+            join goods on pa_card.goods = goods.id
+            join goods_groups_tree ggt on ggt.id = goods.g_group
+            left outer join truck on truck.pa_card = pa_card.id
+            left outer join truck_type on truck_type.id = truck.type
+          WHERE
+            pa_card.id = r.pa_card) truck_name
         FROM
           dbo.at_recept r
         WHERE

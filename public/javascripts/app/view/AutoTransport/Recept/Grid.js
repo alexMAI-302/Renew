@@ -26,9 +26,7 @@ Ext.define('app.view.AutoTransport.Recept.Grid', {
 			{
 				width: 240,
 				header: 'Машина',
-				dataIndex: 'truck_id',
-				xtype: 'combocolumn',
-				store: 'app.store.AutoTransport.Recept.Truck'
+				dataIndex: 'truck_id'
 			}
 		]
 	}

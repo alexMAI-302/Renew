@@ -16,5 +16,6 @@ Ext.define('app.model.AutoTransport.ReceptModel', {
 			}
 		}
 	},
-	{name: 'truck_id'	, type:'int', useNull: true}]
+	{name: 'truck_id'	, type:'int', useNull: true},
+	{name: 'truck_name'	, type:'string', useNull: true, persist: false}]
 });
