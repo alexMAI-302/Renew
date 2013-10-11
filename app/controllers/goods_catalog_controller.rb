@@ -175,7 +175,7 @@ class GoodsCatalogController < ApplicationSimpleErrorController
 	    uploaded = StringIO.new
 	    File.copy_stream(params[:image], uploaded)
 	    full_image = Image.from_blob(uploaded.string)[0]
-	    small_image = full_image.resize_to_fit(128)
+	    small_image = full_image.resize_to_fit(256)
 	    
 	    picture = UnionGoodsPicture.new()
 	    picture.name = params[:image].original_filename

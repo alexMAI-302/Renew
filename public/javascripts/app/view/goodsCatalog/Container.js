@@ -17,7 +17,9 @@ Ext.define('app.view.goodsCatalog.Container', {
 	
 	items: [
 		{
-			region: 'center',
+			region: 'west',
+			width: 800,
+			split: true,
 			layout: {
 				type: 'border'
 			},
@@ -35,16 +37,14 @@ Ext.define('app.view.goodsCatalog.Container', {
 				{
 					xtype: 'unionPicturesList',
 					region: 'west',
-					width: 130,
+					width: 320,
 					split: true
 				}
 			]
 		},
 		{
-			region: 'east',
-			xtype: 'catGoodsGrid',
-			width: 800,
-			split: true
+			region: 'center',
+			xtype: 'catGoodsGrid'
 		}
 	]
 });
