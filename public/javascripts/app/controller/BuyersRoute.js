@@ -115,7 +115,7 @@ Ext.define('app.controller.BuyersRoute', {
 									for(var j=0; coords.length>1 && j<coords.length; j++){
 										str+=j+", "+coords[j][0]+", "+coords[j][1]+";";
 									}
-									r.set('point_str', str);
+									r.set('points_str', str);
 									controller.computeZonePoints(geometry);
 								}
 							}

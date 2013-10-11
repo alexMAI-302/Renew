@@ -69,11 +69,11 @@ Ext.define('app.model.BuyersRoute.BuyersRouteModel', {
 	extend: 'Ext.data.Model',
 	fields: [
 	{name: 'id'				, type: 'int'},
-	{name: 'name'			, type: 'string',	persists: false},
-	{name: 'site_id'		, type: 'int',		persists: false},
-	{name: 'site_name'		, type: 'string',	persists: false},
-	{name: 'site_latitude'	, type: 'float',	persists: false},
-	{name: 'site_longitude'	, type: 'float',	persists: false},
+	{name: 'name'			, type: 'string',	persist: false},
+	{name: 'site_id'		, type: 'int',		persist: false},
+	{name: 'site_name'		, type: 'string',	persist: false},
+	{name: 'site_latitude'	, type: 'float',	persist: false},
+	{name: 'site_longitude'	, type: 'float',	persist: false},
 	{name: 'points'			, type: 'string'},
 	{name: 'points_str'		, type: 'string'},
 	{
