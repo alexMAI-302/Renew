@@ -8,7 +8,7 @@ class GeoPointController < ApplicationSimpleErrorController
     when "get"
       branch     = params[:branch].present?      ? params[:branch].to_i : 'null'
       point_kind = params[:point_kind].present?  ? params[:point_kind].to_i : 'null'
-      filter_str = params[:filter_str].present?  ? '"' + ActiveRecord::Base.connection.quote_string(params[:filter_str].to_s) + '"' : 'null'
+      filter_str = params[:filter_str].present?  ? "'" + ActiveRecord::Base.connection.quote_string(params[:filter_str].to_s) + "'" : 'null'
       terminal   = params[:terminal_id].present? ? params[:terminal_id].to_i : 'null'
       agent      = params[:agent].present?       ? params[:agent].to_i : 'null'
       

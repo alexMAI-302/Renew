@@ -226,7 +226,7 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 			recGoodsTable = Ext.getCmp('RecGoodsTable');
 		
 		controller.masterStore=receptTable.store;
-		controller.truckStore=receptTable.columns[1].store;
+		controller.truckStore = controller.getAutoTransportReceptTruckStore();
 		
 		controller.detailStore=recGoodsTable.store;
 		controller.ggroupStore=recGoodsTable.columns[0].store;
@@ -238,10 +238,56 @@ Ext.define('app.controller.AutoTransportTabs.Recept', {
 	
 	initTables: function(){
 		var controller=this,
+			receptTable = Ext.getCmp('ReceptTable'),
 			recGoodsTable = Ext.getCmp('RecGoodsTable'),
+			truckColumn = receptTable.columns[1],
 			groupColumn = recGoodsTable.columns[0],
 			goodsColumn = recGoodsTable.columns[1],
 			measureColumn = recGoodsTable.columns[3];
+		
+		function renderer(value, metaData, r){
+			var matching = null,
+				data = controller.truckStore.snapshot || controller.truckStore.data;
+			data.each(function(record){
+				if(record.get('id')==value){
+					matching=record.get('name');
+				}
+				return matching==null;
+			});
+			if (matching==null) {
+				matching = r.get('truck_name');
+			}
+			return matching;
+		};
+		
+		truckColumn.renderer = renderer;
+		
+		truckColumn.field = Ext.create('Ext.form.ComboBox', {
+			store: controller.truckStore,
+			queryMode: 'local',
+			displayField: 'name',
+			valueField: 'id',
+			value: "",
+			autoSelect: true,
+			listeners: (config.fieldListeners!==false)?
+				(config.fieldListeners || {
+					beforequery: function(queryEvent){
+						queryEvent.combo.store.clearFilter();
+						queryEvent.combo.store.filter(queryEvent.combo.displayField, queryEvent.query);
+						return true;
+					}
+				}) :null
+				}
+			);
+		
+		truckColumn.doSort = function(state){
+			truckColumn.up('tablepanel').store.sort({
+				property: 'name',
+				transform: renderer,
+				direction: state
+			});
+			return true;
+		};
 		
 		goodsColumn.field.addListener(
 			"select",

@@ -47,8 +47,8 @@ Ext.define('app.view.goodsCatalog.UnionPicturesList', {
 				'<tpl for=".">',
 				'<div class="picture">',
 				(!Ext.isIE6 ?
-					'<img width="64" height="64" src="/goods_catalog/get_union_picture_small/{id}" />' :
-					'<div style="width:74px;height:74px;filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'\',sizingMethod=\'scale\')"></div>'),
+					'<img width="256" height="256" src="/goods_catalog/get_union_picture_small/{id}" />' :
+					'<div style="width:256px;height:256px;filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'\',sizingMethod=\'scale\')"></div>'),
 				'<span class="x-editable">{name}</span>',
 				'</div>',
 				'</tpl>')

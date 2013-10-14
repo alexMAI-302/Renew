@@ -111,7 +111,6 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 				width: 60,
 				header: 'Требуется',
 				dataIndex: 'needvol',
-				disabled: true,
 				renderer: function(value, metaData, record){
 					var src=record.get('fcast_src');
 					if(record.get('peak')==1){
@@ -188,8 +187,7 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 			{
 				width: 50,
 				header: 'Ост/др',
-				dataIndex: 'has_remains',
-				disabled: true
+				dataIndex: 'has_remains'
 			},
 			{
 				width: 45,
