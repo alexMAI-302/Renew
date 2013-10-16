@@ -231,7 +231,8 @@ Ext.define('app.controller.ppsZone', {
 					'beforeselect': function(view, node, selections, options){
 						var data=(node!=null)?node.data:null;
 						terminalTabs.setDisabled(true);
-						refreshTerminals((data.points)?data.points:null, (data.id)?data.id:null);
+						
+						refreshTerminals((data.points)?data.points:null, (data.id!==null)?data.id:null);
 					}
 				}
 			}),
@@ -416,9 +417,10 @@ Ext.define('app.controller.ppsZone', {
 					{
 						text    : 'Сохранить терминалы',
 						handler : function() {
+							var rec = zonesPanel.getSelectionModel().getSelection()[0].data;
+							
 							terminalTabs.setLoading(true);
 							terminalsStore.sync();
-							var rec = zonesPanel.getSelectionModel().getSelection()[0].data;
 							refreshTerminals(rec.points, rec.id);
 							terminalTabs.setLoading(false);
 						},

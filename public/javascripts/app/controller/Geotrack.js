@@ -158,7 +158,7 @@ Ext.define('app.controller.Geotrack', {
 								{
 									iconImageHref: '/images/point_blue.png',
 									iconImageSize: [7, 7],
-									iconImageOffset: [-1, -1],
+									iconImageOffset: [-3, -3],
 									balloonContentLayout: ymaps.templateLayoutFactory.createClass(
 										'<p>$[properties.ts]</p>'
 									),
@@ -573,6 +573,7 @@ Ext.define('app.controller.Geotrack', {
 				{
 					iconImageHref: '/images/shop_small.png',
 					iconImageSize: [10, 14],
+					iconImageOffset: [-5, -7],
 					balloonContentLayout: ymaps.templateLayoutFactory.createClass(
 						'<p>Наименование: $[properties.name]</p>' +
 						'<p>Адрес: $[properties.address]</p>'
