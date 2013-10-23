@@ -28,6 +28,12 @@ Ext.define('app.view.Letter.Filter', {
 				xtype : 'button',
 				icon : '/ext/resources/themes/images/default/grid/refresh.gif',
 				tooltip: 'Фильтр/обновить'
+		},
+		{
+				id : 'printLetterLetters',
+				xtype : 'button',
+				text: 'Распечатать',
+				tooltip: 'Печать'
 		}
 	]	
 });
