@@ -4,7 +4,10 @@ Ext.define('app.model.Letter.LetterModel', {
 	{name: 'id'				, type: 'int'},
 	{name: 'period'		, type: 'int', persists: false},
 	{name: 'cterm'	, type: 'int', persists: false},
-	{name: 'issue', type: 'int'},
-	{name: 'info', type: 'string'}
+	{name: 'issue', type: 'boolean'},
+	{name: 'info', type: 'string'},
+	{name: 'cname', type: 'string'},
+	{name: 'name', type: 'string'},
+	{name: 'status', type: 'boolean'}
 ]
 });
