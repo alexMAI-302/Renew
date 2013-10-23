@@ -28,6 +28,13 @@ Ext.define('app.view.IncrequestReason.Container', {
 				dataIndex : 'responsibility_area_id',
 				xtype: 'combocolumn',
 				store: 'app.store.IncrequestReason.ResponsibilityAreas'
+			},
+			
+			{
+				xtype: 'checkcolumn',
+				width: 150,
+				dataIndex: 'used',
+				header: 'Использовать'
 			}
 
 			
