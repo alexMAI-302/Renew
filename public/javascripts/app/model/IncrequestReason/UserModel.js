@@ -13,6 +13,10 @@ Ext.define('app.model.IncrequestReason.UserModel', {
 		name: "responsibility_area_id",
 		type: "int",
 		useNull: true
+	},
+	{
+		name: "used",
+		type: "boolean"
 	}
 	
 	]
