@@ -27,6 +27,12 @@ Ext.define('app.view.BuyersRoute.Filter', {
 			tooltip: 'Сохранить'
 		},
 		{
+			id: 'rewriteBuyersRoutes',
+			xtype : 'button',
+			icon : '/images/hammer.png',
+			tooltip: 'Пересохранить все координаты всех зон'
+		},
+		{
 			id: 'loadCSVBuyersRoute',
 			xtype : 'button',
 			icon : '/images/excel.gif',

@@ -52,13 +52,63 @@ Ext.define('app.controller.BuyersRoute', {
 				);
 			}
 			Ext.Msg.alert(
-				"Внимание",
-				"Данные будут сохранены, но зоны "+zones.join()+
-				" имеют пересечение."
+				"Ошибка",
+				"Зоны "+zones.join()+" имеют пересечение."
 			);
+		} else {
+			if (controller.storeHasChanges(controller.masterStore)){
+				controller.mainContainer.setLoading(true);
+				controller.masterStore.sync({
+					callback: function(batch){
+						if(batch.exceptions.length>0){
+							Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
+							controller.mainContainer.setLoading(false);
+						}
+						controller.mainContainer.setLoading(false);
+					}
+				});
+			}
 		}
-		if (controller.storeHasChanges(controller.masterStore)){
+	},
+	
+	rewriteBuyersRoutes: function(){
+		var controller=this,
+			intersections = controller.checkPolygonsIntersections(controller.routesCollection);
+		
+		if(intersections!=null && intersections.length>0){
+			var zones = [];
+			for(var i=0; i<intersections.length; i++){
+				zones.push(
+					controller.masterStore.getById(intersections[i][0]).get('name')+
+					' и '+
+					controller.masterStore.getById(intersections[i][1]).get('name')
+				);
+			}
+			Ext.Msg.alert(
+				"Ошибка",
+				"Зоны "+zones.join()+" имеют пересечение."
+			);
+		} else {
+			var r, str, coords;
+			
 			controller.mainContainer.setLoading(true);
+			
+			controller.routesCollection.each(function(o){
+				r = controller.masterStore.getById(o.properties.get('id'));
+				str='';
+				coords = o.geometry.getCoordinates()[0];
+				
+				r.set(
+					'points',
+					ymaps.geometry.Polygon.toEncodedCoordinates(o.geometry)
+				);
+				for(var j=0; coords.length>1 && j<coords.length; j++){
+					str+=j+", "+coords[j][0]+", "+coords[j][1]+";";
+				}
+				r.set('points_str', str);
+				r.setDirty();
+			});
+			
 			controller.masterStore.sync({
 				callback: function(batch){
 					if(batch.exceptions.length>0){
@@ -272,6 +322,9 @@ Ext.define('app.controller.BuyersRoute', {
 			},
 			'#saveBuyersRoute': {
 				click: controller.syncMaster
+			},
+			'#rewriteBuyersRoutes': {
+				click: controller.rewriteBuyersRoutes
 			},
 			"#buyersRouteMap": {
 				resize: function(){
