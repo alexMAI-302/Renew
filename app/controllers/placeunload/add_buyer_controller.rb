@@ -17,7 +17,17 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
         join partners_groups  i on i.id = pgt.parent
       where
         pgt.id = partners_groups.id and  i.tlev > 0  and pgt.id <> pgt.parent
-      ) tip
+      ) tip,
+      IF EXISTS(
+        SELECT 1
+        FROM partners_groups pg
+        JOIN partners_groups_tree pgt ON pgt.parent=pg.id
+        WHERE pg.name = 'Ферреро' AND pgt.id = partners_groups.id)
+      THEN
+        1
+      ELSE
+        0
+      END IF show_safari_id
     from
       partners_groups
       WHERE
@@ -79,7 +89,17 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
     select
       b.id id,
       b.name name,
-      b.loadto loadto
+      b.loadto loadto,
+      (SELECT
+        sp_v.name
+      FROM
+        sp_types sp_tp
+        JOIN buyers_sp_sets b_sp_s ON b_sp_s.sp_tp = sp_tp.id
+        JOIN sp_values sp_v ON b_sp_s.spv_id = sp_v.id
+      WHERE
+        sp_tp.name = 'Внешний код'
+        AND
+        b_sp_s.client = b.id) safari_id
     from
       buyers b
     where
@@ -179,7 +199,17 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
         WHERE
           p.id=p_sp_s.partner
           and
-          sp_t.name='Тариф') spv_name
+          sp_t.name='Тариф') spv_name,
+        IF EXISTS(
+          SELECT 1
+          FROM partners_groups pg
+          JOIN partners_groups_tree pgt ON pgt.parent=pg.id
+          WHERE pg.name = 'Ферреро' AND pgt.id = p.parent)
+        THEN
+          1
+        ELSE
+          0
+        END IF show_safari_id
       FROM
         partners p
       WHERE
@@ -192,6 +222,7 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
       @placeunload_name = @partner_name
 
       @unloading=partners_time[pa["spv_name"]]
+      @show_safari_id     = pa["show_safari_id"]
     elsif params[:buyer]
       @buyer_id = params[:buyer].to_i
 
@@ -218,7 +249,27 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
           partners_groups g2
           join partners_groups g1 on g1.parent = g2.id
         where
-          g1.id = p.parent) tp
+          g1.id = p.parent) tp,
+        (SELECT
+          sp_v.name
+        FROM
+          sp_types sp_tp
+          JOIN buyers_sp_sets b_sp_s ON b_sp_s.sp_tp = sp_tp.id
+          JOIN sp_values sp_v ON b_sp_s.spv_id = sp_v.id
+        WHERE
+          sp_tp.name = 'Внешний код'
+          AND
+          b_sp_s.client = b.id) safari_id,
+        IF EXISTS(
+          SELECT 1
+          FROM partners_groups pg
+          JOIN partners_groups_tree pgt ON pgt.parent=pg.id
+          WHERE pg.name = 'Ферреро' AND pgt.id = p.parent)
+        THEN
+          1
+        ELSE
+          0
+        END IF show_safari_id
       from
         partners p
         join buyers b on b.partner = p.id
@@ -240,6 +291,8 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
       @tp        = pa["tp"]
       @descr     = pa["descr"]
       @unloading     = pa["unloading"]
+      @safari_id     = pa["safari_id"]
+      @show_safari_id     = pa["show_safari_id"]
     end
   end
 
@@ -270,7 +323,8 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
           #{data["placeunload_incscheduleid"].to_i},
           #{data["placeunload_buyers_route_id"]=="-1" ? 'null' : data["placeunload_buyers_route_id"].to_i},
           #{data["placeunload_placecategory_id"].to_i},
-          #{dow}
+          #{dow},
+          '#{ActiveRecord::Base.connection.quote_string(data["safari_id"].strip)}'
           )
       ")
             

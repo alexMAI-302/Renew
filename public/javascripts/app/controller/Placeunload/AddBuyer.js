@@ -178,6 +178,7 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 					controller.buyersStore.removeAll();
 					Ext.getCmp('partnerCombo').setValue(null);
 					Ext.getCmp('buyerCombo').setValue(null);
+					Ext.getCmp('safariId').setDisabled(!records[0].get('show_safari_id'));
 					return true;
 				},
 				change: controller.onChangeBuyerData
@@ -275,7 +276,8 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 					        placeunload_incscheduleid: Ext.getCmp('newPlaceunloadIncschedule').getValue(),
 					        placeunload_buyers_route_id: Ext.getCmp('newPlaceunloadRoute').getValue(),
 					        placeunload_placecategory_id: Ext.getCmp('newPlaceunloadPlacecategory').getValue(),
-					        dow: Ext.getCmp('dow').getValue()
+					        dow: Ext.getCmp('dow').getValue(),
+					        safari_id: Ext.getCmp('safariId').getValue()
 						},
 						method: "POST",
 						callback: function(options, success, response){
@@ -341,7 +343,8 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 		var controller=this,
 			count=4,
 			buyerId = Ext.get('buyer_id').getValue(),
-			partnerId = Ext.get('partner_id').getValue();
+			partnerId = Ext.get('partner_id').getValue(),
+			showSafariId = Ext.get('show_safari_id').getValue();
 		
 		if(buyerId>0 || partnerId>0){
 			var partnerGroupId = Ext.get('partner_group_id').getValue(),
@@ -404,6 +407,14 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 				}
 				newPlaceunloadUnloading.setValue(newPlaceunloadUnloading.getStore().findRecord('id', unloading));
 				Ext.getCmp('newPlaceunloadName').setValue(partnerName);
+			}
+			
+			if(showSafariId>0){
+				var safariId = Ext.get('safari_id').getValue(),
+					safariIdCmp = Ext.getCmp('safariId');
+				
+				safariIdCmp.setValue(safariId);
+				safariIdCmp.setVisible(true);
 			}
 		}
 	},
