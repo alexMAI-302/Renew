@@ -201,6 +201,7 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 			'#buyerCombo': {
 				select: function(combo, records, eOpts){
 					Ext.getCmp('addressPlaceunload').setValue(records[0].get('loadto'));
+					Ext.getCmp('safariId').setValue(records[0].get('safari_id'));
 					return true;
 				},
 				change: controller.onChangeBuyerData
