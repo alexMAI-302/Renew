@@ -53,6 +53,14 @@ Ext.define('app.view.Placeunload.AddBuyer.BuyerPropertiesGrid', {
 			labelWidth: 110,
 			triggerAction: 'query',
 			allowBlank: false
+		},
+		{
+			xtype: 'textfield',
+			id: 'safariId',
+			fieldLabel: "SAFARI_ID",
+			width: '100%',
+			labelWidth: 110,
+			disabled: true
 		}
 	]
 });

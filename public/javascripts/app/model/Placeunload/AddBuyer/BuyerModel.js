@@ -3,5 +3,6 @@ Ext.define('app.model.Placeunload.AddBuyer.BuyerModel', {
 	fields: [
 	{name: 'id'			, type: 'int'},
 	{name: 'name'		, type: 'string'},
-	{name: 'loadto'		, type: 'string'}]
+	{name: 'loadto'		, type: 'string'},
+	{name: 'safari_id'	, type: 'string'}]
 });

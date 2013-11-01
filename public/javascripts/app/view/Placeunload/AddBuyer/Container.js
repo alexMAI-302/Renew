@@ -25,7 +25,7 @@ Ext.define('app.view.Placeunload.AddBuyer.Container', {
 			layout: 'border',
 			items:[
 				{
-					height: 105,
+					height: 135,
 					region: 'north',
 					xtype: 'buyerPropertiesGrid'
 				},
