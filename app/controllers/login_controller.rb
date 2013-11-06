@@ -61,7 +61,7 @@ class LoginController < ApplicationController
               outside_user.save
             else
               if outside_user.account_info!=account_info.to_s
-                outside_user.update(
+                outside_user.update_attributes(
                   :account_info => account_info,
                   :email => email)
               end
