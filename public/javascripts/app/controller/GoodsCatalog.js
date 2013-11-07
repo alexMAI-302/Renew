@@ -74,7 +74,8 @@ Ext.define('app.controller.GoodsCatalog', {
 		var controller = this;
 		
 		controller.catGoodsStore.proxy.extraParams = {
-			name: Ext.getCmp('CatGoodsName').getValue()
+			name: Ext.getCmp('CatGoodsName').getValue(),
+			show_only_without_picture: Ext.getCmp('CatGoodsShowOnlyWithoutPicture').getValue() ? 1 : 0
 		};
 		controller.catGoodsStore.load(
 			function(records, operation, success){
