@@ -22,6 +22,14 @@ Ext.define('app.view.goodsCatalog.CatGoodsGrid', {
 				enableKeyEvents: true,
 				width: 400,
 				labelWidth: 120
+			},
+			{
+				id: 'CatGoodsShowOnlyWithoutPicture',
+				xtype: 'checkbox',
+				fieldLabel: 'Без картинок',
+				width: 100,
+				labelWidth: 70,
+				checked: true
 			}
 		],
 		afterButtons: [
@@ -45,6 +53,13 @@ Ext.define('app.view.goodsCatalog.CatGoodsGrid', {
 				width: 300,
 				header: 'Наименование',
 				dataIndex: 'name'
+			},
+			{
+				width: 60,
+				header: 'Картинка',
+				dataIndex: 'has_picture',
+				xtype: 'checkcolumn',
+				disabled: true
 			},
 			{
 				width: 400,

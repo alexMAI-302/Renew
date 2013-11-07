@@ -41,8 +41,17 @@ class GoodsCatalogController < ApplicationSimpleErrorController
       
       render :text => { success: true, id: params[:id]}.to_json
     when :delete
+      id = params[:id].to_i
+      
       res = ActiveRecord::Base.connection.delete("
-      DELETE FROM dbo.union_goods WHERE id = #{params[:id].to_i}")
+      DELETE FROM dbo.union_goods WHERE id = #{id};
+      DELETE FROM dbo.union_goods_pictures_link
+      WHERE union_goods_id = #{id}")
+      
+      res = RuzaPicture.connection.delete("
+      DELETE FROM dbo.union_goods_pictures
+      WHERE id = #{id}")
+      
       render text: {success: true}.to_json
     end
 	end
@@ -97,17 +106,39 @@ class GoodsCatalogController < ApplicationSimpleErrorController
 	def get_goods
 	  val = ActiveRecord::Base.connection.quote_string(params[:name])
 	  if val!=''
+	    show_only_without_picture = params[:show_only_without_picture].to_i
 	    res = ActiveRecord::Base.connection.select_all("
       SELECT
         id,
         short_name name,
-        (SELECT list(uc.name)
-        FROM dbo.union_goods uc JOIN dbo.cat_goods_in_union cgu ON uc.id=cgu.union_goods_id
-        WHERE cgu.cat_goods_id = g.id) union_goods_names
+        (SELECT list(ug.name)
+        FROM dbo.union_goods ug JOIN dbo.cat_goods_in_union cgu ON ug.id=cgu.union_goods_id
+        WHERE cgu.cat_goods_id = g.id) union_goods_names,
+        IF EXISTS (
+          SELECT
+            *
+          FROM
+            union_goods_pictures_link pl
+            JOIN union_goods ug ON ug.id = pl.union_goods_id
+            JOIN dbo.cat_goods_in_union cgu ON ug.id=cgu.union_goods_id
+          WHERE
+            g.id = cgu.cat_goods_id
+        )
+        THEN 1 ELSE 0 END IF has_picture
       FROM
         goods g
       WHERE
-        g.short_name like '%#{val}%'")
+        g.short_name like '%#{val}%'
+        AND
+        (
+          #{show_only_without_picture}<>1
+          OR
+          (
+            #{show_only_without_picture}=1
+            AND
+            has_picture<>1
+          )
+        )")
       
       render text: res.to_json
 	  else
@@ -125,7 +156,9 @@ class GoodsCatalogController < ApplicationSimpleErrorController
       res = (pictures_ids.nil? || pictures_ids=="")?[]:RuzaPicture.connection.select_all("
       SELECT
        id,
-       name
+       name,
+       small_width,
+       small_height
       FROM
        union_goods_pictures
       WHERE
@@ -140,13 +173,15 @@ class GoodsCatalogController < ApplicationSimpleErrorController
       
       render text: {success: true, name: params[:name], id: params[:id]}.to_json
     when :delete
+      id = params[:id].to_i
+      
       res = ActiveRecord::Base.connection.delete("
       DELETE FROM dbo.union_goods_pictures_link
-      WHERE union_goods_id = #{params[:master_id].to_i} AND union_goods_picture_id = #{params[:id].to_i}")
+      WHERE union_goods_id = #{params[:master_id].to_i} AND union_goods_picture_id = #{id}")
       
       res = RuzaPicture.connection.delete("
       DELETE FROM dbo.union_goods_pictures
-      WHERE id = #{params[:id].to_i}")
+      WHERE id = #{id}")
       
       render text: {success: true}.to_json
     end
@@ -168,6 +203,21 @@ class GoodsCatalogController < ApplicationSimpleErrorController
     WHERE id = (#{params[:id].to_i})")
     
     render text: res
+  end
+  
+  def fill_pictures_sizes
+    UnionGoodsPicture.find(:all).each do |p|
+      full_image = Image.from_blob(p.full_picture)[0]
+      small_image = Image.from_blob(p.small_picture)[0]
+      
+      p.width = full_image.columns
+      p.height = full_image.rows
+      p.small_width = small_image.columns
+      p.small_height = small_image.rows
+      
+      p.save
+    end
+    render text: 'ok'
   end
 	
 	def upload_union_picture
