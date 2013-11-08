@@ -16,12 +16,21 @@ Ext.define('app.view.JointPartner.Grid', {
 		disableAddColumn: true,
 		beforeButtons: [
 			{
-							id: 'filterInn',
-							xtype: 'textfield',
-							fieldLabel: 'ИНН',
-							width: 200,
-							labelWidth: 40
-					}
+				id: 'filterName',
+				xtype: 'textfield',
+				fieldLabel: 'Название',
+				labelWidth : 300,
+				labelAlign : 'left',
+				width: 200,
+				labelWidth: 40
+			},
+			{
+				id: 'filterInn',
+				xtype: 'textfield',
+				fieldLabel: 'ИНН',
+				width: 200,
+				labelWidth: 40
+			}
 				
 		],
 		columns: [

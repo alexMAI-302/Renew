@@ -1,4 +1,4 @@
-Ext.define('app.model.JointPartner.PartnerModel', {
+Ext.define('app.model.JointPartner.PartnerModel',{
 	extend: 'Ext.data.Model',
 	fields: [
 	{name: 'id'			, type: 'int'},
