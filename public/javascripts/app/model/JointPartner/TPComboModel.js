@@ -1,9 +1,7 @@
-Ext.define('app.model.JointPartner.PlAllModel', 
-{
+Ext.define('app.model.JointPartner.TPComboModel', {
 	extend: 'Ext.data.Model',
 	fields: [
 	{name: 'id'			, type: 'int'},
-	{name: 'plist'			, type: 'int'},
 	{name: 'name',   type: 'string'},
 	{name: 'podr',   type: 'int'}
 	]
