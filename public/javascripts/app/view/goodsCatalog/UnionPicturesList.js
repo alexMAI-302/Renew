@@ -51,7 +51,12 @@ Ext.define('app.view.goodsCatalog.UnionPicturesList', {
 					'<div style="width:{small_width}px;height:{small_height}px;filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'\',sizingMethod=\'scale\')"></div>'),
 				'<span class="x-editable">{name}</span>',
 				'</div>',
-				'</tpl>')
+				'</tpl>'),
+			listeners: {
+				itemdblclick: function(view, record, item, index, e, eOpts){
+					window.open("/goods_catalog/get_union_picture_full/" + record.get('id'), '_blank');
+				}
+			}
 		}
 	]
 }); 
