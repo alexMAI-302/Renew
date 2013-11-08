@@ -3,7 +3,9 @@ Ext.define('app.view.JointPartner.Container', {
 	alias: 'widget.jointPartnerContainer',
 	
 	requires: [
-		'app.view.JointPartner.Grid'
+		'app.view.JointPartner.Grid',
+		'app.view.JointPartner.ItemGrid',
+		'app.view.JointPartner.Pricelist'
 	],
 	
 	renderTo: 'joint_partner_js',
@@ -18,13 +20,18 @@ Ext.define('app.view.JointPartner.Container', {
 	items: [
 		{
 			xtype: 'jointPartnerGrid',
-			region: 'center',
+			region: 'north',
 			split: true,
 			flex: 1
 		},
 		{
 			xtype: 'jointPartnerItemGrid',
-			region: 'south',
+			region: 'center',
+			flex: 1
+		},
+		{
+			xtype: 'jointPartnerPricelist',
+			region: 'east',
 			flex: 1
 		}
 	]

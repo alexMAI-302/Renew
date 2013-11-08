@@ -2,28 +2,39 @@ Ext.define('app.controller.JointPartner', {
     extend: 'Ext.app.Controller',
 	
 	stores: [
-		'JointPartner.Partner'
+		'JointPartner.Partner',
+		'JointPartner.Pricelist',
+		'JointPartner.PricelistCombo',
+		'JointPartner.TP',
+		'JointPartner.TPCombo'
 	],
 	
 	models: [
 		'valueModel',
 		'JointPartner.PartnerModel',
-		'JointPartner.PlAllModel'
+		'JointPartner.PlAllModel',
+		'JointPartner.PricelistModel',
+		'JointPartner.TPComboModel',
+		'JointPartner.PricelistComboModel',
+		'JointPartner.TPModel'
 	],
 	
 	views: [
 		'JointPartner.Container'
+		
 	],
 	
 	Container: null,
 	partnerStore: null,
 	detailStore: null,
-	fields: null,
 	podrStore: null,
 	records: null,
 	tpComboStore: null,
 	plAllComboStore: null,
 	plComboStore: null,
+	pricelistStore:null,
+	lastPodr:null,
+	lastPlaceunload:null,
 	
 		
 	showServerError: function(response, options) {
@@ -31,7 +42,6 @@ Ext.define('app.controller.JointPartner', {
 		Ext.Msg.alert('Ошибка', response.responseText);
 		controller.mainContainer.setLoading(false);
 	},
-
 	syncMaster: function(container, selectedMasterId){
 		var controller=this;
 		function syncDetail(container, masterId){
@@ -82,11 +92,9 @@ Ext.define('app.controller.JointPartner', {
 			syncDetail(container, selectedMasterId);
 		}
 	},
-	
-	savePlaceunload : function (container)
-	{
+	saveTP : function ()	{
 		var controller=this,
-			routes=[];
+			rows=[];
 		
 		controller.Container.setLoading(true);
 		
@@ -94,27 +102,15 @@ Ext.define('app.controller.JointPartner', {
 			if(r.dirty){
 				for (var i = 0; i < controller.records.length; i++) 
 				{
-					if (r.modified['podr_tp_'+controller.records[i].id]!==undefined)
+					if (r.modified['tp_'+controller.records[i].id]!==undefined)
 					{
-						routes.push({
-							what	: 'tp',
+						rows.push({
 							contractant : Ext.getCmp('PartnerTable').getSelectionModel().getSelection()[0].get('id'),
-							point	: r.get('id'),
-							podr	: controller.records[i].id,
-							value	: r.get('podr_tp_'+controller.records[i].id),
+							podr	: r.get('id'),
+							placeunload	: controller.records[i].id,
+							value	: r.get('tp_'+controller.records[i].id),
 						});
 					};
-					if (r.modified['podr_pl_'+controller.records[i].id]!==undefined)
-					{
-						routes.push({
-							what	: 'pl',
-							contractant : Ext.getCmp('PartnerTable').getSelectionModel().getSelection()[0].get('id'),
-							point	: r.get('id'),
-							podr	: controller.records[i].id,
-							value	: r.get('podr_pl_'+controller.records[i].id),
-						});
-					};
-					
 				}
 			}
 			
@@ -122,15 +118,13 @@ Ext.define('app.controller.JointPartner', {
 		});
 		
 		Ext.Ajax.request({
-			url: '/joint_partner/placeunload',
+			url: '/joint_partner/tp',
 			params: {authenticity_token: window._token},
-			jsonData: routes,
+			jsonData: rows,
 			method: 'POST',
 			timeout: 300000,
 			success: function(response){
-				//sm.select(selectedZone);
-				//controller.filterRoutes(selectedZone);
-				controller.refreshPlaceunload();
+				controller.refreshTP();
 				controller.Container.setLoading(false);
 			},
 			failure: function(response){
@@ -139,24 +133,51 @@ Ext.define('app.controller.JointPartner', {
 			}
 		});
 	},
-	
-	loadDetail: function(masterId, detailTable){
-		var controller=this;
+	savePricelist : function ()	{
+		var controller=this,
+			rows=[];
 		
-		controller.detailStore.proxy.extraParams={
-			master_id: masterId
-		};
-		controller.detailStore.load(
-			function(){
-				detailTable.setDisabled(false);
+		controller.Container.setLoading(true);
+		
+		controller.pricelistStore.each(function(r){
+			if(r.dirty){
+				rows.push({
+					contractant : Ext.getCmp('PartnerTable').getSelectionModel().getSelection()[0].get('id'),
+					plset	: r.get('id'),
+					podr	: r.get('podr'),
+					placeunload	: r.get('placeunload'),
+					pricelist	: r.get('pricelist')
+				});
 			}
-		);
-	},
-	
-	loadpodr: function(){
-		var controller=this;
+		});
+		
 		Ext.Ajax.request({
-			url: '/joint_partner/podr',		
+			url: '/joint_partner/pricelist',
+			params: {authenticity_token: window._token},
+			jsonData: rows,
+			method: 'POST',
+			timeout: 300000,
+			success: function(response){
+				controller.refreshPricelist();
+				controller.Container.setLoading(false);
+			},
+			failure: function(response){
+				controller.Container.setLoading(false);
+				controller.showServerError(response);
+			}
+		});
+	},
+	loadDetail: function(masterId){
+		var controller=this;
+		var columns = null;
+		var fields = null;
+		controller.Container.setLoading(true);
+		Ext.Ajax.request({
+			url: '/joint_partner/placeunload',	
+			params: {contractant: masterId,
+					authenticity_token: window._token
+				},	
+			method : "GET",
 			async: false,
 			success: function(response){
 				var response_json=Ext.JSON.decode(response.responseText, true);
@@ -165,13 +186,75 @@ Ext.define('app.controller.JointPartner', {
 		
 			}
 		});	
+		
+		columns = [
+					{
+						width: 200,
+						header: 'Подразделение',
+						dataIndex: 'id'
+					}
+				];
+		
+		
+		fields = [{
+			name: 'id',
+			type: 'int'
+			}];
+		
+		for (var i = 0; i < controller.records.length; i++) {
+
+			fields[i+1] =  {
+				name: 'tp_'+controller.records[i].id,
+				type: 'int'	
+			};
+					
+			columns[i+1] = {
+				header: controller.records[i].name,
+				dataIndex: 'tp_'+controller.records[i].id,
+				width: 150
+			};
+			
+		};
+		
+		
+		Ext.define('app.model.JointPartner.TPModel', {
+					extend: 'Ext.data.Model',
+					fields: fields,
+			});	
+				
+		controller.detailStore.proxy.setModel('app.model.JointPartner.TPModel',true);
+		Ext.getCmp('TPTable').reconfigure(controller.detailStore, columns); 
+		
+		podrColumn=Ext.getCmp('TPTable').getView().getGridColumns()[0];;
+		controller.makeComboColumn(podrColumn,controller.podrStore,controller.detailStore);
+		for (var i = 0; i < controller.records.length; i++) {
+			col=Ext.getCmp('TPTable').getView().getGridColumns()[i+1];
+			controller.makeComboColumn(col,controller.tpComboStore,controller.detailStore);
+			col.field.addListener(
+			"focus",
+			function(field, eOpts){
+				var r = Ext.getCmp('TPTable').getSelectionModel().getSelection()[0];
+				controller.tpComboStore.clearFilter(true);
+				controller.tpComboStore.filter("podr",r.get('id'));
+				return true;
+			}
+		);
+
+		
+		};
+				
+				
+		
+		controller.refreshTP(masterId);
+		
 	},
 	refreshPartner: function(){
 		var controller = this;
 		
 
 		controller.partnerStore.proxy.extraParams={
-			inn: Ext.getCmp('filterInn').getValue()
+			inn: Ext.getCmp('filterInn').getValue(),
+			name: Ext.getCmp('filterName').getValue()
 		};
 		controller.Container.setLoading(true);
 		controller.partnerStore.load(
@@ -185,246 +268,213 @@ Ext.define('app.controller.JointPartner', {
 		);
 		
 	},
-	
-	refreshPlaceunload: function(){
+	refreshTP: function(masterId){
 		var controller = this,
 			selected=Ext.getCmp('PartnerTable').getSelectionModel().getSelection();
-		if(selected!=null && selected.length>0){
-			controller.loadDetail(
-				selected[0].get('id'),
-				Ext.getCmp('PlaceunloadTable')
-			);
+		
+		controller.Container.setLoading(true);
+		if (masterId==null)
+		{
+			if(selected!=null && selected.length>0){
+				masterId=selected[0].get('id');
+			} else
+			{
+				masterId=-1
+			}
 		}
-							
+		
+		controller.detailStore.proxy.extraParams={
+			master_id: masterId
+		};
+		controller.detailStore.load(
+			function(){
+				controller.Container.setLoading(false);
+				Ext.getCmp('TPTable').setDisabled(false);
+			}
+		);
+		
+		
+	},
+	refreshPricelist: function(podr,placeunload){
+		var controller = this,
+			selected=Ext.getCmp('PartnerTable').getSelectionModel().getSelection();
+		
+		if (podr==null) {
+			podr=controller.lastPodr;
+			placeunload=controller.lastPlaceunload;		
+		}
+		else{
+			controller.lastPodr=podr;
+			controller.lastPlaceunload=placeunload;
+		};
+		
+		controller.pricelistStore.proxy.extraParams={
+			podr: podr,
+			placeunload: placeunload
+		};
+		controller.pricelistStore.load(
+			function(){
+				Ext.getCmp('PricelistTable').setDisabled(false);
+			}
+		);
+		
+		
 	},
 	
+	
 	init: function() {
-		var tbWait = Ext.create('Ext.toolbar.Toolbar', {
-			renderTo: 'joint_partner_js',
-			items: {
-				text: 'Подождите, идёт выборка данных...'
-			}
+		var controller = this;
+		controller.plComboStore = Ext.create('app.store.JointPartner.PricelistCombo');
+		controller.plComboStore.load();
+		Ext.define('app.model.JointPartner.TPComboModel', {
+			extend: 'Ext.data.Model',
+			fields: [
+			{name: 'id'			, type: 'int'},
+			{name: 'name',   type: 'string'},
+			{name: 'podr',   type: 'int'}
+			]
 		});
 
-		
-		var controller = this,
-		
-		columns = [
-					{
-						width: 170,
-						header: 'Точка',
-						dataIndex: 'name'
+		controller.tpComboStore = Ext.create('app.store.JointPartner.TPCombo');
+		controller.tpComboStore.load();	
+
+		controller.Container=Ext.create('app.view.JointPartner.Container');
+		controller.Container.addListener(
+				"show",
+				function(){
+					//controller.loadDictionaries();
+				}
+		);
+				
+				
+				
+		function getId(r){
+			return (r!=null)?
+					((r.getId()!=null && r.getId()!=0)?
+						r.getId():
+						r.get('id')
+					):
+					null;
+		}
+				
+		controller.control({
+			'#PartnerTable': {
+				selectionchange: function(sm, selected, eOpts){
+					if(selected!=null && selected.length>0){
+						controller.loadDetail(
+							getId(selected[0]),
+							Ext.getCmp('TPTable')
+						);
+					} else {
+						controller.detailStore.removeAll();
+						Ext.getCmp('TPTable').setDisabled(true);
 					}
-				];
-		
-		
-		controller.fields = [{
-			name: 'id',
-			type: 'int'
+					return true;
+				}
 			},
-			{
-			name: 'name',
-			type: 'string'
-		}];
-		
-		controller.tpComboStore=new Array();
-		controller.plComboStore=new Array();
-		controller.plAllComboStore = Ext.create('Ext.data.Store', {
-				model: 'app.model.JointPartner.PlAllModel',
-				proxy: {
-					type: 'rest',
-					url : '/joint_partner/podr_pl',
-					reader: {
-						type: 'json'
-					},
-					server: {timeout:60000},
-					buffered : false
+			'#refreshPartner': {
+				click: function() {
+					controller.refreshPartner();
 				}
-			});
-		controller.plAllComboStore.load(function(records, operation, success){
-			if(success){
-				controller.loadpodr();
-				for (var i = 0; i < controller.records.length; i++) {
 
-					controller.fields[i*2+2] =  {
-						name: 'podr_tp_'+controller.records[i].id,
-						type: 'int'	
-					};
-					controller.fields[i*2+3] =  {
-						name: 'podr_pl_'+controller.records[i].id,
-						type: 'int'	
-					};
-					
-					columns[i+1] = {
-						header: controller.records[i].name,
-						columns: [
-							{
-								header: 'ТП',
-								dataIndex: 'podr_tp_'+controller.records[i].id,
-								width: 150
-							},
-							{
-								header: 'Прайс',
-								dataIndex: 'podr_pl_'+controller.records[i].id,
-								width: 250
-							}
-						]
-					};
-					controller.tpComboStore[i] = Ext.create('Ext.data.Store', {
-						model: 'app.model.valueModel',
-						proxy: {
-							type: 'rest',
-							url : '/joint_partner/podr_tp',
-							reader: {
-								type: 'json'
-							}
-						}
-					});
-					controller.tpComboStore[i].proxy.extraParams={
-						podr: controller.records[i].id
-					};
-					controller.tpComboStore[i].load();
-					
-					controller.plComboStore[i] = Ext.create('Ext.data.Store', {
-						model: 'app.model.valueModel',
-						proxy: {
-							type: 'memory'
-						}
-					});
-					controller.plAllComboStore.clearFilter(true);
-					controller.plAllComboStore.filter("podr",controller.records[i].id);
-					controller.plAllComboStore.each(
-								function(record){
-										controller.plComboStore[i].add({
-														id: record.get('plist'),
-														name: record.get('name')
-													});
-								}
-							);
-					
-				};
-				
-				Ext.define('app.model.JointPartner.PlaceunloadModel', {
-					extend: 'Ext.data.Model',
-					fields: controller.fields,
-				});	
-				
-				controller.detailStore=Ext.create('Ext.data.Store', {
-					extend: 'Ext.data.Store',
-					model: 'app.model.JointPartner.PlaceunloadModel',
-					proxy: {
-						type: 'rest',
-						url : '/joint_partner/placeunload',
-						reader: {
-							type: 'json'
-						}
+			},
+			'#TPTable': {
+				cellclick: function( sm, td, cellIndex, record, tr, rowIndex, e, eOpts ){
+					if(record!=null && cellIndex>0){
+						controller.refreshPricelist(
+							record.get('id'),
+							record.fields.items[cellIndex].name.substr(3)
+						);
+					} else {
+						controller.pricelistStore.removeAll();
+						Ext.getCmp('PricelistTable').setDisabled(true);
 					}
-				});
-				
-				Ext.define('app.view.JointPartner.ItemsGrid', {
-					extend: 'app.view.Lib.Grid.Panel',
-					alias: 'widget.jointPartnerItemGrid',
-					
-					config: {
-						suffix: 'Placeunload',
-						disabled: true,
-						disableSave: false,
-						disableAdd: true,
-						disableDelete: true,
-						disableDeleteColumn: true,
-						disableAddColumn: true,
-						store: controller.detailStore,
-						columns: columns
-					}
-				});
-
-				tbWait.destroy();
-
-				controller.Container=Ext.create('app.view.JointPartner.Container');
-				controller.Container.addListener(
-					"show",
-					function(){
-						controller.loadDictionaries();
-					}
-				);
-				
-				
-				
-				function getId(r){
-					return (r!=null)?
-							((r.getId()!=null && r.getId()!=0)?
-								r.getId():
-								r.get('id')
-							):
-							null;
+					return true;
 				}
-				
-				controller.control({
-					'#PartnerTable': {
-						selectionchange: function(sm, selected, eOpts){
-							if(selected!=null && selected.length>0){
-								controller.loadDetail(
-									getId(selected[0]),
-									Ext.getCmp('PlaceunloadTable')
-								);
-							} else {
-								controller.detailStore.removeAll();
-								Ext.getCmp('PlaceunloadTable').setDisabled(true);
-							}
-							return true;
-						}
-					},
-					'#refreshPartner': {
-						click: function() {
-							controller.refreshPartner();
-						}
-
-					},
-					'#savePlaceunload': {
-						click: function(){
-							controller.savePlaceunload(controller.Container);
-							return true;
-						}
-					},
-					'#refreshPlaceunload': {
-						click: function(){
-							controller.refreshPlaceunload();
-						}
-					}
-				});
-				controller.initStores();
-			}
+			},
+			'#saveTP': {
+				click: function(){
+					controller.saveTP();
+					return true;
+				}
+			},
+			'#addTP': {
+				click: function(){
+					var r = Ext.ModelManager.create({
+						}, 'app.model.JointPartner.TPModel');
+					controller.detailStore.insert(0, r);
+					return true;
+				}
+			},
+			'#refreshTP': {
+				click: function(){
+					controller.refreshTP();
+				}
+			},
+			'#savePricelist': {
+				click: function(){
+					controller.savePricelist();
+					return true;
+				}
+			},
 		});
+		
+		
+	controller.initStores();
 	},
 	
 	loadDictionaries: function(){
 		var controller=this;
 		
-		controller.partnerStore.load();
+		/*controller.partnerStore.load();
 		controller.detailStore.proxy.extraParams={
 			master_id: -1
 		};
-		controller.detailStore.load();
+		controller.detailStore.load();*/
 		
-		for (var i = 0; i < controller.records.length; i++) {
-			col=Ext.getCmp('PlaceunloadTable').columns[i*2+1];
-			controller.makeComboColumn(col,controller.tpComboStore[i], controller.detailStore, '');
-			col=Ext.getCmp('PlaceunloadTable').columns[i*2+2];
-			controller.makeComboColumn(col,controller.plComboStore[i], controller.detailStore, '');
-		}
+		/*for (var i = 0; i < controller.records.length; i++) {
+			col=Ext.getCmp('TPTable').columns[i+2];
+			controller.makeComboColumn(col,controller.tpComboStore,controller.detailStore, '');
+		}*/
 	},
 	
 	initStores: function(){
 		var controller=this,
 			partnerTable = Ext.getCmp('PartnerTable'),
-			placeunloadTable = Ext.getCmp('PlaceunloadTable');
-		
+			TPTable=Ext.getCmp('TPTable'),
+			pricelistTable = Ext.getCmp('PricelistTable'),
+			podrColumn=TPTable.columns[0],
+			pricelistColumn=pricelistTable.columns[4];
+			
+
+		controller.detailStore=TPTable.store;
 		controller.partnerStore=partnerTable.store;
+		controller.pricelistStore=pricelistTable.store;
+		controller.podrStore=Ext.create('Ext.data.Store', {
+			extend: 'Ext.data.Store',
+			model: 'app.model.valueModel',
+			proxy: {
+				type: 'rest',
+				url : '/joint_partner/podr',
+				reader: {
+					type: 'json'
+				}
+			}
+		});
+		controller.podrStore.load();
 		
-		controller.detailStore=placeunloadTable.store;
+		controller.makeComboColumn(pricelistColumn,controller.plComboStore,controller.pricelistStore);
+		Ext.getCmp('PricelistTable').columns[4].field.addListener(
+			"focus",
+			function(field, eOpts){
+				var r = Ext.getCmp('PricelistTable').getSelectionModel().getSelection()[0];
+				controller.plComboStore.clearFilter(true);
+				controller.plComboStore.filter("plset",r.get('id'));
+				return true;
+			}
+		);
 		
-		
-		controller.loadDictionaries();
+		//controller.loadDictionaries();
 	},
 	
 	makeComboColumn: function(column, storeCombo, tableStore, property, allowNull, onlyRenderer){
