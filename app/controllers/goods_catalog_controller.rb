@@ -188,21 +188,15 @@ class GoodsCatalogController < ApplicationSimpleErrorController
 	end
 	
 	def get_union_picture_small
-    res = RuzaPicture.connection.select_value("
-    SELECT small_picture
-    FROM union_goods_pictures
-    WHERE id = (#{params[:id].to_i})")
+    picture = UnionGoodsPicture.find(params[:id])
     
-    render text: res
+    render text: picture.small_picture, content_type: picture.content_type
   end
   
   def get_union_picture_full
-    res = RuzaPicture.connection.select_value("
-    SELECT full_picture
-    FROM union_goods_pictures
-    WHERE id = (#{params[:id].to_i})")
+    picture = UnionGoodsPicture.find(params[:id])
     
-    render text: res
+    send_data(picture.full_picture, filename: picture.name, type: picture.content_type) 
   end
   
   def fill_pictures_sizes
