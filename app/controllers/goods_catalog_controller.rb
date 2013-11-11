@@ -226,6 +226,10 @@ class GoodsCatalogController < ApplicationSimpleErrorController
 	    picture.content_type = params[:image].content_type
 	    picture.full_picture = full_image.to_blob
 	    picture.small_picture = small_image.to_blob
+	    picture.width = full_image.columns
+      picture.height = full_image.rows
+      picture.small_width = small_image.columns
+      picture.small_height = small_image.rows
       
       if picture.save
         begin
