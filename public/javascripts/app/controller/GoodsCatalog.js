@@ -61,6 +61,9 @@ Ext.define('app.controller.GoodsCatalog', {
 	loadMaster: function(){
 		var controller = this;
 		
+		controller.masterStore.proxy.extraParams = {
+			name: Ext.getCmp('UnionGoodsName').getValue()
+		};
 		controller.masterStore.load(
 			function(records, operation, success){
 				if(success!==true){
@@ -206,6 +209,15 @@ Ext.define('app.controller.GoodsCatalog', {
 				keypress: function(field, e, eOpts){
 					if(e.getKey()==Ext.EventObject.ENTER){
 						controller.loadCatGoods();
+						field.focus();
+					}
+					return true;
+				}
+			},
+			'#UnionGoodsName': {
+				keypress: function(field, e, eOpts){
+					if(e.getKey()==Ext.EventObject.ENTER){
+						controller.loadMaster();
 						field.focus();
 					}
 					return true;

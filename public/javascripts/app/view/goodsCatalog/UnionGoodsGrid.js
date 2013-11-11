@@ -6,11 +6,22 @@ Ext.define('app.view.goodsCatalog.UnionGoodsGrid', {
 		store: 'goodsCatalog.UnionGoods',
 		suffix: 'UnionGoods',
 		disableDeleteColumn: true,
+		enableBuffering: true,
 		title: 'Товары каталога',
 		selModel: {
 			mode: "MULTI"
 		},
 		selType: 'checkboxmodel',
+		beforeButtons:[
+			{
+				id: 'UnionGoodsName',
+				xtype: 'textfield',
+				fieldLabel: 'Наименование товара',
+				enableKeyEvents: true,
+				width: 400,
+				labelWidth: 120
+			}
+		],
 		columns: [
 			{
 				width: 700,
