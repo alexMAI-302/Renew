@@ -44,9 +44,9 @@ class GoodsCatalogController < ApplicationSimpleErrorController
       id = params[:id].to_i
       
       res = ActiveRecord::Base.connection.delete("
-      DELETE FROM dbo.union_goods WHERE id = #{id};
       DELETE FROM dbo.union_goods_pictures_link
-      WHERE union_goods_id = #{id}")
+      WHERE union_goods_id = #{id};
+      DELETE FROM dbo.union_goods WHERE id = #{id};")
       
       res = RuzaPicture.connection.delete("
       DELETE FROM dbo.union_goods_pictures
