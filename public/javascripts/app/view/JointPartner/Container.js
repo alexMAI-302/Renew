@@ -14,24 +14,24 @@ Ext.define('app.view.JointPartner.Container', {
 	 layout: {
 		type: 'border'
 	},
-
-
 	
 	items: [
 		{
 			xtype: 'jointPartnerGrid',
 			region: 'north',
 			split: true,
-			flex: 1
+			height: 163
 		},
 		{
 			xtype: 'jointPartnerItemGrid',
 			region: 'center',
 			flex: 1
+
 		},
 		{
 			xtype: 'jointPartnerPricelist',
 			region: 'east',
+			split: true,
 			flex: 1
 		}
 	]

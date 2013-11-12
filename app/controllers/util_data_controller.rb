@@ -174,7 +174,7 @@ class UtilDataController < ApplicationSimpleErrorController
   end
   
   def get_period
-    period = ActiveRecord::Base.connection.select_all("SELECT id, CONVERT(VARCHAR(10), ddateb, 111)+'-'+CONVERT(VARCHAR(10), ddateb, 111) name FROM period ORDER BY ddateb DESC")
+    period = ActiveRecord::Base.connection.select_all("SELECT id, CONVERT(VARCHAR(10), ddateb, 111)+'-'+CONVERT(VARCHAR(10), ddatee, 111) name FROM period ORDER BY ddateb DESC")
     render :text => period.to_json
   end
 end

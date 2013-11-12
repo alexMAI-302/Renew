@@ -378,6 +378,20 @@ Ext.define('app.controller.JointPartner', {
 				}
 
 			},
+			'#filterName': {
+				specialkey: function(field, e, eOpts){
+					if(e.getKey()==e.ENTER){
+						controller.refreshPartner();
+					}
+				}
+			},
+			'#filterInn': {
+				specialkey: function(field, e, eOpts){
+					if(e.getKey()==e.ENTER){
+						controller.refreshPartner();
+					}
+				}
+			},
 			'#TPTable': {
 				cellclick: function( sm, td, cellIndex, record, tr, rowIndex, e, eOpts ){
 					if(record!=null && cellIndex>0){
