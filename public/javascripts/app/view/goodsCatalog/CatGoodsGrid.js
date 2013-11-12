@@ -9,6 +9,7 @@ Ext.define('app.view.goodsCatalog.CatGoodsGrid', {
 		disableDelete: true,
 		disableAdd: true,
 		disableSave: true,
+		enableBuffering: true,
 		title: 'Товары CAT',
 		selModel: {
 			mode: "MULTI"

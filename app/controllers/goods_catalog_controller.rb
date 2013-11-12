@@ -16,6 +16,8 @@ class GoodsCatalogController < ApplicationSimpleErrorController
         name
       FROM
         dbo.union_goods
+      WHERE
+        name like '%#{ActiveRecord::Base.connection.quote_string(params[:name])}%'
       ORDER BY
         name")
       
@@ -105,45 +107,45 @@ class GoodsCatalogController < ApplicationSimpleErrorController
 	
 	def get_goods
 	  val = ActiveRecord::Base.connection.quote_string(params[:name])
-	  if val!=''
-	    show_only_without_picture = params[:show_only_without_picture].to_i
-	    res = ActiveRecord::Base.connection.select_all("
-      SELECT
-        id,
-        short_name name,
-        (SELECT list(ug.name)
-        FROM dbo.union_goods ug JOIN dbo.cat_goods_in_union cgu ON ug.id=cgu.union_goods_id
-        WHERE cgu.cat_goods_id = g.id) union_goods_names,
-        IF EXISTS (
-          SELECT
-            *
-          FROM
-            union_goods_pictures_link pl
-            JOIN union_goods ug ON ug.id = pl.union_goods_id
-            JOIN dbo.cat_goods_in_union cgu ON ug.id=cgu.union_goods_id
-          WHERE
-            g.id = cgu.cat_goods_id
-        )
-        THEN 1 ELSE 0 END IF has_picture
-      FROM
-        goods g
-      WHERE
-        g.short_name like '%#{val}%'
-        AND
+	  show_only_without_picture = params[:show_only_without_picture].to_i
+    res = ActiveRecord::Base.connection.select_all("
+    SELECT
+      id,
+      short_name name,
+      (SELECT list(ug.name)
+      FROM dbo.union_goods ug JOIN dbo.cat_goods_in_union cgu ON ug.id=cgu.union_goods_id
+      WHERE cgu.cat_goods_id = g.id) union_goods_names,
+      IF EXISTS (
+        SELECT
+          *
+        FROM
+          union_goods_pictures_link pl
+          JOIN union_goods ug ON ug.id = pl.union_goods_id
+          JOIN dbo.cat_goods_in_union cgu ON ug.id=cgu.union_goods_id
+        WHERE
+          g.id = cgu.cat_goods_id
+      )
+      THEN 1 ELSE 0 END IF has_picture
+    FROM
+      goods g
+    WHERE
+      (
+        (TRIM('#{val}') <> '' AND g.short_name like '%#{val}%')
+        OR
+        (TRIM('#{val}')  = '' AND g.id IN (SELECT goods FROM remains))
+      )
+      AND
+      (
+        #{show_only_without_picture}<>1
+        OR
         (
-          #{show_only_without_picture}<>1
-          OR
-          (
-            #{show_only_without_picture}=1
-            AND
-            has_picture<>1
-          )
-        )")
-      
-      render text: res.to_json
-	  else
-	    render text: "[]"
-	  end
+          #{show_only_without_picture}=1
+          AND
+          has_picture<>1
+        )
+      )")
+    
+    render text: res.to_json
 	end
 	
 	def union_pictures
@@ -190,13 +192,17 @@ class GoodsCatalogController < ApplicationSimpleErrorController
 	def get_union_picture_small
     picture = UnionGoodsPicture.find(params[:id])
     
-    render text: picture.small_picture, content_type: picture.content_type
+    response.headers['Content-Type'] = picture.content_type
+    response.headers['Content-Disposition'] = 'inline'
+    render text: picture.small_picture
   end
   
   def get_union_picture_full
     picture = UnionGoodsPicture.find(params[:id])
     
-    send_data(picture.full_picture, filename: picture.name, type: picture.content_type) 
+    response.headers['Content-Type'] = picture.content_type
+    response.headers['Content-Disposition'] = 'inline'
+    render text: picture.full_picture 
   end
   
   def fill_pictures_sizes
