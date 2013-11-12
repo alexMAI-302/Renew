@@ -13,10 +13,16 @@ Ext.define('app.view.Letter.Filter', {
 	},
 	items: [
 		{
+				id : 'printLetterLetters',
+				xtype : 'button',
+				text: 'Распечатать',
+				tooltip: 'Печать'
+		},
+		{
 			xtype: 'combobox',
 			fieldLabel: 'Период',
 			id : 'periodCombo',			
-			labelAlign: 'left',
+			labelAlign: 'right',
 			displayField: 'name',
 			valueField: 'id',
 			allowBlank: false,
@@ -24,16 +30,19 @@ Ext.define('app.view.Letter.Filter', {
 			width: 260
 		},
 		{
+			xtype: 'textfield',
+			fieldLabel: 'Префикс',
+			id : 'prefixTextfield',			
+			labelAlign: 'right',
+			allowBlank: true,
+			width: 200
+		},
+		{
 				id : 'filterLetterLetters',
 				xtype : 'button',
 				icon : '/ext/resources/themes/images/default/grid/refresh.gif',
 				tooltip: 'Фильтр/обновить'
-		},
-		{
-				id : 'printLetterLetters',
-				xtype : 'button',
-				text: 'Распечатать',
-				tooltip: 'Печать'
 		}
+
 	]	
 });
