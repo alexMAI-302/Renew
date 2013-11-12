@@ -44,20 +44,6 @@ Ext.define('app.view.Letter.Container', {
 					disabled: true
 				},
 				{
-					header: 'Выдавать',
-					xtype: 'checkcolumn',
-					dataIndex: 'issue',
-					width: 70
-				},
-				{
-					width: 300,
-					header: 'Информация',
-					dataIndex: 'info',
-					field: {
-					xtype: 'textfield'
-					}
-				},
-				{
 					width: 300,
 					header: 'Размещение',
 					dataIndex: 'cname',
@@ -73,6 +59,21 @@ Ext.define('app.view.Letter.Container', {
 					dataIndex: 'status',
 					width: 70,
 					disabled: true
+				},
+				{
+					header: 'Выдавать',
+					xtype: 'checkcolumn',
+					dataIndex: 'issue',
+					width: 70,
+					stopSelection: false
+				},
+				{
+					width: 300,
+					header: 'Информация',
+					dataIndex: 'info',
+					field: {
+					xtype: 'textfield'
+					}
 				}						
 		
 			]

@@ -7,8 +7,9 @@ class LetterController < ApplicationSimpleErrorController
 	def letter
 		case request.method.to_s
 			when "get"
+			  prefix = ActiveRecord::Base.connection.quote (params[:prefix]).to_s
 				rst = ActiveRecord::Base.connection.select_all("
-        call dbo.ask_konvert_term_period('#{params[:period].to_i}')")
+        call dbo.ask_konvert_term_period(#{params[:period].to_i}, #{prefix})")
         render :text => rst.to_json
 #			when "post"
 #			render :text => "[]"
