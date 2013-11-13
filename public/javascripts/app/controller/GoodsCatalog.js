@@ -161,6 +161,7 @@ Ext.define('app.controller.GoodsCatalog', {
 			},
 			'#saveUnionGoods': {
 				click: function(){
+					controller.masterStore.proxy.extraParams = {};
 					controller.masterStore.sync({
 						callback: function(batch){
 							if(batch.exceptions.length>0){
@@ -260,6 +261,7 @@ Ext.define('app.controller.GoodsCatalog', {
 					}, 'app.model.valueModel');
 					controller.masterStore.add(r);
 					r.setProxy(controller.masterStore.getProxy());
+					r.proxy.extraParams = {};
 					r.save({
 						callback: function(batch){
 							if(batch.exceptions!=null && batch.exceptions.length>0){
@@ -302,8 +304,10 @@ Ext.define('app.controller.GoodsCatalog', {
 			},
 			'#savePicture': {
 				click: function(){
+					var r = Ext.getCmp('UnionGoodsTable').getSelectionModel().getSelection()[0],
+						id = r.get('id');
 					controller.picturesStore.proxy.extraParams = {
-						master_id: Ext.getCmp('UnionGoodsTable').getSelectionModel().getSelection()[0].get('id')
+						master_id: (id!=null && id!=0) ? id : r.getId()
 					};
 					controller.picturesStore.sync({
 						callback: function(batch){

@@ -178,7 +178,6 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 					controller.buyersStore.removeAll();
 					Ext.getCmp('partnerCombo').setValue(null);
 					Ext.getCmp('buyerCombo').setValue(null);
-					Ext.getCmp('safariId').setDisabled(!records[0].get('show_safari_id'));
 					return true;
 				},
 				change: controller.onChangeBuyerData
@@ -415,7 +414,6 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 					safariIdCmp = Ext.getCmp('safariId');
 				
 				safariIdCmp.setValue(safariId);
-				safariIdCmp.setVisible(true);
 			}
 		}
 	},

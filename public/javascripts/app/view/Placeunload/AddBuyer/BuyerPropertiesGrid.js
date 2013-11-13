@@ -59,8 +59,7 @@ Ext.define('app.view.Placeunload.AddBuyer.BuyerPropertiesGrid', {
 			id: 'safariId',
 			fieldLabel: "SAFARI_ID",
 			width: '100%',
-			labelWidth: 110,
-			disabled: true
+			labelWidth: 110
 		}
 	]
 });
