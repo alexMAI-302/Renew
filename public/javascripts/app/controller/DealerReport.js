@@ -100,11 +100,15 @@ Ext.define('app.controller.DealerReport', {
 						hidden : true
 					},
 					{
-					
 						width: 300,
 						header: 'Агент',
 						dataIndex: 'name'
-					}
+					},
+					{
+						width: 200,
+						header: 'Email',
+						dataIndex: 'email'
+					},
 				];
 		
 		
@@ -115,16 +119,20 @@ Ext.define('app.controller.DealerReport', {
 			{
 			name: 'name',
 			type: 'string'
+			},
+			{
+			name: 'email',
+			type: 'string'
 			}
 		];
 		
 				controller.loadReport();
 				for (var i = 0; i < controller.records.length; i++) {
-					fields[i+2] =  {
+					fields[i+3] =  {
 						name: 'report_'+controller.records[i].id,
 						type: 'boolean'	
 					};
-					columns[i+2] = {
+					columns[i+3] = {
 						header: controller.records[i].name,
 						width : 50,
 						dataIndex: 'report_'+controller.records[i].id,
