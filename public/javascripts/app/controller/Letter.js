@@ -56,7 +56,7 @@ Ext.define('app.controller.Letter', {
 
 		Ext.getCmp('LetterTable').getPlugin('celleditingLetter').addListener("beforeedit", function(editor, e, eOpts) {
 			r = Ext.getCmp('LetterTable').getSelectionModel().getSelection()[0];
-			if (r.get('status') == 1 ) {
+			if (r.get('status') == 1 && r.get('issue') == 1 ) {
 				return true;
 			} else {
 				return false;
