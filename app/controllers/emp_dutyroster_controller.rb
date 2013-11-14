@@ -9,7 +9,8 @@ class EmpDutyrosterController < ApplicationSimpleErrorController
     when "get"
       ddatebf=Time.parse(params[:ddatebf]).strftime('%F')
       ddateef=Time.parse(params[:ddateef]).strftime('%F')
-      rs = ActiveRecord::Base.connection.select_all("select * from dbo.emp_dutyroster where not (ddatee < '#{ddatebf}'  or ddateb > '#{ddateef}') order by ddateb")
+      dutytypef = params[:dutytypef].to_i
+      rs = ActiveRecord::Base.connection.select_all("select * from dbo.emp_dutyroster where not (ddatee < '#{ddatebf}'  or ddateb > '#{ddateef}') and  (dutytype =#{dutytypef} or #{dutytypef}  =  0)   order by ddateb")
       render :text => rs.to_json
     when "put"
       ddateb=(params[:ddateb].nil? || params[:ddateb].to_s=='')?('1900-01-01'):Time.parse(params[:ddateb]).strftime('%F')
