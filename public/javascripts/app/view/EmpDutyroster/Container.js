@@ -19,10 +19,22 @@ Ext.define('app.view.EmpDutyroster.Container', {
 			{
 				xtype: 'dateIntervalFilter',
 				suffix: 'EmpDutyroster',
-				shiftInterval: Ext.Date.MONTH,
-				shiftBegin: -1,
-				filterbutton: false
-			}
+				beginDate: Ext.Date.format(Ext.Date.getFirstDateOfMonth (new Date()), 'Y.m.d'),
+				endDate: Ext.Date.format(Ext.Date.getLastDateOfMonth (new Date()), 'Y.m.d'),
+				filterbutton: false,
+				filterItems: [
+					{
+						id: 'dutytypeCombo',
+						xtype: 'combobox',
+						displayField: 'name',
+						valueField: 'id',
+						name: 'dutytypeCombo',
+						fieldLabel: 'Тип дежурства',
+						width: 300,
+						labelWidth: 100
+					}]
+			},
+				
 		],
 		columns : [
 			{

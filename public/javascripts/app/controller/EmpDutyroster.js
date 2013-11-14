@@ -17,7 +17,6 @@ Ext.define('app.controller.EmpDutyroster', {
 	],
 	
 	mainContainer: null,
-	
 	PersonStore: null,
 	masterStore: null,
 	EmpDutytypeStore: null,
@@ -64,7 +63,8 @@ Ext.define('app.controller.EmpDutyroster', {
 				         controller.masterStore.proxy.extraParams=
 						 {
 						ddatebf: Ext.getCmp('ddatebEmpDutyroster').getValue(),
-						ddateef: Ext.getCmp('ddateeEmpDutyroster').getValue()
+						ddateef: Ext.getCmp('ddateeEmpDutyroster').getValue(),
+					    dutytypef : Ext.getCmp('dutytypeComboEmpDutyroster').getValue()
 						
 						};
 					controller.masterStore.load();
@@ -100,8 +100,8 @@ Ext.define('app.controller.EmpDutyroster', {
 					controller.masterStore.proxy.extraParams=
 						 {
 						ddatebf: Ext.getCmp('ddatebEmpDutyroster').getValue(),
-						ddateef: Ext.getCmp('ddateeEmpDutyroster').getValue()
-						
+						ddateef: Ext.getCmp('ddateeEmpDutyroster').getValue(),
+						dutytypef : Ext.getCmp('dutytypeComboEmpDutyroster').getValue()
 						};
 					controller.masterStore.load(
 						function(records, operation, success){
@@ -119,18 +119,23 @@ Ext.define('app.controller.EmpDutyroster', {
 	
 	initStores: function(){
 		var controller=this,
-			EmpDutyrosterTable = Ext.getCmp('EmpDutyrosterTable');
+		EmpDutyrosterTable = Ext.getCmp('EmpDutyrosterTable');
+
 		
 		controller.masterStore = EmpDutyrosterTable.getStore();
 		controller.PersonStore = EmpDutyrosterTable.columns[0].store;
 		controller.EmpDutytypeStore=EmpDutyrosterTable.columns[3].store;
-		
 		controller.loadDictionaries();
+	},
+	bindStores: function(){
+		var controller=this;
+		Ext.getCmp('dutytypeComboEmpDutyroster').bindStore(controller.EmpDutytypeStore);
+		Ext.getCmp('dutytypeComboEmpDutyroster').value=1
 	},
 	
 	onLaunch: function(){
 		var controller = this;
-		
 		controller.initStores();
+		controller.bindStores();
 	}
 });
