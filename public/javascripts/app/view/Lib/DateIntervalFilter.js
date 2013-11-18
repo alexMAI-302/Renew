@@ -8,11 +8,12 @@ Ext.define('app.view.Lib.DateIntervalFilter', {
 	 * @param {Object} config Config object.
 	 * suffix - специальное имя для компонента. используется при построении идентификатора объектов
 	 * filterButton - объект конфигурации кнопки фильтра
-	 * startDate - дата начала периода. По умолчанию сегодня
+	 * beginDate - дата начала периода. По умолчанию сегодня
 	 * endDate - дата конца периода. По умолчанию сегодня
 	 * shiftInterval - интервал сдвига (на основе констант Ext.Date). По умолчанию Ext.Date.DAY
 	 * shiftBegin - величина сдвига относительно даты конца. По умолчанию 0
 	 * shiftEnd - величина сдвига относительно даты конца. По умолчанию 0
+	 * filterItems - дополнительные элементы фильтра.
 	 * extraItems - дополнительные элементы. Передается "сырая" конфигурация
 	 */
 	constructor : function(currentConfig) {
@@ -59,7 +60,7 @@ Ext.define('app.view.Lib.DateIntervalFilter', {
 
 		if(config.filterItems != null) {
 			for(var i = 0; i < config.filterItems.length; i++) {
-				config.filterItems[i].id += config.suffix
+				config.filterItems[i].id += config.suffix;
 				items.push(config.filterItems[i]);
 			}
 		}
@@ -79,7 +80,7 @@ Ext.define('app.view.Lib.DateIntervalFilter', {
 		
 		if(config.extraItems != null) {
 			for(var i = 0; i < config.extraItems.length; i++) {
-				config.extraItems[i].id += config.suffix
+				config.extraItems[i].id += config.suffix;
 				items.push(config.extraItems[i]);
 			}
 		}
