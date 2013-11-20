@@ -16,7 +16,7 @@ class TermDelivery::MakeAutoCommonSetupController < ApplicationSimpleErrorContro
     ORDER BY
       name")
 
-    render :text => res.to_json
+	  render :text => res.to_json
   end
 
   def terminals
@@ -26,46 +26,11 @@ class TermDelivery::MakeAutoCommonSetupController < ApplicationSimpleErrorContro
       str=ActiveRecord::Base.connection.quote(params[:str].to_s.strip)
 
       if zone_id!=-1 || str!="''"
-        res=ActiveRecord::Base.connection.select_all("
-          SELECT
-            pt.id,
-            pt.name,
-            pt.code,
-            pt.address,
-            GET_BIT(sd.week_days, 2) monday,
-            GET_BIT(sd.week_days, 3) tuesday,
-            GET_BIT(sd.week_days, 4) wednesday,
-            GET_BIT(sd.week_days, 5) thursday,
-            GET_BIT(sd.week_days, 6) friday,
-            GET_BIT(sd.week_days, 7) saturday,
-            GET_BIT(sd.week_days, 1) sunday,
-            sd.exclude,
-            pt.info
-          FROM
-            pps_terminal pt
-              LEFT JOIN pps_terminal_skip_days sd ON sd.terminal_id=pt.id
-          WHERE
-            (
-              #{str}=''
-              OR
-              pt.code like '%'+#{str}+'%'
-              OR
-              pt.address like '%'+#{str}+'%'
-              OR
-              pt.name like '%'+#{str}+'%'
-            )
-            AND
-            (
-              #{zone_id}=-1
-              OR
-              pt.id IN (SELECT pzt.pps_terminal FROM pps_zone_terminal pzt WHERE pzt.zoneid=#{zone_id})
-            )
-          ORDER BY
-            pt.name")
+        res=ActiveRecord::Base.connection.select_all("call dbo.ask_make_auto_common_setup( #{zone_id}, #{str})")
       else
       res=[]
       end
-
+		
       render :text => res.to_json
     when "put"
       id=params[:id].to_i
@@ -96,8 +61,36 @@ class TermDelivery::MakeAutoCommonSetupController < ApplicationSimpleErrorContro
         ActiveRecord::Base.connection.execute("
           DELETE FROM pps_terminal_skip_days WHERE terminal_id=#{id}")
       end
-      
-      PpsTerminal.update(id, {:info => info})
+	  PpsTerminal.update(id, {:info => info})
+	  
+	  time_begin=ActiveRecord::Base.connection.quote(params[:monday_time_begin]? params[:monday_time_begin][11..15]: "")
+	  time_end=  ActiveRecord::Base.connection.quote(params[:monday_time_end]  ? params[:monday_time_end][11..15]: "")
+	  ActiveRecord::Base.connection.execute("call dbo.prc_pps_terminal_worktime_save(#{id},2,#{time_begin},#{time_end})")
+	 
+	  time_begin=ActiveRecord::Base.connection.quote(params[:tuesday_time_begin]? params[:tuesday_time_begin][11..15]: "")
+	  time_end=  ActiveRecord::Base.connection.quote(params[:tuesday_time_end]  ? params[:tuesday_time_end][11..15]: "")
+	  ActiveRecord::Base.connection.execute("call dbo.prc_pps_terminal_worktime_save(#{id},3,#{time_begin},#{time_end})")
+	  
+	  time_begin=ActiveRecord::Base.connection.quote(params[:wednesday_time_begin]? params[:wednesday_time_begin][11..15]: "")
+	  time_end=  ActiveRecord::Base.connection.quote(params[:wednesday_time_end]  ? params[:wednesday_time_end][11..15]: "")
+	  ActiveRecord::Base.connection.execute("call dbo.prc_pps_terminal_worktime_save(#{id},4,#{time_begin},#{time_end})")
+	  
+	  time_begin=ActiveRecord::Base.connection.quote(params[:thursday_time_begin]? params[:thursday_time_begin][11..15]: "")
+	  time_end=  ActiveRecord::Base.connection.quote(params[:thursday_time_end]  ? params[:thursday_time_end][11..15]: "")
+	  ActiveRecord::Base.connection.execute("call dbo.prc_pps_terminal_worktime_save(#{id},5,#{time_begin},#{time_end})")
+	  
+	  time_begin=ActiveRecord::Base.connection.quote(params[:friday_time_begin]? params[:friday_time_begin][11..15]: "")
+	  time_end=  ActiveRecord::Base.connection.quote(params[:friday_time_end]  ? params[:friday_time_end][11..15]: "")
+	  ActiveRecord::Base.connection.execute("call dbo.prc_pps_terminal_worktime_save(#{id},6,#{time_begin},#{time_end})")
+	  
+	  time_begin=ActiveRecord::Base.connection.quote(params[:saturday_time_begin]? params[:saturday_time_begin][11..15]: "")
+	  time_end=  ActiveRecord::Base.connection.quote(params[:saturday_time_end]  ? params[:saturday_time_end][11..15]: "")
+	  ActiveRecord::Base.connection.execute("call dbo.prc_pps_terminal_worktime_save(#{id},7,#{time_begin},#{time_end})")
+	  
+	  time_begin=ActiveRecord::Base.connection.quote(params[:sunday_time_begin]? params[:sunday_time_begin][11..15]: "")
+	  time_end=  ActiveRecord::Base.connection.quote(params[:sunday_time_end]  ? params[:sunday_time_end][11..15]: "")
+	  ActiveRecord::Base.connection.execute("call dbo.prc_pps_terminal_worktime_save(#{id},1,#{time_begin},#{time_end})")
+	      
 
       render :text => {"success" => true}.to_json
     end
