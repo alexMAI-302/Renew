@@ -20,7 +20,10 @@ Ext.define('app.controller.DealerReport', {
 	saveDealer : function (container)
 	{
 		var controller=this,
-			checked=[];
+			checked=[],
+			email=[],
+			checked_ok=0,
+			email_ok=0;
 		
 		controller.Container.setLoading(true);
 		
@@ -37,6 +40,13 @@ Ext.define('app.controller.DealerReport', {
 						});
 					};
 				}
+				if (r.modified['email']!==undefined)
+				{
+						email.push({
+							dealer :  r.get('id'),
+							email	: r.get('email')
+						});
+				};
 			}
 			
 			return true;
@@ -49,14 +59,39 @@ Ext.define('app.controller.DealerReport', {
 			method: 'POST',
 			timeout: 300000,
 			success: function(response){
-				controller.refreshDealer();
-				controller.Container.setLoading(false);
+				checked_ok=1;
+				if (email_ok==1)
+				{
+					controller.refreshDealer();
+					controller.Container.setLoading(false);
+				}
 			},
 			failure: function(response){
 				controller.Container.setLoading(false);
 				controller.showServerError(response);
 			}
 		});
+		
+		Ext.Ajax.request({
+			url: '/dealer_report/dealer_email',
+			params: {authenticity_token: window._token},
+			jsonData: email,
+			method: 'POST',
+			timeout: 300000,
+			success: function(response){
+				email_ok=1;
+				if (checked_ok==1)
+				{
+					controller.refreshDealer();
+					controller.Container.setLoading(false);
+				}
+			},
+			failure: function(response){
+				controller.Container.setLoading(false);
+				controller.showServerError(response);
+			}
+		});
+		
 	},
 	
 	loadReport: function(){
@@ -107,22 +142,25 @@ Ext.define('app.controller.DealerReport', {
 					{
 						width: 200,
 						header: 'Email',
-						dataIndex: 'email'
+						dataIndex: 'email',
+						field: {
+							xtype: 'textfield'
+						}
 					},
 				];
 		
 		
 		fields = [{
-			name: 'id',
-			type: 'int'
+				name: 'id',
+				type: 'int'
 			},
 			{
-			name: 'name',
-			type: 'string'
+				name: 'name',
+				type: 'string'
 			},
 			{
-			name: 'email',
-			type: 'string'
+				name: 'email',
+				type: 'string'
 			}
 		];
 		

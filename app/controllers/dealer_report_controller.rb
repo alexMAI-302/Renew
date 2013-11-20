@@ -19,6 +19,18 @@ class DealerReportController < ApplicationSimpleErrorController
 		end
   end
   
+  def dealer_email
+	  case request.method.to_s
+		when "post"
+			rows=ActiveSupport::JSON.decode(request.body.gets)
+			items=rows.to_xml(:root => "rows")
+			s = "call dbo.prc_dealer_report_email_save(#{ActiveRecord::Base.connection.quote(items)})"
+			r = ActiveRecord::Base.connection.execute(s)
+			logger.info(s)
+			render :text => {"success" => true}.to_json
+		end
+  end
+  
    def report
     case request.method.to_s
       when "get"
