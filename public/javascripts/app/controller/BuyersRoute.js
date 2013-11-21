@@ -53,7 +53,7 @@ Ext.define('app.controller.BuyersRoute', {
 			}
 			Ext.Msg.alert(
 				"Ошибка",
-				"Зоны "+zones.join()+" имеют пересечение."
+				"Зоны "+zones.join()+" имеют пересечение.\n Данные не сохранены."
 			);
 		} else {
 			if (controller.storeHasChanges(controller.masterStore)){
