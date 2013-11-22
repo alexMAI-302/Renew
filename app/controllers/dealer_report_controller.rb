@@ -4,11 +4,16 @@ class DealerReportController < ApplicationSimpleErrorController
   def index
   end
     
-  def dealer
+  def get
 	  case request.method.to_s
 		when "get"
 			res=ActiveRecord::Base.connection.select_all("call dbo.ask_dealer_report_checked()")
 			 render :text => res.to_json
+		end
+  end
+  
+  def save
+	  case request.method.to_s
 		when "post"
 			rows=ActiveSupport::JSON.decode(request.body.gets)
 			items=rows.to_xml(:root => "rows")
@@ -19,7 +24,7 @@ class DealerReportController < ApplicationSimpleErrorController
 		end
   end
   
-  def dealer_email
+  def save_email
 	  case request.method.to_s
 		when "post"
 			rows=ActiveSupport::JSON.decode(request.body.gets)
@@ -31,7 +36,7 @@ class DealerReportController < ApplicationSimpleErrorController
 		end
   end
   
-   def report
+  def get_report
     case request.method.to_s
       when "get"
 		res=ActiveRecord::Base.connection.select_all("call dbo.ask_dealer_report_reports()")
