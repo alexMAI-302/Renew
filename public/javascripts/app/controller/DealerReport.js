@@ -53,7 +53,7 @@ Ext.define('app.controller.DealerReport', {
 		});
 		
 		Ext.Ajax.request({
-			url: '/dealer_report/dealer',
+			url: '/dealer_report/save',
 			params: {authenticity_token: window._token},
 			jsonData: checked,
 			method: 'POST',
@@ -73,7 +73,7 @@ Ext.define('app.controller.DealerReport', {
 		});
 		
 		Ext.Ajax.request({
-			url: '/dealer_report/dealer_email',
+			url: '/dealer_report/save_email',
 			params: {authenticity_token: window._token},
 			jsonData: email,
 			method: 'POST',
@@ -97,7 +97,7 @@ Ext.define('app.controller.DealerReport', {
 	loadReport: function(){
 		var controller=this;
 		Ext.Ajax.request({
-			url: '/dealer_report/report',		
+			url: '/dealer_report/get_report',		
 			async: false,
 			success: function(response){
 				var response_json=Ext.JSON.decode(response.responseText, true);
@@ -188,7 +188,7 @@ Ext.define('app.controller.DealerReport', {
 					model: 'app.model.DealerReport.DealerModel',
 					proxy: {
 						type: 'rest',
-						url : '/dealer_report/dealer',
+						url : '/dealer_report/get',
 						reader: {
 							type: 'json'
 						}

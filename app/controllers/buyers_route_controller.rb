@@ -26,7 +26,10 @@ class BuyersRouteController < ApplicationPageErrorController
       latitude,
       longitude
     from
-      placeunload g")
+      placeunload p
+      join buyers_route br on br.id = p.buyers_route_id
+    where
+      br.spv_id = (SELECT id FROM sp_values where sp_tp = 1284 and name = 'Водители ООРТ')")
     
     render :text => res.to_json
   end
@@ -47,6 +50,8 @@ class BuyersRouteController < ApplicationPageErrorController
       from
         buyers_route br
         JOIN site s ON s.id=br.site
+      where
+        br.spv_id = (SELECT id FROM sp_values where sp_tp = 1284 and name = 'Водители ООРТ')
       order by
         s.id,
         br.name")
@@ -100,6 +105,8 @@ class BuyersRouteController < ApplicationPageErrorController
         JOIN placeunload pl ON pl.id = b.placeunload_id
         JOIN buyers_route br ON br.id = pl.buyers_route_id
       WHERE
+        b.spv_id = (SELECT id FROM sp_values where sp_tp = 1284 and name = 'Водители ООРТ')
+        AND
         pl.id IN (#{ActiveRecord::Base.connection.quote_string(params[:points])})")
 
     send_data(
