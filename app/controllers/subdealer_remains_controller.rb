@@ -24,7 +24,7 @@ class SubdealerRemainsController < ApplicationSimpleErrorController
         WHERE 
             dbo.subdealer_remains.ddate BETWEEN '#{ddateb}' AND '#{ddatee}'
         ORDER BY
-            dbo.subdealer_remains.ddate,
+            dbo.subdealer_remains.ddate DESC,
             dbo.subdealer.name
         ")
         render :text => rst.to_json
