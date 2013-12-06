@@ -30,7 +30,7 @@ class SubdealerRemainsController < ApplicationSimpleErrorController
         render :text => rst.to_json
 			when "put"
         id = params[:id].to_i
-        summ = params[:id].to_f
+        summ = params[:summ].to_f
         ActiveRecord::Base.connection.update ("UPDATE dbo.subdealer_remains SET summ = #{summ} WHERE id=#{id}")
         render :text => {"success" => true}.to_json
 #			when "delete"

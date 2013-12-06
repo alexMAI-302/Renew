@@ -78,6 +78,6 @@ Ext.define('app.controller.SubdealerRemains', {
 
 		controller.initStores();
 		controller.bindStores();
-
+		controller.filterSubdealerRemains();
 	}
 }); 
