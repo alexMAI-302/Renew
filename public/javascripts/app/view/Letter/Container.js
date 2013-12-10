@@ -49,7 +49,7 @@ Ext.define('app.view.Letter.Container', {
 					dataIndex: 'cname',
 				},
 				{
-					width: 300,
+					width: 250,
 					header: 'Юр. лицо',
 					dataIndex: 'name',
 				},
@@ -71,6 +71,21 @@ Ext.define('app.view.Letter.Container', {
 					width: 300,
 					header: 'Информация',
 					dataIndex: 'info',
+					field: {
+					xtype: 'textfield'
+					}
+				},
+				{
+					header: 'Выдано',
+					xtype: 'checkcolumn',
+					dataIndex: 'issued',
+					width: 70,
+					stopSelection: false
+				},
+				{
+					width: 300,
+					header: 'Комментарий диспетчера',
+					dataIndex: 'info_issued',
 					field: {
 					xtype: 'textfield'
 					}
