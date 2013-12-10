@@ -1,7 +1,7 @@
 Ext.define('app.controller.Letter', {
 	extend : 'Ext.app.Controller',
 
-	stores : ['Periods', 'Letter.Letters'],
+	stores : ['Periods', 'Letter.Letters', 'Letter.Groups'],
 
 	models : ['valueModel', 'app.model.Letter.LetterModel'],
 
@@ -10,6 +10,10 @@ Ext.define('app.controller.Letter', {
 	mainContainer : null,
 
 	periodsStore : null,
+	
+	groupsStore : null,
+	
+	isdisp : 0,
 
 	filterLetter : function(combo, records, eOpts) {
 		var controller = this;
@@ -55,28 +59,48 @@ Ext.define('app.controller.Letter', {
 		});
 
 		Ext.getCmp('LetterTable').getPlugin('celleditingLetter').addListener("beforeedit", function(editor, e, eOpts) {
-			r = Ext.getCmp('LetterTable').getSelectionModel().getSelection()[0];
-			if (r.get('status') == 1 && r.get('issue') == 1 ) {
-				return true;
-			} else {
-				return false;
+			var r = Ext.getCmp('LetterTable').getSelectionModel().getSelection()[0], res = false;
+			if (r.get('issue') == true){
+				switch(e.field){
+					case 'info':
+						res = controller.isdisp == 0?true:false;
+						break;
+					case 'info_issued':
+						res = controller.isdisp == 1?true:false;
+						break;
+					default:
+						res = false;
+						break;
+				}
+			} else{
+				res = false;
 			}
+
+			return res;
 		}); 
 
 
 		Ext.getCmp('LetterTable').columns[7].addListener("beforecheckchange", function(grid, rowIndex, checked, eOpts) {
-			r=controller.masterStore.getAt(rowIndex);
-			if (r.get('status') == 1 ) {
-				return true;
-			} else {
-				return false;
+			var r=controller.masterStore.getAt(rowIndex), res = false;
+			if (controller.isdisp == 0 ) {
+				res = true;
 			}
+			return res;
+		});
+
+		Ext.getCmp('LetterTable').columns[9].addListener("beforecheckchange", function(grid, rowIndex, checked, eOpts) {
+			var r=controller.masterStore.getAt(rowIndex);
+			var res = false;
+			if (r.get('issue') == 1 && controller.isdisp == 1) {
+				res = true;
+			}
+			return res;
 		});
 
 	},
 
 	loadDictionaries : function() {
-		var controller = this, count = 1;
+		var controller = this, count = 2;
 
 		controller.mainContainer.setLoading(true);
 		function checkLoading(val) {
@@ -89,6 +113,13 @@ Ext.define('app.controller.Letter', {
 			count--;
 			checkLoading(count);
 		});
+
+		controller.groupsStore.load(function(success) {
+			count--;
+			checkLoading(count);
+			controller.isdisp = controller.groupsStore.count()>0?1:0;
+		});
+
 	},
 
 	initStores : function() {
@@ -96,6 +127,7 @@ Ext.define('app.controller.Letter', {
 
 		controller.masterStore = controller.getLetterLettersStore();
 		controller.periodStore = controller.getPeriodsStore();
+		controller.groupsStore = controller.getLetterGroupsStore();
 		controller.loadDictionaries();
 	},
 
@@ -111,6 +143,5 @@ Ext.define('app.controller.Letter', {
 
 		controller.initStores();
 		controller.bindStores();
-
 	}
 }); 

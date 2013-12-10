@@ -8,6 +8,8 @@ Ext.define('app.model.Letter.LetterModel', {
 	{name: 'info', type: 'string'},
 	{name: 'cname', type: 'string'},
 	{name: 'name', type: 'string'},
-	{name: 'status', type: 'boolean'}
+	{name: 'status', type: 'boolean'},
+	{name: 'issued', type: 'boolean'},
+	{name: 'info_issued', type: 'string'},
 ]
 });
