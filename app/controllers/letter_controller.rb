@@ -43,13 +43,12 @@ class LetterController < ApplicationSimpleErrorController
               SELECT @id;
             END;")
         render :text=>{"success"=>true, "id" => id}.to_json
-      elsif issue == 0 && ((info_issued.nil || info_issued.strip =='') || (issued == 0))
+      elsif issue == 0 && ((info_issued.nil? || info_issued.strip =='') || (issued == 0))
         ActiveRecord::Base.connection.update ("DELETE FROM dbo.term_konvert_period WHERE cterm=#{cterm} AND period=#{period};")
         info = ''
         render :text => {"success" => true, "info" => info, "issued" => issued, "info_issued" => info_issued}.to_json
-      elsif issue == 0 && ((!info_issued.nil && !(info_issued.strip =='')) || (issued == 1))
+      elsif issue == 0 && ((!info_issued.nil? && !(info_issued.strip =='')) || (issued == 1))
         ActiveRecord::Base.connection.update ("UPDATE dbo.term_konvert_period SET issue=#{issue}, info=#{info}, issued=#{issued}, info_issued=#{info_issued} WHERE  cterm=#{cterm} AND period=#{period};")
-        info = ''
         render :text => {"success" => true, "info" => info, "issued" => issued, "info_issued" => info_issued}.to_json
       end
     #			when "delete"
