@@ -63,7 +63,7 @@ Ext.define('app.controller.Letter', {
 			if (r.get('issue') == true){
 				switch(e.field){
 					case 'info':
-						res = controller.isdisp == 0?true:false;
+						res = (controller.isdisp == 0 && r.get('issued') == false)?true:false;
 						break;
 					case 'info_issued':
 						res = controller.isdisp == 1?true:false;
@@ -82,7 +82,7 @@ Ext.define('app.controller.Letter', {
 
 		Ext.getCmp('LetterTable').columns[7].addListener("beforecheckchange", function(grid, rowIndex, checked, eOpts) {
 			var r=controller.masterStore.getAt(rowIndex), res = false;
-			if (controller.isdisp == 0 ) {
+			if (controller.isdisp == 0 && r.get('issued') == false ) {
 				res = true;
 			}
 			return res;
@@ -91,7 +91,7 @@ Ext.define('app.controller.Letter', {
 		Ext.getCmp('LetterTable').columns[9].addListener("beforecheckchange", function(grid, rowIndex, checked, eOpts) {
 			var r=controller.masterStore.getAt(rowIndex);
 			var res = false;
-			if (r.get('issue') == 1 && controller.isdisp == 1) {
+			if (r.get('issue') == true && controller.isdisp == 1) {
 				res = true;
 			}
 			return res;
