@@ -8,21 +8,24 @@ Ext.define('app.view.Letter.Container', {
 	],
 	
 	renderTo: 'letter_js',
+
+	width: '100%',
+	layout: {type: 'border'},
+	height: Ext.getBody().getViewSize().height - 120,
 	
 	items:[
 		{
-			xtype: 'letterFilter'
+			xtype: 'letterFilter',
+			region: 'north'
 		},
 		{
 			xtype: 'simpleGrid',
 			suffix: 'Letter',
 			disableRefresh: true,
-			region: 'center',
 			disableDeleteColumn: true,
 			disableDelete: true,
 			disableAdd: true,
 			region: 'center',
-			width: '100%',
 			columns: [
 				{xtype: 'rownumberer',
 					width: 30},
@@ -46,12 +49,12 @@ Ext.define('app.view.Letter.Container', {
 				{
 					width: 300,
 					header: 'Размещение',
-					dataIndex: 'cname',
+					dataIndex: 'cname'
 				},
 				{
 					width: 250,
 					header: 'Юр. лицо',
-					dataIndex: 'name',
+					dataIndex: 'name'
 				},
 				{
 					header: 'Собран',
@@ -89,6 +92,18 @@ Ext.define('app.view.Letter.Container', {
 					field: {
 					xtype: 'textfield'
 					}
+				},
+				{
+					width: 100,
+					header: 'Дата выдал',
+					dataIndex: 'ddate_issued',
+					renderer: function(value, metaData, record){
+					return (value)?Ext.Date.format(new Date(value), 'd.m.Y H:i'):'';}
+				},
+				{
+					width: 150,
+					header: 'Кто выдал',
+					dataIndex: 'user_issued'
 				}						
 		
 			]
