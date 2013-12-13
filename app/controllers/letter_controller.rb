@@ -21,22 +21,42 @@ class LetterController < ApplicationSimpleErrorController
       info = ActiveRecord::Base.connection.quote (params[:info])
       issued= params[:issued]? 1 : 0
       info_issued = ActiveRecord::Base.connection.quote (params[:info_issued])
-
+      user_issued = issued==1?session[:user_id] : 'null'
       if issue == 1
         id = ActiveRecord::Base.connection.select_value("
             BEGIN
               DECLARE @id INT;
-              SET @id = (SELECT TOP 1 id FROM dbo.term_konvert_period WHERE cterm=#{cterm} AND period=#{period});
+              DECLARE @issued INT;
+              SELECT TOP 1 id , isnull(issued, 0) INTO @id, @issued FROM dbo.term_konvert_period WHERE cterm=#{cterm} AND period=#{period};
               IF ISNULL(@id, 0) = 0 THEN
                 BEGIN
                   SET @id=idgenerator('dbo.term_konvert_period');
 
-                  INSERT INTO dbo.term_konvert_period (id, period, cterm, issue, info, issued, info_issued)
-                  VALUES (@id, #{period}, #{cterm}, #{issue}, #{!info.nil? && info.strip!=''?info : 'null'}, #{issued}, #{!info_issued.nil? && info_issued.strip!=''?info_issued : 'null'});
+                  INSERT INTO dbo.term_konvert_period (id, period, cterm, issue, info, issued, info_issued, ddate_issued, user_issued)
+                  VALUES
+                  (
+                    @id,
+                    #{period},
+                    #{cterm},
+                    #{issue},
+                    #{!info.nil? && info.strip!=''?info : 'null'},
+                    #{issued},
+                    #{!info_issued.nil? && info_issued.strip!=''?info_issued : 'null'},
+                    #{issued==1?'getdate()' : 'null'},
+                    '#{user_issued}'
+                  );
                 END;
               ELSE
                 BEGIN
-                  UPDATE dbo.term_konvert_period SET info=#{info}, issued=#{issued}, info_issued=#{info_issued} WHERE  cterm=#{cterm} AND period=#{period};
+                  IF @issued <> #{issued} AND #{issued} = 1 THEN
+                  BEGIN
+                    UPDATE dbo.term_konvert_period SET info=#{info}, issued=#{issued}, info_issued=#{info_issued}, ddate_issued = getdate(), user_issued = '#{session[:user_id]}' WHERE  cterm=#{cterm} AND period=#{period};
+                  END;
+                  ELSE
+                  BEGIN
+                    UPDATE dbo.term_konvert_period SET info=#{info}, issued=#{issued}, info_issued=#{info_issued}, ddate_issued = null, user_issued = null WHERE  cterm=#{cterm} AND period=#{period};
+                  END;
+                  ENDIF;
                 END;
               ENDIF;
 

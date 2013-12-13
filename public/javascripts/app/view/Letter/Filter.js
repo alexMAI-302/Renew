@@ -27,7 +27,7 @@ Ext.define('app.view.Letter.Filter', {
 			valueField: 'id',
 			allowBlank: false,
 			labelWidth: 80,
-			width: 260
+			width: 160
 		},
 		{
 			xtype: 'textfield',
