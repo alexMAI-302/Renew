@@ -21,7 +21,7 @@ class LetterController < ApplicationSimpleErrorController
       info = ActiveRecord::Base.connection.quote (params[:info])
       issued= params[:issued]? 1 : 0
       info_issued = ActiveRecord::Base.connection.quote (params[:info_issued])
-      user_issued = issued==1?session[:user_id] : 'null'
+      #      user_issued = issued==1?session[:user_id] : 'null'
       if issue == 1
         id = ActiveRecord::Base.connection.select_value("
             BEGIN
@@ -31,20 +31,33 @@ class LetterController < ApplicationSimpleErrorController
               IF ISNULL(@id, 0) = 0 THEN
                 BEGIN
                   SET @id=idgenerator('dbo.term_konvert_period');
-
-                  INSERT INTO dbo.term_konvert_period (id, period, cterm, issue, info, issued, info_issued, ddate_issued, user_issued)
-                  VALUES
-                  (
-                    @id,
-                    #{period},
-                    #{cterm},
-                    #{issue},
-                    #{!info.nil? && info.strip!=''?info : 'null'},
-                    #{issued},
-                    #{!info_issued.nil? && info_issued.strip!=''?info_issued : 'null'},
-                    #{issued==1?'getdate()' : 'null'},
-                    '#{user_issued}'
-                  );
+                  IF #{issued} = 1 THEN
+                    INSERT INTO dbo.term_konvert_period (id, period, cterm, issue, info, issued, info_issued, ddate_issued, user_issued)
+                    VALUES
+                    (
+                      @id,
+                      #{period},
+                      #{cterm},
+                      #{issue},
+                      #{!info.nil? && info.strip!=''?info : 'null'},
+                      #{issued},
+                      #{!info_issued.nil? && info_issued.strip!=''?info_issued : 'null'},
+                      #{issued==1?'getdate()' : 'null'},
+                      '#{session[:user_id]}'
+                    );
+                  ELSE
+                    INSERT INTO dbo.term_konvert_period (id, period, cterm, issue, info, issued, info_issued)
+                    VALUES
+                    (
+                      @id,
+                      #{period},
+                      #{cterm},
+                      #{issue},
+                      #{!info.nil? && info.strip!=''?info : 'null'},
+                      #{issued},
+                      #{!info_issued.nil? && info_issued.strip!=''?info_issued : 'null'}
+                    );
+                  ENDIF;
                 END;
               ELSE
                 BEGIN
