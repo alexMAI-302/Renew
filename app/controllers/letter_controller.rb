@@ -63,11 +63,11 @@ class LetterController < ApplicationSimpleErrorController
                 BEGIN
                   IF @issued <> #{issued} AND #{issued} = 1 THEN
                   BEGIN
-                    UPDATE dbo.term_konvert_period SET info=#{info}, issued=#{issued}, info_issued=#{info_issued}, ddate_issued = getdate(), user_issued = '#{session[:user_id]}' WHERE  cterm=#{cterm} AND period=#{period};
+                    UPDATE dbo.term_konvert_period SET issue = #{issue}, info=#{info}, issued=#{issued}, info_issued=#{info_issued}, ddate_issued = getdate(), user_issued = '#{session[:user_id]}' WHERE  cterm=#{cterm} AND period=#{period};
                   END;
                   ELSE
                   BEGIN
-                    UPDATE dbo.term_konvert_period SET info=#{info}, issued=#{issued}, info_issued=#{info_issued}, ddate_issued = null, user_issued = null WHERE  cterm=#{cterm} AND period=#{period};
+                    UPDATE dbo.term_konvert_period SET issue = #{issue}, info=#{info}, issued=#{issued}, info_issued=#{info_issued}, ddate_issued = null, user_issued = null WHERE  cterm=#{cterm} AND period=#{period};
                   END;
                   ENDIF;
                 END;
