@@ -73,7 +73,11 @@ Ext.define('app.controller.Letter', {
 						break;
 				}
 			} else{
-				res = false;
+				if (e.field == 'info_issued'){
+					res = controller.isdisp == 1?true:false;	
+				} else {
+					res = false;
+				}
 			}
 
 			return res;
