@@ -73,30 +73,21 @@ Ext.define('app.view.TerminalKey.Container', {
 			hidden : true
 		}, 
 		{
-			width : 150,
+			width : 100,
 			header : 'Операция',
 			dataIndex : 'type_op',
-			field : {
-				xtype : 'textfield'
-			}
 		}, 
 		{
-			width : 300,
+			width : 200,
 			header : 'Старое значение',
 			dataIndex : 'old_strvalue',
-			field : {
-				xtype : 'textfield'
-			}
 		}, 
 		{
-			width : 300,
+			width : 200,
 			header : 'Новое значение',
 			dataIndex : 'new_strvalue',
-			field : {
-				xtype : 'textfield'
-			}
 		}, {
-			width : 100,
+			width : 150,
 			header : 'Дата',
 			dataIndex : 'ts',
 			renderer : function(value, metaData, record) {
@@ -104,12 +95,9 @@ Ext.define('app.view.TerminalKey.Container', {
 			}
 		}, 
 		{
-			width : 300,
+			width : 200,
 			header : 'Пользователь',
 			dataIndex : 'renew_user',
-			field : {
-				xtype : 'textfield'
-			}
 		}
 		]
 	}]
