@@ -26,6 +26,7 @@ Ext.define('app.model.Letter.LetterModel', {
 	}
 		
 	},
-	{name: 'user_issued', type: 'string'}
+	{name: 'user_issued', type: 'string'},
+	{name: 'manager_id', type: 'int'}
 ]
 });

@@ -108,4 +108,37 @@ class LetterController < ApplicationSimpleErrorController
     ")
     render :text => groups.to_json
   end
+  def get_managers
+    managers = ActiveRecord::Base.connection.select_all("
+      SELECT id, name
+      FROM
+      (
+      SELECT agents.id, agents.name
+      FROM
+          period p
+          JOIN 
+          (
+            contract_term cterm 
+              JOIN buyer_contract bc ON cterm.contract = bc.id
+              JOIN contract_type ctype ON bc.type = ctype.id
+          ) ON isect(cterm.ddateb, dateadd(month,(IF ctype.code = 'payback' THEN isnull(getuseroption('contractextend'),0) ELSE 0 ENDIF),cterm.ddatee), p.ddateb, p.ddatee) > 0
+              JOIN osmp_placement ON osmp_placement.cplacement = cterm.cplacement AND isect(p.ddateb, p.ddatee, osmp_placement.ddate, isnull(osmp_placement.ddatee, '2100-01-01')) > 0
+              JOIN agents ON agents.id = osmp_placement.agent 
+      WHERE
+          p.id = #{params[:period].to_i}
+      UNION
+          SELECT 0, '_Все'
+      ) a
+      ORDER BY name
+    ")
+    render :text => managers.to_json
+  end
+  
+  def get_agents
+    agents = ActiveRecord::Base.connection.select_all(
+    "
+    SELECT agents.id id, agents.name name FROM osmp_placement JOIN agents ON agents.id = osmp_placement.agent GROUP BY agents.id, agents.name
+    " )
+    render :text => agents.to_json
+  end
 end

@@ -1,7 +1,7 @@
 Ext.define('app.controller.Letter', {
 	extend : 'Ext.app.Controller',
 
-	stores : ['Periods', 'Letter.Letters', 'Letter.Groups'],
+	stores : ['Periods', 'Letter.Letters', 'Letter.Groups', 'Letter.Managers', 'Letter.Agents'],
 
 	models : ['valueModel', 'app.model.Letter.LetterModel'],
 
@@ -10,8 +10,12 @@ Ext.define('app.controller.Letter', {
 	mainContainer : null,
 
 	periodsStore : null,
-	
+
 	groupsStore : null,
+
+	managersStore : null,
+
+	agentsStore : null,
 	
 	isdisp : 0,
 
@@ -60,51 +64,69 @@ Ext.define('app.controller.Letter', {
 
 		Ext.getCmp('LetterTable').getPlugin('celleditingLetter').addListener("beforeedit", function(editor, e, eOpts) {
 			var r = Ext.getCmp('LetterTable').getSelectionModel().getSelection()[0], res = false;
-			if (r.get('issue') == true){
-				switch(e.field){
+			if (r.get('issue') == true) {
+				switch(e.field) {
 					case 'info':
-						res = (controller.isdisp == 0 && r.get('issued') == false)?true:false;
+						res = (controller.isdisp == 0 && r.get('issued') == false) ? true : false;
 						break;
 					case 'info_issued':
-						res = controller.isdisp == 1?true:false;
+						res = controller.isdisp == 1 ? true : false;
 						break;
 					default:
 						res = false;
 						break;
 				}
-			} else{
-				if (e.field == 'info_issued'){
-					res = controller.isdisp == 1?true:false;	
+			} else {
+				if (e.field == 'info_issued') {
+					res = controller.isdisp == 1 ? true : false;
 				} else {
 					res = false;
 				}
 			}
 
 			return res;
-		}); 
-
+		});
 
 		Ext.getCmp('LetterTable').columns[7].addListener("beforecheckchange", function(grid, rowIndex, checked, eOpts) {
-			var r=controller.masterStore.getAt(rowIndex), res = false;
-			if (controller.isdisp == 0 && r.get('issued') == false ) {
+			var r = controller.masterStore.getAt(rowIndex), res = false;
+			if (controller.isdisp == 0 && r.get('issued') == false) {
 				res = true;
 			}
+			/*Ext.Msg.confirm('Title', 'Message', function(button) {
+			    if (button === 'yes') {
+			        res = res;
+			    } else {
+			        res = false;
+			    }
+			});*/
 			return res;
 		});
 
 		Ext.getCmp('LetterTable').columns[9].addListener("beforecheckchange", function(grid, rowIndex, checked, eOpts) {
-			var r=controller.masterStore.getAt(rowIndex);
+			var r = controller.masterStore.getAt(rowIndex);
 			var res = false;
 			if (r.get('issue') == true && controller.isdisp == 1) {
 				res = true;
 			}
 			return res;
 		});
+		Ext.getCmp('periodCombo').on("select", function(combo, records, eOpts) {
 
+			controller.managersStore.proxy.extraParams = {
+				period : records[0].get('id')
+			};
+			Ext.getCmp('managerCombo').clearValue( );
+			controller.mainContainer.setLoading(true);
+			controller.managersStore.load(function(success) {
+			controller.mainContainer.setLoading(false);
+			});
+			
+			//console.log('Record value: ' + records[0].get('id'));
+		});
 	},
 
 	loadDictionaries : function() {
-		var controller = this, count = 2;
+		var controller = this, count = 3;
 
 		controller.mainContainer.setLoading(true);
 		function checkLoading(val) {
@@ -121,7 +143,12 @@ Ext.define('app.controller.Letter', {
 		controller.groupsStore.load(function(success) {
 			count--;
 			checkLoading(count);
-			controller.isdisp = controller.groupsStore.count()>0?1:0;
+			controller.isdisp = controller.groupsStore.count() > 0 ? 1 : 0;
+		});
+
+		controller.agentsStore.load(function(success) {
+			count--;
+			checkLoading(count);
 		});
 
 	},
@@ -132,14 +159,17 @@ Ext.define('app.controller.Letter', {
 		controller.masterStore = controller.getLetterLettersStore();
 		controller.periodStore = controller.getPeriodsStore();
 		controller.groupsStore = controller.getLetterGroupsStore();
+		controller.managersStore = controller.getLetterManagersStore();
+		controller.agentsStore = controller.getLetterAgentsStore();
 		controller.loadDictionaries();
 	},
 
 	bindStores : function() {
 		var controller = this, lettersTable = Ext.getCmp('LetterTable');
 
-		lettersTable.reconfigure(controller.masterStore);
 		Ext.getCmp('periodCombo').bindStore(controller.periodStore);
+		Ext.getCmp('managerCombo').bindStore(controller.managersStore);
+		lettersTable.reconfigure(controller.masterStore);
 	},
 
 	onLaunch : function() {
@@ -148,4 +178,4 @@ Ext.define('app.controller.Letter', {
 		controller.initStores();
 		controller.bindStores();
 	}
-}); 
+});
