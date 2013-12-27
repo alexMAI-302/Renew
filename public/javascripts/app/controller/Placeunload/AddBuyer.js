@@ -66,7 +66,7 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 			geocoder = new ymaps.geocode(query, {boundedBy: controller.map.getBounds()}),
 			placeunloadsContainer = Ext.getCmp('placeunloadsContainer'),
 			savePlaceunload = Ext.getCmp('savePlaceunload');
-			
+		
 		controller.mainContainer.setLoading(true);
 		placeunloadsContainer.setDisabled(true);
 		savePlaceunload.setDisabled(true);
@@ -303,6 +303,8 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 		
 		controller.mainContainer.setLoading(true);
 		ymaps.ready(function(){
+			var latitude = Ext.get('latitude').getValue(),
+				longitude = Ext.get('longitude').getValue();
 			controller.map = new ymaps.Map("placeunloadAddBuyerMap",
 				{
 					center: [55.76, 37.64],
@@ -323,6 +325,10 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 				});
 			controller.map.container.fitToViewport();
 			controller.mainContainer.setLoading(false);
+			
+			if(latitude!=null && latitude!='' && longitude!=null && longitude!=''){
+				controller.geocode([latitude, longitude]);
+			}
 		});
 	},
 	
