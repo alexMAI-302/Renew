@@ -12,6 +12,8 @@ Ext.define('app.controller.TerminalKey', {
 	PpsZoneStore : null,
 	masterStore : null,
 	slaveStore : null,
+	ppsZoneColumn : null,
+	keyTypeColumn : null,
 
 	loadDetail : function(store, masterId, errorString) {
 		var controller = this;
@@ -51,6 +53,7 @@ Ext.define('app.controller.TerminalKey', {
 			},
 			'#addTerminalKey' : {
 				click : function() {
+
 					controller.masterStore.insert(0, {});
 				}
 			},
@@ -91,17 +94,24 @@ Ext.define('app.controller.TerminalKey', {
 
 	},
 	loadDictionaries : function() {
-		var controller = this, count = 0;
+		var controller = this, count = 2;
 
 		controller.mainContainer.setLoading(true);
 		function checkLoading(val) {
 			if (val == 0) {
 				controller.mainContainer.setLoading(false);
+				controller.filterTerminalKey();
 			}
 		};
 
-		controller.KeyTypeStore.load();
-		controller.PpsZoneStore.load();
+		controller.KeyTypeStore.load(function(success) {
+			count--;
+			checkLoading(count);
+		});
+		controller.PpsZoneStore.load(function(success) {
+			count--;
+			checkLoading(count);
+		});
 
 		controller.mainContainer.setLoading(false);
 
@@ -129,6 +139,29 @@ Ext.define('app.controller.TerminalKey', {
 
 		controller.initStores();
 		controller.bindStores();
-		controller.filterTerminalKey();
+		
+		keyTypeColumn = Ext.getCmp('TerminalKeyTable').columns[3];
+		ppsZoneColumn = Ext.getCmp('TerminalKeyTable').columns[4];
+		
+		ppsZoneColumn.field.addListener(
+			"expand",
+			function(field, eOpts){
+				var r = Ext.getCmp('TerminalKeyTable').getSelectionModel().getSelection()[0];
+				controller.PpsZoneStore.clearFilter();
+				controller.PpsZoneStore.filter([{property:"spv_id", value: r.get('spv_id')}]);
+				return true;
+			}
+		);
+		
+		keyTypeColumn.addListener(
+			"select",
+			function(field, value, options){
+				var r = Ext.getCmp('TerminalKeyTable').getSelectionModel().getSelection()[0];
+				r.beginEdit();
+				r.set("zoneid",null);
+				r.endEdit(true);
+				//ppsZoneColumn.setValue(null);
+			}
+		);
 	}
 });
