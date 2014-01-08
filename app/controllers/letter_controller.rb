@@ -9,7 +9,7 @@ class LetterController < ApplicationSimpleErrorController
     when "get"
       prefix = ActiveRecord::Base.connection.quote (params[:prefix]).to_s
       rst = ActiveRecord::Base.connection.select_all("
-        call dbo.ask_konvert_term_period(#{params[:period].to_i}, #{prefix})")
+        call dbo.ask_konvert_term_period(#{params[:period].to_i}, #{prefix}, #{params[:manager].to_i})")
       render :text => rst.to_json
     when "put"
       id = params[:id].to_i
@@ -66,7 +66,15 @@ class LetterController < ApplicationSimpleErrorController
                   END;
                   ELSE
                   BEGIN
-                    UPDATE dbo.term_konvert_period SET issue = #{issue}, info=#{info}, issued=#{issued}, info_issued=#{info_issued}, ddate_issued = null, user_issued = null WHERE  cterm=#{cterm} AND period=#{period};
+                    IF #{issued} = 0 THEN
+                      BEGIN
+                        UPDATE dbo.term_konvert_period SET issue = #{issue}, info=#{info}, issued=#{issued}, info_issued=#{info_issued}, ddate_issued = null, user_issued = null WHERE  cterm=#{cterm} AND period=#{period};
+                      END;
+                    ELSE
+                      BEGIN
+                        UPDATE dbo.term_konvert_period SET issue = #{issue}, info=#{info}, issued=#{issued}, info_issued=#{info_issued} WHERE  cterm=#{cterm} AND period=#{period};
+                      END;
+                    ENDIF;
                   END;
                   ENDIF;
                 END;

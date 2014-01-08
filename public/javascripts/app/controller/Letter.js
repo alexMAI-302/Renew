@@ -21,12 +21,16 @@ Ext.define('app.controller.Letter', {
 
 	filterLetter : function(combo, records, eOpts) {
 		var controller = this;
-
+		
+		controller.mainContainer.setLoading(true);
+		
 		controller.masterStore.proxy.extraParams = {
 			period : Ext.getCmp('periodCombo').getValue(),
-			prefix : Ext.getCmp('prefixTextfield').getValue()
+			prefix : Ext.getCmp('prefixTextfield').getValue(),
+			manager : Ext.getCmp('managerCombo').getValue()
 		};
 		controller.masterStore.load(function(records, operation, success) {
+			controller.mainContainer.setLoading(false);
 			if (!success) {
 				Ext.Msg.alert("Ошибка", "Ошибка при получении данных");
 			}
@@ -87,20 +91,23 @@ Ext.define('app.controller.Letter', {
 			return res;
 		});
 
+
 		Ext.getCmp('LetterTable').columns[7].addListener("beforecheckchange", function(grid, rowIndex, checked, eOpts) {
 			var r = controller.masterStore.getAt(rowIndex), res = false;
 			if (controller.isdisp == 0 && r.get('issued') == false) {
 				res = true;
 			}
-			/*Ext.Msg.confirm('Title', 'Message', function(button) {
-			    if (button === 'yes') {
-			        res = res;
-			    } else {
-			        res = false;
-			    }
-			});*/
+			if (r.get('issue')) {
+				Ext.MessageBox.confirm('Внимание', 'Вы действительно хотите запретить выдачу конверта?', function(button) {
+					var r = Ext.getCmp('LetterTable').getSelectionModel().getSelection()[0];
+					if (button === 'no') {
+						r.set('issue', true);
+					}
+				});
+			}
+
 			return res;
-		});
+		}); 
 
 		Ext.getCmp('LetterTable').columns[9].addListener("beforecheckchange", function(grid, rowIndex, checked, eOpts) {
 			var r = controller.masterStore.getAt(rowIndex);
@@ -154,13 +161,13 @@ Ext.define('app.controller.Letter', {
 	},
 
 	initStores : function() {
-		var controller = this;
+		var controller = this, lettersTable = Ext.getCmp('LetterTable');
 
 		controller.masterStore = controller.getLetterLettersStore();
 		controller.periodStore = controller.getPeriodsStore();
 		controller.groupsStore = controller.getLetterGroupsStore();
 		controller.managersStore = controller.getLetterManagersStore();
-		controller.agentsStore = controller.getLetterAgentsStore();
+		controller.agentsStore = lettersTable.columns[13].store;
 		controller.loadDictionaries();
 	},
 
