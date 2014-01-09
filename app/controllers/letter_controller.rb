@@ -134,8 +134,6 @@ class LetterController < ApplicationSimpleErrorController
               JOIN agents ON agents.id = osmp_placement.agent 
       WHERE
           p.id = #{params[:period].to_i}
-      UNION
-          SELECT 0, '_Все'
       ) a
       ORDER BY name
     ")
