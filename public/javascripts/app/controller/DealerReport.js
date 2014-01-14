@@ -212,12 +212,12 @@ Ext.define('app.controller.DealerReport', {
 							{
 								xtype: 'button',
 								id: 'subsmonthmid',
-								text: 'Рассылка середины месяца'
+								text: 'Рассылка выписок'
 							},
 							{
 								xtype: 'button',
 								id: 'subsmonthend',
-								text: 'Рассылка конца месяца'
+								text: 'Рассылка всех отчетов'
 							}
 						],
 
@@ -267,7 +267,7 @@ Ext.define('app.controller.DealerReport', {
 										method: 'POST',
 										params: {
 											button: 1,
-											button_name: 'Рассылка середины месяца',
+											button_name: 'Рассылка выписок',
 											authenticity_token: window._token
 										},
 										callback: function(options, success, response){
@@ -290,7 +290,7 @@ Ext.define('app.controller.DealerReport', {
 										method: 'POST',
 										params: {
 											button: 2,
-											button_name: 'Рассылка конца месяца',
+											button_name: 'Рассылка всех отчетов',
 											authenticity_token: window._token
 										},
 										callback: function(options, success, response){
