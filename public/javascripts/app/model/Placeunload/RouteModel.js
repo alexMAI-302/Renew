@@ -1,4 +1,4 @@
-Ext.define('app.model.Placeunload.AddBuyer.RouteModel', {
+Ext.define('app.model.Placeunload.RouteModel', {
 	extend: 'Ext.data.Model',
 	fields: [
 	{name: 'id'			, type: 'int'},

@@ -1,35 +1,32 @@
-Ext.define('app.controller.Placeunload.AddBuyer', {
+Ext.define('app.controller.Placeunload.Points', {
     extend: 'Ext.app.Controller',
 	
 	stores: [
-		'Placeunload.AddBuyer.PartnersGroups',
-		'Placeunload.AddBuyer.Partners',
-		'Placeunload.AddBuyer.Buyers',
-		'Placeunload.AddBuyer.Placeunloads',
+		'Placeunload.points.Placeunloads',
 		'Placeunload.Placecategories',
 		'Placeunload.Routes',
 		'Placeunload.Schedules',
-		'Placeunload.AddBuyer.Sites'
+		'Placeunload.Unloading'
 	],
 	
 	models: [
-		'valueModel'
+		'valueModel',
+		'Placeunload.points.PlaceunloadModel'
 	],
 	
 	views: [
-		'Placeunload.AddBuyer.Container'
+		'Placeunload.points.Container'
 	],
 	
 	mainContainer: null,
 	
 	masterStore: null,
-	partnersGroupsStore: null,
-	partnersStore: null,
-	buyersStore: null,
 	placecategoriesStore: null,
 	routesStore: null,
 	schedulesStore: null,
-	sitesStore: null,
+	unloadingStore: null,
+	
+	placeunloadId: null,
 	
 	map: null,
 	placeunloadPoint: null,
@@ -145,72 +142,57 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 		);
 	},
 	
-	onChangeBuyerData: function(){
+	loadMaster: function(){
 		var controller = this;
 		
-		controller.masterStore.removeAll();
-		Ext.getCmp('placeunloadsContainer').setDisabled(true);
-		Ext.getCmp('savePlaceunload').setDisabled(true);
+		controller.mainContainer.setDisabled(true);
+		
+		controller.masterStore.proxy.extraParams = {
+			id: controllerr.placeunloadId,
+			placeunload_name: Ext.getCmp('filterNamePlaceunload').getValue(),
+			address: Ext.getCmp('filterAddressPlaceunload').getValue(),
+			tp: Ext.getCmp('filterTpPlaceunload').getValue(),
+			ischeck: Ext.getCmp('filterIscheckPlaceunload').getValue(),
+			buyers_route_id: Ext.getCmp('filterBuyersRoutePlaceunload').getValue(),
+			ddate: Ext.getCmp('filterDdatePlaceunload').getValue(),
+			notgeo: Ext.getCmp('filterNotgeoPlaceunload').getValue()
+		};
+		
+		controller.masterStore.load(
+			function(records, operation, success){
+				if(!success){
+					Ext.Msg.alert("Ошибка", "Ошибка при получении точек разгрузки <br/>" + operation.getError().responseText);
+				} else {
+					if(controller.placeunloadId!=null){
+						Ext.getCmp('placeunloadsTable').getSelectionModel().select(records);
+						controller.placeunloadId = null;
+					}
+				}
+				controller.mainContainer.setDisabled(false);
+			}
+		);
 	},
 	
 	init: function() {
 		var controller = this;
 		
-		controller.mainContainer=Ext.create('app.view.Placeunload.AddBuyer.Container');
+		controller.mainContainer=Ext.create('app.view.Placeunload.points.Container');
 		
 		controller.control({
-			'#placeunloadMode': {
-				toggle: function(button, pressed, eOpts){
-					Ext.getCmp('placeunloadsContainer').getLayout().setActiveItem(pressed?1:0);
-				}
-			},
-			"#placeunloadAddBuyerMap": {
+			"#placeunloadPointsMap": {
 				resize: function(){
 					controller.map.container.fitToViewport();
 				}
-			},
-			'#partnerGroupCombo': {
-				select: function(combo, records, eOpts){
-					controller.partnersStore.proxy.extraParams = {
-						partner_group_id: records[0].get('id')
-					};
-					controller.partnersStore.removeAll();
-					controller.buyersStore.removeAll();
-					Ext.getCmp('partnerCombo').setValue(null);
-					Ext.getCmp('buyerCombo').setValue(null);
-					return true;
-				},
-				change: controller.onChangeBuyerData
-			},
-			'#partnerCombo': {
-				select: function(combo, records, eOpts){
-					var newPlaceunloadUnloading = Ext.getCmp('newPlaceunloadUnloading');
-					
-					controller.buyersStore.proxy.extraParams = {
-						partner_id: records[0].get('id')
-					};
-					controller.buyersStore.removeAll();
-					Ext.getCmp('buyerCombo').setValue(null);
-					
-					newPlaceunloadUnloading.setValue(newPlaceunloadUnloading.getStore().findRecord('name', records[0].get['unloading']));
-					return true;
-				},
-				change: controller.onChangeBuyerData
-			},
-			'#buyerCombo': {
-				select: function(combo, records, eOpts){
-					Ext.getCmp('addressPlaceunload').setValue(records[0].get('loadto'));
-					Ext.getCmp('safariId').setValue(records[0].get('safari_id'));
-					return true;
-				},
-				change: controller.onChangeBuyerData
 			},
 			'#findAddressPlaceunload': {
 				click: function(){
 					controller.geocode(Ext.getCmp('addressPlaceunload').getValue());
 				}
 			},
-			'#savePlaceunload': {
+			'#filterPlaceunloads': {
+				click: controller.loadMaster
+			},
+			'#savePlaceunloads': {
 				click: function(){
 					var coords = controller.placeunloadPoint.geometry.getCoordinates(),
 						selectedPlaceunload = Ext.getCmp('PlaceunloadsTable').getSelectionModel().getSelection()[0],
@@ -305,7 +287,7 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 		ymaps.ready(function(){
 			var latitude = Ext.get('latitude').getValue(),
 				longitude = Ext.get('longitude').getValue();
-			controller.map = new ymaps.Map("placeunloadAddBuyerMap",
+			controller.map = new ymaps.Map("placeunloadPointsMap",
 				{
 					center: [55.76, 37.64],
 					zoom: 13,
@@ -332,101 +314,94 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 		});
 	},
 	
-	initStores: function(){
-		var controller=this;
+	initModel: function(){
+		var controller = this,
+			placeunloadFields = Ext.ModelManager.getModel('app.model.Placeunload.points.PlaceunloadModel').getFields();
 		
-		controller.masterStore = controller.getPlaceunloadAddBuyerPlaceunloadsStore();
-		controller.partnersGroupsStore = controller.getPlaceunloadAddBuyerPartnersGroupsStore();
-		controller.partnersStore = controller.getPlaceunloadAddBuyerPartnersStore();
-		controller.buyersStore = controller.getPlaceunloadAddBuyerBuyersStore();
-		controller.placecategoriesStore = controller.getPlaceunloadAddBuyerPlacecategoriesStore();
-		controller.routesStore = controller.getPlaceunloadAddBuyerRoutesStore();
-		controller.schedulesStore = controller.getPlaceunloadAddBuyerSchedulesStore();
-		controller.sitesStore = controller.getPlaceunloadAddBuyerSitesStore();
-	},
-	
-	loadStaticData: function(){
-		var controller=this,
-			count=4,
-			buyerId = Ext.get('buyer_id').getValue(),
-			partnerId = Ext.get('partner_id').getValue(),
-			showSafariId = Ext.get('show_safari_id').getValue();
+		function convert_value_to_str(value, store){
+			var matching = null,
+				data = store.snapshot || store.data;
+			data.each(function(record){
+				if(record.get('id')==value){
+					matching=record.get('name');
+				}
+				return matching==null;
+			});
+			return matching;
+		};
 		
-		if(buyerId>0 || partnerId>0){
-			var partnerGroupId = Ext.get('partner_group_id').getValue(),
-				partnerGroupName = Ext.get('partner_group_name').getValue(),
-				partnerGroup = Ext.ModelManager.create(
-					{
-						id: partnerGroupId,
-						name: partnerGroupName
-					},
-					'app.model.Placeunload.AddBuyer.PartnerModel'
-				),
-				partnerName = Ext.get('partner_name').getValue(),
-				partner = Ext.ModelManager.create(
-					{
-						id: partnerId,
-						name: partnerName
-					},
-					'app.model.Placeunload.AddBuyer.PartnerModel'
-				);
-			
-			controller.partnersGroupsStore.removeAll();
-			controller.partnersGroupsStore.add(partnerGroup);
-			Ext.getCmp('partnerGroupCombo').select(partnerGroup);
-			controller.partnersStore.removeAll();
-			controller.partnersStore.add(partner);
-			Ext.getCmp('partnerCombo').select(partner);
-			
-			controller.partnersStore.proxy.extraParams = {
-				partner_group_id: partnerGroupId
-			};
-			
-			if(buyerId>0){
-				var	buyerName = Ext.get('buyer_name').getValue(),
-					loadto = Ext.get('loadto').getValue(),
-					buyer = Ext.ModelManager.create(
-						{
-							id: buyerId,
-							name: buyerName,
-							loadto: loadto
-						},
-						'app.model.Placeunload.AddBuyer.BuyerModel'
-					);
-				
-				controller.buyersStore.removeAll();
-				controller.buyersStore.add(buyer);
-				Ext.getCmp('buyerCombo').select(buyer);
-				Ext.getCmp('addressPlaceunload').setValue(loadto);
-				
-				controller.buyersStore.proxy.extraParams = {
-					partner_id: partnerId
+		for(var i=0; i<placeunloadFields.length; i++){
+			if(placeunloadFields[i].name=='placecategory_id'){
+				placeunloadFields[i].convert = function(v, record){
+					record.set('placecategory_name', convert_value_to_str(v, controller.placecategoriesStore));
+					return v;
+				};
+			}else if(placeunloadFields[i].name=='unloading'){
+				placeunloadFields[i].convert = function(v, record){
+					record.set('unloading_name', convert_value_to_str(v, controller.unloadingStore));
+					return v;
+				};
+			} else if(placeunloadFields[i].name=='delscheduleid'){
+				placeunloadFields[i].convert = function(v, record){
+					record.set('delschedule_name', convert_value_to_str(v, controller.schedulesStore));
+					return v;
+				};
+			} else if(placeunloadFields[i].name=='incscheduleid'){
+				placeunloadFields[i].convert = function(v, record){
+					record.set('incschedule_name', convert_value_to_str(v, controller.schedulesStore));
+					return v;
+				};
+			} else if(placeunloadFields[i].name=='buyers_route_id'){
+				placeunloadFields[i].convert = function(v, record){
+					record.set('buyers_route_name', convert_value_to_str(v, controller.routesStore));
+					return v;
 				};
 			}
-			
-			if(partnerId>0){
-				var unloading = Ext.get('unloading').getValue(),
-					newPlaceunloadUnloading = Ext.getCmp('newPlaceunloadUnloading');
-				
-				if(!(buyerId>0)){
-					Ext.getCmp('buyerCombo').setRawValue(partnerName);
-				}
-				newPlaceunloadUnloading.setValue(newPlaceunloadUnloading.getStore().findRecord('id', unloading));
-				Ext.getCmp('newPlaceunloadName').setValue(partnerName);
-			}
-			
-			if(showSafariId>0){
-				var safariId = Ext.get('safari_id').getValue(),
-					safariIdCmp = Ext.getCmp('safariId');
-				
-				safariIdCmp.setValue(safariId);
+			 else if(placeunloadFields[i].name=='ischeck'){
+				placeunloadFields[i].convert = function(v, record){
+					record.set('ischeck_name', v?'v':'');
+					return v;
+				};
 			}
 		}
 	},
 	
+	initStores: function(){
+		var controller=this;
+		
+		controller.masterStore = controller.getPlaceunloadPointsPlaceunloadsStore();
+		controller.placecategoriesStore = controller.getPlaceunloadPlacecategoriesStore();
+		controller.routesStore = controller.getPlaceunloadRoutesStore();
+		controller.schedulesStore = controller.getPlaceunloadSchedulesStore();
+		controller.unloadingStore = controller.getPlaceunloadUnloadingStore();
+	},
+	
+	loadStaticData: function(){
+		var controller = this,
+			placeunloadName = Ext.get('placeunload_name').getValue(),
+			address = Ext.get('address').getValue(),
+			tp = Ext.get('tp').getValue(),
+			ischeck = Ext.get('ischeck').getValue(),
+			buyersRouteId = Ext.get('buyers_route_id').getValue(),
+			ddate = Ext.get('ddate').getValue(),
+			notgeo = Ext.get('notgeo').getValue(),
+			filterIscheckPlaceunload = Ext.getCmp('filterIscheckPlaceunload');
+		
+		
+		controller.placeunloadId = Ext.get('placeunload_id').getValue();
+			
+		Ext.getCmp('filterNamePlaceunload').setValue(placeunloadName);
+		Ext.getCmp('filterAddressPlaceunload').setValue(address);
+		Ext.getCmp('filterTpPlaceunload').setValue(tp);
+		filterIscheckPlaceunload.setValue(filterIscheckPlaceunload.getStore().getAt(filterIscheckPlaceunload.getStore().find('id', ischeck)), true);
+		Ext.getCmp('filterBuyersRoutePlaceunload').setValue(buyersRouteId);
+		Ext.getCmp('filterDdatePlaceunload').setValue(ddate);
+		Ext.getCmp('filterNotgeoPlaceunload').setValue(notgeo);
+	},
+	
 	loadDictionaries: function(){
 		var controller=this,
-			count=4;
+			count=3;
 		
 		controller.mainContainer.setLoading(true);
 		function checkLoading(val){
@@ -476,33 +451,6 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 			function(records, operation, success){
 				count--;
 				checkLoading(count);
-				Ext.getCmp('newPlaceunloadIncschedule').setValue(4384);
-				Ext.getCmp('newPlaceunloadDelschedule').setValue(4384);
-			}
-		);
-		
-		controller.sitesStore.load(
-			function(records, operation, success){
-				var sitesPointsPlaceunload = Ext.getCmp('sitesPointsPlaceunload'),
-					point;
-				
-				sitesPointsPlaceunload.removeAll();
-				for(var i=0; i<records.length; i++){
-					point = [records[i].get('latitude'), records[i].get('longitude')];
-					sitesPointsPlaceunload.add(
-						Ext.create("Ext.Button", {
-							text: records[i].get('name'),
-							point: point,
-							handler: function(button){
-								controller.geocode(button.point);
-								Ext.getCmp('placeunloadMode').toggle();
-							}
-						})
-					);
-				}
-				
-				count--;
-				checkLoading(count);
 			}
 		);
 	},
@@ -511,6 +459,8 @@ Ext.define('app.controller.Placeunload.AddBuyer', {
 		var controller = this;
 		
 		controller.initMap();
+		
+		controller.initModel();
 		
 		controller.initStores();
 		

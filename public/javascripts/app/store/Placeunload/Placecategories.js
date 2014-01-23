@@ -1,9 +1,9 @@
-Ext.define('app.store.Placeunload.AddBuyer.Placecategories', {
+Ext.define('app.store.Placeunload.Placecategories', {
 	extend: 'Ext.data.Store',
 	model: 'app.model.valueModel',
 	proxy: {
 		type: 'rest',
-		url : '/placeunload/add_buyer/get_placecategories',
+		url : '/util_data/get_placecategories',
 		reader: {
 			type: 'json'
 		}

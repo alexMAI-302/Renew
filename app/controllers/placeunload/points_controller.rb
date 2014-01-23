@@ -36,58 +36,19 @@ class Placeunload::PointsController < ApplicationPageErrorController
     render :partial => 'upd_end'
   end
 
-  def find_place_fake
-    @longitude = params[:longitude]
-    @latitude  = params[:latitude]
-
-    @places=[]
-    @pointsj = "[]"
-    render :partial => 'upd_end'
-  end
-
   def index
-    set_conditions
-
-    if params[:id]
-      @id=params[:id]
-      flt='null'
-      @flt_name=''
-      @flt_address=''
-      @flt_tp=''
-    @flt_ischeck=-1
-    @flt_buyers_route_id=0
-    @flt_ddate=0
-    @flt_notgeo=0
-    else
-      @id='null'
-      if params[:flt]
-        flt=1
-        @flt_name             = params[:flt][:name].strip
-        @flt_address          = params[:flt][:address].strip
-        @flt_tp               = params[:flt][:tp].strip
-        @flt_ischeck          = params[:flt][:ischeck].to_i
-        @flt_buyers_route_id  = params[:flt][:buyers_route_id].to_i
-        @flt_ddate			  = params[:flt][:ddate].to_i
-        @flt_notgeo           = params[:flt][:notgeo].to_i
-        session[:flt_name]    = @flt_name
-        session[:flt_address] = @flt_address
-        session[:flt_ischeck] = @flt_ischeck
-        session[:flt_buyers_route_id] = @flt_buyers_route_id
-        session[:flt_ddate]   = @flt_ddate
-        session[:flt_notgeo]  = @flt_notgeo
-      else
-        flt='null'
-        @flt_name = session[:flt_name]||""
-        @flt_address = session[:flt_address] || ""
-        @flt_tp = session[:flt_tp] || ""
-        @flt_ischeck = session[:flt_ischeck] || -1
-        @flt_buyers_route_id = session[:flt_buyers_route_id] || 0
-        @flt_ddate = session[:flt_ddate] || 0
-        @flt_notgeo = session[:flt_notgeo] || 0
-      end
+    @placeunload_id = params[:id]
+    if params[:flt]
+      @placeunload_name = params[:flt][:name].strip
+      @address = params[:flt][:address].strip
+      @tp = params[:flt][:tp].strip
+      @ischeck = params[:flt][:ischeck]
+      @buyers_route_id = params[:flt][:buyers_route_id]
+      @ddate = params[:flt][:ddate]
+      @notgeo = params[:flt][:notgeo]
     end
-
-    init_placeunload_data
+    @ischeck = -1 unless @ischeck
+    @ddate = 0 unless @ddate
   end
 
   def save_point
@@ -126,7 +87,6 @@ class Placeunload::PointsController < ApplicationPageErrorController
     if !res.nil?
       flash[:notice]=res
     end
-    redirect_to :action => "index"
   end
 
   def save_point_r
@@ -187,62 +147,23 @@ class Placeunload::PointsController < ApplicationPageErrorController
     redirect_to :action => "index"
   end
 
-private
-
-  def set_conditions
-    @longitude = 37.498995
-    @latitude  = 55.842610
-    @places    = []
-    @unloading_list     = [ ['__Не определено', -1], ['15 мин', 15],['30 мин',30],['45 мин',45],['1 час',60],['2 час',120],['4 час',240] ]
-    @placecategory_list = ActiveRecord::Base.connection.select_all( "select id, name from placecategory order by name" ).collect {|p| [ p["name"], p["id"] ] }
-    @schedule_list      = ActiveRecord::Base.connection.select_all( "select id, name from schedule order by name" ).collect {|p| [ p["name"], p["id"] ] }
-
+  def get_placeunloads
+    placeunload_name = params[:placeunload_name] ? ActiveRecord::Base.connection.quote_string(params[:placeunload_name]) : ''
+    address = params[:address] ? ActiveRecord::Base.connection.quote_string(params[:address]) : ''
+    tp = params[:tp] ? ActiveRecord::Base.connection.quote_string(params[:tp]) : ''
+    ischeck = params[:ischeck] ? params[:ischeck].to_i : -1
     res = ActiveRecord::Base.connection.select_all("
-    SELECT
-      id,
-      name,
-      null points,
-      'buyers_route_list' type
-    FROM
-      buyers_route
-    UNION ALL
-    SELECT
-      id,
-      name,
-      points,
-      'route_json'
-    FROM
-      buyers_route where length(points) > 0
-    UNION ALL
-    SELECT
-      -1,
-      '__Не определен',
-      null,
-      'buyers_route'")
-
-    @buyers_route_list  = (res.select{|p| p["type"]=="buyers_route_list"}).collect{|p| [ p["name"], p["id"] ]}
-    @route_json = ((res.select {|p| p["type"]=="route_json" }).collect{|p| {"id" => p["id"], "name" => p["name"], "points" => p["points"]} }).to_json
-  end
-
-  def init_placeunload_data
-    @rst_buyers=ActiveRecord::Base.connection.select_all("
     call renew_web.placeunload_index(
-		#{@id},
-		'#{ActiveRecord::Base.connection.quote_string(@flt_name)}',
-		'#{ActiveRecord::Base.connection.quote_string(@flt_address)}',
-		'#{ActiveRecord::Base.connection.quote_string(@flt_tp)}',
-		#{@flt_ischeck},
-		#{@flt_buyers_route_id},
-		#{@flt_ddate},
-		#{@flt_notgeo})")
+		#{params[:id].to_i},
+		'#{placeunload_name}',
+		'#{address}',
+		'#{tp}',
+		#{ischeck},
+		#{params[:buyers_route_id].to_i},
+		#{params[:ddate].to_i},
+		#{params[:notgeo].to_i})")
 
-    @rst_new = @rst_buyers.to_json( :only => [ "id", "longitude", "latitude", "pname" ] )
-    if @rst_buyers.size > 0
-      if @rst_buyers[0]["longitude"] and @rst_buyers[0]["latitude"]
-        @longitude = @rst_buyers[0]["longitude"]
-        @latitude  = @rst_buyers[0]["latitude"]
-      end
-    end
+    render text: res.to_json
   end
 
 end

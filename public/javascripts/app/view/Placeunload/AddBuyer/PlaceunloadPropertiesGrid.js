@@ -30,18 +30,7 @@ Ext.define('app.view.Placeunload.AddBuyer.PlaceunloadPropertiesGrid', {
 			displayField: 'name',
 			id: 'newPlaceunloadUnloading',
 			queryMode: 'local',
-			store: {
-				fields: ["id", "name"],
-				data: [
-					{id: -1, name: '__Не определено'},
-					{id: 15, name: '15 мин'},
-					{id: 30, name: '30 мин'},
-					{id: 45, name: '45 мин'},
-					{id: 60, name: '1 час'},
-					{id: 120, name: '2 час'},
-					{id: 240, name: '4 час'}
-				]
-			},
+			store: 'Placeunload.Unloading',
 			value: -1,
 			fieldLabel: "Продолжительность разгрузки",
 			width: '100%',

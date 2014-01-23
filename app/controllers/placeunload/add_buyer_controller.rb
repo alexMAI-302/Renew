@@ -110,32 +110,6 @@ class Placeunload::AddBuyerController < ApplicationSimpleErrorController
     render :text => res.to_json
   end
 
-  def get_placecategories
-    res = ActiveRecord::Base.connection.select_all("select id, name from placecategory where id<>-1 order by name")
-
-    render :text => res.to_json
-  end
-
-  def get_schedules
-    res = ActiveRecord::Base.connection.select_all("select id, name from schedule order by name")
-
-    render :text => res.to_json
-  end
-
-  def get_routes
-    res = ActiveRecord::Base.connection.select_all("
-    SELECT
-      id,
-      name,
-      points
-    FROM
-      buyers_route
-    ORDER BY
-      name")
-
-    render :text => res.to_json
-  end
-
   def get_placeunloads
     res = ActiveRecord::Base.connection.select_all("
     SELECT

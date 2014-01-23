@@ -177,4 +177,30 @@ class UtilDataController < ApplicationSimpleErrorController
     period = ActiveRecord::Base.connection.select_all("SELECT id, CONVERT(VARCHAR(7), ddateb, 111) name FROM period ORDER BY ddateb DESC")
     render :text => period.to_json
   end
+  
+  def get_placecategories
+    res = ActiveRecord::Base.connection.select_all("select id, name from placecategory where id<>-1 order by name")
+
+    render :text => res.to_json
+  end
+
+  def get_schedules
+    res = ActiveRecord::Base.connection.select_all("select id, name from schedule order by name")
+
+    render :text => res.to_json
+  end
+
+  def get_routes
+    res = ActiveRecord::Base.connection.select_all("
+    SELECT
+      id,
+      name,
+      points
+    FROM
+      buyers_route
+    ORDER BY
+      name")
+
+    render :text => res.to_json
+  end
 end
