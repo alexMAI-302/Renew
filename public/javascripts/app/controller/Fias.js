@@ -1,15 +1,16 @@
 Ext.define('app.controller.Fias', {
 	extend : 'Ext.app.Controller',
 
-	stores : ['Fias.FiasData'],
+	stores : ['Fias.FiasData', 'Fias.FiasDetailData'],
 
-	models : ['Fias.FiasModel'],
+	models : ['Fias.FiasModel', 'Fias.FiasDetailModel'],
 
 	views : ['Fias.Container'],
 
 	mainContainer : null,
 	
 	fiasStore : null,
+	fiasdetailStore : null,
 
 	/*filterSubdealerRemains : function(combo, records, eOpts) {
 		var controller = this;
@@ -72,6 +73,15 @@ Ext.define('app.controller.Fias', {
 
 			Ext.getCmp('houseguidTextfield').setValue(records[0].get('id'));
 
+			controller.fiasdetailStore.proxy.extraParams = {
+				aoguid : records[0].get('id')
+			};
+			controller.fiasdetailStore.load(function(records, operation, success) {
+				if (!success) {
+					Ext.Msg.alert("Ошибка", "Ошибка при получении данных");
+				}
+				return true;
+			});
 
 			//console.log( controller.fiasStore.proxy.extraParams);
 			//combo.clearValue( );
@@ -108,13 +118,13 @@ Ext.define('app.controller.Fias', {
 		var controller = this;
 		controller.fiasStore = controller.getFiasFiasDataStore();
 
-		/*controller.masterStore = controller.getSubdealerRemainsSubdealerRemainsDataStore();*/
+		controller.fiasdetailStore = controller.getFiasFiasDetailDataStore();
 		controller.loadDictionaries();
 	},
 
 	bindStores : function() {
-		var controller = this//, SubdealerRemainsTable = Ext.getCmp('SubdealerRemainsTable');
-		//SubdealerRemainsTable.reconfigure(controller.masterStore);
+		var controller = this, FiasDetailTable = Ext.getCmp('FiasDetailTable');
+		FiasDetailTable.reconfigure(controller.fiasdetailStore);
 		Ext.getCmp('fiasCombo').bindStore(controller.fiasStore);
 
 
