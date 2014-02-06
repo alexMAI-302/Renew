@@ -95,8 +95,7 @@ Ext.define('app.view.RenewPlan.ItemsGrid', {
 				format: '0.00',
 				width: 55,
 				header: 'Ост. ист.',
-				dataIndex: 'remains_from',
-				disabled: true
+				dataIndex: 'remains_from'
 			},
 			{
 				xtype: 'numbercolumn',
