@@ -9,33 +9,31 @@ Ext.define('app.view.Fias.Detail', {
 		disableAdd: true,
 		disableSave: true,
 		disableRefresh: true,
-		title: 'Детали адреса',
-		//enableBuffering: true,
 		columns: [
-			{
+		/*	{
 				width: 220,
 				header: 'Код',
 				dataIndex: 'aoguid',
 				disabled: true
-			},
+			},*/
 			{
-				width: 300,
+				width: 150,
 				header: 'Имя',
 				dataIndex: 'name',
 				disabled: true
 			},
 			{
-				width: 160,
-				header: 'Административная единица',
+				width: 50,
+				header: 'Тип',
 				dataIndex: 'shortname',
 				disabled: true
-			},
+			}/*,
 			{
 				width: 50,
 				header: 'Уровень',
 				dataIndex: 'aolevel',
 				disabled: true
-			}
+			}*/
 		]
 	}
 });
