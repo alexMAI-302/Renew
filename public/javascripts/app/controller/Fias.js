@@ -1,41 +1,72 @@
 Ext.define('app.controller.Fias', {
 	extend : 'Ext.app.Controller',
 
-	stores : ['Fias.FiasData', 'Fias.FiasDetailData'],
+	stores : ['Fias.FiasData', 'Fias.FiasDetailData', 'Fias.PartnersGroupsData', 'Fias.PlaceunloadData'],
 
-	models : ['Fias.FiasModel', 'Fias.FiasDetailModel'],
+	models : ['valueStrModel', 'Fias.FiasDetailModel', 'valueModel'],
 
 	views : ['Fias.Container'],
 
 	mainContainer : null,
-	
+
 	fiasStore : null,
 	fiasdetailStore : null,
+	tpStore : null,
 
-	/*filterSubdealerRemains : function(combo, records, eOpts) {
-		var controller = this;
-
-		controller.masterStore.proxy.extraParams = {
-			ddateb : Ext.getCmp('ddatebSubdealerRemains').getValue(),
-			ddatee : Ext.getCmp('ddateeSubdealerRemains').getValue()
-		};
-		controller.masterStore.load(function(records, operation, success) {
-			if (!success) {
-				Ext.Msg.alert("Ошибка", "Ошибка при получении данных");
-			}
-			return true;
-		});
-	},*/
 	init : function() {
 		var controller = this;
 
 		controller.mainContainer = Ext.create('app.view.Fias.Container');
 
-		/*controller.control({
-			'#filterSubdealerRemains' : {
-				click : controller.filterSubdealerRemains
+		controller.control({
+			'#saveFias' : {
+				click : function(btn, e, eOpts) {
+					var aoguid;
+					aoguid = controller.fiasdetailStore.getAt(controller.fiasdetailStore.count() - 1).get('aoguid');
+					Ext.getCmp('PlaceunloadGridTable').getSelectionModel().getSelection()[0].set('aoguid', aoguid);
+					//set('aoguid', aoguid)
+					//alert(aoguid);
+				}
 			},
-			'#saveSubdealerRemains' : {
+			'#PlaceunloadGridTable' : {
+				selectionchange : function(pu, selected, eOpts) {
+					if (pu.getCount() > 0) {
+						if (selected[0].get('aoguid') == 0 && selected[0].get('address') != 0) {
+							//Ext.getCmp('fiasCombo').setValue(selected[0].get('address'), true);
+							controller.fiasStore.proxy.extraParams = {
+								search_str : selected[0].get('address')
+							};
+						} else {
+							controller.fiasStore.proxy.extraParams = {
+								aoguid : selected[0].get('aoguid')
+							};
+						};
+						controller.mainContainer.setLoading(true);
+						controller.fiasStore.load(function(success) {
+							//alert(Ext.getCmp('fiasCombo').getStore().getAt(1).get('name'));
+							Ext.getCmp('fiasCombo').select(controller.fiasStore.getAt(0).get('name'));
+
+							controller.fiasdetailStore.proxy.extraParams = {
+								aoguid : controller.fiasStore.getAt(0).get('id')
+							};
+							controller.fiasdetailStore.load(function(records, operation, success) {
+								controller.mainContainer.setLoading(false);
+								return true;
+							});
+							return true;
+
+						});
+						if (Ext.getCmp('FiasDetailTable').getSelectionModel().getCount() > 0) {
+							Ext.getCmp('saveFias').enable();
+						} else {
+							Ext.getCmp('saveFias').disable();
+						};
+					} else {
+						Ext.getCmp('saveFias').disable();
+					}
+				}
+			},
+			'#savePlaceunloadGrid' : {
 				click : function() {
 					controller.masterStore.sync({
 						callback : function(batch) {
@@ -47,31 +78,19 @@ Ext.define('app.controller.Fias', {
 					return true;
 				}
 			}
-		});*/
+
+		});
 		Ext.getCmp('fiasCombo').on("change", function(combo, newValue, oldValue, eOpts) {
 
 			controller.fiasStore.proxy.extraParams = {
 				search_str : newValue
 			};
-			if (newValue === null )
-			{
-				Ext.getCmp('houseguidTextfield').setValue('');
-			}
-			//console.log( controller.fiasStore.proxy.extraParams);
-			//combo.clearValue( );
-			/*controller.mainContainer.setLoading(true);
-			controller.fiasStore.load(function(success) {
-			controller.mainContainer.setLoading(false);
-			});*/
-			
-			//console.log('oldValue: ' + oldValue);
-			//console.log('newValue: ' + newValue);
-			
+
 		});
 
-		Ext.getCmp('fiasCombo').on("select", function( combo, records, eOpts) {
+		Ext.getCmp('fiasCombo').on("select", function(combo, records, eOpts) {
 
-			Ext.getCmp('houseguidTextfield').setValue(records[0].get('id'));
+			//Ext.getCmp('houseguidTextfield').setValue(records[0].get('id'));
 
 			controller.fiasdetailStore.proxy.extraParams = {
 				aoguid : records[0].get('id')
@@ -83,15 +102,20 @@ Ext.define('app.controller.Fias', {
 				return true;
 			});
 
-			//console.log( controller.fiasStore.proxy.extraParams);
-			//combo.clearValue( );
-			/*controller.mainContainer.setLoading(true);
-			controller.fiasStore.load(function(success) {
-			controller.mainContainer.setLoading(false);
-			});*/
-			
-			//console.log('oldValue: ' + oldValue);
-			//console.log('newValue: ' + newValue);
+		});
+
+		Ext.getCmp('partnersgroupsCombo').on("select", function(combo, records, eOpts) {
+			controller.masterStore.proxy.extraParams = {
+				pg : records[0].get('id')
+			};
+			controller.mainContainer.setLoading(true);
+			controller.masterStore.load(function(records, operation, success) {
+				if (!success) {
+					Ext.Msg.alert("Ошибка", "Ошибка при получении данных");
+				}
+				controller.mainContainer.setLoading(false);
+				return true;
+			});
 		});
 
 	},
@@ -105,29 +129,43 @@ Ext.define('app.controller.Fias', {
 				controller.mainContainer.setLoading(false);
 			}
 		};
-		
-		controller.fiasStore.load(function(success) {
+
+		controller.tpStore.load(function(success) {
 			count--;
 			checkLoading(count);
 		});
 
+		controller.fiasStore.load(function(success) {
+			count--;
+			checkLoading(count);
+		});
 
 	},
 
 	initStores : function() {
 		var controller = this;
 		controller.fiasStore = controller.getFiasFiasDataStore();
-
 		controller.fiasdetailStore = controller.getFiasFiasDetailDataStore();
+		controller.tpStore = controller.getFiasPartnersGroupsDataStore();
+		controller.masterStore = controller.getFiasPlaceunloadDataStore();
 		controller.loadDictionaries();
+
+		controller.fiasdetailStore.on("load", function(fd, records, successful, eOpts) {
+			if (Ext.getCmp('PlaceunloadGridTable').getSelectionModel().getCount() > 0) {
+				Ext.getCmp('saveFias').enable();
+			} else {
+				Ext.getCmp('saveFias').disable();
+			}
+		});
+
 	},
 
 	bindStores : function() {
-		var controller = this, FiasDetailTable = Ext.getCmp('FiasDetailTable');
+		var controller = this, FiasDetailTable = Ext.getCmp('FiasDetailTable'), PlaceunloadTable = Ext.getCmp('PlaceunloadGridTable');
+		PlaceunloadTable.reconfigure(controller.masterStore);
 		FiasDetailTable.reconfigure(controller.fiasdetailStore);
 		Ext.getCmp('fiasCombo').bindStore(controller.fiasStore);
-
-
+		Ext.getCmp('partnersgroupsCombo').bindStore(controller.tpStore);
 	},
 
 	onLaunch : function() {
@@ -135,6 +173,5 @@ Ext.define('app.controller.Fias', {
 
 		controller.initStores();
 		controller.bindStores();
-		//controller.filterSubdealerRemains();
 	}
-}); 
+});
