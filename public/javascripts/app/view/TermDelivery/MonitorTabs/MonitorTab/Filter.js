@@ -1,5 +1,5 @@
 //фильтр
-Ext.define('app.view.TermDelivery.Monitor.Filter', {
+Ext.define('app.view.TermDelivery.MonitorTabs.MonitorTab.Filter', {
 	extend: 'Ext.container.Container',
 	alias: 'widget.Filter',
 	
@@ -24,7 +24,7 @@ Ext.define('app.view.TermDelivery.Monitor.Filter', {
 			allowBlank: false,
 			width: 200,
 			labelWidth: 100,
-			store: 'TermDelivery.Monitor.ZoneTypes'
+			store: 'TermDelivery.MonitorTabs.MonitorTab.ZoneTypes'
 		},
 		{
 			id: 'ddate',

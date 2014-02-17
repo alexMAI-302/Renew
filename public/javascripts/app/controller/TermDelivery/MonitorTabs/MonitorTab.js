@@ -1,20 +1,20 @@
-Ext.define('app.controller.TermDelivery.Monitor', {
+Ext.define('app.controller.TermDelivery.MonitorTabs.MonitorTab', {
     extend: 'Ext.app.Controller',
 	stores: [
-		'TermDelivery.Monitor.ZoneTypes',
-		'TermDelivery.Monitor.Routes',
-		'TermDelivery.Monitor.Terminals',
-		'TermDelivery.Monitor.TerminalBreaks'
+		'TermDelivery.MonitorTabs.MonitorTab.ZoneTypes',
+		'TermDelivery.MonitorTabs.MonitorTab.Routes',
+		'TermDelivery.MonitorTabs.MonitorTab.Terminals',
+		'TermDelivery.MonitorTabs.MonitorTab.TerminalBreaks'
 	],
 	
 	models: [
 		'valueModel',
-		'TermDelivery.Monitor.TerminalModel',
-		'TermDelivery.Monitor.RouteModel'
+		'TermDelivery.MonitorTabs.MonitorTab.TerminalModel',
+		'TermDelivery.MonitorTabs.MonitorTab.RouteModel'
 	],
 	
 	views: [
-		'TermDelivery.Monitor.Container'
+		'TermDelivery.MonitorTabs.MonitorTab.Container'
 	],
 	
 	zoneTypesStore: null,
@@ -26,21 +26,21 @@ Ext.define('app.controller.TermDelivery.Monitor', {
 		config: false
 	},
 	
-	mainContainer: null,
+	monitorContainer: null,
 	userConfig: null,
 	
 	checkLoadStatus: function(){
 		var controller=this;
 		if(controller.loadStatus.zoneTypes &&
 			controller.loadStatus.config){
-			controller.mainContainer.setLoading(false);
+			controller.monitorContainer.setLoading(false);
 		}
 	},
 	
 	showServerError: function(response, options) {
 		var controller=this;
 		Ext.Msg.alert('Ошибка', response.responseText);
-		controller.mainContainer.setLoading(false);
+		controller.monitorContainer.setLoading(false);
 	},
 	
 	filterRoutes: function(selectedZone){
@@ -50,7 +50,7 @@ Ext.define('app.controller.TermDelivery.Monitor', {
 			onlyWithErrors = Ext.getCmp('onlyWithErrors').getValue(),
 			onlyInRoute = Ext.getCmp('onlyInRoute').getValue();
 			
-		controller.mainContainer.setLoading(true);
+		controller.monitorContainer.setLoading(true);
 		controller.routesStore.proxy.extraParams = {
 			ddate: ddate,
 			zone_type_id: zoneTypeId,
@@ -67,7 +67,7 @@ Ext.define('app.controller.TermDelivery.Monitor', {
 				Ext.Msg.alert('Ошибка', 'Ошибка при загрузке информации о маршрутах.');
 			}
 			controller.terminalsStore.removeAll();
-			controller.mainContainer.setLoading(false);
+			controller.monitorContainer.setLoading(false);
 		});
 	},
 	
@@ -82,7 +82,7 @@ Ext.define('app.controller.TermDelivery.Monitor', {
 				onlyInRoute = Ext.getCmp('onlyInRoute').getValue(),
 				zoneId = r.get('id');
 			
-			controller.mainContainer.setLoading(true);
+			controller.monitorContainer.setLoading(true);
 			controller.terminalsStore.proxy.extraParams = {
 				ddate: ddate,
 				zone_type_id: zoneTypeId,
@@ -96,7 +96,7 @@ Ext.define('app.controller.TermDelivery.Monitor', {
 				} else {
 					Ext.Msg.alert('Ошибка', 'Ошибка при загрузке информации о терминалах в маршруте '+r.get('name'));
 				}
-				controller.mainContainer.setLoading(false);
+				controller.monitorContainer.setLoading(false);
 			});
 		}
 		return true;
@@ -108,7 +108,7 @@ Ext.define('app.controller.TermDelivery.Monitor', {
 			sm = Ext.getCmp('routesTable').getSelectionModel(),
 			selectedZone = sm.getSelection()[0];
 		
-		controller.mainContainer.setLoading(true);
+		controller.monitorContainer.setLoading(true);
 		
 		controller.terminalsStore.each(function(r){
 			if(r.dirty || r.get('should_include_in_route')){
@@ -148,7 +148,7 @@ Ext.define('app.controller.TermDelivery.Monitor', {
 			sm = Ext.getCmp('routesTable').getSelectionModel(),
 			selectedZone=sm.getSelection()[0];
 		
-		controller.mainContainer.setLoading(true);
+		controller.monitorContainer.setLoading(true);
 		
 		controller.routesStore.each(function(r){
 			if(r.dirty){
@@ -184,17 +184,17 @@ Ext.define('app.controller.TermDelivery.Monitor', {
 			onlyWithErrors = Ext.getCmp('onlyWithErrors').getValue(),
 			onlyInRoute = Ext.getCmp('onlyInRoute').getValue(),
 			sm = Ext.getCmp('routesTable').getSelectionModel(),
-			selectedZone=sm.getSelection()[0]
+			selectedZone=sm.getSelection()[0],
 			zonesToIncludeInAutoRoute=[];
 		
-		controller.mainContainer.setLoading(true);
+		controller.monitorContainer.setLoading(true);
 		
 		controller.routesStore.each(function(r){
 			if(r.get('include_in_auto_route')){
 				zonesToIncludeInAutoRoute.push({id: r.get('id')});
 			}
 			return true;
-		})
+		});
 		
 		Ext.Ajax.request({
 			url: '/term_delivery/monitor/make_delivery_auto',
@@ -221,9 +221,11 @@ Ext.define('app.controller.TermDelivery.Monitor', {
 	init: function() {
 		var controller = this;
 		
-		controller.mainContainer = Ext.create('app.view.TermDelivery.Monitor.Container');
+		controller.monitorContainer = Ext.create('app.view.TermDelivery.MonitorTabs.MonitorTab.Container');
+		Ext.getCmp('TermDeliveryMonitorMain').add(controller.monitorContainer);
+		Ext.getCmp('TermDeliveryMonitorMain').setActiveTab(controller.monitorContainer);
 		
-		controller.mainContainer.setLoading(true);
+		controller.monitorContainer.setLoading(true);
 		
 		controller.control({
 			'#filterRoutes': {

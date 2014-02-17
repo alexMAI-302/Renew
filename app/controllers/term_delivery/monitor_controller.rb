@@ -241,4 +241,53 @@ class TermDelivery::MonitorController < ApplicationSimpleErrorController
     end
     redirect_to :action => "zone"
   end
+  
+  def techrequest_get_zones
+    method=request.method.to_s
+    case method
+    when "get"      
+      query = "
+      SELECT
+        id, name
+       FROM pps_zone
+       ORDER BY name ASC"
+        
+      res = ActiveRecord::Base.connection.select_all(query)
+      render :text => res.to_json
+    end
+  end
+  
+  def techrequest_get_data
+    method=request.method.to_s
+    case method
+    when "get"   
+      zoneid =(params[:param_zoneid]=="")?(-1):(params[:param_zoneid].to_i)
+      query = "
+      SELECT
+        techrequest.id id, 
+        pps_terminal.name terminal_name, 
+        techrequest_type.name techrequest_type_name, 
+        techrequest.status status, 
+        techrequest.comments comments
+       FROM techrequest
+        join techrequest_type on techrequest_type.id=techrequest.techrequest_type
+        join pps_terminal on pps_terminal.id=techrequest.pps_terminal
+       WHERE techrequest.pps_zone=#{zoneid}
+             and (techrequest.status=0 or date(techrequest.complete_date)='#{Time.parse(params[:param_ddate]).strftime('%F')}')
+       ORDER BY pps_terminal.name ASC"
+        
+      res = ActiveRecord::Base.connection.select_all(query)
+      render :text => res.to_json      
+    when "delete"
+      id =params[:id].to_i
+      ActiveRecord::Base.connection.delete ("delete from dbo.techrequest where id=#{id}")
+      render :text => {"success" => true}.to_json
+    when "put"
+      id =params[:id].to_i
+      comments =params[:comments].to_s
+      status =params[:status]?(1):(0)
+      res = ActiveRecord::Base.connection.update ("update techrequest set comments='#{comments}', status=#{status} where id=#{id}")
+      render :text => {"success" => true}.to_json
+    end
+  end
 end

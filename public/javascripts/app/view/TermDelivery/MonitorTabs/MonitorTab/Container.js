@@ -1,10 +1,10 @@
-Ext.define('app.view.TermDelivery.Monitor.Container', {
+Ext.define('app.view.TermDelivery.MonitorTabs.MonitorTab.Container', {
     extend: 'Ext.container.Container',
 	
 	requires: [
-		'app.view.TermDelivery.Monitor.Filter',
-		'app.view.TermDelivery.Monitor.ItemsGrid',
-		'app.view.TermDelivery.Monitor.Grid'
+		'app.view.TermDelivery.MonitorTabs.MonitorTab.Filter',
+		'app.view.TermDelivery.MonitorTabs.MonitorTab.ItemsGrid',
+		'app.view.TermDelivery.MonitorTabs.MonitorTab.Grid'
 	],
 
     layout: {
@@ -12,7 +12,9 @@ Ext.define('app.view.TermDelivery.Monitor.Container', {
 	},
 	
 	height: Ext.getBody().getViewSize().height - 120,
-	renderTo: 'term_delivery_monitor_js',
+	config: {
+		title: 'Мониторинг терминалов'
+	},
 	
 	items: [
 		{

@@ -1,12 +1,12 @@
 //таблица
-Ext.define('app.view.TermDelivery.Monitor.Grid', {
+Ext.define('app.view.TermDelivery.MonitorTabs.MonitorTab.Grid', {
 	extend: 'Ext.grid.Panel',
 	alias: 'widget.routesGrid',
 	
 	cls: 'routes-grid',
     
     id: 'routesTable',
-    store: 'TermDelivery.Monitor.Routes',
+    store: 'TermDelivery.MonitorTabs.MonitorTab.Routes',
 	columns: [
 		{
 			xtype: 'checkcolumn',
