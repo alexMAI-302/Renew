@@ -30,6 +30,7 @@ class FiasController < ApplicationSimpleErrorController
   def partners_groups
     case request.method.to_s
       when "get"
+
         rst = ActiveRecord::Base.connection.select_all(    
         "
         SELECT 
@@ -43,7 +44,8 @@ class FiasController < ApplicationSimpleErrorController
                         JOIN prefs p ON pc.id = p.concept AND p.type = 1
                 ) ON p.id = pg.id AND pc.name = 'Хр: Партнеры - Торг.предст.'
         WHERE
-            pg.name NOT LIKE '%Архив_%'
+            pg.name NOT LIKE '%Архив_%' AND
+            pg.name LIKE '%'+#{ActiveRecord::Base.connection.quote(params[:pg_search_str].to_s)}+'%'
         ORDER BY
             pg.name
         ")
@@ -59,7 +61,6 @@ class FiasController < ApplicationSimpleErrorController
             placeunload.id id,
             buyers.name name,
             placeunload.address address,
-            placeunload.fulladdress fulladdress,
             placeunload.aoguid aoguid
         FROM
             placeunload 
@@ -80,8 +81,7 @@ class FiasController < ApplicationSimpleErrorController
         aoguid=ActiveRecord::Base.connection.quote(params[:aoguid]).to_s
         ActiveRecord::Base.connection.update ("UPDATE dbo.placeunload SET aoguid = #{aoguid} WHERE id=#{id}")
         render :text => {"success" => true}.to_json
-#     when "delete"
-#       render :text => "[]"
+
     end
   end
 end
