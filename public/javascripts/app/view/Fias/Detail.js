@@ -10,30 +10,18 @@ Ext.define('app.view.Fias.Detail', {
 		disableSave: true,
 		disableRefresh: true,
 		columns: [
-		/*	{
-				width: 220,
-				header: 'Код',
-				dataIndex: 'aoguid',
-				disabled: true
-			},*/
-			{
-				width: 150,
-				header: 'Имя',
-				dataIndex: 'name',
-				disabled: true
-			},
 			{
 				width: 50,
 				header: 'Тип',
 				dataIndex: 'shortname',
 				disabled: true
-			}/*,
+			},
 			{
-				width: 50,
-				header: 'Уровень',
-				dataIndex: 'aolevel',
+				width: 150,
+				header: 'Имя',
+				dataIndex: 'name',
 				disabled: true
-			}*/
+			}
 		]
 	}
 });

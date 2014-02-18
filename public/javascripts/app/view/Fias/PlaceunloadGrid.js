@@ -10,33 +10,25 @@ Ext.define('app.view.Fias.PlaceunloadGrid', {
 		disableSave: false,
 		disableRefresh: true,
 		enableColumnResize: true,
-//		manageHeight: true,
-//		autoscroll:true,
-		//enableBuffering: true,
+		sortableColumns : true,
 		columns: [
 			{
 				width: 170,
 				header: 'Покупатель',
 				dataIndex: 'name',
-				disabled: true
+				disabled: false
 			},
 			{
-				width: 400,
+				width: 450,
 				header: 'Адрес',
 				dataIndex: 'address',
-				disabled: true
-			},
-			{
-				width: 400,
-				header: 'Полный адрес',
-				dataIndex: 'fulladdress',
-				disabled: true
+				disabled: false
 			},
 			{
 				width: 220,
 				header: 'Код',
 				dataIndex: 'aoguid',
-				disabled: true
+				disabled: false
 			}
 
 		]

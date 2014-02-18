@@ -24,8 +24,6 @@ Ext.define('app.controller.Fias', {
 					var aoguid;
 					aoguid = controller.fiasdetailStore.getAt(controller.fiasdetailStore.count() - 1).get('aoguid');
 					Ext.getCmp('PlaceunloadGridTable').getSelectionModel().getSelection()[0].set('aoguid', aoguid);
-					//set('aoguid', aoguid)
-					//alert(aoguid);
 				}
 			},
 			'#PlaceunloadGridTable' : {
@@ -87,10 +85,25 @@ Ext.define('app.controller.Fias', {
 			};
 
 		});
+		Ext.getCmp('partnersgroupsCombo').on("change", function(combo, newValue, oldValue, eOpts) {
+
+			controller.tpStore.proxy.extraParams = {
+				pg_search_str : newValue
+			};
+//			controller.tpStore.Load();
+
+		});
+		
+		Ext.getCmp('partnersgroupsCombo').on("select", function(combo, records, eOpts) {
+
+			controller.tpStore.proxy.extraParams = {
+				pg_search_str : records[0].get('name')
+			};
+
+		});
+		
 
 		Ext.getCmp('fiasCombo').on("select", function(combo, records, eOpts) {
-
-			//Ext.getCmp('houseguidTextfield').setValue(records[0].get('id'));
 
 			controller.fiasdetailStore.proxy.extraParams = {
 				aoguid : records[0].get('id')

@@ -24,7 +24,7 @@ Ext.define('app.view.Fias.Container', {
 			valueField : 'id',
 			editable : true,
 			allowBlank : false,
-			queryMode : 'local',
+			queryMode : 'remote',
 			labelWidth : 110,
 			width : 450,
 			margin : {
