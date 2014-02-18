@@ -1,5 +1,5 @@
 //хранилище типов зоны
-Ext.define('app.store.TermDelivery.Monitor.ZoneTypes', {
+Ext.define('app.store.TermDelivery.MonitorTabs.MonitorTab.ZoneTypes', {
 	extend: 'Ext.data.Store',
 	model: 'app.model.valueModel',
 	proxy: {

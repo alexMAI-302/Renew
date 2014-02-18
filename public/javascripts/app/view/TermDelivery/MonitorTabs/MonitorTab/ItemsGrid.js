@@ -1,4 +1,4 @@
-Ext.define('app.view.TermDelivery.Monitor.ItemsGrid', {
+Ext.define('app.view.TermDelivery.MonitorTabs.MonitorTab.ItemsGrid', {
 	extend: 'Ext.grid.Panel',
 	alias: 'widget.terminalsGrid',
 	
@@ -9,7 +9,7 @@ Ext.define('app.view.TermDelivery.Monitor.ItemsGrid', {
 	cls: 'terminals-grid',
     
     id: 'terminalsTable',
-    store: 'TermDelivery.Monitor.Terminals',
+    store: 'TermDelivery.MonitorTabs.MonitorTab.Terminals',
 	columns: [
 		{
 			xtype: 'rownumberer'
@@ -93,7 +93,7 @@ Ext.define('app.view.TermDelivery.Monitor.ItemsGrid', {
 			header: 'Вид<br/>поломки',
 			dataIndex: 'terminal_break_id',
 			xtype: 'combocolumn',
-			store: 'app.store.TermDelivery.Monitor.TerminalBreaks'
+			store: 'app.store.TermDelivery.MonitorTabs.MonitorTab.TerminalBreaks'
 		},
 		{
 			width: 80,

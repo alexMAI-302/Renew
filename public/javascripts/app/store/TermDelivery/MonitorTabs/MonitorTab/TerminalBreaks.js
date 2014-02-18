@@ -1,5 +1,5 @@
 //хранилище поломок терминала
-Ext.define('app.store.TermDelivery.Monitor.TerminalBreaks', {
+Ext.define('app.store.TermDelivery.MonitorTabs.MonitorTab.TerminalBreaks', {
 	extend: 'Ext.data.Store',
 	model: 'app.model.valueModel',
 	proxy: {
