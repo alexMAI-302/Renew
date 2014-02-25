@@ -38,16 +38,18 @@ class FiasController < ApplicationSimpleErrorController
             pg.name name
         FROM
             partners_groups pg
-            JOIN
+             LEFT OUTER JOIN
                 (
                     pref_concept pc 
                         JOIN prefs p ON pc.id = p.concept AND p.type = 1
                 ) ON p.id = pg.id AND pc.name = 'Хр: Партнеры - Торг.предст.'
+			
         WHERE
-            pg.name NOT LIKE '%Архив_%' AND
-            pg.name LIKE '%'+#{ActiveRecord::Base.connection.quote(params[:pg_search_str].to_s)}+'%'
+            (pg.name NOT LIKE '%Актив_%' and pg.name NOT LIKE '%Архив_%') AND
+       pg.name LIKE '%'+#{ActiveRecord::Base.connection.quote(params[:pg_search_str].to_s)}+'%'
         ORDER BY
             pg.name
+
         ")
       end
     render :text => rst.to_json
