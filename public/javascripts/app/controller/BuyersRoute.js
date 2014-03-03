@@ -114,8 +114,22 @@ Ext.define('app.controller.BuyersRoute', {
 					if(batch.exceptions.length>0){
 						Ext.Msg.alert("Ошибка", batch.exceptions[0].getError().responseText);
 						controller.mainContainer.setLoading(false);
+					} else {
+						Ext.Ajax.request({
+							url: '/buyers_route/rebuild_placeunload_routes',
+							timeout: 600000,
+							method: 'POST',
+							params: {
+								authenticity_token: window._token
+							},
+							callback: function(options, success, response){
+								if(success!==true){
+									controller.showServerError(response, response.responseText);
+								}
+								controller.mainContainer.setLoading(false);
+							}
+						});
 					}
-					controller.mainContainer.setLoading(false);
 				}
 			});
 		}
