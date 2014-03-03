@@ -22,9 +22,9 @@ class BuyersRouteController < ApplicationPageErrorController
   def get_placeunload
     res = ActiveRecord::Base.connection.select_all("
     select distinct
-      id,
-      latitude,
-      longitude
+      p.id,
+      p.latitude,
+      p.longitude
     from
       placeunload p
       join buyers_route br on br.id = p.buyers_route_id

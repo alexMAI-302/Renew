@@ -17,61 +17,61 @@ Ext.define('app.view.PricesForComparison.Container', {
 			xtype : 'combocolumn',
 			store : 'app.store.PricesForComparison.Lggroup'
 		}, {
-			width : 200,
+			width : 150,
 			header : 'SVIP',
 			dataIndex : 'svip',
 			xtype : 'combocolumn',
 			store : 'app.store.PricesForComparison.Pricelist'
 		}, {
-			width : 200,
+			width : 150,
 			header : 'VIP',
 			dataIndex : 'vip',
 			xtype : 'combocolumn',
 			store : 'app.store.PricesForComparison.Pricelist'
 		}, {
-			width : 200,
+			width : 150,
 			header : 'СТОП',
 			dataIndex : 'lstop',
 			xtype : 'combocolumn',
 			store : 'app.store.PricesForComparison.Pricelist'
 		}, {
-			width : 200,
+			width : 150,
 			header : 'ВХОД',
 			dataIndex : 'linput',
 			xtype : 'combocolumn',
 			store : 'app.store.PricesForComparison.Pricelist'
 		}, {
-			width : 200,
+			width : 150,
 			header : 'ОРТ 1',
 			dataIndex : 'ort1',
 			xtype : 'combocolumn',
 			store : 'app.store.PricesForComparison.Pricelist'
 		}, {
-			width : 200,
+			width : 150,
 			header : 'ОРТ 2',
 			dataIndex : 'ort2',
 			xtype : 'combocolumn',
 			store : 'app.store.PricesForComparison.Pricelist'
 		}, {
-			width : 200,
+			width : 150,
 			header : 'ОРТ 3',
 			dataIndex : 'ort3',
 			xtype : 'combocolumn',
 			store : 'app.store.PricesForComparison.Pricelist'
 		}, {
-			width : 200,
+			width : 150,
 			header : 'ОРТ 4',
 			dataIndex : 'ort4',
 			xtype : 'combocolumn',
 			store : 'app.store.PricesForComparison.Pricelist'
 		}, {
-			width : 200,
+			width : 150,
 			header : 'ОРТ 5',
 			dataIndex : 'ort5',
 			xtype : 'combocolumn',
 			store : 'app.store.PricesForComparison.Pricelist'
 		}, {
-			width : 200,
+			width : 150,
 			header : 'ОРТ 6',
 			dataIndex : 'ort6',
 			xtype : 'combocolumn',
