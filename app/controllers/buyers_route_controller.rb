@@ -79,6 +79,14 @@ class BuyersRouteController < ApplicationPageErrorController
       render :text => {"success" => true, "site_id" => data["site_id"]}.to_json
     end
   end
+  
+  def rebuild_placeunload_routes
+    if request.method.to_s=="post"
+      ActiveRecord::Base.connection.execute("call renew_web.buyers_route_rebuild_placeunload_routes();")
+      
+      render :text => {"success" => true}.to_json
+    end
+  end
 
   #выгрузка файла с точками
   def get_info_csv
