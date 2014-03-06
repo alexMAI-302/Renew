@@ -56,6 +56,14 @@ Ext.define('app.model.RequestBudgets.UserModel', {
 	{
 		name: 'priznak', 
 		type: 'boolean'
+	},
+	{
+		name: "tmreport_name",
+		type: "string"
+	},
+	{
+		name: "catmanager",
+		type: "string"
 	}
 	
 

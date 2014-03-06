@@ -2,7 +2,8 @@ Ext.define('app.view.RequestBudgets.Container', {
     extend: 'app.view.Lib.Grid.Panel',
 
 	requires: [
-		'app.view.Lib.Grid.column.ComboColumn'
+		'app.view.Lib.Grid.column.ComboColumn',
+		'app.view.RequestBudgets.Filter'
 	],
 
 	title: 'Заявки на бюджеты от производителей',
@@ -15,6 +16,12 @@ Ext.define('app.view.RequestBudgets.Container', {
 		suffix: 'RequestBudgets',
 		store: 'RequestBudgets.RequestBudgets',
 		disableDelete: true,
+		beforeButtons: [
+			{
+				xtype: 'filterRequestBudgets'
+			}
+		],
+
 
 		
 		columns : [
@@ -64,6 +71,11 @@ Ext.define('app.view.RequestBudgets.Container', {
 				store: 'app.store.RequestBudgets.tmside'
 			},
 			{
+				width : 100,
+				header : 'КМ',
+				dataIndex : 'catmanager'
+			},
+			{
 				width: 100,
 				renderer: Ext.util.Format.numberRenderer('0.00'),
 				header: 'Сумма',
@@ -91,7 +103,13 @@ Ext.define('app.view.RequestBudgets.Container', {
 			dataIndex : 'priznak',
 			width : 100,
 			disabled: true
+		},
+		{
+				width : 500,
+				header : 'Активность',
+				dataIndex : 'tmreport_name'
 		}
+
 
 
 

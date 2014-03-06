@@ -7,7 +7,9 @@ Ext.define('app.controller.RequestBudgets', {
 		'RequestBudgets.CurrentPerson',
 		'RequestBudgets.RequestBudgets',
 		'app.store.RequestBudgets.channel_NRC',
-		'app.store.RequestBudgets.tmside'
+		'app.store.RequestBudgets.tmside',
+		'RequestBudgets.Dept',
+		'RequestBudgets.CatManager'
 	],
 	
 	models: [
@@ -25,6 +27,9 @@ Ext.define('app.controller.RequestBudgets', {
 	masterStore: null,
 	myStore: null,
 	channel_NRCStore:null,
+	filterRequestBudgetsPerson:null,
+	filterRequestBudgetsDept:null,
+	filterRequestBudgetsCatManager:null,
 	
 	
 	storeHasChanges: function(store){
@@ -66,6 +71,17 @@ Ext.define('app.controller.RequestBudgets', {
 		
      		'#refreshRequestBudgets': {
 				click: function(){
+				controller.masterStore.proxy.extraParams={
+					personf: Ext.getCmp('filterRequestBudgetsPerson').getValue(),
+					deptf: Ext.getCmp('filterRequestBudgetsDept').getValue(),
+					cmf: Ext.getCmp('filterRequestBudgetsCatManager').getValue() 
+					
+					
+				};	
+				
+			
+					
+		
 					controller.masterStore.load();
 				}
 			},
@@ -110,15 +126,22 @@ Ext.define('app.controller.RequestBudgets', {
 			});
 		
 		
-		controller.PersonStore.load();
+		controller.PersonStore.load(
+		function(records, operation, success){
+		if(success===true){controller.filterRequestBudgetsPerson.add (controller.PersonStore.getRange(0, controller.PersonStore.getCount() - 1))}});
+		
 		controller.channel_NRCStore.load();
+		controller.filterRequestBudgetsDept.load();
+		controller.filterRequestBudgetsCatManager.load();
+		
 		controller.tmsideStore.load();
+		
 		controller.mainContainer.setLoading (true);
 		
 		controller.PartnersStore.load(
 			function(records, operation, success){
 				if(success===true){
-					controller.masterStore.load(
+						controller.masterStore.load(
 						function(records, operation, success){
 							if(success!==true){
 								Ext.Msg.alert('Ошибка', "Ошибка при загрузке заявок");
@@ -145,6 +168,9 @@ Ext.define('app.controller.RequestBudgets', {
 		controller.PartnersStore = RequestBudgetsTable.columns[3].store;
 		controller.channel_NRCStore = RequestBudgetsTable.columns[4].store;
 		controller.tmsideStore = RequestBudgetsTable.columns[5].store;
+		controller.filterRequestBudgetsPerson = Ext.getCmp('filterRequestBudgetsPerson').getStore();
+		controller.filterRequestBudgetsDept = Ext.getCmp('filterRequestBudgetsDept').getStore();
+		controller.filterRequestBudgetsCatManager = Ext.getCmp('filterRequestBudgetsCatManager').getStore();
 		controller.loadDictionaries();
 	},
 	

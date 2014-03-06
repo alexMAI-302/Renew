@@ -7,18 +7,15 @@ class RequestBudgetsController < ApplicationSimpleErrorController
     method=request.method.to_s
     case method
     when "get"
-      rs = ActiveRecord::Base.connection.select_all ("
-      select
-        r.* ,
-        if exists (select top 1 1 from dbo.tmreport where dbo.tmreport.request_budget = r.id) then 1 else 0 end if priznak,
-        (
-          select ed.name from    person p
-          join emp_rel er on p.person_id=er.person_id and today() between er.ddateb and isnull(er.ddatee,'9999-01-01')
-          join emp_dept ed on er.dept_id=ed.id
-          where r.person =p.person_id
-         ) emp_dept
-      from renew_web.request_budgets r
-    ")
+
+
+  	
+
+	  personf = params[:personf].to_i
+	  deptf = params[:deptf].to_i
+	  cmf = params[:cmf].to_i
+
+	  rs = ActiveRecord::Base.connection.select_all ("select * from renew_web.get_request_budgets ( #{personf},#{deptf},#{cmf})")
       render :text => rs.to_json
     when "post"
       ddate=(params[:ddate].nil? || params[:ddate].to_s=='')? 'null' :'\''+Time.parse(params[:ddate]).strftime('%F')+'\''
@@ -91,7 +88,7 @@ class RequestBudgetsController < ApplicationSimpleErrorController
   end
 
   def get_person
-    rs = ActiveRecord::Base.connection.select_all("select distinct p.person_id id, p.shortened name  from    dbo.person p join dbo.emp_rel er on p.person_id=er.person_id and today() between er.ddateb and isnull(er.ddatee,'9999-01-01')")
+    rs = ActiveRecord::Base.connection.select_all("select distinct p.person_id id, p.shortened name  from    dbo.person p join dbo.emp_rel er on p.person_id=er.person_id and today() between er.ddateb and isnull(er.ddatee,'9999-01-01') order by name")
     render :text => rs.to_json
   end
 
@@ -102,37 +99,7 @@ class RequestBudgetsController < ApplicationSimpleErrorController
   end
 
   def get_partners
-    rs=ActiveRecord::Base.connection.select_all("
-     SELECT DISTINCT
-          p.id,
-          p.name+' ['+pg.name+']' name
-        FROM
-          partners p
-
-          JOIN partners_groups pg on pg.id = p.parent
-          join partners_sp_sets on partners_sp_sets.partner = p.id
-          join partners_groups_tree pgt on pgt.id = p.parent
-          JOIN sp_types sp_tp ON sp_tp.id=partners_sp_sets .sp_tp
-          JOIN sp_values sp_v ON sp_v.id=partners_sp_sets .spv_id
-          left join record_sp_sets rss on  rss.id = pgt.parent
-                                    and rss.bi_group = 4
-                                    and rss.tid = (select table_id from systable where table_name='partners_groups')
-         left join sp_values  sp_v2 on sp_v2.id = rss.spv_id
-
-        WHERE
-          pg.name NOT LIKE 'Архив_%'
-          AND
-    (
-    (
-          sp_tp.name='Канал'
-    AND
-          (sp_v.name='Розница ключ.' OR sp_v.name='Сеть локальная')
-    )
-    or
-    (sp_v2.name like 'ОПТ%')
-    )
-    order by name
-")
+    rs=ActiveRecord::Base.connection.select_all("select id, name from renew_web.get_request_budgets_partners ()")
 
     render :text => rs.to_json
   end
@@ -160,6 +127,17 @@ class RequestBudgetsController < ApplicationSimpleErrorController
     tmside.name ASC
 
     ")
+    render :text => rs.to_json
+end	
+	
+	
+def get_dept
+    rs = ActiveRecord::Base.connection.select_all("select id, name from dbo.emp_dept order by path")
+    render :text => rs.to_json
+ end
+ 
+ 	def get_catmanager
+    rs = ActiveRecord::Base.connection.select_all("select id, name from dbo.catmanager order by name")
     render :text => rs.to_json
   end
 
