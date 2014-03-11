@@ -7,7 +7,8 @@ class PricesForComparisonController < ApplicationSimpleErrorController
     method=request.method.to_s
     case method
     when "get"
-      rs = PricesForComparison.find (:all)
+	  cmf = params[:cmf].to_i
+	  rs = ActiveRecord::Base.connection.select_all ("select * from renew_web.get_prices_for_comparison ( #{cmf})")
       render :text => rs.to_json
     when "post"
       pr = PricesForComparison.new(
@@ -69,5 +70,14 @@ class PricesForComparisonController < ApplicationSimpleErrorController
     :order => "name")
     render :text => rs.to_json
   end
+  
+  def get_catmanager
+    rs=Catmanager.find(:all,
+    :select => "id, name",
+    :order => "name")
+    render :text => rs.to_json
+
+  end
+  
 
 end

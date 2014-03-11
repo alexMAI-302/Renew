@@ -1,6 +1,9 @@
 Ext.define('app.view.PricesForComparison.Container', {
 	extend : 'app.view.Lib.Grid.Panel',
-	requires : ['app.view.Lib.Grid.column.ComboColumn'],
+	requires : [
+	'app.view.Lib.Grid.column.ComboColumn',
+	'app.view.PricesForComparison.Filter'
+	],
 	title : 'Прайс-листы для сравнения',
 
 	renderTo : 'prices_for_comparison_js',
@@ -10,6 +13,12 @@ Ext.define('app.view.PricesForComparison.Container', {
 		suffix : 'PricesForComparison',
 		store : 'PricesForComparison.PricesForComparison',
 		disableDelete : true,
+		beforeButtons: [
+			{
+				xtype: 'filterPricesForComparison'
+			}
+		],
+
 		columns : [{
 			width : 200,
 			header : 'Группа для<br>планирования',
@@ -83,6 +92,12 @@ Ext.define('app.view.PricesForComparison.Container', {
 			field : {
 				xtype : 'textfield'
 			}
-		}]
+		},
+		{
+				width : 100,
+				header : 'КМ',
+				dataIndex : 'catmanager_name'
+			}
+		]
 	}
 });

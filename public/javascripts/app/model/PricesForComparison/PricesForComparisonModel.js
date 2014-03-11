@@ -50,5 +50,10 @@ Ext.define('app.model.PricesForComparison.PricesForComparisonModel', {
 		name : "lggroup",
 		type : "int",
 		useNull : true
-	}]
+	},
+	{
+		name: "catmanager_name",
+		type: "string"
+	}
+	]
 });
