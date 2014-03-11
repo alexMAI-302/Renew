@@ -1,7 +1,7 @@
 Ext.define('app.controller.PricesForComparison', {
 	extend : 'Ext.app.Controller',
 
-	stores : ['PricesForComparison.PricesForComparison', 'PricesForComparison.Pricelist', 'PricesForComparison.Lggroup'],
+	stores : ['PricesForComparison.PricesForComparison', 'PricesForComparison.Pricelist', 'PricesForComparison.Lggroup','PricesForComparison.Catmanager'],
 
 	models : ['valueModel', 'PricesForComparison.PricesForComparisonModel'],
 
@@ -21,6 +21,7 @@ Ext.define('app.controller.PricesForComparison', {
 	PricelistStore9 : null,
 	PricelistStore10 : null,
 	LggroupStore : null,
+	filterPricesForComparisonKM : null,
 
 	storeHasChanges : function(store) {
 		return (store.getNewRecords().length > 0) || (store.getUpdatedRecords().length > 0) || (store.getRemovedRecords().length > 0)
@@ -59,6 +60,12 @@ Ext.define('app.controller.PricesForComparison', {
 
 			'#refreshPricesForComparison' : {
 				click : function() {
+					controller.masterStore.proxy.extraParams={
+					cmf: Ext.getCmp('filterPricesForComparisonKM').getValue() 
+					
+					
+				};	
+
 					controller.masterStore.load();
 				}
 			},
@@ -80,6 +87,7 @@ Ext.define('app.controller.PricesForComparison', {
 	loadDictionaries : function() {
 		var controller = this;
 		controller.mainContainer.setLoading(true);
+		controller.filterPricesForComparisonKM.load();
 
 		controller.PricelistStore.load(function(records, operation, success) {
 			if (success === true) {
@@ -161,6 +169,7 @@ Ext.define('app.controller.PricesForComparison', {
 		controller.PricelistStore8 = PricesForComparisonTable.columns[8].store;
 		controller.PricelistStore9 = PricesForComparisonTable.columns[9].store;
 		controller.PricelistStore10 = PricesForComparisonTable.columns[10].store;
+		controller.filterPricesForComparisonKM = Ext.getCmp('filterPricesForComparisonKM').getStore();
 		controller.loadDictionaries();
 
 	},
