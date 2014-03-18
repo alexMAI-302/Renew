@@ -1,0 +1,3 @@
+class PersonPicture < RuzaPicture
+
+end
