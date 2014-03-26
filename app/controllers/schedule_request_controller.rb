@@ -118,7 +118,6 @@ where
 		entrance.code=ActiveRecord::Base.connection.select_value("select '20'+right('0000'+convert(varchar,tabnum),4) from employee where person_id=#{person}")
 		entrance.ddatetime=ddate
 		entrance.dir=params[:dir][0]
-		entrance.warstatus=0
 		entrance.save
 		redirect_to :action => "inout"
 	end
@@ -135,7 +134,6 @@ where
 		entrance=Entrance.find(id)
 		entrance.ddatetime=ddate
 		entrance.dir=params[:dir][0]
-		entrance.warstatus=0
 		entrance.save
 		redirect_to :action => "inout"
 
