@@ -1,3 +1,7 @@
+Ext.require([
+	'Ext.ux.grid.Printer'                                //+
+]);
+
 Ext.define('app.controller.Comp', {
     extend: 'Ext.app.Controller',
 	
@@ -151,7 +155,15 @@ Ext.define('app.controller.Comp', {
 						Ext.getCmp('OperationsTable')
 					);
 				}
-			}
+			},
+			'#printSchedules': {                                                                                                 //+
+				click:  function(){                                                                                          //+
+					Ext.ux.grid.Printer.printAutomatically=true;                                        //+ 
+					Ext.ux.grid.Printer.closeAutomaticallyAfterPrint=true;                           //+
+					Ext.ux.grid.Printer.extraCSS=['/ext/resources/css/ext-all.css'];                 //+
+					Ext.ux.grid.Printer.print(Ext.getCmp('CompTable'));                              //+
+				}                                                                                    //+
+			}                                                                                        //+
 		});
 		
 		Ext.getCmp('CompTable').getPlugin('roweditingComp').addListener(
@@ -240,4 +252,4 @@ Ext.define('app.controller.Comp', {
 		
 		controller.initStores();
 	}
-});
+});OperationsTable
