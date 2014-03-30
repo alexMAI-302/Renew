@@ -75,7 +75,7 @@ Ext.define('app.view.Comp.Container', {
 				icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png',    //+
 				tooltip: 'Распечатать'                                       //+
 			}                                                                //+
-       	   	    ],                                                               //+   
+        	   	    ],                                                               //+   
 	
 			selModel: {
 				mode: "MULTI"
@@ -180,3 +180,4 @@ Ext.define('app.view.Comp.Container', {
 		}
 	]
 });
+Распечатать
