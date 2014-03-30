@@ -68,6 +68,15 @@ Ext.define('app.view.Comp.Container', {
 					dataIndex: 'descr'
 				}
 			],
+	
+	                afterButtons: [                                                  //+
+			{                                                                //+
+				id: 'printSchedules',                                        //+
+				icon: '/ext/examples/ux/grid/gridPrinterCss/printer.png',    //+
+				tooltip: 'Распечатать'                                       //+
+			}                                                                //+
+       	   	    ],                                                               //+   
+	
 			selModel: {
 				mode: "MULTI"
 			},
